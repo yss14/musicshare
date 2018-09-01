@@ -1,0 +1,22 @@
+{
+	"name": "musicshare-backend",
+	"version": "1.0.0",
+	"description": "",
+	"main": "build/index",
+	"scripts": {
+		"start": "ts-node --project tsconfig.json src/index.ts"
+	},
+	"author": "Yannick Stachelscheid",
+	"license": "UNLICENSED",
+	"devDependencies": {
+		"@types/cassandra-driver": "^3.4.0",
+		"@types/node": "^10.9.4",
+		"cross-env": "^5.2.0",
+		"typescript": "^3.0.3"
+	},
+	"dependencies": {
+		"cassandra-driver": "^3.5.0",
+		"source-map-support": "^0.5.9",
+		"ts-node": "^7.0.1"
+	}
+}
