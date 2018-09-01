@@ -1,5 +1,5 @@
 import { Database } from "./database";
-import { songsByShare } from "./schema/initial-schema";
+import { songsByShare, users, sharesByUser } from "./schema/initial-schema";
 
 interface ISystemSchemaDBResult {
 	keyspace_name: string;
@@ -25,6 +25,8 @@ export class CoreDatabase {
 		}
 
 		await Promise.all([
+			this._database.execute(users()),
+			this._database.execute(sharesByUser()),
 			this._database.execute(songsByShare())
 		]);
 	}

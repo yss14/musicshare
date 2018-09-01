@@ -1,5 +1,6 @@
 import { CoreDatabase } from './database/core-database';
 import { Database } from "./database/database";
+import { Server } from './server';
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -15,4 +16,9 @@ require('source-map-support').install();
 	await coreDatabase.createSchema({ clear: true });
 
 	console.info('Database schema created');
+
+	const server = new Server();
+	await server.start('/graphql', 4000);
+
+	console.info(`Server is running, GraphQL Playground available at http://localhost:4000/playground`);
 })();

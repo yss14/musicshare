@@ -1,5 +1,26 @@
+export const users = () => `
+	CREATE TABLE users (
+		id timeuuid,
+		name varchar,
+		emails set<varchar>,
+		date_added timestamp,
+
+		PRIMARY KEY (id)
+	);
+`;
+
+export const sharesByUser = () => `
+	CREATE TABLE shares_by_user (
+		id timeuuid,
+		name varchar,
+		user_id timeuuid,
+
+		PRIMARY KEY(id, user_id)
+	);
+`;
+
 export const songsByShare = () => `
-    CREATE TABLE songs_by_share(
+    CREATE TABLE songs_by_share (
         id ascii,
         title varchar,
         suffix varchar,
