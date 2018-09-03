@@ -1,5 +1,7 @@
 import { Database } from "./database";
 import { songsByShare, users, sharesByUser } from "./schema/initial-schema";
+import { seedDatabase } from "./seed";
+import { NodeEnv } from "../types/common-types";
 
 interface ISystemSchemaDBResult {
 	keyspace_name: string;
@@ -29,6 +31,8 @@ export class CoreDatabase {
 			this._database.execute(sharesByUser()),
 			this._database.execute(songsByShare())
 		]);
+
+		await seedDatabase(this._database, process.env.NODE_ENV as NodeEnv.Development || NodeEnv.Development);
 	}
 
 	private async clearKeySpace(): Promise<void> {

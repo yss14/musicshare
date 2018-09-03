@@ -17,7 +17,7 @@ require('source-map-support').install();
 
 	console.info('Database schema created');
 
-	const server = new Server();
+	const server = new Server(database);
 	await server.start('/graphql', 4000);
 
 	console.info(`Server is running, GraphQL Playground available at http://localhost:4000/playground`);

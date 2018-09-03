@@ -1,18 +1,33 @@
+import { ShareService } from './../services/share.service';
 import { User } from './../models/user.model';
-import { Resolver, ResolverInterface, Arg, Query } from "type-graphql";
+import { Resolver, Arg, Query, FieldResolver, Root } from "type-graphql";
 import { plainToClass } from "class-transformer";
+import { Share } from '../models/share.model';
+import { UserService } from '../services/user.service';
 
-@Resolver(User)
+@Resolver(of => User)
 export class UserResolver {
+
+	constructor(
+		private readonly _userService: UserService,
+		private readonly _shareService: ShareService
+	) { }
+
 	@Query(returns => User, { nullable: true })
 	public user(@Arg("id") id: string): Promise<User | undefined> {
-		return Promise.resolve(
-			plainToClass(User, {
-				id: '1234',
-				name: 'Some name',
-				emails: new Set(['some@email.com']),
-				dateAdded: new Date().getTime().toString()
-			})
-		);
+		return this._userService.getUserByID(id);
+	}
+
+	@FieldResolver()
+	public shares(
+		@Root() user: User,
+		@Arg('onlyLib', { nullable: true }) onlyLib?: boolean
+	): Promise<Share[]> {
+		if (onlyLib) {
+			return this._shareService.getSharesByUser(user)
+				.then(shares => shares.filter(share => share.isLibrary));
+		} else {
+			return this._shareService.getSharesByUser(user);
+		}
 	}
 }

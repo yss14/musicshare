@@ -1,11 +1,15 @@
 {
-    "editor.insertSpaces": false,
-    "editor.tabSize": 4,
-    "editor.detectIndentation": false,
-    "editor.formatOnSave": true,
-    "search.exclude": {
-        "**/node_modules": true,
-        "**/bower_components": true,
-        "**/build": true
-    }
+	"editor.insertSpaces": false,
+	"editor.tabSize": 4,
+	"editor.detectIndentation": false,
+	"editor.formatOnSave": true,
+	"editor.rulers": [
+		120
+	],
+	"search.exclude": {
+		"**/node_modules": true,
+		"**/bower_components": true,
+		"**/build": true
+	},
+	"autoimport.doubleQuotes": false
 }
