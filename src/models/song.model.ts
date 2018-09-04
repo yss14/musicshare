@@ -54,4 +54,7 @@ export class Song {
 
 	@Field(() => File)
 	file: File;
+
+	@Field()
+	accessUrl: string;
 }

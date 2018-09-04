@@ -32,7 +32,7 @@ if (process.env.NODE_ENV === NodeEnv.Development || process.env.NODE_ENV === Nod
 
 	console.info('Database schema created');
 
-	const songProcessingQueue = new SongProcessingQueue(new SongService(database), database);
+	const songProcessingQueue = new SongProcessingQueue(new SongService(database, null), database);
 	const fileUploadService = new BlobService(songProcessingQueue);
 
 	// setup dependency injection

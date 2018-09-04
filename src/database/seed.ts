@@ -90,7 +90,7 @@ export const testData: ITestDataSchema = {
 }
 
 export const seedDatabase = async (database: Database, env: NodeEnv): Promise<void> => {
-	const songService = new SongService(database);
+	const songService = new SongService(database, null);
 
 	// insert users for development and testing
 	if (env !== NodeEnv.Production) {

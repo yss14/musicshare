@@ -8,6 +8,7 @@ import Container, { Inject } from "typedi";
 import * as express from 'express';
 import * as path from 'path';
 import { NodeEnv } from '../types/common-types';
+import { SongResolver } from '../resolvers/song.resolver';
 
 export class Server {
 	private _graphQLServer: GraphQLServer | null;
@@ -23,7 +24,8 @@ export class Server {
 		const schema = await buildSchema({
 			resolvers: [
 				UserResolver,
-				ShareResolver
+				ShareResolver,
+				SongResolver
 			]
 		});
 

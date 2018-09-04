@@ -12,6 +12,7 @@ import * as crypto from 'crypto';
 import * as path from 'path';
 import { ICreateBlockBlobRequestOptions } from './file-uploader-interfaces';
 import { SongProcessingQueue } from '../job-queues/song-processing.queue';
+import * as moment from 'moment';
 
 interface IRawBodyRequest extends Request {
 	rawBody: Buffer;
@@ -61,7 +62,7 @@ export class BlobService {
 
 			console.log((req as any).saveParams);
 
-			const fileNameRemote = crypto.createHash('sha256').update(uuid() + fileBuffer.length).digest('hex');
+			const fileNameRemote = crypto.createHash('sha256').update(uuid() + fileBuffer.length).digest('hex') + '.' + fileExtension;
 
 			const destinationStream = this.blobStorage.createWriteStreamToBlockBlob('songs', fileNameRemote, opts, (err) => {
 				if (err) {
@@ -114,5 +115,18 @@ export class BlobService {
 				reject();
 			}
 		})
+	}
+
+	public getSharedAccessSignatur(container: string, blob: string, expireSeconds: number): string {
+		const sharedAccessSignature = this.blobStorage.generateSharedAccessSignature(container, blob, {
+			AccessPolicy: {
+				Permissions: azBlob.Constants.AccountSasConstants.Permissions.READ,
+				Start: new Date(),
+				Expiry: moment().add(expireSeconds, 'seconds').toDate(),
+				IPAddressOrRange: "0.0.0.0-255.255.255.255" //TODO take client IP address
+			}
+		});
+		console.log('Url ', this.blobStorage.getUrl(container, blob, sharedAccessSignature));
+		return this.blobStorage.getUrl(container, blob, sharedAccessSignature);
 	}
 }

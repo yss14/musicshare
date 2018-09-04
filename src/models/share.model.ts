@@ -17,4 +17,7 @@ export class Share {
 
 	@Field(type => [Song])
 	songs: Song[];
+
+	@Field(type => Song, { nullable: true })
+	song: Song;
 }

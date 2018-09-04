@@ -1,17 +1,19 @@
+import { BlobService } from './../server/file-uploader';
 import { Song } from './../models/song.model';
-import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
+import { Resolver, Query, Arg, FieldResolver, Root, ResolverInterface } from "type-graphql";
 import { Share } from "../models/share.model";
 import { plainToClass } from "class-transformer";
-import { ShareService } from '../services/share.service';
+import { Inject } from 'typedi';
+import { File } from '../models/file.model';
 
 @Resolver(of => Song)
-export class SongResolver {
+export class SongResolver implements ResolverInterface<Song>{
 	constructor(
-		private readonly _shareService: ShareService
+		@Inject('FILE_UPLOAD') private readonly blobService: BlobService
 	) { }
 
-	@Query(returns => Song)
-	public share(@Arg("id") id: string): Promise<Share | undefined> {
+	@Query(returns => Share)
+	public share(@Root() song: Song): Promise<Share | undefined> {
 		return Promise.resolve(
 			plainToClass(Share, {
 				id: '1234',
@@ -22,7 +24,17 @@ export class SongResolver {
 	}
 
 	@FieldResolver()
-	file(@Root() song: Song) {
+	public file(@Root() song: Song): File {
 		return song.file;
+	}
+
+	@FieldResolver()
+	public accessUrl(@Root() song: Song): string {
+		console.log('accessUrl resolver');
+		if (song.file) {
+			return this.blobService.getSharedAccessSignatur(song.file.container, song.file.blob, 10 * 60); // TODO take song duration + buffer time
+		} else {
+			throw new Error(`Song ${song.id} has no file attached`);
+		}
 	}
 }

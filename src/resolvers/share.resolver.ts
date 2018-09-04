@@ -35,4 +35,12 @@ export class ShareResolver {
 
 		return songs.slice(startIdx, take === undefined ? songs.length - startIdx : take);
 	}
+
+	@FieldResolver()
+	public async song(
+		@Root() share: Share,
+		@Arg('id') id: string
+	): Promise<Song> {
+		return await this.songService.getByID(share.id, id);
+	}
 }
