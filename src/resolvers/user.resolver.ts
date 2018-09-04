@@ -21,9 +21,9 @@ export class UserResolver {
 	@FieldResolver()
 	public shares(
 		@Root() user: User,
-		@Arg('onlyLib', { nullable: true }) onlyLib?: boolean
+		@Arg('libOnly', { nullable: true }) libOnly?: boolean
 	): Promise<Share[]> {
-		if (onlyLib) {
+		if (libOnly) {
 			return this._shareService.getSharesByUser(user)
 				.then(shares => shares.filter(share => share.isLibrary));
 		} else {
