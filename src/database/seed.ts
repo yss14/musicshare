@@ -17,10 +17,16 @@ type Users = 'user1';
 type Shares = 'library_user1';
 type Songs = 'song1_library_user1' | 'song2_library_user1';
 
+// https://github.com/Microsoft/TypeScript/issues/15012
+type NHKeys<T> = ({ [P in keyof T]: P } & { [x: string]: never })[keyof T];
+type Required<T> = {
+	[K in NHKeys<T>]: T[K];
+};
+
 interface ITestDataSchema {
-	users: { [P in Users]: IUserDBResult; };
-	shares: { [P in Shares]: IShareByUserDBResult };
-	songs: { [P in Songs]: ISongByShareDBResult };
+	users: { [P in Users]: Required<IUserDBResult>; };
+	shares: { [P in Shares]: Required<IShareByUserDBResult> };
+	songs: { [P in Songs]: Required<ISongByShareDBResult> };
 }
 
 export const testData: ITestDataSchema = {
@@ -52,6 +58,9 @@ export const testData: ITestDataSchema = {
 			artists: ['Oliver Smith', 'Natalie Holmes'],
 			remixer: [],
 			featurings: [],
+			type: null,
+			genres: ['Trance'],
+			label: null,
 			share_id: CTypes.TimeUuid.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b')
 		},
 		song2_library_user1: {
@@ -66,6 +75,9 @@ export const testData: ITestDataSchema = {
 			artists: ['Kink'],
 			remixer: ['Dusky'],
 			featurings: [],
+			type: 'Deep House',
+			genres: null,
+			label: 'Anjunadeep',
 			share_id: CTypes.TimeUuid.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b')
 		}
 	}

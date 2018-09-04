@@ -39,9 +39,9 @@ export class Server {
 		);
 
 		if (process.env.NODE_ENV === NodeEnv.Development) {
-			this._graphQLServer.express.use(express.static(
-				path.join(__dirname, '..', 'static', 'debug')
-			));
+			this._graphQLServer.express.get('/static/debug/*', (req: express.Request, res: express.Response) => {
+				res.sendFile(path.join(__dirname, '..', req.path));
+			})
 		}
 
 		const serverOptions: Options = {

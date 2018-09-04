@@ -36,6 +36,15 @@ export class Song {
 	@Field(type => [String])
 	featurings: string[];
 
+	@Field({ nullable: true })
+	type: string;
+
+	@Field(type => [String], { nullable: true })
+	genres: string[];
+
+	@Field({ nullable: true })
+	label: string;
+
 	@Field(() => Share)
 	share: Share;
 }

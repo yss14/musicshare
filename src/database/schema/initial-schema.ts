@@ -37,15 +37,18 @@ export const sharesByUser = () => `
 export interface ISongByShareDBResult {
 	id: CTypes.TimeUuid,
 	title: string;
-	suffix: string;
-	year: number;
-	bpm: number;
+	suffix?: string;
+	year?: number;
+	bpm?: number;
 	date_last_edit: number;
-	release_date: Date;
+	release_date?: Date;
 	is_rip: boolean;
-	artists: string[];
-	remixer: string[];
-	featurings: string[];
+	artists?: string[];
+	remixer?: string[];
+	featurings?: string[];
+	type?: string;
+	genres?: string[];
+	label?: string;
 	share_id: CTypes.TimeUuid;
 }
 
@@ -62,6 +65,9 @@ export const songsByShare = () => `
 		artists set<varchar>,
 		remixer set<varchar>,
 		featurings set<varchar>,
+		type varchar,
+		genres set<varchar>,
+		label varchar,
         share_id timeuuid,
 
         PRIMARY KEY (share_id, id)

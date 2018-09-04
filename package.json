@@ -32,7 +32,6 @@
 		"dotenv": "^6.0.0",
 		"express": "^4.16.3",
 		"faker": "^4.1.0",
-		"graphql": "^0.13.2",
 		"graphql-yoga": "^1.16.2",
 		"id3-parser": "^2.0.0",
 		"lodash": "^4.17.10",

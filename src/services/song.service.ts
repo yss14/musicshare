@@ -33,6 +33,9 @@ export class SongService {
 				artists: row.artists || [],
 				remixer: row.remixer || [],
 				featurings: row.featurings || [],
+				type: row.type,
+				genres: row.genres || [],
+				label: row.label
 			}
 		)
 	}
