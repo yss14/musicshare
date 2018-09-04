@@ -1,3 +1,4 @@
+import { SongService } from './../services/song.service';
 import { Random } from './../utils/random-generator';
 import { NodeEnv } from "../types/common-types";
 import { Database, IBatchQuery } from "./database";
@@ -6,6 +7,7 @@ import { types as CTypes } from 'cassandra-driver';
 
 import { IUserDBResult, IShareByUserDBResult, ISongByShareDBResult } from './schema/initial-schema';
 import { filter } from 'minimatch';
+import { IUploadMeta } from '../server/file-uploader';
 
 const generatedEMails = (numbersOfEMails: number): string[] => {
 	return new Array<string>(numbersOfEMails)
@@ -61,7 +63,9 @@ export const testData: ITestDataSchema = {
 			type: null,
 			genres: ['Trance'],
 			label: null,
-			share_id: CTypes.TimeUuid.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b')
+			share_id: CTypes.TimeUuid.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
+			needs_user_action: false,
+			file: JSON.stringify({ container: 'songs', blob: 'somefile', fileExtension: 'mp3' } as IUploadMeta)
 		},
 		song2_library_user1: {
 			id: CTypes.TimeUuid.fromString('f0d69800-aeb1-11e8-a117-43673ffd376b'),
@@ -78,12 +82,16 @@ export const testData: ITestDataSchema = {
 			type: 'Deep House',
 			genres: null,
 			label: 'Anjunadeep',
-			share_id: CTypes.TimeUuid.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b')
+			share_id: CTypes.TimeUuid.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
+			needs_user_action: false,
+			file: JSON.stringify({ container: 'songs', blob: 'somefile', fileExtension: 'mp3' } as IUploadMeta)
 		}
 	}
 }
 
 export const seedDatabase = async (database: Database, env: NodeEnv): Promise<void> => {
+	const songService = new SongService(database);
+
 	// insert users for development and testing
 	if (env !== NodeEnv.Production) {
 		await database.execute(`
@@ -103,16 +111,18 @@ export const seedDatabase = async (database: Database, env: NodeEnv): Promise<vo
 	// insert songs for development and testing
 	if (env !== NodeEnv.Production) {
 		for (const [key, s] of Object.entries(testData.songs)) {
-			await database.execute(`
+			/*await database.execute(`
 				INSERT INTO songs_by_share 
 				(id, title, suffix, year, bpm, date_last_edit, release_date, is_rip, artists, remixer, featurings, share_id)
 				VALUES
 				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 			`, [s.id, s.title, s.suffix, s.year, s.bpm, s.date_last_edit, s.release_date, s.is_rip, s.artists, s.remixer,
-				s.featurings, s.share_id], { prepare: true });
+				s.featurings, s.share_id], { prepare: true });*/
+
+			await songService.create(s);
 		}
 
-		const songInserts = new Array<IBatchQuery>(10000)
+		/*const songInserts = new Array<IBatchQuery>(10000)
 			.fill(undefined)
 			.map(() => ({
 				query: `
@@ -123,7 +133,6 @@ export const seedDatabase = async (database: Database, env: NodeEnv): Promise<vo
 				`,
 				params: [faker.name.findName(), null, 2018, 128, null, false, [faker.name.findName(), faker.name.findName()], [faker.name.findName()], [faker.name.findName()], testData.shares.library_user1.id]
 			}));
-		await database.batch(songInserts, { prepare: true });
-
+		await database.batch(songInserts, { prepare: true });*/
 	}
 }

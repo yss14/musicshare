@@ -17,7 +17,7 @@ interface IRawBodyRequest extends Request {
 	rawBody: Buffer;
 }
 
-interface IUploadMeta {
+export interface IUploadMeta {
 	container: string;
 	blob: string;
 	originalFilename: string;
@@ -59,6 +59,8 @@ export class BlobService {
 				}
 			};
 
+			console.log((req as any).saveParams);
+
 			const fileNameRemote = crypto.createHash('sha256').update(uuid() + fileBuffer.length).digest('hex');
 
 			const destinationStream = this.blobStorage.createWriteStreamToBlockBlob('songs', fileNameRemote, opts, (err) => {
@@ -72,8 +74,8 @@ export class BlobService {
 					blob: fileNameRemote,
 					originalFilename: filename,
 					fileExtension: fileExtension,
-					userID: req.params.userID || null,
-					shareID: req.params.shareID || null
+					userID: (req as any).saveParams.userID || null,
+					shareID: (req as any).saveParams.shareID || null
 				});
 
 				const fileUrl = this.blobStorage.getUrl('songs', fileNameRemote);

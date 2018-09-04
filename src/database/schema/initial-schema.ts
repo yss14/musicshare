@@ -34,8 +34,7 @@ export const sharesByUser = () => `
 	);
 `;
 
-export interface ISongByShareDBResult {
-	id: CTypes.TimeUuid,
+export interface ISongByShareDBInsert {
 	title: string;
 	suffix?: string;
 	year?: number;
@@ -50,6 +49,12 @@ export interface ISongByShareDBResult {
 	genres?: string[];
 	label?: string;
 	share_id: CTypes.TimeUuid;
+	needs_user_action: boolean;
+	file: string;
+}
+
+export interface ISongByShareDBResult extends ISongByShareDBInsert {
+	id: CTypes.TimeUuid,
 }
 
 export const songsByShare = () => `
@@ -68,7 +73,9 @@ export const songsByShare = () => `
 		type varchar,
 		genres set<varchar>,
 		label varchar,
-        share_id timeuuid,
+		share_id timeuuid,
+		needs_user_action boolean,
+		file varchar,
 
         PRIMARY KEY (share_id, id)
     );

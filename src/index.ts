@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { SongProcessingQueue } from './job-queues/song-processing.queue';
 import { CoreDatabase } from './database/core-database';
 import { Database } from "./database/database";
@@ -7,6 +8,7 @@ import Container from 'typedi';
 import { BlobService } from './server/file-uploader';
 import { NodeEnv } from './types/common-types';
 import * as dotenv from 'dotenv';
+import { SongService } from "./services/song.service";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -30,7 +32,7 @@ if (process.env.NODE_ENV === NodeEnv.Development || process.env.NODE_ENV === Nod
 
 	console.info('Database schema created');
 
-	const songProcessingQueue = new SongProcessingQueue();
+	const songProcessingQueue = new SongProcessingQueue(new SongService(database), database);
 	const fileUploadService = new BlobService(songProcessingQueue);
 
 	// setup dependency injection

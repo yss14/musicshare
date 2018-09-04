@@ -1,3 +1,4 @@
+import { File } from './file.model';
 import { ObjectType, Field, Float } from "type-graphql";
 import { Share } from "./share.model";
 
@@ -47,4 +48,10 @@ export class Song {
 
 	@Field(() => Share)
 	share: Share;
+
+	@Field()
+	needsUserAction: boolean;
+
+	@Field(() => File)
+	file: File;
 }

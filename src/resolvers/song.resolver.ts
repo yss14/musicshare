@@ -1,10 +1,10 @@
 import { Song } from './../models/song.model';
-import { Resolver, Query, Arg } from "type-graphql";
+import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
 import { Share } from "../models/share.model";
 import { plainToClass } from "class-transformer";
 import { ShareService } from '../services/share.service';
 
-@Resolver(Song)
+@Resolver(of => Song)
 export class SongResolver {
 	constructor(
 		private readonly _shareService: ShareService
@@ -21,6 +21,8 @@ export class SongResolver {
 		);
 	}
 
-	/*@Query(returns => [Share])
-	public shares(@Arg(""))*/
+	@FieldResolver()
+	file(@Root() song: Song) {
+		return song.file;
+	}
 }

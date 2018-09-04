@@ -1,6 +1,5 @@
 import { BlobService } from './file-uploader';
 import { Database } from '../database/database';
-import "reflect-metadata";
 import { UserResolver } from '../resolvers/user.resolver';
 import { GraphQLServer, Options } from 'graphql-yoga';
 import { buildSchema, useContainer } from 'type-graphql';
@@ -30,12 +29,19 @@ export class Server {
 
 		this._graphQLServer = new GraphQLServer({ schema });
 
-		this._graphQLServer.express.use('/users/:userID/shares/:shareID/files', express.Router()
-			.post(
-				'*',
-				this.fileUpload.getRawBodyParser(50 * 1024 * 1024),
-				this.fileUpload.getUploadRoute()
-			)
+		this._graphQLServer.express.use(
+			'/users/:userID/shares/:shareID/files',
+			(req: express.Request, res: express.Response, next: express.NextFunction) => {
+				(req as any).saveParams = req.params;
+
+				next();
+			},
+			express.Router()
+				.post(
+					'*',
+					this.fileUpload.getRawBodyParser(50 * 1024 * 1024),
+					this.fileUpload.getUploadRoute()
+				)
 		);
 
 		if (process.env.NODE_ENV === NodeEnv.Development) {
