@@ -10,6 +10,7 @@ import { Router, Route } from 'react-router-dom';
 import { MainView } from './components/views/main/MainView';
 import { injectGlobal } from 'styled-components';
 import { createBrowserHistory } from 'history';
+import { NotFoundView } from './components/views/not-found/NotFound';
 
 // global styles
 // tslint:disable-next-line
@@ -62,6 +63,7 @@ class App extends React.Component {
 			<React.Fragment>
 				<Route path="/login" component={Login} />
 				<Route path="/shares/:shareID/" component={MainView} />
+				<Route component={NotFoundView} />
 			</React.Fragment>
 		);
 	}
