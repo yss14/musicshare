@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { Player } from '../../player/Player';
 import styled from 'styled-components'
 import { IStyledComponentProps } from '../../../types/props/StyledComponent.props';
@@ -22,7 +21,7 @@ const MainViewMainView = styled.div`
 	flex: 1;
 `;
 
-interface IMainViewProps extends RouteComponentProps<MainViewComponent>, IStyledComponentProps, DispatchPropThunk<IStoreSchema, ISharesFetched> {
+interface IMainViewProps extends IStyledComponentProps, DispatchPropThunk<IStoreSchema, ISharesFetched> {
 	userID: string;
 }
 
@@ -41,8 +40,8 @@ class MainViewComponent extends React.Component<IMainViewProps> {
 	}
 
 	public render() {
-		const { match, className } = this.props;
-		console.log(match);
+		const { className } = this.props;
+
 		return (
 			<div className={className}>
 				<MainViewWrapper>
@@ -65,4 +64,4 @@ const mapStateToProps = (store: IStoreSchema) => ({
 	userID: store.user.id
 })
 
-export const MainView = connect(mapStateToProps)(withRouter(MainViewStyled));
+export const MainView = connect(mapStateToProps)(MainViewStyled);

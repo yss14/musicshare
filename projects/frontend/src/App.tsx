@@ -6,11 +6,10 @@ import { ThunkDispatch } from 'redux-thunk';
 import { IStoreSchema } from './redux/store.schema';
 import { Action } from 'redux';
 import { Provider } from 'react-redux';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { Router, Route } from 'react-router-dom';
 import { MainView } from './components/views/main/MainView';
 import { injectGlobal } from 'styled-components';
-
-const store = createReduxStore();
+import { createBrowserHistory } from 'history';
 
 // global styles
 // tslint:disable-next-line
@@ -27,9 +26,12 @@ injectGlobal`
 	}
 `;
 
+const history = createBrowserHistory();
+const store = createReduxStore(history);
+
 export const Root = () => (
 	<Provider store={store}>
-		<Router>
+		<Router history={history}>
 			<Route path="/" component={App} />
 		</Router>
 	</Provider>

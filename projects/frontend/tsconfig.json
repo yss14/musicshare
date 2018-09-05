@@ -19,7 +19,8 @@
 		"noImplicitAny": true,
 		"strictNullChecks": false,
 		"suppressImplicitAnyIndexErrors": true,
-		"noUnusedLocals": true
+		"noUnusedLocals": true,
+		"experimentalDecorators": true
 	},
 	"exclude": [
 		"node_modules",

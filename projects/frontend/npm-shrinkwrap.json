@@ -237,6 +237,18 @@
         "@types/react-router": "*"
       }
     },
+    "@types/react-router-redux": {
+      "version": "5.0.15",
+      "resolved": "https://registry.npmjs.org/@types/react-router-redux/-/react-router-redux-5.0.15.tgz",
+      "integrity": "sha512-ntkxextBqhd8/Q7nDAp5Tfv/we15WPfsVvVjd+FDyxkT1LfoAtkakzMN/ZqhJwd+S94GOgDXXSFVQvygKA4QzA==",
+      "dev": true,
+      "requires": {
+        "@types/history": "*",
+        "@types/react": "*",
+        "@types/react-router": "*",
+        "redux": ">= 3.7.2"
+      }
+    },
     "@types/redux-thunk": {
       "version": "2.1.0",
       "resolved": "http://registry.npmjs.org/@types/redux-thunk/-/redux-thunk-2.1.0.tgz",
@@ -1503,6 +1515,11 @@
       "version": "1.11.0",
       "resolved": "https://registry.npmjs.org/binary-extensions/-/binary-extensions-1.11.0.tgz",
       "integrity": "sha1-RqoXUftqL5PuXmibsQh9SxTGwgU="
+    },
+    "bind-decorator": {
+      "version": "1.0.11",
+      "resolved": "https://registry.npmjs.org/bind-decorator/-/bind-decorator-1.0.11.tgz",
+      "integrity": "sha1-5BvAah9l3ZzsR2yRxdrzl4SIJS8="
     },
     "bluebird": {
       "version": "3.5.2",
@@ -8731,6 +8748,11 @@
         "react-router": "^4.3.1",
         "warning": "^4.0.1"
       }
+    },
+    "react-router-redux": {
+      "version": "4.0.8",
+      "resolved": "https://registry.npmjs.org/react-router-redux/-/react-router-redux-4.0.8.tgz",
+      "integrity": "sha1-InQDWWtRUeGCN32rg1tdRfD4BU4="
     },
     "react-scripts-ts": {
       "version": "2.17.0",

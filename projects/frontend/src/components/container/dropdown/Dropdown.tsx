@@ -33,7 +33,6 @@ interface IDropdownProps extends IStyledComponentProps, IInlineStyleableProps {
 
 interface IDropdownState {
 	open: boolean;
-	title: string;
 }
 
 class DropdownComponent extends React.Component<IDropdownProps, IDropdownState>{
@@ -42,9 +41,6 @@ class DropdownComponent extends React.Component<IDropdownProps, IDropdownState>{
 
 		this.state = {
 			open: false,
-			title: props.children.some(child => child.props.selected)
-				? props.children.find(child => child.props.selected).props.children
-				: props.title
 		}
 
 		this.onClickDropdown = this.onClickDropdown.bind(this);
@@ -60,14 +56,20 @@ class DropdownComponent extends React.Component<IDropdownProps, IDropdownState>{
 
 	private onClickItem(val: string) {
 		this.props.onChange(val);
+
+		this.onClickDropdown();
 	}
 
 	public render() {
-		const { className, children, css } = this.props;
+		const { className, children, css, title } = this.props;
+
+		const renderedTitle = children.some(child => child.props.selected)
+			? children.find(child => child.props.selected).props.children
+			: title
 
 		return (
 			<div className={className} style={css}>
-				<DropdownButton onClick={this.onClickDropdown}>Dropdown</DropdownButton>
+				<DropdownButton onClick={this.onClickDropdown}>{renderedTitle}</DropdownButton>
 				<DropdownList visible={this.state.open}>
 					{
 						children.map((child, idx) => (
