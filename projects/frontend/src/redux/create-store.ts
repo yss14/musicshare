@@ -3,9 +3,11 @@ import { combineReducers, compose, Store, createStore, applyMiddleware } from 'r
 import thunk from 'redux-thunk';
 import { IStoreSchema } from './store.schema';
 import { userReducer } from './user/user.reducer';
+import { sharesReducer } from './shares/shares.reducer';
 
 const rootReducer = combineReducers<IStoreSchema>({
-	user: userReducer
+	user: userReducer,
+	shares: sharesReducer
 });
 
 const windowIFDefined = typeof window === 'undefined' ? null : window as Window;

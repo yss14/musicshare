@@ -3,7 +3,12 @@ import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { Player } from '../../player/Player';
 import styled from 'styled-components'
 import { IStyledComponentProps } from '../../../types/props/StyledComponent.props';
-import { Sidebar } from '../../container/sidebar/Sidebar';
+import { MainViewSidebarLeft } from './MainViewSidebarLeft';
+import { IStoreSchema } from '../../../redux/store.schema';
+import { connect } from 'react-redux';
+import { fetchShares, ISharesFetched } from '../../../redux/shares/shares.actions';
+import { DispatchPropThunk } from '../../../types/props/DispatchPropThunk';
+import { MusicShareApi } from '../../../apis/musicshare-api';
 
 const MainViewWrapper = styled.div`
 	flex: 1;
@@ -17,20 +22,31 @@ const MainViewMainView = styled.div`
 	flex: 1;
 `;
 
-interface IMainViewProps extends RouteComponentProps<MainViewComponent>, IStyledComponentProps {
-
+interface IMainViewProps extends RouteComponentProps<MainViewComponent>, IStyledComponentProps, DispatchPropThunk<IStoreSchema, ISharesFetched> {
+	userID: string;
 }
 
 class MainViewComponent extends React.Component<IMainViewProps> {
+
+	public componentDidUpdate(prevProps: IMainViewProps) {
+		// TODO fetch library data
+		const { dispatch, userID } = this.props;
+
+		if (prevProps.userID === null && this.props.userID !== null) {
+			dispatch(fetchShares(
+				new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL),
+				userID
+			));
+		}
+	}
+
 	public render() {
 		const { match, className } = this.props;
 		console.log(match);
 		return (
 			<div className={className}>
 				<MainViewWrapper>
-					<Sidebar orientation="left" width={200}>
-						Sidebar
-					</Sidebar>
+					<MainViewSidebarLeft />
 					<MainViewMainView>Main</MainViewMainView>
 				</MainViewWrapper>
 				<Player />
@@ -45,4 +61,8 @@ const MainViewStyled = styled(MainViewComponent)`
 	height: 100%;
 `;
 
-export const MainView = withRouter(MainViewStyled);
+const mapStateToProps = (store: IStoreSchema) => ({
+	userID: store.user.id
+})
+
+export const MainView = connect(mapStateToProps)(withRouter(MainViewStyled));

@@ -1,0 +1,1 @@
+export const SHARES_FETCHED = 'SHARES_FETCHED';

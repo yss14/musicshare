@@ -42,7 +42,7 @@ export class MusicShareApi {
 	public async query<R>(query: string, variables?: IGraphQLRequestVariables): Promise<R> {
 		const body: IGraphQLRequest = {
 			operationName: null,
-			query: query,
+			query: `query{${query}}`,
 			variables: variables || {}
 		}
 

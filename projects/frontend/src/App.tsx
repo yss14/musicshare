@@ -21,6 +21,10 @@ injectGlobal`
 		width: 100%;
 		height: 100%;
 	}
+
+	* { 
+		box-sizing: border-box;
+	}
 `;
 
 export const Root = () => (
@@ -55,7 +59,7 @@ class App extends React.Component {
 		return (
 			<React.Fragment>
 				<Route path="/login" component={Login} />
-				<Route path="/main" component={MainView} />
+				<Route path="/shares/:shareID/" component={MainView} />
 			</React.Fragment>
 		);
 	}

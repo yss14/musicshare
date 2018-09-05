@@ -17,6 +17,7 @@ class SidebarComponent extends React.Component<ISidebarProps>{
 			height: props.height !== undefined ? props.height : '100%'
 		});
 	}
+
 	public render() {
 		const { children, className } = this.props;
 

@@ -5861,6 +5861,11 @@
       "resolved": "https://registry.npmjs.org/js-base64/-/js-base64-2.4.9.tgz",
       "integrity": "sha512-xcinL3AuDJk7VSzsHgb9DvvIXayBbadtMZ4HFPx8rUszbW1MuNMlwYVC4zzCZ6e1sqZpnNS5ZFYOhXqA39T7LQ=="
     },
+    "js-sha256": {
+      "version": "0.9.0",
+      "resolved": "https://registry.npmjs.org/js-sha256/-/js-sha256-0.9.0.tgz",
+      "integrity": "sha512-sga3MHh9sgQN2+pJ9VYZ+1LPwXOxuBJBA5nrR5/ofPfuiJBE2hnjsaN8se8JznOmGLN2p49Pe5U/ttafcs/apA=="
+    },
     "js-tokens": {
       "version": "4.0.0",
       "resolved": "https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz",
@@ -10164,9 +10169,9 @@
       }
     },
     "styled-components": {
-      "version": "3.4.5",
-      "resolved": "https://registry.npmjs.org/styled-components/-/styled-components-3.4.5.tgz",
-      "integrity": "sha512-/4c4/72+QAZ8LO+VIzTcitdjMcJleOln1laK9HZr166O+OmGpKZYt3+hRn0YhYPytwDGfx9J5c7WhU7Oys+nSw==",
+      "version": "3.4.2",
+      "resolved": "https://registry.npmjs.org/styled-components/-/styled-components-3.4.2.tgz",
+      "integrity": "sha512-eTmIiWstyDLccHZAyp+aCPirlkTvYiHlYGgWQxOYDv8Ko0o6mfnDo0+DnUnKinO8NzAfQXEDP7Bh0qlazwJgrw==",
       "requires": {
         "buffer": "^5.0.3",
         "css-to-react-native": "^2.0.3",
