@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { ISong } from '../../../redux/shares/shares.schema';
 import { IStyledComponentProps } from '../../../types/props/StyledComponent.props';
+import { buildSondName } from '../../../utils/songname-builder';
 
 interface ISongListItemColumnProps extends IStyledComponentProps {
 	width?: string | number;
@@ -27,14 +28,16 @@ interface ISongListItemProps extends IStyledComponentProps {
 }
 
 const SongListItemComponent: React.StatelessComponent<ISongListItemProps> = (props) => {
-	const height = props.size === 'small' ? 20 : 40;
+	const { song, size } = props;
+
+	const height = size === 'small' ? 20 : 40;
 
 	return (
 		<div className={props.className}>
-			<SongListItemColumnStyled height={height}>{props.song.title}</SongListItemColumnStyled>
+			<SongListItemColumnStyled height={height}>{buildSondName(song)}</SongListItemColumnStyled>
 			<SongListItemColumnStyled height={height} width={50}>05:09</SongListItemColumnStyled>
-			<SongListItemColumnStyled height={height} width={150}>{props.song.artists.join(', ')}</SongListItemColumnStyled>
-			<SongListItemColumnStyled height={height} width={100}>{props.song.genres.join(', ')}</SongListItemColumnStyled>
+			<SongListItemColumnStyled height={height} width={150}>{song.artists.join(', ')}</SongListItemColumnStyled>
+			<SongListItemColumnStyled height={height} width={100}>{song.genres.join(', ')}</SongListItemColumnStyled>
 		</div>
 	);
 }

@@ -64,6 +64,7 @@ class SongListComponent extends React.Component<ISongListProps, ISongListState>{
 const SongListStyled = styled(SongListComponent)`
 	width: 100%;
 	height: 100%;
+	background-color: white;
 `;
 
 export const SongList = SongListStyled;
