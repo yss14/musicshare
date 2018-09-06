@@ -3,23 +3,60 @@ import * as Infinite from 'react-infinite';
 import styled from 'styled-components';
 import { ISong } from '../../../redux/shares/shares.schema';
 import { SongListItem } from './SongListItem';
+import { IStyledComponentProps } from '../../../types/props/StyledComponent.props';
 
-interface ISongListProps {
+interface ISongListProps extends IStyledComponentProps {
 	songs: ISong[];
 }
 
-class SongListComponent extends React.Component<ISongListProps>{
+interface ISongListState {
+	divHeight: number;
+}
+
+class SongListComponent extends React.Component<ISongListProps, ISongListState>{
+	private divRef: HTMLDivElement;
+
+	constructor(props: ISongListProps) {
+		super(props);
+
+		this.state = {
+			divHeight: null
+		}
+	}
+
+	public componentDidMount() {
+		if (this.divRef) {
+			this.setState({
+				...this.state,
+				divHeight: this.divRef.getBoundingClientRect().height
+			});
+		}
+	}
+
 	public render() {
-		const { songs } = this.props;
+		const { songs, className } = this.props;
+		const { divHeight } = this.state;
 
 		return (
-			<Infinite elementHeight={40} containerHeight={800}>
+			<div className={className} ref={(ref) => this.divRef = ref}>
 				{
-					songs.map(song => (
-						<SongListItem song={song} size="small" key={song.id} />
-					))
+					divHeight ? (
+						<Infinite elementHeight={20} containerHeight={divHeight}>
+							{
+								songs.map((song, idx) => (
+									<SongListItem
+										song={song}
+										size="small"
+										key={song.id}
+										shaded={idx % 2 === 1}
+									/>
+								))
+							}
+						</Infinite>
+					)
+						: null
 				}
-			</Infinite>
+			</div>
 		);
 	}
 }

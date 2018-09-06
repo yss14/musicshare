@@ -6,7 +6,7 @@ import { ThunkDispatch } from 'redux-thunk';
 import { IStoreSchema } from './redux/store.schema';
 import { Action } from 'redux';
 import { Provider } from 'react-redux';
-import { Router, Route } from 'react-router-dom';
+import { Router, Route, Switch } from 'react-router-dom';
 import { MainView } from './components/views/main/MainView';
 import { injectGlobal } from 'styled-components';
 import { createBrowserHistory } from 'history';
@@ -24,6 +24,7 @@ injectGlobal`
 
 	* { 
 		box-sizing: border-box;
+		font-family: 'Open Sans';
 	}
 `;
 
@@ -60,11 +61,12 @@ class App extends React.Component {
 
 	public render() {
 		return (
-			<React.Fragment>
+			<Switch>
+
 				<Route path="/login" component={Login} />
 				<Route path="/shares/:shareID/" component={MainView} />
 				<Route component={NotFoundView} />
-			</React.Fragment>
+			</Switch>
 		);
 	}
 }

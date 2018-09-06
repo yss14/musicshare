@@ -16,11 +16,14 @@ const SongListItemColumnStyled = styled(SongListItemColumn)`
 	height: ${props => props.height}px;
 	width: ${props => typeof props.width === 'number' ? `${props.width}px` : props.width};
 	flex: ${props => props.width === undefined ? '1' : undefined};
+	font-size: 12px;
+	padding: 0px 4px;
 `;
 
 interface ISongListItemProps extends IStyledComponentProps {
 	size: 'small' | 'medium';
 	song: ISong;
+	shaded?: boolean;
 }
 
 const SongListItemComponent: React.StatelessComponent<ISongListItemProps> = (props) => {
@@ -42,6 +45,7 @@ const SongListItemStyled = styled(SongListItemComponent)`
 	height: ${props => props.size === 'small' ? 20 : 40}px;
 	overflow: hidden;
 	width: 100%;
+	background-color: ${props => props.shaded ? '#F0F0F0' : 'white'};
 `;
 
 export const SongListItem = SongListItemStyled;
