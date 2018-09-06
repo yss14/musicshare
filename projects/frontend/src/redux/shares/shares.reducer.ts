@@ -9,6 +9,14 @@ export const sharesReducer = (state: ISharesSchema = defaultState, action: Share
 		case constants.SHARES_FETCHED:
 			return action.payload;
 
+		case constants.SHARE_SONGS_FETCHED:
+			return state.map(share => share.id === action.payload.shareID
+				? {
+					...share,
+					songs: action.payload.songs
+				} : share
+			)
+
 		default:
 			return state;
 	}

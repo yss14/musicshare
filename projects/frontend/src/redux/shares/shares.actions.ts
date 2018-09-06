@@ -3,7 +3,7 @@ import * as constants from './shares.constants';
 import { MusicShareApi } from '../../apis/musicshare-api';
 import { IStoreSchema } from '../store.schema';
 import * as hash from 'js-sha256';
-import { IShareSchema } from './shares.schema';
+import { IShareSchema, ISong } from './shares.schema';
 
 export interface ISharesFetched {
 	type: typeof constants.SHARES_FETCHED;
@@ -19,6 +19,12 @@ interface ISharesResult {
 			isLibrary: boolean;
 		}[];
 	};
+}
+
+interface IShareSongsResult {
+	share: {
+		songs: ISong[];
+	}
 }
 
 export const fetchShares = (api: MusicShareApi, userID: string) =>
@@ -38,10 +44,40 @@ export const fetchShares = (api: MusicShareApi, userID: string) =>
 					type: constants.SHARES_FETCHED,
 					payload: result.user.shares.map(share => ({
 						...share,
-						idHash: hash.sha256(share.id).substr(0, 8)
+						idHash: hash.sha256(share.id).substr(0, 8),
+						songs: []
 					}))
 				})
 			})
 	}
 
-export type SharesAction = ISharesFetched;
+export interface IShareSongsFetched {
+	type: typeof constants.SHARE_SONGS_FETCHED;
+	payload: {
+		shareID: string;
+		songs: ISong[];
+	}
+}
+
+export const fetchSongs = (api: MusicShareApi, shareID: string) =>
+	(dispatch: ThunkDispatch<IStoreSchema, void, IShareSongsFetched>) => {
+
+		api.query<IShareSongsResult>(`
+		share(id:"${shareID}"){
+			songs{
+				id, title, suffix, year, bpm, dateLastEdit, releaseDate, isRip, artists, remixer, featurings,
+				type, genres, label, needsUserAction
+			}
+		}
+	`).then(result => {
+				dispatch({
+					type: constants.SHARE_SONGS_FETCHED,
+					payload: {
+						shareID: shareID,
+						songs: result.share.songs
+					}
+				})
+			})
+	}
+
+export type SharesAction = ISharesFetched | IShareSongsFetched;

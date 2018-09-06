@@ -1,6 +1,6 @@
 export interface IUserSchema {
-	id: string;
-	name: string;
-	authToken: string;
-	refreshToken: string;
+	readonly id: string;
+	readonly name: string;
+	readonly authToken: string;
+	readonly refreshToken: string;
 }

@@ -5,7 +5,7 @@ import { IStyledComponentProps } from '../../../types/props/StyledComponent.prop
 import { MainViewSidebarLeft } from './MainViewSidebarLeft';
 import { IStoreSchema } from '../../../redux/store.schema';
 import { connect } from 'react-redux';
-import { fetchShares, ISharesFetched } from '../../../redux/shares/shares.actions';
+import { fetchShares, ISharesFetched, IShareSongsFetched, fetchSongs } from '../../../redux/shares/shares.actions';
 import { DispatchPropThunk } from '../../../types/props/DispatchPropThunk';
 import { MusicShareApi } from '../../../apis/musicshare-api';
 import { withRouter, RouteComponentProps } from 'react-router';
@@ -24,7 +24,8 @@ const MainViewMainView = styled.div`
 	flex: 1;
 `;
 
-interface IMainViewProps extends RouteComponentProps<IRouteShare>, IStyledComponentProps, DispatchPropThunk<IStoreSchema, ISharesFetched> {
+interface IMainViewProps extends RouteComponentProps<IRouteShare>, IStyledComponentProps,
+	DispatchPropThunk<IStoreSchema, ISharesFetched & IShareSongsFetched> {
 	userID: string;
 	shares: ISharesSchema;
 }
@@ -41,9 +42,20 @@ class MainViewComponent extends React.Component<IMainViewProps> {
 			));
 		}
 
-		if (shares.length > 0 && !shares.some(share => share.idHash === match.params.shareID)) {
-			// shareID from url is not found
-			history.push('/404');
+		if (shares.length > 0) {
+			const selectedShare = shares.find(share => share.idHash === match.params.shareID);
+
+			if (!selectedShare) {
+				history.push('/404');
+			} else {
+				if (prevProps.shares.length === 0) {
+					// get songs for current selected share
+					dispatch(fetchSongs(
+						new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL),
+						selectedShare.id
+					));
+				}
+			}
 		}
 	}
 
