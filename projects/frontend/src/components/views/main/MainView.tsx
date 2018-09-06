@@ -11,6 +11,7 @@ import { MusicShareApi } from '../../../apis/musicshare-api';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { IRouteShare } from '../../../types/props/RouterProps';
 import { ISharesSchema } from '../../../redux/shares/shares.schema';
+import { SongList } from '../../container/song-list/SongList';
 
 const MainViewWrapper = styled.div`
 	flex: 1;
@@ -60,13 +61,18 @@ class MainViewComponent extends React.Component<IMainViewProps> {
 	}
 
 	public render() {
-		const { className } = this.props;
+		const { className, shares, match } = this.props;
+		const selectedShare = shares.find(share => share.idHash === match.params.shareID);
 
 		return (
 			<div className={className}>
 				<MainViewWrapper>
 					<MainViewSidebarLeft />
-					<MainViewMainView>Main</MainViewMainView>
+					<MainViewMainView>
+						{
+							selectedShare ? <SongList songs={selectedShare.songs} /> : null
+						}
+					</MainViewMainView>
 				</MainViewWrapper>
 				<Player />
 			</div>

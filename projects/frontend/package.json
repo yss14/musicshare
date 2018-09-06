@@ -16,7 +16,7 @@
     "react-scripts-ts": "2.17.0",
     "redux": "^4.0.0",
     "redux-thunk": "^2.3.0",
-    "styled-components": "^3.4.2",
+    "styled-components": "^3.4.5",
     "styled-components-ts": "0.0.14",
     "typesafe-actions": "^2.0.4"
   },
@@ -36,6 +36,7 @@
     "@types/react-router-dom": "^4.3.0",
     "@types/react-router-redux": "^5.0.15",
     "@types/redux-thunk": "^2.1.0",
+    "@types/styled-components": "^3.0.0",
     "typescript": "^3.0.3"
   }
 }
