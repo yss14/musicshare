@@ -20,6 +20,11 @@ interface IGraphQLResponse<T> {
 	data?: T;
 }
 
+export interface IAxiosProgress {
+	total?: number;
+	loaded?: number;
+}
+
 export class GraphQLError extends Error {
 	public readonly errors: IGraphQLError[];
 
@@ -53,5 +58,15 @@ export class MusicShareApi {
 		}
 
 		return response.data.data;
+	}
+
+	public async upload(userID: string, shareID: string, file: File, buffer: ArrayBuffer, onProgress: (progress: IAxiosProgress) => void): Promise<void> {
+		return this.axiosInstance.post<void>(
+			`/users/${userID}/shares/${shareID}/files/${file.name}`,
+			buffer,
+			{
+				onUploadProgress: onProgress
+			}
+		) as any as Promise<void>
 	}
 }

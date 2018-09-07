@@ -6,10 +6,12 @@ import { userReducer } from './user/user.reducer';
 import { sharesReducer } from './shares/shares.reducer';
 import { routerMiddleware } from 'react-router-redux';
 import { History } from 'history';
+import { uploadReducer } from './upload/upload.reducer';
 
 const rootReducer = combineReducers<IStoreSchema>({
 	user: userReducer,
-	shares: sharesReducer
+	shares: sharesReducer,
+	uploads: uploadReducer
 });
 
 const windowIFDefined = typeof window === 'undefined' ? null : window as Window;

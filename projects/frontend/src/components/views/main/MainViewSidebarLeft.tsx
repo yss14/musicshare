@@ -9,11 +9,11 @@ import { ISharesSchema } from '../../../redux/shares/shares.schema';
 import { IRouteShare } from '../../../types/props/RouterProps';
 import bind from 'bind-decorator';
 
-interface IMainViewProps extends RouteComponentProps<IRouteShare> {
+interface IMainViewSidebarLeftProps extends RouteComponentProps<IRouteShare> {
 	shares: ISharesSchema;
 }
 
-class MainViewSidebarLeftComponent extends React.Component<IMainViewProps> {
+class MainViewSidebarLeftComponent extends React.Component<IMainViewSidebarLeftProps> {
 
 	@bind
 	private onChangeDropdownShare(newShareIDHash: string) {

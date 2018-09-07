@@ -12,6 +12,7 @@ import { withRouter, RouteComponentProps } from 'react-router';
 import { IRouteShare } from '../../../types/props/RouterProps';
 import { ISharesSchema } from '../../../redux/shares/shares.schema';
 import { SongList } from '../../container/song-list/SongList';
+import { MainViewSidebarRight } from './MainViewSidebarRight';
 
 const MainViewWrapper = styled.div`
 	flex: 1;
@@ -73,6 +74,7 @@ class MainViewComponent extends React.Component<IMainViewProps> {
 							selectedShare ? <SongList songs={selectedShare.songs} /> : null
 						}
 					</MainViewMainView>
+					<MainViewSidebarRight />
 				</MainViewWrapper>
 				<Player />
 			</div>

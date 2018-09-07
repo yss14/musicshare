@@ -10,7 +10,7 @@ export interface IUserLoggedIn {
 	payload: IUserSchema;
 }
 
-export const login = (api: MusicShareApi, email: string, password: string) => async (dispatch: ThunkDispatch<IStoreSchema, void, Action>) => {
+export const login = (api: MusicShareApi, email: string, password: string) => (dispatch: ThunkDispatch<IStoreSchema, void, Action>) => {
 	// fake login
 	dispatch({
 		type: constants.USER_LOGGED_IN,

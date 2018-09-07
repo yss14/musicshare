@@ -25,6 +25,7 @@ class SongListComponent extends React.Component<ISongListProps, ISongListState>{
 	}
 
 	public componentDidMount() {
+		console.log(this.divRef);
 		if (this.divRef) {
 			this.setState({
 				...this.state,
@@ -36,7 +37,8 @@ class SongListComponent extends React.Component<ISongListProps, ISongListState>{
 	public render() {
 		const { songs, className } = this.props;
 		const { divHeight } = this.state;
-
+		console.log(songs.length);
+		console.log('divHeight', divHeight)
 		return (
 			<div className={className} ref={(ref) => this.divRef = ref}>
 				{
