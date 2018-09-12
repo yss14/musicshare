@@ -12,11 +12,7 @@ interface ISidebarProps extends IStyledComponentProps, IChildableProps, IInlineS
 
 class SidebarComponent extends React.Component<ISidebarProps>{
 	constructor(props: ISidebarProps) {
-		super({
-			orientation: props.orientation ? props.orientation : 'left',
-			width: props.width !== undefined ? props.width : 200,
-			height: props.height !== undefined ? props.height : '100%'
-		});
+		super(props);
 	}
 
 	public render() {

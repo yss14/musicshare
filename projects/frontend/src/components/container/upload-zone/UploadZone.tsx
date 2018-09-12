@@ -10,10 +10,25 @@ import { MusicShareApi } from '../../../apis/musicshare-api';
 import { IUploadSchema } from '../../../redux/upload/upload.schema';
 import { connect } from 'react-redux';
 import { UploadListItem } from './UploadListItem';
+import imgUpload from '../../../images/upload.png';
 
 const UploadListWrapper = styled.div`
 	flex: 1;
 	width: 100%;
+	padding: 5px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	position: relative;
+`;
+
+const UploadListLabel = styled.div`
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-weight: bold;
+	font-size: 14px;
+	position: absolute;
+	color: #c2c2c2;
 `;
 
 interface IUploadZoneProps extends IStyledComponentProps, DispatchPropThunk<IStoreSchema, UploadAction> {
@@ -39,21 +54,37 @@ class UploadZoneComponent extends React.Component<IUploadZoneProps>{
 
 		const dropzoneStyled: React.CSSProperties = {
 			alignSelf: 'flex-end',
-			height: '60px'
+			height: '60px',
+			width: '100%',
+			backgroundImage: `url(${imgUpload})`,
+			backgroundRepeat: 'no-repeat',
+			backgroundPosition: 'center',
+			backgroundSize: '30px',
+			cursor: 'pointer'
+		}
+
+		const dropzoneDropHoverStyle: React.CSSProperties = {
+			backgroundColor: 'rgba(46, 204, 113,0.5)'
 		}
 
 		return (
 			<div className={className}>
 				<UploadListWrapper>
 					{
-						uploads.map((u, idx) => (
+						uploads.sort((a, b) => b.progress - a.progress).map((u, idx) => (
 							<UploadListItem upload={u} key={u.hash} />
 						))
 					}
+					{
+						uploads.length === 0 ? <UploadListLabel>No uploads</UploadListLabel> : null
+					}
 				</UploadListWrapper>
-				<Dropzone onDrop={this.onDrop} style={dropzoneStyled} multiple={true}>
-					<p>Drop here</p>
-				</Dropzone>
+				<Dropzone
+					onDrop={this.onDrop}
+					style={dropzoneStyled}
+					multiple={true}
+					activeStyle={dropzoneDropHoverStyle}
+				/>
 			</div>
 		)
 	}
@@ -64,6 +95,9 @@ const UploadZoneStyled = styled(UploadZoneComponent)`
 	height: 100%;
 	display: flex;
 	flex-direction: column;
+	-webkit-box-shadow: inset 0px 0px 45px -14px rgba(0,0,0,0.17);
+	-moz-box-shadow: inset 0px 0px 45px -14px rgba(0,0,0,0.17);
+	box-shadow: inset 0px 0px 45px -14px rgba(0,0,0,0.17);
 `;
 
 const mapStateToProps = (state: IStoreSchema) => ({

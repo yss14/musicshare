@@ -126,7 +126,7 @@ export const upload = (userID: string, shareID: string, api: MusicShareApi, file
 						fileHash: hash
 					}
 				});
-			}, 5000);
+			}, 2000);
 		}
 	}
 

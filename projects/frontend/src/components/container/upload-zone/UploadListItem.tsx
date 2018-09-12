@@ -24,7 +24,7 @@ const UploadListItemComponent: React.StatelessComponent<IUploadListItemProps> = 
 	return (
 		<div className={props.className}>
 			<Filename>{props.upload.filename}</Filename>
-			<Line percent={props.upload.progress} strokeWidth="8" strokeColor={lerpedColor} trailColor="#d9d9d9" />
+			<Line percent={props.upload.progress} strokeWidth="4" strokeColor={lerpedColor} trailColor="#d9d9d9" />
 		</div>
 	);
 }
