@@ -19,6 +19,7 @@
     "file-loader": "0.11.2",
     "fork-ts-checker-webpack-plugin": "^0.2.8",
     "fs-extra": "3.0.1",
+    "howler": "^2.0.15",
     "html-webpack-plugin": "2.29.0",
     "jest": "22.4.2",
     "js-sha256": "^0.9.0",
@@ -65,6 +66,7 @@
     "test": "node scripts/test.js --env=jsdom"
   },
   "devDependencies": {
+    "@types/howler": "^2.0.5",
     "@types/jest": "^23.3.1",
     "@types/node": "^10.9.4",
     "@types/react": "^16.4.13",

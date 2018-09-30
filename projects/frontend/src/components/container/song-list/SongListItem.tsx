@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { ISong } from '../../../redux/shares/shares.schema';
 import { IStyledComponentProps } from '../../../types/props/StyledComponent.props';
-import { buildSondName } from '../../../utils/songname-builder';
+import { buildSongName } from '../../../utils/songname-builder';
 
 interface ISongListItemColumnProps extends IStyledComponentProps {
 	width?: string | number;
@@ -34,7 +34,7 @@ const SongListItemComponent: React.StatelessComponent<ISongListItemProps> = (pro
 
 	return (
 		<div className={props.className}>
-			<SongListItemColumnStyled height={height}>{buildSondName(song)}</SongListItemColumnStyled>
+			<SongListItemColumnStyled height={height}>{buildSongName(song)}</SongListItemColumnStyled>
 			<SongListItemColumnStyled height={height} width={50}>05:09</SongListItemColumnStyled>
 			<SongListItemColumnStyled height={height} width={150}>{song.artists.join(', ')}</SongListItemColumnStyled>
 			<SongListItemColumnStyled height={height} width={100}>{song.genres.join(', ')}</SongListItemColumnStyled>

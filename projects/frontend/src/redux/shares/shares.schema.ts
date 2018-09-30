@@ -24,6 +24,7 @@ export interface ISong {
 	readonly label?: string;
 	readonly needsUserAction: boolean;
 	readonly file?: IFile;
+	readonly duration: number;
 }
 
 export interface IShareSchema {

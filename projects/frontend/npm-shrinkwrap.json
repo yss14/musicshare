@@ -160,6 +160,12 @@
       "integrity": "sha512-1A/RUAX4VtmGzNTGLSfmiPxQ3XwUSe/1YN4lW9GRa+j307oFK6MPjhlvw6jEHDodUBIvSvrA7/iHDchr5LS+0Q==",
       "dev": true
     },
+    "@types/howler": {
+      "version": "2.0.5",
+      "resolved": "https://registry.npmjs.org/@types/howler/-/howler-2.0.5.tgz",
+      "integrity": "sha512-4zO47MpD8ztLGK1Q3DsVMxP5q1yIGRS+vtLqXuVGXHdiDkD/IvYM2vBByuX4eMW4fmLk5SWQpd6FFL2jvJkItw==",
+      "dev": true
+    },
     "@types/jest": {
       "version": "23.3.1",
       "resolved": "https://registry.npmjs.org/@types/jest/-/jest-23.3.1.tgz",
@@ -4746,6 +4752,11 @@
       "version": "2.7.1",
       "resolved": "https://registry.npmjs.org/hosted-git-info/-/hosted-git-info-2.7.1.tgz",
       "integrity": "sha512-7T/BxH19zbcCTa8XkMlbK5lTo1WtgkFi3GvdWEyNuc4Vex7/9Dqbnpsf4JMydcfj9HCg4zUWFTL3Za6lapg5/w=="
+    },
+    "howler": {
+      "version": "2.0.15",
+      "resolved": "https://registry.npmjs.org/howler/-/howler-2.0.15.tgz",
+      "integrity": "sha512-Ceui16WCAdBiRlI3cK/zPmp6eWKG4wU5yIYHtH+X4zPhwqbr2ieRQvt/1J60NCqEXFHuBKdzBrS5DRYkMwiQsg=="
     },
     "hpack.js": {
       "version": "2.1.6",

@@ -1,6 +1,6 @@
 import { ISong } from './../redux/shares/shares.schema';
 
-export const buildSondName = (song: ISong): string => {
+export const buildSongName = (song: ISong): string => {
 	let name = song.title;
 
 	if (song.remixer && song.remixer.length > 0) {
