@@ -5,7 +5,8 @@
 	"main": "build/index",
 	"scripts": {
 		"start": "npm run build && cross-env NODE_ENV=development node build/index.js",
-		"build": "tsc --project tsconfig.json"
+		"build": "tsc --project tsconfig.json",
+		"azurite": "azurite-blob -l azurite"
 	},
 	"author": "Yannick Stachelscheid",
 	"license": "UNLICENSED",

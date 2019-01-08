@@ -18,6 +18,13 @@ export class ShareService {
 			.then(rows => rows.map(row => this.fromDBResult(row)));
 	}
 
+	public getShareByID(shareID: string): Promise<Share> {
+		return this.database.select<IShareByUserDBResult>(`
+			SELECT * FROM shares_by_user WHERE id = ? ALLOW FILTERING;
+		`, [shareID])
+			.then(rows => rows.length === 1 ? rows.map(row => this.fromDBResult(row))[0] : null);
+	}
+
 	private fromDBResult(dbResult: IShareByUserDBResult): Share {
 		return plainToClass(
 			Share,

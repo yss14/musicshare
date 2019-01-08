@@ -57,9 +57,9 @@ export const testData: ITestDataSchema = {
 			date_last_edit: Date.now(),
 			release_date: new Date(),
 			is_rip: false,
-			artists: ['Oliver Smith', 'Natalie Holmes'],
+			artists: ['Oliver Smith'],
 			remixer: [],
-			featurings: [],
+			featurings: ['Natalie Holmes'],
 			type: null,
 			genres: ['Trance'],
 			label: null,
@@ -79,8 +79,8 @@ export const testData: ITestDataSchema = {
 			artists: ['Kink'],
 			remixer: ['Dusky'],
 			featurings: [],
-			type: 'Deep House',
-			genres: null,
+			type: 'Remix',
+			genres: ['Deep House'],
 			label: 'Anjunadeep',
 			share_id: CTypes.TimeUuid.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			needs_user_action: false,
@@ -103,8 +103,9 @@ export const seedDatabase = async (database: Database, env: NodeEnv): Promise<vo
 	// insert shares for development and testing
 	if (env !== NodeEnv.Production) {
 		await database.execute(`
-			INSERT INTO shares_by_user (id, name, user_id) VALUES (?, ?, ?)`,
-			[testData.shares.library_user1.id, testData.shares.library_user1.name, testData.shares.library_user1.user_id]
+			INSERT INTO shares_by_user (id, name, user_id, is_library) VALUES (?, ?, ?, ?)`,
+			[testData.shares.library_user1.id, testData.shares.library_user1.name,
+			testData.shares.library_user1.user_id, testData.shares.library_user1.is_library]
 		);
 	}
 
@@ -122,17 +123,28 @@ export const seedDatabase = async (database: Database, env: NodeEnv): Promise<vo
 			await songService.create(s);
 		}
 
-		/*const songInserts = new Array<IBatchQuery>(10000)
+		const songInserts = new Array<IBatchQuery>(100)
 			.fill(undefined)
-			.map(() => ({
-				query: `
-					INSERT INTO songs_by_share 
-					(id, title, suffix, year, bpm, date_last_edit, release_date, is_rip, artists, remixer, featurings, share_id)
-					VALUES
-					(NOW(), ?, ?, ?, ?, toTimestamp(NOW()), ?, ?, ?, ?, ?, ?);
-				`,
-				params: [faker.name.findName(), null, 2018, 128, null, false, [faker.name.findName(), faker.name.findName()], [faker.name.findName()], [faker.name.findName()], testData.shares.library_user1.id]
+			.map((): Required<ISongByShareDBResult> => ({
+				id: CTypes.TimeUuid.now(),
+				title: faker.name.findName(),
+				suffix: null,
+				year: null,
+				bpm: null,
+				date_last_edit: Date.now(),
+				release_date: null,
+				is_rip: false,
+				artists: [faker.name.firstName(), faker.name.lastName()],
+				remixer: [],
+				featurings: [],
+				type: 'Remix',
+				genres: ['Some Genre'],
+				label: null,
+				share_id: testData.shares.library_user1.id,
+				needs_user_action: false,
+				file: '{}'
 			}));
-		await database.batch(songInserts, { prepare: true });*/
+
+		await Promise.all(songInserts.map(s => songService.create(s)));
 	}
 }

@@ -41,6 +41,18 @@ export class BlobService {
 		this.blobStorage = azBlob.createBlobService();
 	}
 
+	public createContainer(containerName: string): Promise<void> {
+		return new Promise<void>((resolve, reject) => {
+			this.blobStorage.createContainer(containerName, (err) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve();
+				}
+			});
+		});
+	}
+
 	public getUploadRoute(): (req: Request, res: Response) => Promise<void> {
 		return async (req: Request, res: Response) => {
 			const stream = new Duplex();
@@ -48,7 +60,7 @@ export class BlobService {
 			stream.push(fileBuffer);
 			stream.push(null);
 
-			const filename = path.basename(req.path);
+			const filename = decodeURI(path.basename(req.path));
 			const contentType: string = req.get("content-type");
 			const fileExtension = path.extname(filename).split('.').join('');
 

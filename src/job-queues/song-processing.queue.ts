@@ -63,7 +63,8 @@ export class SongProcessingQueue {
 			remixer: [...(songMeta.remixer || [])],
 			featurings: [...(songMeta.featurings || [])],
 			type: songMeta.type,
-			genres: [songMeta.genre],
+			genres: songMeta.genre && songMeta.genre.trim().length > 0
+				? [songMeta.genre] : [],
 			label: songMeta.label,
 			share_id: CTypes.TimeUuid.fromString(uploadMeta.shareID),
 			needs_user_action: songMeta.title === null || songMeta.title.trim().length === 0 || songMeta.artists.size === 0,

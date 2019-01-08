@@ -35,6 +35,14 @@ if (process.env.NODE_ENV === NodeEnv.Development || process.env.NODE_ENV === Nod
 	const songProcessingQueue = new SongProcessingQueue(new SongService(database, null), database);
 	const fileUploadService = new BlobService(songProcessingQueue);
 
+	try {
+		await fileUploadService.createContainer('songs');
+	} catch (err) {
+		if (err.message.indexOf('ContainerAlreadyExists') === -1) {
+			console.error(err);
+		}
+	}
+
 	// setup dependency injection
 	// register 3rd party IOC container
 	useContainer(Container);

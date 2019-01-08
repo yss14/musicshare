@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<label for="path">Path</label><input id="path" /><button onclick="find().catch(e=>alert(JSON.stringify(e, null, 4)))">Find</button><br/><br/>
+<label for="path">Path</label><input id="path" /><button onclick="find().catch(e=>alert(JSON.stringify(e, null, 4)))">Find</button><br /><br />
 <label for="path">File</label><input type="file" id="file" />
-<button onclick="save()">Save</button><br/>
+<button onclick="save()">Save</button><br />
 <pre id="info"></pre>
 <pre id="list"></pre>
 <script>
@@ -22,7 +22,7 @@
 			reader.onerror = (e) => reject(e);
 			reader.readAsArrayBuffer(file);
 		});
-
+		console.log(content);
 		const res = await fetch(new Request("http://localhost:4000/users/f0d8e1f0-aeb1-11e8-a117-43673ffd376b/shares/f0d649e0-aeb1-11e8-a117-43673ffd376b/files/" + file.name, {
 			method: "POST",
 			body: content,

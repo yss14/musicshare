@@ -4,11 +4,12 @@ import { UserResolver } from '../resolvers/user.resolver';
 import { GraphQLServer, Options } from 'graphql-yoga';
 import { buildSchema, useContainer } from 'type-graphql';
 import { ShareResolver } from "../resolvers/share.resolver";
-import Container, { Inject } from "typedi";
 import * as express from 'express';
 import * as path from 'path';
 import { NodeEnv } from '../types/common-types';
 import { SongResolver } from '../resolvers/song.resolver';
+import * as Cors from 'cors';
+import * as Morgan from 'morgan';
 
 export class Server {
 	private _graphQLServer: GraphQLServer | null;
@@ -31,6 +32,10 @@ export class Server {
 
 		this._graphQLServer = new GraphQLServer({ schema });
 
+		this._graphQLServer.express.use(Cors());
+		this._graphQLServer.express.disable('x-powered-by');
+		this._graphQLServer.express.use(Morgan('dev'));
+
 		this._graphQLServer.express.use(
 			'/users/:userID/shares/:shareID/files',
 			(req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -48,14 +53,14 @@ export class Server {
 
 		if (process.env.NODE_ENV === NodeEnv.Development) {
 			this._graphQLServer.express.get('/static/debug/*', (req: express.Request, res: express.Response) => {
-				res.sendFile(path.join(__dirname, '..', req.path));
+				res.sendFile(path.join(__dirname, '../../src/', req.path));
 			})
 		}
 
 		const serverOptions: Options = {
 			port,
 			endpoint: endpoint,
-			playground: '/playground'
+			playground: '/playground',
 		};
 
 		await this._graphQLServer.start(serverOptions);

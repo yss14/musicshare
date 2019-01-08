@@ -12,17 +12,6 @@ export class SongResolver implements ResolverInterface<Song>{
 		@Inject('FILE_UPLOAD') private readonly blobService: BlobService
 	) { }
 
-	@Query(returns => Share)
-	public share(@Root() song: Song): Promise<Share | undefined> {
-		return Promise.resolve(
-			plainToClass(Share, {
-				id: '1234',
-				name: 'Some share',
-				userID: '23728'
-			})
-		);
-	}
-
 	@FieldResolver()
 	public file(@Root() song: Song): File {
 		return song.file;
