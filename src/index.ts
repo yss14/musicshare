@@ -9,15 +9,21 @@ import { BlobService } from './server/file-uploader';
 import { NodeEnv } from './types/common-types';
 import * as dotenv from 'dotenv';
 import { SongService } from "./services/song.service";
+import { isProductionEnvironment, isValidNodeEnvironment } from "./utils/env/native-envs";
+import { loadEnvsFromDotenvFile } from "./utils/env/load-envs-from-file";
 
 // enable source map support for error stacks
 require('source-map-support').install();
 
 // load environment variables
-if (process.env.NODE_ENV === NodeEnv.Development || process.env.NODE_ENV === NodeEnv.Testing) {
-	dotenv.load({
-		path: `./${process.env.NODE_ENV}.env`
-	});
+const nodeEnv = process.env.NODE_ENV;
+
+if (!isValidNodeEnvironment(nodeEnv)) {
+	throw new Error(`Invalid node environment ${nodeEnv}`);
+}
+
+if (!isProductionEnvironment()) {
+	loadEnvsFromDotenvFile(nodeEnv);
 }
 
 (async () => {
