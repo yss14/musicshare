@@ -76,5 +76,5 @@ typings/
 build/
 
 # azurite
-azurite
+azurite*/
 
