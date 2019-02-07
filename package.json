@@ -34,6 +34,7 @@
 		"typescript": "^3.2.2"
 	},
 	"dependencies": {
+		"axios": "^0.18.0",
 		"azure-storage": "^2.10.2",
 		"bee-queue": "git://github.com/yss14/bee-queue.git#b3a9edfcf597429af5ae9ac431c03b436a4318bb",
 		"cassandra-driver": "^3.6.0",

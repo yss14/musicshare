@@ -1,4 +1,5 @@
 import { Readable } from "stream";
+import { Moment } from "moment";
 
 export interface UploadFileArgs {
 	filenameRemote: string;
@@ -6,6 +7,13 @@ export interface UploadFileArgs {
 	source: Readable;
 }
 
+export interface GetLinkToFileArgs {
+	filenameRemote: string;
+	expireDate?: Moment | Date;
+	ipAddress?: string;
+}
+
 export interface FileService {
 	uploadFile(args: UploadFileArgs): Promise<void>;
+	getLinkToFile(args: GetLinkToFileArgs): Promise<string>;
 }
