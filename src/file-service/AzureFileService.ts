@@ -2,6 +2,7 @@ import { FileService, UploadFileArgs, GetLinkToFileArgs } from "./FileService";
 import * as azBlob from 'azure-storage';
 import moment = require("moment");
 import { ICreateBlockBlobRequestOptions } from "../types/azure-storage-additional-types";
+import { streamToBuffer } from "../utils/stream-to-buffer";
 
 export enum ContainerAccessLevel {
 	Private = 'off',
@@ -95,5 +96,21 @@ export class AzureFileService implements FileService {
 		const url = this.blobStorage.getUrl(this.container, args.filenameRemote, sharedAccessSignature);
 
 		return Promise.resolve(url);
+	}
+
+	public getFileAsBuffer(filenameRemote: string): Promise<Buffer> {
+		return new Promise<Buffer>((resolve, reject) => {
+			const stream = this.blobStorage.createReadStream(this.container, filenameRemote, (err) => {
+				if (err) {
+					return reject(err);
+				}
+			});
+
+			if (stream) {
+				resolve(streamToBuffer(stream));
+			} else {
+				reject(new Error('Stream is not valid'));
+			}
+		});
 	}
 }

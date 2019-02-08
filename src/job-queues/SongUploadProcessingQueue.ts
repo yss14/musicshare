@@ -1,28 +1,42 @@
-import { genres } from './../database/fixtures';
-import { DatabaseConnection } from '../database/DatabaseConnection';
-import { BlobService, IUploadMeta } from './../server/file-uploader';
 import * as BeeQueue from 'bee-queue';
-import { IUploadSongMeta } from '../server/file-uploader';
 import { SongMeta } from '../utils/id3-parser';
 import { SongService } from '../services/song.service';
 import { types as CTypes } from 'cassandra-driver';
+import { FileService } from '../file-service/FileService';
 import { Inject } from 'typedi';
 
-export class SongProcessingQueue {
+export interface ISongProcessingQueuePayload {
+	container: string;
+	blob: string;
+	originalFilename: string;
+	fileExtension: string;
+	userID: string;
+	shareID: string;
+	accessLink: string;
+}
+
+const isSongProcessingQueuePayload = (obj: any): obj is ISongProcessingQueuePayload => {
+	const requiredProperties: (keyof ISongProcessingQueuePayload)[] =
+		['container', 'blob', 'originalFilename', 'fileExtension', 'userID', 'shareID', 'accessLink'];
+
+	return !requiredProperties.some(prop => !(prop in obj));
+}
+
+export class SongUploadProcessingQueue {
 	private readonly beeQueue: BeeQueue;
-	@Inject()
-	private readonly fileUploadService!: BlobService;
 	@Inject()
 	private readonly songService!: SongService;
 
-	constructor() {
+	constructor(
+		private readonly fileService: FileService
+	) {
 		this.beeQueue = new BeeQueue('song_processing');
 
 		this.beeQueue.process(this.process.bind(this));
 	}
 
-	public enqueueUpload(uploadMeta: IUploadSongMeta): void {
-		const job = this.beeQueue.createJob<IUploadSongMeta>(uploadMeta);
+	public enqueueUpload(uploadMeta: ISongProcessingQueuePayload) {
+		const job = this.beeQueue.createJob<ISongProcessingQueuePayload>(uploadMeta);
 
 		job.on('succeeded', () => {
 			console.info(`[SongProcessing] Job ${job.id} succeeded`);
@@ -36,10 +50,16 @@ export class SongProcessingQueue {
 	}
 
 	private async process(job: BeeQueue.Job): Promise<void> {
-		const uploadMeta = job.data as IUploadSongMeta;
+		if (!isSongProcessingQueuePayload(job.data)) {
+			console.warn('Received job queue payload is no ISongProcessingQueuePayload, skip processing...');
+
+			return;
+		}
+
+		const uploadMeta = job.data;
 		console.log(uploadMeta);
 
-		const audioBuffer = await this.fileUploadService.getFile(uploadMeta.container, uploadMeta.blob);
+		const audioBuffer = await this.fileService.getFileAsBuffer(uploadMeta.blob);
 
 		const songMeta = await SongMeta.analyse(uploadMeta.originalFilename, uploadMeta.fileExtension, audioBuffer);
 

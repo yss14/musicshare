@@ -4,6 +4,8 @@ import { AzureFileService } from '../file-service/AzureFileService';
 import * as fs from 'fs';
 import { urlIsReachable } from './utils/url-is-reachable';
 import moment = require('moment');
+import { v4 as uuid } from 'uuid';
+import { promises as fsPromises } from 'fs';
 
 const startAzurite = () => {
 	return new Promise<ChildProcess>((resolve, reject) => {
@@ -119,5 +121,33 @@ describe('get url to file', () => {
 		const urlToFileIsReachable = await urlIsReachable(urlToFile);
 
 		expect(urlToFileIsReachable).toBeFalsy();
+	});
+});
+
+describe('get file as buffer', () => {
+	const mp3FilePath = path.join(__dirname, 'assets', 'SampleAudio.mp3');
+	const container = 'testupload';
+
+	test('get existing file as buffer', async () => {
+		const azureFileService = await AzureFileService.makeService(container);
+
+		const filenameRemote = 'file-' + uuid().split('-').join('') + '.mp3';
+
+		await azureFileService.uploadFile({
+			filenameRemote: filenameRemote,
+			contentType: 'audio/mp3',
+			source: fs.createReadStream(mp3FilePath)
+		});
+
+		const readBuffer = await fsPromises.readFile(mp3FilePath);
+		const receivedBuffer = await azureFileService.getFileAsBuffer(filenameRemote);
+
+		expect(receivedBuffer.equals(readBuffer)).toBe(true);
+	});
+
+	test('get not-existing file as buffer', async () => {
+		const azureFileService = await AzureFileService.makeService(container);
+
+		await expect(azureFileService.getFileAsBuffer('some-not-existing-file.mp3')).rejects.toThrow();
 	});
 });

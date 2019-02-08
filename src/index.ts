@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { SongProcessingQueue } from './job-queues/song-processing.queue';
+import { SongUploadProcessingQueue } from './job-queues/SongUploadProcessingQueue';
 import { CoreDatabase } from './database/CoreDatabase';
 import { DatabaseConnection } from "./database/DatabaseConnection";
 import { HTTPServer } from './server/HTTPServer';
@@ -44,8 +44,8 @@ if (!isProductionEnvironment()) {
 
 	console.info('Database schema created');
 
-	const songProcessingQueue = new SongProcessingQueue();
 	const fileService = await AzureFileService.makeService('songs');
+	const songProcessingQueue = new SongUploadProcessingQueue(fileService);
 
 	useContainer(Container);
 

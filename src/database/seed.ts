@@ -1,22 +1,15 @@
 import { SongService } from './../services/song.service';
 import { NodeEnv } from "../types/common-types";
-import { DatabaseConnection, IBatchQuery } from "./DatabaseConnection";
+import { DatabaseConnection } from "./DatabaseConnection";
 import * as faker from 'faker';
 import { types as CTypes } from 'cassandra-driver';
-
 import { IUserDBResult, IShareByUserDBResult, ISongByShareDBResult } from './schema/initial-schema';
-import { IUploadMeta } from '../server/file-uploader';
 import { createPrefilledArray } from '../utils/array/create-prefilled-array';
+import { __PROD__ } from '../utils/env/env-constants';
 
 type Users = 'user1';
 type Shares = 'library_user1';
 type Songs = 'song1_library_user1' | 'song2_library_user1';
-
-// https://github.com/Microsoft/TypeScript/issues/15012
-type NHKeys<T> = ({ [P in keyof T]: P } & { [x: string]: never })[keyof T];
-type Required<T> = {
-	[K in NHKeys<T>]: T[K];
-};
 
 interface ITestDataSchema {
 	users: { [P in Users]: Required<IUserDBResult>; };
@@ -65,7 +58,7 @@ export const testData: ITestDataSchema = {
 			label: null,
 			share_id: CTypes.TimeUuid.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			needs_user_action: false,
-			file: JSON.stringify({ container: 'songs', blob: 'somefile', fileExtension: 'mp3' } as IUploadMeta)
+			file: JSON.stringify({ container: 'songs', blob: 'somefile', fileExtension: 'mp3' })
 		},
 		song2_library_user1: {
 			id: CTypes.TimeUuid.fromString('f0d69800-aeb1-11e8-a117-43673ffd376b'),
@@ -84,7 +77,7 @@ export const testData: ITestDataSchema = {
 			label: 'Anjunadeep',
 			share_id: CTypes.TimeUuid.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			needs_user_action: false,
-			file: JSON.stringify({ container: 'songs', blob: 'somefile', fileExtension: 'mp3' } as IUploadMeta)
+			file: JSON.stringify({ container: 'songs', blob: 'somefile', fileExtension: 'mp3' })
 		}
 	}
 }
@@ -110,7 +103,7 @@ export const seedDatabase = async (database: DatabaseConnection, env: NodeEnv): 
 	}
 
 	// insert songs for development and testing
-	if (env !== NodeEnv.Production) {
+	if (!__PROD__) {
 		for (const [key, s] of Object.entries(testData.songs)) {
 			/*await database.execute(`
 				INSERT INTO songs_by_share 
