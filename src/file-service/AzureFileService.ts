@@ -1,7 +1,7 @@
 import { FileService, UploadFileArgs, GetLinkToFileArgs } from "./FileService";
-import { ICreateBlockBlobRequestOptions } from "../server/file-uploader-interfaces";
 import * as azBlob from 'azure-storage';
 import moment = require("moment");
+import { ICreateBlockBlobRequestOptions } from "../types/azure-storage-additional-types";
 
 export enum ContainerAccessLevel {
 	Private = 'off',
