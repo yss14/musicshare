@@ -1,19 +1,12 @@
 import { SongService } from './../services/song.service';
-import { Random } from './../utils/random-generator';
 import { NodeEnv } from "../types/common-types";
-import { Database, IBatchQuery } from "./database";
+import { DatabaseConnection, IBatchQuery } from "./DatabaseConnection";
 import * as faker from 'faker';
 import { types as CTypes } from 'cassandra-driver';
 
 import { IUserDBResult, IShareByUserDBResult, ISongByShareDBResult } from './schema/initial-schema';
-import { filter } from 'minimatch';
 import { IUploadMeta } from '../server/file-uploader';
-
-const generatedEMails = (numbersOfEMails: number): string[] => {
-	return new Array<string>(numbersOfEMails)
-		.fill(undefined)
-		.map(() => faker.internet.email());
-}
+import { createPrefilledArray } from '../utils/array/create-prefilled-array';
 
 type Users = 'user1';
 type Shares = 'library_user1';
@@ -29,6 +22,13 @@ interface ITestDataSchema {
 	users: { [P in Users]: Required<IUserDBResult>; };
 	shares: { [P in Shares]: Required<IShareByUserDBResult> };
 	songs: { [P in Songs]: Required<ISongByShareDBResult> };
+}
+
+const generatedEMails = (numbersOfEMails: number): string[] => {
+	const prefilledArray = createPrefilledArray(numbersOfEMails, '');
+
+	return prefilledArray
+		.map(() => faker.internet.email());
 }
 
 export const testData: ITestDataSchema = {
@@ -89,8 +89,8 @@ export const testData: ITestDataSchema = {
 	}
 }
 
-export const seedDatabase = async (database: Database, env: NodeEnv): Promise<void> => {
-	const songService = new SongService(database, null);
+export const seedDatabase = async (database: DatabaseConnection, env: NodeEnv): Promise<void> => {
+	const songService = new SongService();
 
 	// insert users for development and testing
 	if (env !== NodeEnv.Production) {
@@ -123,8 +123,8 @@ export const seedDatabase = async (database: Database, env: NodeEnv): Promise<vo
 			await songService.create(s);
 		}
 
-		const songInserts = new Array<IBatchQuery>(100)
-			.fill(undefined)
+		const prefilledArray = createPrefilledArray(100, {});
+		const songInserts = prefilledArray
 			.map((): Required<ISongByShareDBResult> => ({
 				id: CTypes.TimeUuid.now(),
 				title: faker.name.findName(),

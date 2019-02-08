@@ -1,7 +1,8 @@
-import { Database } from "./database";
+import { DatabaseConnection } from "./DatabaseConnection";
 import { songsByShare, users, sharesByUser } from "./schema/initial-schema";
 import { seedDatabase } from "./seed";
 import { NodeEnv } from "../types/common-types";
+import { Service, Inject } from "typedi";
 
 interface ISystemSchemaDBResult {
 	keyspace_name: string;
@@ -12,12 +13,10 @@ interface ICreateSchemaOpts {
 	clear?: boolean;
 }
 
+@Service()
 export class CoreDatabase {
-	private _database: Database;
-
-	constructor(database: Database) {
-		this._database = database;
-	}
+	@Inject()
+	private databaseConnection!: DatabaseConnection;
 
 	public async createSchema(opts?: ICreateSchemaOpts): Promise<void> {
 		const clearKeySpace = opts && opts.clear || false;
@@ -27,21 +26,21 @@ export class CoreDatabase {
 		}
 
 		await Promise.all([
-			this._database.execute(users()),
-			this._database.execute(sharesByUser()),
-			this._database.execute(songsByShare())
+			this.databaseConnection.execute(users()),
+			this.databaseConnection.execute(sharesByUser()),
+			this.databaseConnection.execute(songsByShare())
 		]);
 
-		await seedDatabase(this._database, process.env.NODE_ENV as NodeEnv.Development || NodeEnv.Development);
+		await seedDatabase(this.databaseConnection, process.env.NODE_ENV as NodeEnv.Development || NodeEnv.Development);
 	}
 
 	private async clearKeySpace(): Promise<void> {
-		const rows = (await this._database.select<ISystemSchemaDBResult>(`
+		const rows = (await this.databaseConnection.select<ISystemSchemaDBResult>(`
 			SELECT * FROM system_schema.tables WHERE keyspace_name = ?;
 		`, ['musicshare']));
 
 		for (const row of rows) {
-			await this._database.execute(`
+			await this.databaseConnection.execute(`
 				DROP TABLE ${row.table_name};
 			`)
 		}

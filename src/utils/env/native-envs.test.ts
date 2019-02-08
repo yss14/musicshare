@@ -54,4 +54,10 @@ describe('isValidNodeEnvironment()', () => {
 
 		expect(isValidNodeEnv).toBe(false);
 	});
+
+	test('undefined', () => {
+		const isValidNodeEnv = isValidNodeEnvironment(undefined);
+
+		expect(isValidNodeEnv).toBe(false);
+	});
 });

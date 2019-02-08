@@ -36,18 +36,18 @@ export const sharesByUser = () => `
 
 export interface ISongByShareDBInsert {
 	title: string;
-	suffix?: string;
-	year?: number;
-	bpm?: number;
+	suffix?: string | null;
+	year?: number | null;
+	bpm?: number | null;
 	date_last_edit: number;
-	release_date?: Date;
+	release_date?: Date | null;
 	is_rip: boolean;
 	artists?: string[];
 	remixer?: string[];
 	featurings?: string[];
-	type?: string;
+	type?: string | null;
 	genres?: string[];
-	label?: string;
+	label?: string | null;
 	share_id: CTypes.TimeUuid;
 	needs_user_action: boolean;
 	file: string;

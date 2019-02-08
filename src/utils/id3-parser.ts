@@ -2,7 +2,7 @@ import * as ID3Parser from 'id3-parser';
 import urlRegex = require('url-regex');
 import { songTypes, genres } from '../database/fixtures';
 import * as _ from 'lodash';
-import { tryParseInt } from './try-parser';
+import { tryParseInt } from './try-parse/try-parse-int';
 const similarity = require('similarity');
 
 export interface IExtractedSongMeta {

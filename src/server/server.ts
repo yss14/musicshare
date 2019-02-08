@@ -1,5 +1,5 @@
 import { BlobService } from './file-uploader';
-import { Database } from '../database/database';
+import { DatabaseConnection } from '../database/DatabaseConnection';
 import { UserResolver } from '../resolvers/user.resolver';
 import { GraphQLServer, Options } from 'graphql-yoga';
 import { buildSchema, useContainer } from 'type-graphql';
@@ -15,7 +15,7 @@ export class Server {
 	private _graphQLServer: GraphQLServer | null;
 
 	constructor(
-		private readonly database: Database,
+		private readonly database: DatabaseConnection,
 		private readonly fileUpload: BlobService
 	) {
 		this._graphQLServer = null;

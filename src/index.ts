@@ -1,16 +1,16 @@
 import "reflect-metadata";
 import { SongProcessingQueue } from './job-queues/song-processing.queue';
-import { CoreDatabase } from './database/core-database';
-import { Database } from "./database/database";
+import { CoreDatabase } from './database/CoreDatabase';
+import { DatabaseConnection } from "./database/DatabaseConnection";
 import { Server } from './server/server';
 import { useContainer } from 'type-graphql';
 import Container from 'typedi';
 import { BlobService } from './server/file-uploader';
-import { NodeEnv } from './types/common-types';
-import * as dotenv from 'dotenv';
 import { SongService } from "./services/song.service";
 import { isProductionEnvironment, isValidNodeEnvironment } from "./utils/env/native-envs";
 import { loadEnvsFromDotenvFile } from "./utils/env/load-envs-from-file";
+import { CustomEnv } from "./utils/env/CustomEnv";
+import { tryParseInt } from "./utils/try-parse/try-parse-int";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -27,18 +27,20 @@ if (!isProductionEnvironment()) {
 }
 
 (async () => {
-	const database = new Database({
-		contactPoints: ['127.0.0.1'],
-		keyspace: 'musicshare'
+	const databaseHost = process.env[CustomEnv.CASSANDRA_HOST] || '127.0.0.1';
+	const databaseKeyspace = process.env[CustomEnv.CASSANDRA_KEYSPACE] || 'musicshare';
+	const database = new DatabaseConnection({
+		contactPoints: [databaseHost],
+		keyspace: databaseKeyspace
 	});
 
-	const coreDatabase = new CoreDatabase(database);
+	const coreDatabase = new CoreDatabase();
 
 	await coreDatabase.createSchema({ clear: true });
 
 	console.info('Database schema created');
 
-	const songProcessingQueue = new SongProcessingQueue(new SongService(database, null), database);
+	const songProcessingQueue = new SongProcessingQueue();
 	const fileUploadService = new BlobService(songProcessingQueue);
 
 	try {
@@ -57,7 +59,8 @@ if (!isProductionEnvironment()) {
 	Container.set({ id: 'FILE_UPLOAD', factory: () => fileUploadService });
 
 	const server = new Server(database, fileUploadService);
-	await server.start('/graphql', 4000);
+	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);
+	await server.start('/graphql', serverPort);
 
-	console.info(`Server is running, GraphQL Playground available at http://localhost:4000/playground`);
+	console.info(`Server is running, GraphQL Playground available at http://localhost:${serverPort}/playground`);
 })();

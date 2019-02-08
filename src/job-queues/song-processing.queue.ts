@@ -1,28 +1,27 @@
 import { genres } from './../database/fixtures';
-import { Database } from './../database/database';
+import { DatabaseConnection } from '../database/DatabaseConnection';
 import { BlobService, IUploadMeta } from './../server/file-uploader';
 import * as BeeQueue from 'bee-queue';
 import { IUploadSongMeta } from '../server/file-uploader';
 import { SongMeta } from '../utils/id3-parser';
 import { SongService } from '../services/song.service';
 import { types as CTypes } from 'cassandra-driver';
+import { Inject } from 'typedi';
 
 export class SongProcessingQueue {
-	private beeQueue: BeeQueue;
-	private fileUploadService: BlobService;
+	private readonly beeQueue: BeeQueue;
+	@Inject()
+	private readonly fileUploadService!: BlobService;
+	@Inject()
+	private readonly songService!: SongService;
 
-	constructor(
-		private readonly songService: SongService,
-		private readonly database: Database
-	) {
+	constructor() {
 		this.beeQueue = new BeeQueue('song_processing');
 
 		this.beeQueue.process(this.process.bind(this));
 	}
 
-	public enqueueUpload(fileUploadService: BlobService, uploadMeta: IUploadSongMeta): void {
-		this.fileUploadService = fileUploadService;
-
+	public enqueueUpload(uploadMeta: IUploadSongMeta): void {
 		const job = this.beeQueue.createJob<IUploadSongMeta>(uploadMeta);
 
 		job.on('succeeded', () => {
