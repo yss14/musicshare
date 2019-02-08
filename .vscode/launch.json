@@ -14,7 +14,7 @@
 				"${file}"
 			],
 			"env": {
-				"NODE_ENV": "testing"
+				"NODE_ENV": "test"
 			},
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "neverOpen",
