@@ -1,5 +1,5 @@
-import { BlobService } from './../server/file-uploader';
-import { Song } from './../models/song.model';
+import { BlobService } from '../server/file-uploader';
+import { Song } from '../models/song.model';
 import { Resolver, Query, Arg, FieldResolver, Root, ResolverInterface } from "type-graphql";
 import { Share } from "../models/share.model";
 import { plainToClass } from "class-transformer";
@@ -9,7 +9,7 @@ import { File } from '../models/file.model';
 @Resolver(of => Song)
 export class SongResolver implements ResolverInterface<Song>{
 	constructor(
-		@Inject('FILE_UPLOAD') private readonly blobService: BlobService
+		@Inject('FILE_SERVICE') private readonly blobService: BlobService
 	) { }
 
 	@FieldResolver()

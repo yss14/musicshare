@@ -1,4 +1,4 @@
-import { SongService } from './../services/song.service';
+import { SongService } from '../services/song.service';
 import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
 import { Share } from "../models/share.model";
 import { Song } from "../models/song.model";

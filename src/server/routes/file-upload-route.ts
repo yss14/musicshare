@@ -12,7 +12,7 @@ import { FileService } from "../../file-system/FileService";
 import { Duplex } from "stream";
 import * as BodyParser from 'body-parser';
 import { commonRestErrors } from "../../utils/typed-express/common-rest-errors";
-import { __TESTING__ } from "../../utils/env/env-constants";
+import { __TEST__ } from "../../utils/env/env-constants";
 
 export const fileUploadErrors = {
 	bodyNoValidByteBuffer: { identifier: 'body.novalidbytebuffer', message: 'The body is not a valid byte buffer' },
@@ -100,7 +100,7 @@ const requestHandler = (fileService: FileService) => async (req: express.Request
 
 		return ResponseSuccessJSON(HTTPStatusCodes.CREATED, {});
 	} catch (err) {
-		if (!__TESTING__) console.error(err);
+		if (!__TEST__) console.error(err);
 
 		return ResponseError(HTTPStatusCodes.INTERNAL_SERVER_ERROR, commonRestErrors.internalServerError);
 	}

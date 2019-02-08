@@ -2,15 +2,18 @@ import "reflect-metadata";
 import { SongProcessingQueue } from './job-queues/song-processing.queue';
 import { CoreDatabase } from './database/CoreDatabase';
 import { DatabaseConnection } from "./database/DatabaseConnection";
-import { Server } from './server/server';
+import { HTTPServer } from './server/HTTPServer';
 import { useContainer } from 'type-graphql';
 import Container from 'typedi';
-import { BlobService } from './server/file-uploader';
-import { SongService } from "./services/song.service";
 import { isProductionEnvironment, isValidNodeEnvironment } from "./utils/env/native-envs";
 import { loadEnvsFromDotenvFile } from "./utils/env/load-envs-from-file";
 import { CustomEnv } from "./utils/env/CustomEnv";
 import { tryParseInt } from "./utils/try-parse/try-parse-int";
+import { UserResolver } from "./resolvers/UserResolver";
+import { ShareResolver } from "./resolvers/ShareResolver";
+import { SongResolver } from "./resolvers/SongResolver";
+import { makeGraphQLServer } from "./server/GraphQLServer";
+import { AzureFileService } from "./file-service/AzureFileService";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -41,24 +44,21 @@ if (!isProductionEnvironment()) {
 	console.info('Database schema created');
 
 	const songProcessingQueue = new SongProcessingQueue();
-	const fileUploadService = new BlobService(songProcessingQueue);
+	const fileService = await AzureFileService.makeService('songs');
 
-	try {
-		await fileUploadService.createContainer('songs');
-	} catch (err) {
-		if (err.message.indexOf('ContainerAlreadyExists') === -1) {
-			console.error(err);
-		}
-	}
-
-	// setup dependency injection
-	// register 3rd party IOC container
 	useContainer(Container);
 
 	Container.set({ id: 'DATABASE', factory: () => database });
-	Container.set({ id: 'FILE_UPLOAD', factory: () => fileUploadService });
+	Container.set({ id: 'FILE_SERVICE', factory: () => fileService });
 
-	const server = new Server(database, fileUploadService);
+	const graphQLResolvers: Function[] = [
+		UserResolver,
+		ShareResolver,
+		SongResolver
+	];
+	const graphQLServer = await makeGraphQLServer(graphQLResolvers);
+
+	const server = await HTTPServer.makeServer(graphQLServer, fileService);
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);
 	await server.start('/graphql', serverPort);
 
