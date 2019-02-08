@@ -5,56 +5,56 @@ import { Share } from "./share.model";
 @ObjectType({ description: 'This represents a song which can be part of a library or share' })
 export class Song {
 	@Field()
-	id: string;
+	public readonly id!: string;
 
 	@Field()
-	title: string;
+	public readonly title!: string;
 
 	@Field({ nullable: true })
-	suffix?: string;
+	public readonly suffix!: string | null;
 
 	@Field({ nullable: true })
-	year?: number;
+	public readonly year!: number | null;
 
 	@Field({ nullable: true })
-	bpm?: number;
+	public readonly bpm!: number | null;
 
 	@Field(type => Float)
-	dateLastEdit: number;
+	public readonly dateLastEdit!: number;
 
 	@Field({ nullable: true })
-	releaseDate?: string;
+	releaseDate!: string | null;
 
 	@Field()
-	isRip: boolean;
+	public readonly isRip!: boolean;
 
 	@Field(type => [String])
-	artists: string[];
+	public readonly artists!: string[];
 
 	@Field(type => [String])
-	remixer: string[];
+	public readonly remixer!: string[];
 
 	@Field(type => [String])
-	featurings: string[];
+	public readonly featurings!: string[];
 
 	@Field({ nullable: true })
-	type: string;
+	public readonly type!: string | null;
 
-	@Field(type => [String], { nullable: true })
-	genres: string[];
+	@Field(type => [String])
+	public readonly genres!: string[];
 
 	@Field({ nullable: true })
-	label: string;
+	public readonly label!: string | null;
 
 	@Field(() => Share)
-	share: Share;
+	public readonly share!: Share;
 
 	@Field()
-	needsUserAction: boolean;
+	public readonly requiresUserAction!: boolean;
 
 	@Field(() => File)
-	file: File;
+	public readonly file!: File;
 
 	@Field()
-	accessUrl: string;
+	public readonly accessUrl!: string;
 }

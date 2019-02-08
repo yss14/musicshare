@@ -3,14 +3,14 @@ import { ObjectType, Field } from "type-graphql";
 @ObjectType({ description: 'This represents file meta data for a song' })
 export class File {
 	@Field()
-	container: string;
+	public readonly container!: string;
 
 	@Field()
-	blob: string;
+	public readonly blob!: string;
 
 	@Field()
-	fileExtension: string;
+	public readonly fileExtension!: string;
 
 	@Field()
-	originalFilename: string;
+	public readonly originalFilename!: string;
 }

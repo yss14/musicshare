@@ -4,20 +4,20 @@ import { Song } from "./song.model";
 @ObjectType({ description: "Object representing a share or a personal library" })
 export class Share {
 	@Field()
-	id: string;
+	public readonly id!: string;
 
 	@Field()
-	name: string;
+	public readonly name!: string;
 
 	@Field()
-	userID: string;
+	public readonly userID!: string;
 
 	@Field()
-	isLibrary: boolean;
+	public readonly isLibrary!: boolean;
 
 	@Field(type => [Song])
-	songs: Song[];
+	public readonly songs!: Song[];
 
 	@Field(type => Song, { nullable: true })
-	song: Song;
+	public readonly song!: Song | null;
 }

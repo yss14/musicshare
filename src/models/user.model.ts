@@ -1,17 +1,17 @@
 import { Share } from './share.model';
-import { ObjectType, Field, Int, Float } from "type-graphql";
+import { ObjectType, Field } from "type-graphql";
 
 @ObjectType({ description: "Object representing a user" })
 export class User {
 	@Field()
-	id: string;
+	public readonly id!: string;
 
 	@Field()
-	name: string;
+	public readonly name!: string;
 
 	@Field(type => [String])
-	emails: Set<string>;
+	public readonly emails!: Set<string>;
 
 	@Field(type => [Share])
-	shares: Share[];
+	public readonly shares!: Share[];
 }
