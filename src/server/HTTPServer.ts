@@ -4,8 +4,8 @@ import * as path from 'path';
 import * as Cors from 'cors';
 import * as Morgan from 'morgan';
 import { fileUploadRouter } from './routes/file-upload-route';
-import { FileService } from '../file-system/FileService';
 import { __DEV__ } from '../utils/env/env-constants';
+import { FileService } from '../file-service/FileService';
 
 const MB_100 = 100 * 1024 * 1024;
 

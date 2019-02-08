@@ -14,6 +14,7 @@ import { ShareResolver } from "./resolvers/ShareResolver";
 import { SongResolver } from "./resolvers/SongResolver";
 import { makeGraphQLServer } from "./server/GraphQLServer";
 import { AzureFileService } from "./file-service/AzureFileService";
+import { __DEV__ } from "./utils/env/env-constants";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -62,5 +63,7 @@ if (!isProductionEnvironment()) {
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);
 	await server.start('/graphql', serverPort);
 
-	console.info(`Server is running, GraphQL Playground available at http://localhost:${serverPort}/playground`);
+	console.info(`Server is running on http://localhost:${serverPort}`);
+	console.info(`GraphQL endpoint available at http://localhost:${serverPort}/graphql`);
+	if (__DEV__) console.info(`GraphQL Playground available at http://localhost:${serverPort}/playground`);
 })();

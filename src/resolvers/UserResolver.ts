@@ -9,13 +9,13 @@ import { UserService } from '../services/user.service';
 export class UserResolver {
 
 	constructor(
-		private readonly _userService: UserService,
-		private readonly _shareService: ShareService
+		private readonly userService: UserService,
+		private readonly shareService: ShareService
 	) { }
 
 	@Query(returns => User, { nullable: true })
-	public user(@Arg("id") id: string): Promise<User | undefined> {
-		return this._userService.getUserByID(id);
+	public user(@Arg("id") id: string): Promise<User | null> {
+		return this.userService.getUserByID(id);
 	}
 
 	@FieldResolver()
@@ -24,10 +24,10 @@ export class UserResolver {
 		@Arg('libOnly', { nullable: true }) libOnly?: boolean
 	): Promise<Share[]> {
 		if (libOnly) {
-			return this._shareService.getSharesByUser(user)
+			return this.shareService.getSharesByUser(user)
 				.then(shares => shares.filter(share => share.isLibrary));
 		} else {
-			return this._shareService.getSharesByUser(user);
+			return this.shareService.getSharesByUser(user);
 		}
 	}
 }

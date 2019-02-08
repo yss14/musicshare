@@ -8,7 +8,7 @@ import { withMiddleware } from "../../utils/typed-express/typed-middleware";
 import * as crypto from 'crypto';
 import * as path from 'path';
 import { v4 as uuid } from 'uuid';
-import { FileService } from "../../file-system/FileService";
+import { FileService } from "../../file-service/FileService";
 import { Duplex } from "stream";
 import * as BodyParser from 'body-parser';
 import { commonRestErrors } from "../../utils/typed-express/common-rest-errors";

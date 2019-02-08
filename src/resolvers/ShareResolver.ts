@@ -33,7 +33,7 @@ export class ShareResolver {
 	public async song(
 		@Root() share: Share,
 		@Arg('id') id: string
-	): Promise<Song> {
+	): Promise<Song | null> {
 		return await this.songService.getByID(share.id, id);
 	}
 }
