@@ -1,6 +1,6 @@
 import { spawn, ChildProcess } from 'child_process';
 import * as path from 'path';
-import { AzureFileService } from '../file-system/AzureFileService';
+import { AzureFileService } from '../file-service/AzureFileService';
 import * as fs from 'fs';
 import { urlIsReachable } from './utils/url-is-reachable';
 import moment = require('moment');

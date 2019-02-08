@@ -31,8 +31,8 @@ describe('isValidNodeEnvironment()', () => {
 		expect(isValidNodeEnv).toBe(true);
 	});
 
-	test('testing', () => {
-		const isValidNodeEnv = isValidNodeEnvironment('testing');
+	test('test', () => {
+		const isValidNodeEnv = isValidNodeEnvironment('test');
 
 		expect(isValidNodeEnv).toBe(true);
 	});

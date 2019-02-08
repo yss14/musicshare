@@ -1,4 +1,4 @@
-import { createPrefilledArray } from "./create-empty-array";
+import { createPrefilledArray } from "./create-prefilled-array";
 
 test('0 elements', () => {
 	const zeroElementArray = createPrefilledArray<string>(0, '');
