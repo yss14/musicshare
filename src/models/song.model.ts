@@ -1,9 +1,11 @@
 import { File } from './file.model';
 import { ObjectType, Field, Float } from "type-graphql";
 import { Share } from "./share.model";
+import { Nullable } from '../types/Nullable';
+import { ISong } from './interfaces/ISong';
 
 @ObjectType({ description: 'This represents a song which can be part of a library or share' })
-export class Song {
+export class Song implements Nullable<ISong>{
 	@Field()
 	public readonly id!: string;
 

@@ -6,20 +6,26 @@ import { FileService } from '../file-service/FileService';
 import { Inject } from 'typedi';
 
 export interface ISongProcessingQueuePayload {
+	file: IUploadedFile;
+	userID: string;
+	shareID: string;
+}
+
+export interface IUploadedFile {
 	container: string;
 	blob: string;
 	originalFilename: string;
 	fileExtension: string;
-	userID: string;
-	shareID: string;
 	accessLink: string;
 }
 
 const isSongProcessingQueuePayload = (obj: any): obj is ISongProcessingQueuePayload => {
 	const requiredProperties: (keyof ISongProcessingQueuePayload)[] =
-		['container', 'blob', 'originalFilename', 'fileExtension', 'userID', 'shareID', 'accessLink'];
+		['userID', 'shareID', 'file'];
+	const requiredPropertiesFile: (keyof IUploadedFile)[] =
+		['container', 'blob', 'originalFilename', 'fileExtension', 'accessLink'];
 
-	return !requiredProperties.some(prop => !(prop in obj));
+	return !requiredProperties.some(prop => !(prop in obj)) && !requiredPropertiesFile.some(prop => !(prop in obj.file));
 }
 
 export class SongUploadProcessingQueue {

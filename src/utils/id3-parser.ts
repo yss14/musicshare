@@ -3,22 +3,9 @@ import urlRegex = require('url-regex');
 import { songTypes, genres } from '../database/fixtures';
 import * as _ from 'lodash';
 import { tryParseInt } from './try-parse/try-parse-int';
+import { ISong } from '../models/interfaces/ISong';
+import { Nullable } from '../types/Nullable';
 const similarity = require('similarity');
-
-export interface IExtractedSongMeta {
-	title?: string;
-	suffix?: string;
-	year?: number;
-	bpm?: number;
-	releaseDate?: number;
-	isRip?: boolean;
-	artists?: Set<string>;
-	remixer?: Set<string>;
-	featurings?: Set<string>;
-	type?: string;
-	genre?: string;
-	label?: string;
-}
 
 type ArtistType = 'artists' | 'remixer' | 'featurings';
 
@@ -29,18 +16,18 @@ interface IArtist {
 
 export class SongMeta {
 	public static async analyse(originalFilename: string, extension: string, audioBuffer: Buffer): Promise<IExtractedSongMeta> {
-		const songMeta: IExtractedSongMeta = {
+		const songMeta: Nullable<ISong> = {
 			title: null,
 			suffix: null,
 			year: null,
 			bpm: null,
 			releaseDate: null,
 			isRip: false,
-			artists: new Set(),
-			remixer: new Set(),
-			featurings: new Set(),
+			artists: [],
+			remixer: [],
+			featurings: [],
 			type: null,
-			genre: null,
+			genres: [],
 			label: null
 		};
 
