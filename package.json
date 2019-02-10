@@ -8,12 +8,15 @@
 		"build": "tsc --project tsconfig.json",
 		"azurite": "azurite-blob -l azurite",
 		"test": "cross-env NODE_ENV=test jest --config=jest.json",
-		"test:watch": "jest --watch --config=jest.json"
+		"test:watch": "jest --watch --config=jest.json",
+		"lint": "tslint --project tsconfig.json --config tslint.json",
+		"lint:fix": "tslint --fix --project tsconfig.json --config tslint.json"
 	},
 	"author": "Yannick Stachelscheid",
 	"license": "UNLICENSED",
 	"devDependencies": {
 		"@types/aws-lambda": "^8.10.17",
+		"@types/body-parser": "^1.17.0",
 		"@types/cassandra-driver": "^3.6.0",
 		"@types/cors": "^2.8.4",
 		"@types/dotenv": "^4.0.3",
@@ -32,12 +35,16 @@
 		"cross-env": "^5.2.0",
 		"jest": "^24.1.0",
 		"ts-jest": "^23.10.5",
+		"tslint": "^5.12.1",
+		"tslint-clean-code": "^0.2.9",
+		"tslint-eslint-rules": "^5.4.0",
 		"typescript": "^3.2.2"
 	},
 	"dependencies": {
 		"axios": "^0.18.0",
 		"azure-storage": "^2.10.2",
 		"bee-queue": "git://github.com/yss14/bee-queue.git#b3a9edfcf597429af5ae9ac431c03b436a4318bb",
+		"body-parser": "^1.18.3",
 		"cassandra-driver": "^3.6.0",
 		"class-transformer": "^0.1.10",
 		"cors": "^2.8.5",

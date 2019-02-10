@@ -21,7 +21,7 @@ const isSongProcessingQueuePayload = (obj: any): obj is ISongProcessingQueuePayl
 }
 
 export interface ISongUploadProcessingQueue {
-	enqueueUpload(uploadMeta: ISongProcessingQueuePayload): void;
+	enqueueUpload(uploadMeta: ISongProcessingQueuePayload): Promise<void>;
 }
 
 export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
@@ -37,7 +37,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 		this.beeQueue.process(this.process.bind(this));
 	}
 
-	public enqueueUpload(uploadMeta: ISongProcessingQueuePayload) {
+	public async enqueueUpload(uploadMeta: ISongProcessingQueuePayload) {
 		const job = this.beeQueue.createJob<ISongProcessingQueuePayload>(uploadMeta);
 
 		job.on('succeeded', () => {
@@ -48,7 +48,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 			console.error(`[SongProcessing] Job ${job.id} failed\n${err.stack}`);
 		})
 
-		job.save();
+		await job.save();
 	}
 
 	private async process(job: BeeQueue.Job): Promise<void> {

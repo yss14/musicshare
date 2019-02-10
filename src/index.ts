@@ -1,3 +1,4 @@
+// tslint:disable-next-line:no-import-side-effect
 import "reflect-metadata";
 import { SongUploadProcessingQueue } from './job-queues/SongUploadProcessingQueue';
 import { DatabaseConnection } from "./database/DatabaseConnection";
@@ -63,10 +64,10 @@ if (!isProductionEnvironment()) {
 	Container.set('USER_SERVICE', userService);
 
 	if (__DEV__) {
-		const seed = makeDatabaseSeed(database, songService);
-		makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
+		const seed = await makeDatabaseSeed(database, songService);
+		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	} else if (__PROD__) {
-		makeDatabaseSchema(database, { keySpace: databaseKeyspace });
+		await makeDatabaseSchema(database, { keySpace: databaseKeyspace });
 	}
 
 	const graphQLResolvers: Function[] = [
@@ -83,4 +84,6 @@ if (!isProductionEnvironment()) {
 	console.info(`Server is running on http://localhost:${serverPort}`);
 	console.info(`GraphQL endpoint available at http://localhost:${serverPort}/graphql`);
 	if (__DEV__) console.info(`GraphQL Playground available at http://localhost:${serverPort}/playground`);
-})();
+})()
+	.then()
+	.catch(console.error);

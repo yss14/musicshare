@@ -17,7 +17,12 @@ const passingFileService = new FileServiceMock(
 	() => ''
 );
 const songUploadProcessingQueue = new SongUploadProcessingQueueMock();
-const defaultRestRouter = fileUploadRouter(passingFileService, songUploadProcessingQueue, 10 * 1024 * 1024, acceptedContentTypes);
+const defaultRestRouter = fileUploadRouter({
+	fileService: passingFileService,
+	uploadProcessingQueue: songUploadProcessingQueue,
+	maxFileSize: 10 * 1024 * 1024,
+	allowedMimeTypes: acceptedContentTypes
+});
 const defaultExpressApp = makeExpressApp({ routers: [defaultRestRouter] });
 
 beforeAll(async () => {
@@ -133,7 +138,12 @@ test('valid request, but file upload fails', async (done) => {
 		() => { throw new Error('Some went wrong during the file upload') },
 		() => ''
 	);
-	const restRouter = fileUploadRouter(failingFileService, songUploadProcessingQueue, 10 * 1024 * 1024, acceptedContentTypes);
+	const restRouter = fileUploadRouter({
+		fileService: failingFileService,
+		uploadProcessingQueue: songUploadProcessingQueue,
+		maxFileSize: 10 * 1024 * 1024,
+		allowedMimeTypes: acceptedContentTypes
+	});
 	const expressApp = makeExpressApp({ routers: [restRouter] });
 
 	const httpRequest = request(expressApp)

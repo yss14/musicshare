@@ -34,7 +34,7 @@ const makeRawBodyParser = (fileSizeLimit: number, allowedMimeTypes: string[]) =>
 	return BodyParser.raw({
 		type: allowedMimeTypes,
 		limit: fileSizeLimit,
-		verify(req: IRequestWithRawBody, res, buf, encoding) {
+		verify(req: IRequestWithRawBody, _, buf) {
 			req.rawBody = buf;
 		}
 	});
@@ -78,45 +78,47 @@ const extractContentType = async (req: express.Request): Promise<Either<IRespons
 	}
 }
 
-const requestHandler = (fileService: FileService, uploadProcessingQueue: ISongUploadProcessingQueue) => async (req: express.Request, file: Buffer, userID: number, shareID: number, contentType: string): Promise<IResponse> => {
-	const originalFilename = decodeURI(path.basename(req.path));
-	const fileExtension = path.extname(originalFilename).split('.').join('');
-	const remoteFilename = crypto
-		.createHash('sha256')
-		.update(uuid() + file.length)
-		.digest('hex') + '.' + fileExtension;
+const requestHandler = (fileService: FileService, uploadProcessingQueue: ISongUploadProcessingQueue) =>
+	// tslint:disable-next-line:max-func-args
+	async (req: express.Request, file: Buffer, userID: number, shareID: number, contentType: string): Promise<IResponse> => {
+		const originalFilename = decodeURI(path.basename(req.path));
+		const fileExtension = path.extname(originalFilename).split('.').join('');
+		const remoteFilename = crypto
+			.createHash('sha256')
+			.update(uuid() + file.length)
+			.digest('hex') + '.' + fileExtension;
 
-	const readableStream = new Duplex();
-	readableStream.push(file);
-	readableStream.push(null);
+		const readableStream = new Duplex();
+		readableStream.push(file);
+		readableStream.push(null);
 
-	try {
-		await fileService.uploadFile({
-			filenameRemote: remoteFilename,
-			contentType: contentType,
-			source: readableStream
-		});
+		try {
+			await fileService.uploadFile({
+				filenameRemote: remoteFilename,
+				contentType: contentType,
+				source: readableStream
+			});
 
-		const jobQueuePayload: ISongProcessingQueuePayload = {
-			file: {
-				originalFilename: originalFilename,
-				container: fileService.container,
-				fileExtension: fileExtension,
-				blob: remoteFilename
-			},
-			userID,
-			shareID
+			const jobQueuePayload: ISongProcessingQueuePayload = {
+				file: {
+					originalFilename: originalFilename,
+					container: fileService.container,
+					fileExtension: fileExtension,
+					blob: remoteFilename
+				},
+				userID,
+				shareID
+			}
+
+			await uploadProcessingQueue.enqueueUpload(jobQueuePayload);
+
+			return ResponseSuccessJSON(HTTPStatusCodes.CREATED, {});
+		} catch (err) {
+			if (!__TEST__) console.error(err);
+
+			return ResponseError(HTTPStatusCodes.INTERNAL_SERVER_ERROR, commonRestErrors.internalServerError);
 		}
-
-		uploadProcessingQueue.enqueueUpload(jobQueuePayload);
-
-		return ResponseSuccessJSON(HTTPStatusCodes.CREATED, {});
-	} catch (err) {
-		if (!__TEST__) console.error(err);
-
-		return ResponseError(HTTPStatusCodes.INTERNAL_SERVER_ERROR, commonRestErrors.internalServerError);
 	}
-}
 
 const fileUploadRoute = (fileService: FileService, uploadProcessingQueue: ISongUploadProcessingQueue) => wrapRequestHandler(
 	withMiddleware(
@@ -127,7 +129,14 @@ const fileUploadRoute = (fileService: FileService, uploadProcessingQueue: ISongU
 	)(requestHandler(fileService, uploadProcessingQueue))
 );
 
-export const fileUploadRouter = (fileService: FileService, uploadProcessingQueue: ISongUploadProcessingQueue, maxFileSize: number, allowedMimeTypes?: string[]) => {
+interface IFileUploadRouterArgs {
+	fileService: FileService;
+	uploadProcessingQueue: ISongUploadProcessingQueue;
+	maxFileSize: number;
+	allowedMimeTypes?: string[];
+}
+
+export const fileUploadRouter = ({ fileService, uploadProcessingQueue, maxFileSize, allowedMimeTypes }: IFileUploadRouterArgs) => {
 	const finalAllowedMimeTypes = allowedMimeTypes || ['*/*'];
 	const restRoute = fileUploadRoute(fileService, uploadProcessingQueue);
 

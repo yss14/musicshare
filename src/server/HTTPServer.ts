@@ -8,7 +8,7 @@ import { __DEV__ } from '../utils/env/env-constants';
 import { FileService } from '../file-service/FileService';
 import { SongUploadProcessingQueue } from '../job-queues/SongUploadProcessingQueue';
 
-const MB_100 = 100 * 1024 * 1024;
+const ONE_HUNDRED_MEGABYTE = 100 * 1024 * 1024;
 
 export class HTTPServer {
 	private _expressApp!: express.Application;
@@ -37,7 +37,11 @@ export class HTTPServer {
 	}
 
 	private async makeRestRoutes() {
-		const fileUploadRoutes = fileUploadRouter(this.fileService, this.uploadProcessingQueue, MB_100);
+		const fileUploadRoutes = fileUploadRouter({
+			fileService: this.fileService,
+			uploadProcessingQueue: this.uploadProcessingQueue,
+			maxFileSize: ONE_HUNDRED_MEGABYTE
+		});
 		this._expressApp.use(fileUploadRoutes);
 
 		if (__DEV__) {

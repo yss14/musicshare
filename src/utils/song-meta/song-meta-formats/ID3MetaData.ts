@@ -57,8 +57,9 @@ export class ID3MetaData implements ISongMetaDataSource {
 					const _artists: IArtist[] = _.flattenDeep(this.extractArtistRec(splitted[0], 'artists'));
 
 					_artists.forEach(art => {
-						if (extractedMetaData[art.type] instanceof Array)
+						if (extractedMetaData[art.type] instanceof Array) {
 							extractedMetaData[art.type]!.push(art.name);
+						}
 					});
 
 					_title = splitted[1];
@@ -75,6 +76,7 @@ export class ID3MetaData implements ISongMetaDataSource {
 								matchedType = alter;
 							}
 						});
+
 						return found;
 					}
 
@@ -102,7 +104,7 @@ export class ID3MetaData implements ISongMetaDataSource {
 
 						if (typeDelimiterChar === '') {
 							idxArtistBegin = this.indexOfCharLeft(_title, '(', idxTypeBegin - 1) ? this.indexOfCharLeft(_title, '(', idxTypeBegin - 1) :
-								(this.indexOfCharLeft(_title, '[', idxTypeBegin - 1) > -1 ? this.indexOfCharLeft(_title, '[', idxTypeBegin - 1) : -1); 9
+								(this.indexOfCharLeft(_title, '[', idxTypeBegin - 1) > -1 ? this.indexOfCharLeft(_title, '[', idxTypeBegin - 1) : -1);
 						} else {
 							idxArtistBegin = this.indexOfCharLeft(_title, typeDelimiterChar, idxTypeBegin - 1);
 						}
@@ -145,7 +147,6 @@ export class ID3MetaData implements ISongMetaDataSource {
 			});
 
 			extractedMetaData.title = _title.trim();
-
 
 			//Parse artists
 			if (id3Tags.artist !== undefined) {
@@ -217,37 +218,45 @@ export class ID3MetaData implements ISongMetaDataSource {
 
 	private removeUrlClutter(input: string): string {
 		const urls = input.match(urlRegex({ strict: false }));
+		let output = input;
 
 		if (urls) {
 			urls.forEach(url => {
-				input = input.split(url).join('');
+				output = output.split(url).join('');
 			});
 		}
 
-		return input.replace('()', '').replace('[]', '');
+		return output.replace('()', '').replace('[]', '');
 	}
 
 	private extractArtistRec(artStr: string, artType: 'artists' | 'featurings' | 'remixer'): any {
 		if (artStr.indexOf('vs.') > -1) {
 			let splitted = artStr.split('vs.');
+
 			return splitted.map(splt => this.extractArtistRec(splt, artType));
 		} else if (artStr.indexOf('&') > -1) {
 			let splitted = artStr.split('&');
+
 			return splitted.map(splt => this.extractArtistRec(splt, artType));
 		} else if (artStr.indexOf(',') > -1) {
 			let splitted = artStr.split(',');
+
 			return splitted.map(splt => this.extractArtistRec(splt, artType));
 		} else if (artStr.indexOf(' and ') > -1) {
 			let splitted = artStr.split(' and ');
+
 			return splitted.map(splt => this.extractArtistRec(splt, artType));
 		} else if (artStr.indexOf(' x ') > -1) {
 			let splitted = artStr.split(' x ');
+
 			return splitted.map(splt => this.extractArtistRec(splt, artType));
 		} else if (artStr.indexOf('feat.') > -1) {
 			let splitted = artStr.split('feat.');
+
 			return splitted.map((splt, idx) => this.extractArtistRec(splt, idx === 0 ? artType : 'featurings'));
 		} else if (artStr.indexOf('ft.') > -1) {
 			let splitted = artStr.split('ft.');
+
 			return splitted.map((splt, idx) => this.extractArtistRec(splt, idx === 0 ? artType : 'featurings'));
 		} else {
 			const artName = artStr.trim().replace(/\0/g, '').split('(').join('').split(')').join('').split('[').join('').split(']').join('');
