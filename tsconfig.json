@@ -19,7 +19,8 @@
 		"allowSyntheticDefaultImports": false,
 		"sourceMap": true,
 		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true
+		"emitDecoratorMetadata": true,
+		"noUnusedLocals": true
 	},
 	"compileOnSave": true,
 	"exclude": [

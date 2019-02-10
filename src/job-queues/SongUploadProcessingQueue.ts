@@ -1,40 +1,36 @@
 import * as BeeQueue from 'bee-queue';
-import { SongMeta } from '../utils/id3-parser';
 import { SongService } from '../services/song.service';
 import { types as CTypes } from 'cassandra-driver';
 import { FileService } from '../file-service/FileService';
-import { Inject } from 'typedi';
+import { SongMetaDataService } from '../utils/song-meta/SongMetaDataService';
+import { IFile } from '../models/interfaces/IFile';
 
 export interface ISongProcessingQueuePayload {
-	file: IUploadedFile;
-	userID: string;
-	shareID: string;
-}
-
-export interface IUploadedFile {
-	container: string;
-	blob: string;
-	originalFilename: string;
-	fileExtension: string;
-	accessLink: string;
+	file: IFile;
+	userID: number;
+	shareID: number;
 }
 
 const isSongProcessingQueuePayload = (obj: any): obj is ISongProcessingQueuePayload => {
 	const requiredProperties: (keyof ISongProcessingQueuePayload)[] =
 		['userID', 'shareID', 'file'];
-	const requiredPropertiesFile: (keyof IUploadedFile)[] =
-		['container', 'blob', 'originalFilename', 'fileExtension', 'accessLink'];
+	const requiredPropertiesFile: (keyof IFile)[] =
+		['container', 'blob', 'originalFilename', 'fileExtension'];
 
 	return !requiredProperties.some(prop => !(prop in obj)) && !requiredPropertiesFile.some(prop => !(prop in obj.file));
 }
 
-export class SongUploadProcessingQueue {
+export interface ISongUploadProcessingQueue {
+	enqueueUpload(uploadMeta: ISongProcessingQueuePayload): void;
+}
+
+export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 	private readonly beeQueue: BeeQueue;
-	@Inject()
-	private readonly songService!: SongService;
 
 	constructor(
-		private readonly fileService: FileService
+		private readonly songService: SongService,
+		private readonly fileService: FileService,
+		private readonly songMetaDataService: SongMetaDataService
 	) {
 		this.beeQueue = new BeeQueue('song_processing');
 
@@ -63,37 +59,28 @@ export class SongUploadProcessingQueue {
 		}
 
 		const uploadMeta = job.data;
-		console.log(uploadMeta);
 
-		const audioBuffer = await this.fileService.getFileAsBuffer(uploadMeta.blob);
+		const audioBuffer = await this.fileService.getFileAsBuffer(uploadMeta.file.blob);
 
-		const songMeta = await SongMeta.analyse(uploadMeta.originalFilename, uploadMeta.fileExtension, audioBuffer);
+		const songMeta = await this.songMetaDataService.analyse(uploadMeta.file, audioBuffer);
 
-		const file: IUploadMeta = {
-			container: uploadMeta.container,
-			blob: uploadMeta.blob,
-			fileExtension: uploadMeta.fileExtension,
-			originalFilename: uploadMeta.originalFilename
-		};
-
-		const songID = await this.songService.create({
-			title: songMeta.title,
+		await this.songService.create({
+			title: songMeta.title || uploadMeta.file.originalFilename,
 			suffix: songMeta.suffix,
 			year: songMeta.year,
 			bpm: songMeta.bpm,
 			date_last_edit: Date.now(),
-			release_date: new Date(songMeta.releaseDate),
-			is_rip: songMeta.isRip,
+			release_date: songMeta.releaseDate ? new Date(songMeta.releaseDate) : null,
+			is_rip: songMeta.isRip || false,
 			artists: [...(songMeta.artists || [])],
 			remixer: [...(songMeta.remixer || [])],
 			featurings: [...(songMeta.featurings || [])],
 			type: songMeta.type,
-			genres: songMeta.genre && songMeta.genre.trim().length > 0
-				? [songMeta.genre] : [],
+			genres: [...(songMeta.genres || [])],
 			label: songMeta.label,
-			share_id: CTypes.TimeUuid.fromString(uploadMeta.shareID),
-			needs_user_action: songMeta.title === null || songMeta.title.trim().length === 0 || songMeta.artists.size === 0,
-			file: JSON.stringify(file)
+			share_id: CTypes.TimeUuid.fromString(uploadMeta.shareID.toString()),
+			needs_user_action: !songMeta.title || songMeta.title.trim().length === 0 || !songMeta.artists || songMeta.artists.length === 0,
+			file: JSON.stringify(uploadMeta.file)
 		});
 	}
 }

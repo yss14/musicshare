@@ -1,13 +1,13 @@
 import { ISongMetaDataSource, ExtractedSongMetaData } from "./song-meta-formats/ISongMetaDataSource";
-import { IUploadedFile } from "../../job-queues/SongUploadProcessingQueue";
 import { objectKeys } from "../object/object-keys";
+import { IFile } from "../../models/interfaces/IFile";
 
 export class SongMetaDataService {
 	constructor(
 		private readonly metaDataSources: ISongMetaDataSource[]
 	) { }
 
-	public async analyse(file: IUploadedFile, audioBuffer: Buffer) {
+	public async analyse(file: IFile, audioBuffer: Buffer) {
 		let extractedMetaData: ExtractedSongMetaData = {};
 
 		for (const metaDataSource of this.metaDataSources) {

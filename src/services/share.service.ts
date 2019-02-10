@@ -1,5 +1,4 @@
 import { DatabaseConnection } from '../database/DatabaseConnection';
-import { Service, Inject } from 'typedi';
 import { IShareByUserDBResult } from '../database/schema/initial-schema';
 import { plainToClass } from "class-transformer";
 import { User } from '../models/user.model';
@@ -11,10 +10,10 @@ export class ShareNotFoundError extends Error {
 	}
 }
 
-@Service()
 export class ShareService {
-	@Inject()
-	private readonly database!: DatabaseConnection
+	constructor(
+		private readonly database: DatabaseConnection,
+	) { }
 
 	public async getSharesByUser(user: User): Promise<Share[]> {
 		const dbResults = await this.database.select<IShareByUserDBResult>(`

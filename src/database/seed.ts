@@ -1,11 +1,11 @@
 import { SongService } from './../services/song.service';
-import { NodeEnv } from "../types/common-types";
 import { DatabaseConnection } from "./DatabaseConnection";
 import * as faker from 'faker';
 import { types as CTypes } from 'cassandra-driver';
 import { IUserDBResult, IShareByUserDBResult, ISongByShareDBResult } from './schema/initial-schema';
 import { createPrefilledArray } from '../utils/array/create-prefilled-array';
 import { __PROD__ } from '../utils/env/env-constants';
+import { IFile } from '../models/interfaces/IFile';
 
 type Users = 'user1';
 type Shares = 'library_user1';
@@ -58,7 +58,7 @@ export const testData: ITestDataSchema = {
 			label: null,
 			share_id: CTypes.TimeUuid.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			needs_user_action: false,
-			file: JSON.stringify({ container: 'songs', blob: 'somefile', fileExtension: 'mp3' })
+			file: JSON.stringify({ container: 'songs', blob: 'somefile', fileExtension: 'mp3' } as IFile)
 		},
 		song2_library_user1: {
 			id: CTypes.TimeUuid.fromString('f0d69800-aeb1-11e8-a117-43673ffd376b'),
@@ -77,16 +77,16 @@ export const testData: ITestDataSchema = {
 			label: 'Anjunadeep',
 			share_id: CTypes.TimeUuid.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			needs_user_action: false,
-			file: JSON.stringify({ container: 'songs', blob: 'somefile', fileExtension: 'mp3' })
+			file: JSON.stringify({ container: 'songs', blob: 'somefile', fileExtension: 'mp3' } as IFile)
 		}
 	}
 }
 
-export const seedDatabase = async (database: DatabaseConnection, env: NodeEnv): Promise<void> => {
-	const songService = new SongService();
+export type DatabaseSeed = () => Promise<void>;
 
+export const makeDatabaseSeed = (database: DatabaseConnection, songService: SongService): DatabaseSeed => async (): Promise<void> => {
 	// insert users for development and testing
-	if (env !== NodeEnv.Production) {
+	if (!__PROD__) {
 		await database.execute(`
 			INSERT INTO users (id, name, emails) VALUES (?, ?, ?)`,
 			[testData.users.user1.id, testData.users.user1.name, testData.users.user1.emails]
@@ -94,7 +94,7 @@ export const seedDatabase = async (database: DatabaseConnection, env: NodeEnv): 
 	}
 
 	// insert shares for development and testing
-	if (env !== NodeEnv.Production) {
+	if (!__PROD__) {
 		await database.execute(`
 			INSERT INTO shares_by_user (id, name, user_id, is_library) VALUES (?, ?, ?, ?)`,
 			[testData.shares.library_user1.id, testData.shares.library_user1.name,
@@ -104,16 +104,9 @@ export const seedDatabase = async (database: DatabaseConnection, env: NodeEnv): 
 
 	// insert songs for development and testing
 	if (!__PROD__) {
-		for (const [key, s] of Object.entries(testData.songs)) {
-			/*await database.execute(`
-				INSERT INTO songs_by_share 
-				(id, title, suffix, year, bpm, date_last_edit, release_date, is_rip, artists, remixer, featurings, share_id)
-				VALUES
-				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-			`, [s.id, s.title, s.suffix, s.year, s.bpm, s.date_last_edit, s.release_date, s.is_rip, s.artists, s.remixer,
-				s.featurings, s.share_id], { prepare: true });*/
+		for (const song of Object.values(testData.songs)) {
 
-			await songService.create(s);
+			await songService.create(song);
 		}
 
 		const prefilledArray = createPrefilledArray(100, {});

@@ -1,25 +1,24 @@
 import { Share } from './../models/share.model';
-import { Service, Inject } from "typedi";
 import { DatabaseConnection } from "../database/DatabaseConnection";
 import { Song } from '../models/song.model';
 import { ISongByShareDBResult, ISongByShareDBInsert } from '../database/schema/initial-schema';
 import { plainToClass } from "class-transformer";
 import { types as CTypes } from 'cassandra-driver';
 
-@Service()
 export class SongService {
-	@Inject()
-	private readonly databaseConnection!: DatabaseConnection;
+	constructor(
+		private readonly database: DatabaseConnection,
+	) { }
 
 	public getByShare(share: Share): Promise<Song[]> {
-		return this.databaseConnection.select<ISongByShareDBResult>(`
+		return this.database.select<ISongByShareDBResult>(`
 			SELECT * FROM songs_by_share WHERE share_id = ?;
 		`, [share.id])
 			.then(rows => rows.map(row => this.fromDBResult(row)));
 	}
 
 	public getByID(shareID: string, songID: string): Promise<Song | null> {
-		return this.databaseConnection.select<ISongByShareDBResult>(`
+		return this.database.select<ISongByShareDBResult>(`
 			SELECT * FROM songs_by_share WHERE share_id = ? AND id = ?;
 		`, [shareID, songID])
 			.then(rows => rows.length === 0 ? null : this.fromDBResult(rows[0]));
@@ -35,7 +34,7 @@ export class SongService {
 		const columns = Object.keys(song).filter(k => k !== 'id');
 		const values = columns.map(c => (song as any)[c]);
 
-		await this.databaseConnection.execute(`
+		await this.database.execute(`
 			INSERT INTO songs_by_share
 			(id, ${columns.join(',')})
 			VALUES 

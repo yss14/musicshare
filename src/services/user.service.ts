@@ -1,13 +1,11 @@
 import { DatabaseConnection } from '../database/DatabaseConnection';
-import { Service, Inject } from 'typedi';
 import { IUserDBResult } from '../database/schema/initial-schema';
 import { plainToClass } from "class-transformer";
 import { User } from '../models/user.model';
 
-@Service()
 export class UserService {
 	constructor(
-		@Inject("DATABASE") private readonly database: DatabaseConnection
+		private readonly database: DatabaseConnection,
 	) { }
 
 	public async getUserByID(id: string): Promise<User | null> {

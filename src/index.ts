@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import { SongUploadProcessingQueue } from './job-queues/SongUploadProcessingQueue';
-import { CoreDatabase } from './database/CoreDatabase';
 import { DatabaseConnection } from "./database/DatabaseConnection";
 import { HTTPServer } from './server/HTTPServer';
 import { useContainer } from 'type-graphql';
@@ -14,7 +13,14 @@ import { ShareResolver } from "./resolvers/ShareResolver";
 import { SongResolver } from "./resolvers/SongResolver";
 import { makeGraphQLServer } from "./server/GraphQLServer";
 import { AzureFileService } from "./file-service/AzureFileService";
-import { __DEV__ } from "./utils/env/env-constants";
+import { __DEV__, __PROD__ } from "./utils/env/env-constants";
+import { SongMetaDataService } from "./utils/song-meta/SongMetaDataService";
+import { ID3MetaData } from "./utils/song-meta/song-meta-formats/ID3MetaData";
+import { makeDatabaseSchemaWithSeed, makeDatabaseSchema } from "./database/schema/make-database-schema";
+import { makeDatabaseSeed } from "./database/seed";
+import { SongService } from "./services/song.service";
+import { ShareService } from "./services/share.service";
+import { UserService } from "./services/user.service";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -31,6 +37,8 @@ if (!isProductionEnvironment()) {
 }
 
 (async () => {
+	useContainer(Container);
+
 	const databaseHost = process.env[CustomEnv.CASSANDRA_HOST] || '127.0.0.1';
 	const databaseKeyspace = process.env[CustomEnv.CASSANDRA_KEYSPACE] || 'musicshare';
 	const database = new DatabaseConnection({
@@ -38,19 +46,28 @@ if (!isProductionEnvironment()) {
 		keyspace: databaseKeyspace
 	});
 
-	const coreDatabase = new CoreDatabase();
-
-	await coreDatabase.createSchema({ clear: true });
+	Container.set('DATABASE_CONNECTION', database);
 
 	console.info('Database schema created');
 
 	const fileService = await AzureFileService.makeService('songs');
-	const songProcessingQueue = new SongUploadProcessingQueue(fileService);
+	const songService = new SongService(database);
+	const shareService = new ShareService(database);
+	const userService = new UserService(database);
+	const songMetaDataService = new SongMetaDataService([new ID3MetaData()]);
+	const songProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService);
 
-	useContainer(Container);
+	Container.set('FILE_SERVICE', fileService);
+	Container.set('SONG_SERVICE', songService);
+	Container.set('SHARE_SERVICE', shareService);
+	Container.set('USER_SERVICE', userService);
 
-	Container.set({ id: 'DATABASE', factory: () => database });
-	Container.set({ id: 'FILE_SERVICE', factory: () => fileService });
+	if (__DEV__) {
+		const seed = makeDatabaseSeed(database, songService);
+		makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
+	} else if (__PROD__) {
+		makeDatabaseSchema(database, { keySpace: databaseKeyspace });
+	}
 
 	const graphQLResolvers: Function[] = [
 		UserResolver,
@@ -59,7 +76,7 @@ if (!isProductionEnvironment()) {
 	];
 	const graphQLServer = await makeGraphQLServer(graphQLResolvers);
 
-	const server = await HTTPServer.makeServer(graphQLServer, fileService);
+	const server = await HTTPServer.makeServer(graphQLServer, fileService, songProcessingQueue);
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);
 	await server.start('/graphql', serverPort);
 

@@ -1,10 +1,10 @@
 import * as ID3Parser from 'id3-parser';
 import urlRegex = require('url-regex');
-import { songTypes, genres } from '../database/fixtures';
+import { songTypes, genres } from '../../../database/fixtures';
 import * as _ from 'lodash';
-import { tryParseInt } from './try-parse/try-parse-int';
-import { ISong } from '../models/interfaces/ISong';
-import { Nullable } from '../types/Nullable';
+import { tryParseInt } from '../../try-parse/try-parse-int';
+import { ISongMetaDataSource, ExtractedSongMetaData } from './ISongMetaDataSource';
+import { IFile } from '../../../models/interfaces/IFile';
 const similarity = require('similarity');
 
 type ArtistType = 'artists' | 'remixer' | 'featurings';
@@ -14,50 +14,36 @@ interface IArtist {
 	name: string;
 }
 
-export class SongMeta {
-	public static async analyse(originalFilename: string, extension: string, audioBuffer: Buffer): Promise<IExtractedSongMeta> {
-		const songMeta: Nullable<ISong> = {
-			title: null,
-			suffix: null,
-			year: null,
-			bpm: null,
-			releaseDate: null,
-			isRip: false,
+export class ID3MetaData implements ISongMetaDataSource {
+	public isApplicableForFile(file: IFile) {
+		return file.fileExtension.toLowerCase() === 'mp3';
+	}
+
+	public async analyse(file: IFile, audioBuffer: Buffer): Promise<ExtractedSongMetaData> {
+		const id3Tags = ID3Parser.parse(audioBuffer);
+		const extractedMetaData: ExtractedSongMetaData = {
 			artists: [],
 			remixer: [],
 			featurings: [],
-			type: null,
-			genres: [],
-			label: null
+			genres: []
 		};
 
-		if (extension === 'mp3') {
-			await this.analyseID3(audioBuffer, songMeta, originalFilename);
-		}
-
-		return songMeta;
-	}
-
-	private static async analyseID3(audioBuffer: Buffer, meta: IExtractedSongMeta, originalFileName: string): Promise<void> {
-		const id3Tags = ID3Parser.parse(audioBuffer);
-		console.log(id3Tags);
-
 		if (id3Tags === false) {
-			return;
+			return extractedMetaData;
 		}
-		try {
 
+		try {
 			// parse title
 			let _title = '';
 
-			if (id3Tags.hasOwnProperty('title') && id3Tags.title.trim().length > 0) {
+			if (id3Tags.title !== undefined && id3Tags.title.trim().length > 0) {
 				//Free up title from urls
 				_title = this.removeUrlClutter(id3Tags.title).replace(/\0/g, '');
 			} else {
 				if (id3Tags.hasOwnProperty('filename')) {
 					_title = this.removeUrlClutter(id3Tags.filename).replace(/\0/g, '');
 				} else {
-					_title = this.removeUrlClutter(originalFileName).replace(/\0/g, '');
+					_title = this.removeUrlClutter(file.originalFilename).replace(/\0/g, '');
 				}
 			}
 
@@ -71,7 +57,8 @@ export class SongMeta {
 					const _artists: IArtist[] = _.flattenDeep(this.extractArtistRec(splitted[0], 'artists'));
 
 					_artists.forEach(art => {
-						meta[art.type].add(art.name);
+						if (extractedMetaData[art.type] instanceof Array)
+							extractedMetaData[art.type]!.push(art.name);
 					});
 
 					_title = splitted[1];
@@ -80,7 +67,7 @@ export class SongMeta {
 				let matchedType = "";
 
 				if (_title.toLowerCase().indexOf(type.name.toLowerCase()) > -1 || (() => {
-					if (type.hasOwnProperty('alternatives')) {
+					if (type.alternativeNames !== undefined) {
 						let found = false;
 						type.alternativeNames.forEach(alter => {
 							if (_title.toLowerCase().indexOf(alter.toLowerCase()) > -1) {
@@ -93,7 +80,7 @@ export class SongMeta {
 
 					return false;
 				})()) {
-					meta.type = type.name;
+					extractedMetaData.type = type.name;
 
 					if (matchedType === "") {
 						matchedType = type.name;
@@ -128,7 +115,7 @@ export class SongMeta {
 							const _artists: IArtist[] = _.flattenDeep(this.extractArtistRec(_artistStr, 'remixer'));
 
 							_artists.forEach(art => {
-								meta[art.type].add(art.name);
+								extractedMetaData[art.type]!.push(art.name);
 							});
 						}
 					}
@@ -149,7 +136,7 @@ export class SongMeta {
 						const _artists: IArtist[] = _.flattenDeep(this.extractArtistRec(_artistStr, 'featurings'));
 
 						_artists.forEach(art => {
-							meta[art.type].add(art.name);
+							extractedMetaData[art.type]!.push(art.name);
 						});
 
 						_title = _title.substr(0, featuringIdx - 1);
@@ -157,35 +144,36 @@ export class SongMeta {
 				}
 			});
 
-			meta.title = _title.trim();
+			extractedMetaData.title = _title.trim();
 
 
 			//Parse artists
-			if (id3Tags.hasOwnProperty('artist')) {
+			if (id3Tags.artist !== undefined) {
 				const _artists: IArtist[] = _.flattenDeep(this.extractArtistRec(id3Tags.artist, 'artists'));
 
 				_artists.forEach(art => {
-					meta[art.type].add(art.name);
+					extractedMetaData[art.type]!.push(art.name);
 				});
 			}
 
 			//Parse year
-			if (id3Tags.hasOwnProperty('year')) {
-				meta.year = tryParseInt(id3Tags.year, null);
+			if (id3Tags.year !== undefined) {
+				const parsedYear = tryParseInt(id3Tags.year, -1)
+				extractedMetaData.year = parsedYear > 0 ? parsedYear : null;
 			} else {
-				if (id3Tags.hasOwnProperty('release-time')) {
+				if (id3Tags["release-time"]) {
 					const releaseTime = parseInt(id3Tags['release-time']);
 
 					if (!isNaN(releaseTime)) {
-						meta.year = releaseTime;
+						extractedMetaData.year = releaseTime;
 					}
 				}
 			}
 
 			//Genre
-			if (id3Tags.hasOwnProperty('genre')) {
+			if (id3Tags.genre !== undefined) {
 				if (genres.indexOf(id3Tags.genre) > -1) {
-					meta.genre = id3Tags.genre;
+					extractedMetaData.genres!.push(id3Tags.genre);
 				} else {
 					//Similarity test
 					let bestScore = 0;
@@ -200,31 +188,34 @@ export class SongMeta {
 					});
 
 					if (bestScore >= 0.6) {
-						meta.genre = _genre;
+						extractedMetaData.genres!.push(_genre);
 					}
 				}
 			}
 
 			//BPM
-			if (id3Tags.hasOwnProperty('bpm')) {
-				meta.bpm = tryParseInt(id3Tags.bpm, null);
+			if (id3Tags.bpm) {
+				const parsedBPM = tryParseInt(id3Tags.bpm, -1);
+				extractedMetaData.bpm = parsedBPM > 0 ? parsedBPM : null;
 			}
 
 			//Release date
-			if (id3Tags.hasOwnProperty('release-time')) {
-				meta.releaseDate = new Date(id3Tags['release-time']).getTime();
+			if (id3Tags["release-time"]) {
+				extractedMetaData.releaseDate = new Date(id3Tags['release-time']).getTime().toString();
 			}
 
 			//Label
-			if (id3Tags.hasOwnProperty('publisher')) {
-				meta.label = this.removeUrlClutter(id3Tags.publisher);
+			if (id3Tags.publisher !== undefined) {
+				extractedMetaData.label = this.removeUrlClutter(id3Tags.publisher);
 			}
 		} catch (err) {
 			console.error(err);
 		}
+
+		return extractedMetaData;
 	}
 
-	private static removeUrlClutter(input: string): string {
+	private removeUrlClutter(input: string): string {
 		const urls = input.match(urlRegex({ strict: false }));
 
 		if (urls) {
@@ -236,7 +227,7 @@ export class SongMeta {
 		return input.replace('()', '').replace('[]', '');
 	}
 
-	private static extractArtistRec(artStr: string, artType: 'artists' | 'featurings' | 'remixer'): any {
+	private extractArtistRec(artStr: string, artType: 'artists' | 'featurings' | 'remixer'): any {
 		if (artStr.indexOf('vs.') > -1) {
 			let splitted = artStr.split('vs.');
 			return splitted.map(splt => this.extractArtistRec(splt, artType));
@@ -270,18 +261,8 @@ export class SongMeta {
 		}
 	}
 
-	private static indexOfCharLeft(str: string, needle: string, fromIdx: number) {
+	private indexOfCharLeft(str: string, needle: string, fromIdx: number) {
 		for (let i = fromIdx; i >= 0; i--) {
-			if (str.charAt(i) === needle) {
-				return i;
-			}
-		}
-
-		return -1;
-	}
-
-	private static indexOfCharRight(str: string, needle: string, fromIdx: number) {
-		for (let i = fromIdx; i < str.length; i++) {
 			if (str.charAt(i) === needle) {
 				return i;
 			}

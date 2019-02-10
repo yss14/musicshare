@@ -13,11 +13,6 @@ interface EitherRight<V> extends Either<undefined, V> {
 	right: V;
 }
 
-const a: Either<number, string> = {
-	left: 42,
-	right: "yolo"
-}
-
 export const left = <K>(value: K) => ({ left: value, right: undefined });
 export const right = <V>(value: V) => ({ left: undefined, right: value });
 

@@ -16,7 +16,7 @@ export interface UploadFileArgsAzure extends UploadFileArgs {
 
 export class AzureFileService implements FileService {
 	private readonly blobStorage: azBlob.BlobService;
-	private readonly container: string;
+	public readonly container: string;
 
 	private constructor(container: string, blobStorage?: azBlob.BlobService) {
 		this.container = container;

@@ -1,4 +1,3 @@
-import express = require("express");
 import { Either, isLeft, isRight } from "../../types/Either";
 import { IResponse } from "./responses";
 import { CustomExpressRequestHandler } from "./request-handler";

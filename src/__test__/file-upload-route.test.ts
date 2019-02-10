@@ -6,6 +6,7 @@ import { makeExpressApp } from './utils/make-express-app';
 import * as request from 'supertest';
 import { HTTPStatusCodes } from '../types/http-status-codes';
 import { commonRestErrors } from '../utils/typed-express/common-rest-errors';
+import { SongUploadProcessingQueueMock } from './mocks/SongUploadProcessingQueueMock';
 
 const mp3FilePath = path.join(__dirname, 'assets', 'SampleAudio.mp3');
 let mp3FileBuffer: Buffer;
@@ -15,7 +16,8 @@ const passingFileService = new FileServiceMock(
 	() => undefined,
 	() => ''
 );
-const defaultRestRouter = fileUploadRouter(passingFileService, 10 * 1024 * 1024, acceptedContentTypes);
+const songUploadProcessingQueue = new SongUploadProcessingQueueMock();
+const defaultRestRouter = fileUploadRouter(passingFileService, songUploadProcessingQueue, 10 * 1024 * 1024, acceptedContentTypes);
 const defaultExpressApp = makeExpressApp({ routers: [defaultRestRouter] });
 
 beforeAll(async () => {
@@ -131,7 +133,7 @@ test('valid request, but file upload fails', async (done) => {
 		() => { throw new Error('Some went wrong during the file upload') },
 		() => ''
 	);
-	const restRouter = fileUploadRouter(failingFileService, 10 * 1024 * 1024, acceptedContentTypes);
+	const restRouter = fileUploadRouter(failingFileService, songUploadProcessingQueue, 10 * 1024 * 1024, acceptedContentTypes);
 	const expressApp = makeExpressApp({ routers: [restRouter] });
 
 	const httpRequest = request(expressApp)

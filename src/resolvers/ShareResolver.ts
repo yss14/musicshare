@@ -3,12 +3,13 @@ import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
 import { Share } from "../models/share.model";
 import { Song } from "../models/song.model";
 import { ShareService } from "../services/share.service";
+import { Inject } from 'typedi';
 
 @Resolver(of => Share)
 export class ShareResolver {
 	constructor(
-		private readonly shareService: ShareService,
-		private readonly songService: SongService,
+		@Inject('SHARE_SERVICE') private readonly shareService: ShareService,
+		@Inject('SONG_SERVICE') private readonly songService: SongService,
 	) { }
 
 	@Query(returns => Share, { nullable: true })

@@ -6,6 +6,7 @@ import * as Morgan from 'morgan';
 import { fileUploadRouter } from './routes/file-upload-route';
 import { __DEV__ } from '../utils/env/env-constants';
 import { FileService } from '../file-service/FileService';
+import { SongUploadProcessingQueue } from '../job-queues/SongUploadProcessingQueue';
 
 const MB_100 = 100 * 1024 * 1024;
 
@@ -14,13 +15,14 @@ export class HTTPServer {
 
 	private constructor(
 		private readonly graphQLServer: GraphQLServer,
-		private readonly fileService: FileService
+		private readonly fileService: FileService,
+		private readonly uploadProcessingQueue: SongUploadProcessingQueue
 	) {
 		this._expressApp = graphQLServer.express;
 	}
 
-	public static async makeServer(graphQLServer: GraphQLServer, fileService: FileService) {
-		const httpServer = new HTTPServer(graphQLServer, fileService);
+	public static async makeServer(graphQLServer: GraphQLServer, fileService: FileService, uploadProcessingQueue: SongUploadProcessingQueue) {
+		const httpServer = new HTTPServer(graphQLServer, fileService, uploadProcessingQueue);
 
 		httpServer.makeExpressSetup();
 		await httpServer.makeRestRoutes();
@@ -35,7 +37,7 @@ export class HTTPServer {
 	}
 
 	private async makeRestRoutes() {
-		const fileUploadRoutes = fileUploadRouter(this.fileService, MB_100);
+		const fileUploadRoutes = fileUploadRouter(this.fileService, this.uploadProcessingQueue, MB_100);
 		this._expressApp.use(fileUploadRoutes);
 
 		if (__DEV__) {

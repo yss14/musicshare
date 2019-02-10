@@ -12,20 +12,20 @@ export class Song implements Nullable<ISong>{
 	@Field()
 	public readonly title!: string;
 
-	@Field({ nullable: true })
+	@Field(type => String, { nullable: true })
 	public readonly suffix!: string | null;
 
-	@Field({ nullable: true })
+	@Field(type => Number, { nullable: true })
 	public readonly year!: number | null;
 
-	@Field({ nullable: true })
+	@Field(type => Number, { nullable: true })
 	public readonly bpm!: number | null;
 
 	@Field(type => Float)
 	public readonly dateLastEdit!: number;
 
-	@Field({ nullable: true })
-	releaseDate!: string | null;
+	@Field(type => String, { nullable: true })
+	public readonly releaseDate!: string | null;
 
 	@Field()
 	public readonly isRip!: boolean;
@@ -39,13 +39,13 @@ export class Song implements Nullable<ISong>{
 	@Field(type => [String])
 	public readonly featurings!: string[];
 
-	@Field({ nullable: true })
+	@Field(type => String, { nullable: true })
 	public readonly type!: string | null;
 
 	@Field(type => [String])
 	public readonly genres!: string[];
 
-	@Field({ nullable: true })
+	@Field(type => String, { nullable: true })
 	public readonly label!: string | null;
 
 	@Field(() => Share)

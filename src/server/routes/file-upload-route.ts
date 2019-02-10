@@ -3,7 +3,7 @@ import { isBuffer } from "util";
 import { ResponseError, IResponse, ResponseSuccessJSON } from "../../utils/typed-express/responses";
 import { HTTPStatusCodes } from "../../types/http-status-codes";
 import { Either, right, left } from "../../types/Either";
-import { wrapRequestHandler, isExpressRequestCompatible } from "../../utils/typed-express/request-handler";
+import { wrapRequestHandler } from "../../utils/typed-express/request-handler";
 import { withMiddleware } from "../../utils/typed-express/typed-middleware";
 import * as crypto from 'crypto';
 import * as path from 'path';
@@ -13,6 +13,7 @@ import { Duplex } from "stream";
 import * as BodyParser from 'body-parser';
 import { commonRestErrors } from "../../utils/typed-express/common-rest-errors";
 import { __TEST__ } from "../../utils/env/env-constants";
+import { ISongUploadProcessingQueue, ISongProcessingQueuePayload } from "../../job-queues/SongUploadProcessingQueue";
 
 export const fileUploadErrors = {
 	bodyNoValidByteBuffer: { identifier: 'body.novalidbytebuffer', message: 'The body is not a valid byte buffer' },
@@ -77,7 +78,7 @@ const extractContentType = async (req: express.Request): Promise<Either<IRespons
 	}
 }
 
-const requestHandler = (fileService: FileService) => async (req: express.Request, file: Buffer, userID: number, shareID: number, contentType: string): Promise<IResponse> => {
+const requestHandler = (fileService: FileService, uploadProcessingQueue: ISongUploadProcessingQueue) => async (req: express.Request, file: Buffer, userID: number, shareID: number, contentType: string): Promise<IResponse> => {
 	const originalFilename = decodeURI(path.basename(req.path));
 	const fileExtension = path.extname(originalFilename).split('.').join('');
 	const remoteFilename = crypto
@@ -96,7 +97,18 @@ const requestHandler = (fileService: FileService) => async (req: express.Request
 			source: readableStream
 		});
 
-		// TODO: Inject sond processing queue and schedul job
+		const jobQueuePayload: ISongProcessingQueuePayload = {
+			file: {
+				originalFilename: originalFilename,
+				container: fileService.container,
+				fileExtension: fileExtension,
+				blob: remoteFilename
+			},
+			userID,
+			shareID
+		}
+
+		uploadProcessingQueue.enqueueUpload(jobQueuePayload);
 
 		return ResponseSuccessJSON(HTTPStatusCodes.CREATED, {});
 	} catch (err) {
@@ -106,18 +118,18 @@ const requestHandler = (fileService: FileService) => async (req: express.Request
 	}
 }
 
-const fileUploadRoute = (fileService: FileService) => wrapRequestHandler(
+const fileUploadRoute = (fileService: FileService, uploadProcessingQueue: ISongUploadProcessingQueue) => wrapRequestHandler(
 	withMiddleware(
 		extractBodyBuffer,
 		extractUserID,
 		extractShareID,
 		extractContentType
-	)(requestHandler(fileService))
+	)(requestHandler(fileService, uploadProcessingQueue))
 );
 
-export const fileUploadRouter = (fileService: FileService, maxFileSize: number, allowedMimeTypes?: string[]) => {
+export const fileUploadRouter = (fileService: FileService, uploadProcessingQueue: ISongUploadProcessingQueue, maxFileSize: number, allowedMimeTypes?: string[]) => {
 	const finalAllowedMimeTypes = allowedMimeTypes || ['*/*'];
-	const restRoute = fileUploadRoute(fileService);
+	const restRoute = fileUploadRoute(fileService, uploadProcessingQueue);
 
 	return express.Router()
 		.use(makeRawBodyParser(maxFileSize, finalAllowedMimeTypes))
