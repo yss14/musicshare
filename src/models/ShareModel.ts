@@ -1,5 +1,5 @@
 import { ObjectType, Field } from "type-graphql";
-import { Song } from "./song.model";
+import { Song } from "./SongModel";
 import { IShareByUserDBResult } from "../database/schema/initial-schema";
 import { plainToClass } from "class-transformer";
 

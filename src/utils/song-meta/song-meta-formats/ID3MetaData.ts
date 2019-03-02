@@ -202,7 +202,7 @@ export class ID3MetaData implements ISongMetaDataSource {
 
 			//Release date
 			if (id3Tags["release-time"]) {
-				extractedMetaData.releaseDate = new Date(id3Tags['release-time']).getTime().toString();
+				extractedMetaData.releaseDate = id3Tags['release-time'];
 			}
 
 			//Label

@@ -1,7 +1,7 @@
 import { IShareService } from '../services/ShareService';
-import { User } from '../models/user.model';
+import { User } from '../models/UserModel';
 import { Resolver, Arg, Query, FieldResolver, Root } from "type-graphql";
-import { Share } from '../models/share.model';
+import { Share } from '../models/ShareModel';
 import { IUserService } from '../services/UserService';
 import { Inject } from 'typedi';
 

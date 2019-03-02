@@ -1,51 +1,39 @@
-import { Share } from '../models/share.model';
+import { Share } from '../models/ShareModel';
 import { DatabaseConnection } from "../database/DatabaseConnection";
-import { Song } from '../models/song.model';
+import { Song } from '../models/SongModel';
 import { ISongByShareDBResult, ISongByShareDBInsert } from '../database/schema/initial-schema';
-import { plainToClass } from "class-transformer";
 import { types as CTypes } from 'cassandra-driver';
+import { sortByTimeUUIDAsc } from '../utils/sort/sort-timeuuid';
+
+export class SongNotFoundError extends Error {
+	constructor(shareID: string, songID: string) {
+		super(`Song with id ${songID} not found in share ${shareID}`);
+	}
+}
 
 export class SongService {
 	constructor(
 		private readonly database: DatabaseConnection,
 	) { }
 
-	public getByID(shareID: string, songID: string): Promise<Song | null> {
-		return this.database.select<ISongByShareDBResult>(`
+	public async getByID(shareID: string, songID: string): Promise<Song | null> {
+		const rows = await this.database.select<ISongByShareDBResult>(`
 			SELECT * FROM songs_by_share WHERE share_id = ? AND id = ?;
-		`, [shareID, songID])
-			.then(rows => rows.length === 0 ? null : this.fromDBResult(rows[0]));
+		`, [shareID, songID]);
+
+		if (rows.length === 0) {
+			throw new SongNotFoundError(shareID, songID);
+		} else {
+			return Song.fromDBResult(rows[0]);
+		}
 	}
 
 	public getByShare(share: Share): Promise<Song[]> {
 		return this.database.select<ISongByShareDBResult>(`
 			SELECT * FROM songs_by_share WHERE share_id = ?;
 		`, [share.id])
-			.then(rows => rows.map(row => this.fromDBResult(row)));
-	}
-
-	private fromDBResult(row: ISongByShareDBResult): Song {
-		return plainToClass(
-			Song,
-			{
-				id: row.id.toString(),
-				title: row.title,
-				suffix: row.suffix,
-				year: row.year,
-				bpm: row.bpm,
-				dateLastEdit: row.date_last_edit,
-				releaseDate: row.release_date ? row.release_date.toString() : null,
-				isRip: row.is_rip,
-				artists: row.artists || [],
-				remixer: row.remixer || [],
-				featurings: row.featurings || [],
-				type: row.type,
-				genres: row.genres || [],
-				label: row.label,
-				needsUserAction: row.needs_user_action,
-				file: JSON.parse(row.file)
-			}
-		)
+			.then(rows => rows.map(row => Song.fromDBResult(row)))
+			.then(songs => songs.sort((lhs, rhs) => sortByTimeUUIDAsc(lhs.id, rhs.id)));
 	}
 
 	public async create(song: ISongByShareDBInsert): Promise<string> {

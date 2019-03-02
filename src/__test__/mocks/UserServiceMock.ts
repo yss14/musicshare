@@ -1,5 +1,5 @@
 import { IUserService, UserNotFoundError } from "../../services/UserService";
-import { User } from "../../models/user.model";
+import { User } from "../../models/UserModel";
 
 export class UserServiceMock implements IUserService {
 

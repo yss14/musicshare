@@ -39,8 +39,8 @@ export interface ISongByShareDBInsert {
 	suffix?: string | null;
 	year?: number | null;
 	bpm?: number | null;
-	date_last_edit: number;
-	release_date?: Date | null;
+	date_last_edit: Date;
+	release_date?: CTypes.LocalDate | null;
 	is_rip: boolean;
 	artists?: string[];
 	remixer?: string[];
@@ -49,7 +49,7 @@ export interface ISongByShareDBInsert {
 	genres?: string[];
 	label?: string | null;
 	share_id: CTypes.TimeUuid;
-	needs_user_action: boolean;
+	requires_user_action: boolean;
 	file: string;
 }
 
@@ -74,7 +74,7 @@ export const songsByShare = () => `
 		genres set<varchar>,
 		label varchar,
 		share_id timeuuid,
-		needs_user_action boolean,
+		requires_user_action boolean,
 		file varchar,
 
         PRIMARY KEY (share_id, id)

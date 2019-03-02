@@ -1,8 +1,10 @@
-import { File } from './file.model';
-import { ObjectType, Field, Float } from "type-graphql";
-import { Share } from "./share.model";
+import { File } from './FileModel';
+import { ObjectType, Field } from "type-graphql";
+import { Share } from "./ShareModel";
 import { Nullable } from '../types/Nullable';
 import { ISong } from './interfaces/ISong';
+import { ISongByShareDBResult } from '../database/schema/initial-schema';
+import { plainToClass } from 'class-transformer';
 
 @ObjectType({ description: 'This represents a song which can be part of a library or share' })
 export class Song implements Nullable<ISong>{
@@ -21,7 +23,7 @@ export class Song implements Nullable<ISong>{
 	@Field(type => Number, { nullable: true })
 	public readonly bpm!: number | null;
 
-	@Field(type => Float)
+	@Field(type => Number)
 	public readonly dateLastEdit!: number;
 
 	@Field(type => String, { nullable: true })
@@ -59,4 +61,28 @@ export class Song implements Nullable<ISong>{
 
 	@Field()
 	public readonly accessUrl!: string;
+
+	public static fromDBResult(row: ISongByShareDBResult): Song {
+		return plainToClass(
+			Song,
+			{
+				id: row.id.toString(),
+				title: row.title,
+				suffix: row.suffix,
+				year: row.year,
+				bpm: row.bpm,
+				dateLastEdit: row.date_last_edit.getTime(),
+				releaseDate: row.release_date ? row.release_date.toString() : null,
+				isRip: row.is_rip,
+				artists: row.artists || [],
+				remixer: row.remixer || [],
+				featurings: row.featurings || [],
+				type: row.type,
+				genres: row.genres || [],
+				label: row.label,
+				requiresUserAction: row.requires_user_action,
+				file: JSON.parse(row.file)
+			}
+		)
+	}
 }

@@ -1,7 +1,7 @@
 import { DatabaseConnection } from '../database/DatabaseConnection';
 import { IShareByUserDBResult } from '../database/schema/initial-schema';
-import { User } from '../models/user.model';
-import { Share } from '../models/share.model';
+import { User } from '../models/UserModel';
+import { Share } from '../models/ShareModel';
 
 export class ShareNotFoundError extends Error {
 	constructor(shareID: string) {

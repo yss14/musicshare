@@ -70,12 +70,7 @@ if (!isProductionEnvironment()) {
 		await makeDatabaseSchema(database, { keySpace: databaseKeyspace });
 	}
 
-	const graphQLResolvers: Function[] = [
-		UserResolver,
-		ShareResolver,
-		SongResolver
-	];
-	const graphQLServer = await makeGraphQLServer(...graphQLResolvers);
+	const graphQLServer = await makeGraphQLServer(UserResolver, ShareResolver, SongResolver);
 
 	const server = await HTTPServer.makeServer(graphQLServer, fileService, songProcessingQueue);
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);

@@ -1,7 +1,7 @@
 import { SongService } from '../services/SongService';
 import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
-import { Share } from "../models/share.model";
-import { Song } from "../models/song.model";
+import { Share } from "../models/ShareModel";
+import { Song } from "../models/SongModel";
 import { ShareService } from "../services/ShareService";
 import { Inject } from 'typedi';
 
@@ -25,9 +25,10 @@ export class ShareResolver {
 	): Promise<Song[]> {
 		const songs = await this.songService.getByShare(share);
 
-		const startIdx = from || 0;
+		const startIdx = (from || 1) - 1;
+		const endIdx = (take || songs.length) - 1;
 
-		return songs.slice(startIdx, take === undefined ? songs.length - startIdx : take);
+		return songs.filter((_, idx) => idx >= startIdx && idx <= endIdx);
 	}
 
 	@FieldResolver()

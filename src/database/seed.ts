@@ -4,12 +4,13 @@ import * as faker from 'faker';
 import { types as CTypes } from 'cassandra-driver';
 import { IUserDBResult, IShareByUserDBResult, ISongByShareDBResult } from './schema/initial-schema';
 import { createPrefilledArray } from '../utils/array/create-prefilled-array';
-import { __PROD__ } from '../utils/env/env-constants';
-import { IFile } from '../models/interfaces/IFile';
+import { __PROD__, __DEV__ } from '../utils/env/env-constants';
+import { makeFileObject } from '../models/interfaces/IFile';
+import moment = require('moment');
 
 type Users = 'user1' | 'user2';
 type Shares = 'library_user1' | 'library_user2' | 'some_shared_library';
-type Songs = 'song1_library_user1' | 'song2_library_user1';
+type Songs = 'song1_library_user1' | 'song2_library_user1' | 'song3_library_user1';
 
 interface ITestDataSchema {
 	users: { [P in Users]: Required<IUserDBResult>; };
@@ -60,13 +61,13 @@ export const testData: ITestDataSchema = {
 	},
 	songs: {
 		song1_library_user1: {
-			id: CTypes.TimeUuid.fromString('f0d78260-aeb1-11e8-a117-43673ffd376b'),
+			id: CTypes.TimeUuid.fromDate(moment().subtract(3, 'hour').toDate()),
 			title: 'Zero',
 			suffix: null,
 			year: 2018,
 			bpm: null,
-			date_last_edit: Date.now(),
-			release_date: new Date(),
+			date_last_edit: new Date(),
+			release_date: CTypes.LocalDate.fromDate(new Date('2018-03-11')),
 			is_rip: false,
 			artists: ['Oliver Smith'],
 			remixer: [],
@@ -75,18 +76,18 @@ export const testData: ITestDataSchema = {
 			genres: ['Trance'],
 			label: null,
 			share_id: CTypes.TimeUuid.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
-			needs_user_action: false,
-			file: JSON.stringify({ container: 'songs', blob: 'somefile', fileExtension: 'mp3' } as IFile)
+			requires_user_action: false,
+			file: JSON.stringify(makeFileObject('songs', 'zero', 'zero_somesuffic', 'mp3'))
 		},
 		song2_library_user1: {
-			id: CTypes.TimeUuid.fromString('f0d69800-aeb1-11e8-a117-43673ffd376b'),
+			id: CTypes.TimeUuid.fromDate(moment().subtract(2, 'hour').toDate()),
 			title: 'Perth',
 			suffix: null,
 			year: 2018,
 			bpm: null,
-			date_last_edit: Date.now(),
-			release_date: new Date(),
-			is_rip: false,
+			date_last_edit: new Date(),
+			release_date: CTypes.LocalDate.fromDate(new Date('2019-01-02')),
+			is_rip: true,
 			artists: ['Kink'],
 			remixer: ['Dusky'],
 			featurings: [],
@@ -94,8 +95,27 @@ export const testData: ITestDataSchema = {
 			genres: ['Deep House'],
 			label: 'Anjunadeep',
 			share_id: CTypes.TimeUuid.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
-			needs_user_action: false,
-			file: JSON.stringify({ container: 'songs', blob: 'somefile', fileExtension: 'mp3' } as IFile)
+			requires_user_action: false,
+			file: JSON.stringify(makeFileObject('songs', 'perth', 'perth_abgtrip', 'mp3'))
+		},
+		song3_library_user1: {
+			id: CTypes.TimeUuid.fromDate(moment().subtract(1, 'hour').toDate()),
+			title: 'Contact',
+			suffix: null,
+			year: 2019,
+			bpm: 125,
+			date_last_edit: new Date(),
+			release_date: CTypes.LocalDate.fromDate(new Date('2019-03-02')),
+			is_rip: false,
+			artists: ['Rue', 'Alastor'],
+			remixer: [],
+			featurings: [],
+			type: 'Original Mix',
+			genres: ['Progressive House'],
+			label: 'Anjunadeep',
+			share_id: CTypes.TimeUuid.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
+			requires_user_action: false,
+			file: JSON.stringify(makeFileObject('songs', 'contact', 'contact_rue_alastor', 'mp3'))
 		}
 	}
 }
@@ -131,13 +151,14 @@ export const makeDatabaseSeed = (database: DatabaseConnection, songService: Song
 		}
 	}
 
-	// insert songs for development and testing
+	// insert songs for development
 	if (!__PROD__) {
 		for (const song of Object.values(testData.songs)) {
-
 			await songService.create(song);
 		}
+	}
 
+	if (false && __DEV__) {
 		const prefilledArray = createPrefilledArray(100, {});
 		const songInserts = prefilledArray
 			.map((): Required<ISongByShareDBResult> => ({
@@ -146,7 +167,7 @@ export const makeDatabaseSeed = (database: DatabaseConnection, songService: Song
 				suffix: null,
 				year: null,
 				bpm: null,
-				date_last_edit: Date.now(),
+				date_last_edit: new Date(),
 				release_date: null,
 				is_rip: false,
 				artists: [faker.name.firstName(), faker.name.lastName()],
@@ -156,8 +177,8 @@ export const makeDatabaseSeed = (database: DatabaseConnection, songService: Song
 				genres: ['Some Genre'],
 				label: null,
 				share_id: testData.shares.library_user1.id,
-				needs_user_action: false,
-				file: '{}'
+				requires_user_action: false,
+				file: JSON.stringify(makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3'))
 			}));
 
 		await Promise.all(songInserts.map(s => songService.create(s)));

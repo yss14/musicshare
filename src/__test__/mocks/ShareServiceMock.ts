@@ -1,6 +1,6 @@
 import { IShareService, ShareNotFoundError } from "../../services/ShareService";
-import { Share } from "../../models/share.model";
-import { User } from "../../models/user.model";
+import { Share } from "../../models/ShareModel";
+import { User } from "../../models/UserModel";
 
 export class ShareServiceMock implements IShareService {
 	constructor(

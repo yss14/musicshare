@@ -1,4 +1,4 @@
-import { Share } from './share.model';
+import { Share } from './ShareModel';
 import { ObjectType, Field } from "type-graphql";
 
 @ObjectType({ description: "Object representing a user" })

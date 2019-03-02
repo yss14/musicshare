@@ -1,7 +1,7 @@
-import { Song } from '../models/song.model';
+import { Song } from '../models/SongModel';
 import { Resolver, FieldResolver, Root, ResolverInterface } from "type-graphql";
 import { Inject } from 'typedi';
-import { File } from '../models/file.model';
+import { File } from '../models/FileModel';
 import { FileService } from '../file-service/FileService';
 import moment = require('moment');
 

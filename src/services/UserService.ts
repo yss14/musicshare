@@ -1,7 +1,7 @@
 import { DatabaseConnection } from '../database/DatabaseConnection';
 import { IUserDBResult } from '../database/schema/initial-schema';
 import { plainToClass } from "class-transformer";
-import { User } from '../models/user.model';
+import { User } from '../models/UserModel';
 
 export class UserNotFoundError extends Error {
 	constructor(id: string) {

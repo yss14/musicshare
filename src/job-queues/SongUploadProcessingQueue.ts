@@ -69,8 +69,8 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 			suffix: songMeta.suffix,
 			year: songMeta.year,
 			bpm: songMeta.bpm,
-			date_last_edit: Date.now(),
-			release_date: songMeta.releaseDate ? new Date(songMeta.releaseDate) : null,
+			date_last_edit: new Date(),
+			release_date: songMeta.releaseDate ? CTypes.LocalDate.fromDate(new Date(songMeta.releaseDate)) : null,
 			is_rip: songMeta.isRip || false,
 			artists: [...(songMeta.artists || [])],
 			remixer: [...(songMeta.remixer || [])],
@@ -79,7 +79,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 			genres: [...(songMeta.genres || [])],
 			label: songMeta.label,
 			share_id: CTypes.TimeUuid.fromString(uploadMeta.shareID.toString()),
-			needs_user_action: !songMeta.title || songMeta.title.trim().length === 0 || !songMeta.artists || songMeta.artists.length === 0,
+			requires_user_action: !songMeta.title || songMeta.title.trim().length === 0 || !songMeta.artists || songMeta.artists.length === 0,
 			file: JSON.stringify(uploadMeta.file)
 		});
 	}
