@@ -44,4 +44,10 @@ export class DatabaseConnection {
 	public async batch(queries: IBatchQuery[], options?: cassandra.QueryOptions): Promise<ResultSet> {
 		return this._connection.batch(queries, options);
 	}
+
+	public close() {
+		return new Promise<void>((resolve) => {
+			this._connection.shutdown(() => resolve());
+		});
+	}
 }

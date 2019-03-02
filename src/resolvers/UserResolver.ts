@@ -1,16 +1,16 @@
-import { ShareService } from '../services/share.service';
+import { IShareService } from '../services/ShareService';
 import { User } from '../models/user.model';
 import { Resolver, Arg, Query, FieldResolver, Root } from "type-graphql";
 import { Share } from '../models/share.model';
-import { UserService } from '../services/user.service';
+import { IUserService } from '../services/UserService';
 import { Inject } from 'typedi';
 
 @Resolver(of => User)
 export class UserResolver {
 
 	constructor(
-		@Inject('USER_SERVICE') private readonly userService: UserService,
-		@Inject('SHARE_SERVICE') private readonly shareService: ShareService
+		@Inject('USER_SERVICE') private readonly userService: IUserService,
+		@Inject('SHARE_SERVICE') private readonly shareService: IShareService
 	) { }
 
 	@Query(returns => User, { nullable: true })
