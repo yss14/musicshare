@@ -19,9 +19,9 @@ import { SongMetaDataService } from "./utils/song-meta/SongMetaDataService";
 import { ID3MetaData } from "./utils/song-meta/song-meta-formats/ID3MetaData";
 import { makeDatabaseSchemaWithSeed, makeDatabaseSchema } from "./database/schema/make-database-schema";
 import { makeDatabaseSeed } from "./database/seed";
-import { SongService } from "./services/song.service";
-import { ShareService } from "./services/share.service";
-import { UserService } from "./services/user.service";
+import { SongService } from "./services/SongService";
+import { ShareService } from "./services/ShareService";
+import { UserService } from "./services/UserService";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -75,7 +75,7 @@ if (!isProductionEnvironment()) {
 		ShareResolver,
 		SongResolver
 	];
-	const graphQLServer = await makeGraphQLServer(graphQLResolvers);
+	const graphQLServer = await makeGraphQLServer(...graphQLResolvers);
 
 	const server = await HTTPServer.makeServer(graphQLServer, fileService, songProcessingQueue);
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);

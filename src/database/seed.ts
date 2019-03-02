@@ -1,4 +1,4 @@
-import { SongService } from './../services/song.service';
+import { SongService } from '../services/SongService';
 import { DatabaseConnection } from "./DatabaseConnection";
 import * as faker from 'faker';
 import { types as CTypes } from 'cassandra-driver';

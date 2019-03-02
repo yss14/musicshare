@@ -1,5 +1,5 @@
 import * as BeeQueue from 'bee-queue';
-import { SongService } from '../services/song.service';
+import { SongService } from '../services/SongService';
 import { types as CTypes } from 'cassandra-driver';
 import { FileService } from '../file-service/FileService';
 import { SongMetaDataService } from '../utils/song-meta/SongMetaDataService';

@@ -1,4 +1,4 @@
-import { Share } from './../models/share.model';
+import { Share } from '../models/share.model';
 import { DatabaseConnection } from "../database/DatabaseConnection";
 import { Song } from '../models/song.model';
 import { ISongByShareDBResult, ISongByShareDBInsert } from '../database/schema/initial-schema';

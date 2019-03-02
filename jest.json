@@ -23,13 +23,6 @@
 		"text",
 		"lcov"
 	],
-	"coverageThreshold": {
-		"global": {
-			"branches": 0,
-			"functions": 0,
-			"lines": 0
-		}
-	},
 	"preset": "ts-jest",
 	"testMatch": null
 }

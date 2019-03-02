@@ -25,7 +25,6 @@ export class HTTPServer {
 		const httpServer = new HTTPServer(graphQLServer, fileService, uploadProcessingQueue);
 
 		httpServer.makeExpressSetup();
-		await httpServer.makeRestRoutes();
 
 		return httpServer;
 	}
@@ -59,5 +58,6 @@ export class HTTPServer {
 		};
 
 		await this.graphQLServer.start(serverOptions);
+		await this.makeRestRoutes();
 	}
 }

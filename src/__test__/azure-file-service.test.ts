@@ -11,13 +11,13 @@ const startAzurite = () => {
 	return new Promise<ChildProcess>((resolve, reject) => {
 		const childProcess = spawn('azurite-blob', ['-l', 'azurite_test']);
 
-		childProcess.stdout.on('data', (data) => {
+		childProcess.stdout!.on('data', (data) => {
 			if (data.toString().trim().indexOf('Azure Blob Storage Emulator listening on port') > -1) {
 				resolve(childProcess);
 			}
 		});
 
-		childProcess.stderr.on('data', (data) => reject(data));
+		childProcess.stderr!.on('data', (data) => reject(data));
 	});
 }
 
