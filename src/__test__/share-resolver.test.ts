@@ -49,10 +49,11 @@ const makeShareSongsQuery = (range?: [number, number]) => {
 	`;
 }
 
-const makeShareSongQuery = (id: string) => {
+const makeShareSongQuery = (id: string, props: string[] = []) => {
 	return `
 		song(id: "${id}"){
-			${songKeys}
+			${songKeys},
+			${props.join(',')}
 		}
 	`;
 }
@@ -154,5 +155,19 @@ describe('get share song', () => {
 
 		expect(body.data.share.song).toBe(null);
 		expect(body.errors).toMatchObject([{ message: `Song with id ${songID} not found in share ${shareID}` }])
+	});
+
+	test('get share song by id with access url', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv();
+		cleanupHooks.push(cleanUp);
+
+		const share = testData.shares.library_user1;
+		const song = testData.songs.song2_library_user1;
+		const query = makeShareQuery(share.id.toString(), makeShareSongQuery(song.id.toString(), ['accessUrl']));
+
+		const { body } = await executeGraphQLQuery(graphQLServer, query);
+
+		expect(body.data.share.song).toBeDefined();
+		expect(body.data.share.song.accessUrl).toBeString();
 	});
 });

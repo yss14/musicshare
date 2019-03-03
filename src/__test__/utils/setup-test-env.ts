@@ -20,7 +20,7 @@ export const setupTestEnv = async () => {
 	Container.set('USER_SERVICE', userService);
 	Container.set('SHARE_SERVICE', shareService);
 	Container.set('SONG_SERVICE', songService);
-	Container.set('FILE_SERVICE', new FileServiceMock(() => undefined, () => ''));
+	Container.set('FILE_SERVICE', new FileServiceMock(() => undefined, () => 'http://someurl.de/file.mp3'));
 
 	await seed(songService);
 

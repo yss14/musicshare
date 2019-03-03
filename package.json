@@ -35,6 +35,7 @@
 		"@types/ws": "^6.0.1",
 		"cross-env": "^5.2.0",
 		"jest": "^24.1.0",
+		"jest-extended": "^0.11.1",
 		"ts-jest": "^24.0.0",
 		"tslint": "^5.13.1",
 		"tslint-clean-code": "^0.2.9",

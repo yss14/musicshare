@@ -105,7 +105,7 @@ export const testData: ITestDataSchema = {
 			year: 2019,
 			bpm: 125,
 			date_last_edit: new Date(),
-			release_date: CTypes.LocalDate.fromDate(new Date('2019-03-02')),
+			release_date: null,
 			is_rip: false,
 			artists: ['Rue', 'Alastor'],
 			remixer: [],
@@ -158,7 +158,7 @@ export const makeDatabaseSeed = (database: DatabaseConnection, songService: Song
 		}
 	}
 
-	if (false && __DEV__) {
+	if (__DEV__) {
 		const prefilledArray = createPrefilledArray(100, {});
 		const songInserts = prefilledArray
 			.map((): Required<ISongByShareDBResult> => ({

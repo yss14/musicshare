@@ -13,11 +13,17 @@
 		"json"
 	],
 	"globalSetup": "./src/__test__/utils/global-setup.ts",
+	"setupFilesAfterEnv": [
+		"jest-extended"
+	],
 	"collectCoverage": false,
 	"collectCoverageFrom": [
 		"**/*.ts",
 		"!**/node_modules/**",
-		"!**/vendor/**"
+		"!**/vendor/**",
+		"!src/index.ts",
+		"!**/__test__/**",
+		"!src/database/seed.ts"
 	],
 	"coverageReporters": [
 		"text",

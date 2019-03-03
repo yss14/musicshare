@@ -18,6 +18,7 @@ export class SongResolver implements ResolverInterface<Song>{
 
 	@FieldResolver()
 	public accessUrl(@Root() song: Song): Promise<string> {
+		/* istanbul ignore else */
 		if (song.file) {
 			return this.fileService.getLinkToFile({
 				filenameRemote: song.file.blob,
