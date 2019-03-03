@@ -6,18 +6,15 @@ import { urlIsReachable } from './utils/url-is-reachable';
 import moment = require('moment');
 import { v4 as uuid } from 'uuid';
 import { promises as fsPromises } from 'fs';
+import * as azBlob from 'azure-storage';
 
 const startAzurite = () => {
 	return new Promise<ChildProcess>((resolve, reject) => {
 		const childProcess = spawn('azurite-blob', ['-l', 'azurite_test']);
 
-		childProcess.stdout!.on('data', (data) => {
-			if (data.toString().trim().indexOf('Azure Blob Storage Emulator listening on port') > -1) {
-				resolve(childProcess);
-			}
-		});
-
 		childProcess.stderr!.on('data', (data) => reject(data));
+
+		resolve(childProcess);
 	});
 }
 
@@ -27,9 +24,11 @@ beforeAll(async () => {
 	azuriteProcess = await startAzurite();
 });
 
-afterAll(() => {
+afterAll(async () => {
 	if (azuriteProcess) {
 		azuriteProcess.kill();
+
+		await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
 	}
 })
 
@@ -49,6 +48,18 @@ describe('instance creation', () => {
 		const container = 'invalid_container%-name';
 
 		await expect(AzureFileService.makeService(container)).rejects.toThrow(SyntaxError);
+	});
+
+	test('container creation throws error', async () => {
+		const blobService = azBlob.createBlobService();
+		blobService.createContainerIfNotExists = <any>jest.fn(
+			(container: string, callback: (err: Error) => void) => {
+				callback(new Error('Cannot create container'));
+			}
+		);
+
+		await expect(AzureFileService.makeService('somecontainer', blobService))
+			.rejects.toThrowError('Cannot create container');
 	});
 });
 
@@ -80,6 +91,22 @@ describe('file upload', () => {
 			contentType: 'audio/mp3',
 			source: fs.createReadStream(mp3FilePath)
 		});
+	});
+
+	test('blob api throws error for write stream creation', async () => {
+		const blobService = azBlob.createBlobService();
+		blobService.createWriteStreamToBlockBlob = <any>jest.fn(
+			(container: string, blob: string, opts: any, callback: (err: Error) => void) => {
+				callback(new Error('Cannot create write stream to block blob'));
+			}
+		);
+		const azureFileService = await AzureFileService.makeService(container, blobService);
+
+		await expect(azureFileService.uploadFile({
+			filenameRemote: 'AlreadyExisting.mp3',
+			contentType: 'audio/mp3',
+			source: fs.createReadStream(mp3FilePath)
+		})).rejects.toThrowError('Cannot create write stream to block blob');
 	});
 });
 
@@ -117,6 +144,25 @@ describe('get url to file', () => {
 		});
 
 		const urlToFile = await azureFileService.getLinkToFile({ filenameRemote, expireDate: moment().add(-20, 'seconds') });
+
+		const urlToFileIsReachable = await urlIsReachable(urlToFile);
+
+		expect(urlToFileIsReachable).toBeFalsy();
+	});
+
+	test('get url to uploaded file no end date specified', async () => {
+		const azureFileService = await AzureFileService.makeService(container);
+		const filenameRemote = 'SomeFile.mp3';
+
+		await azureFileService.uploadFile({
+			filenameRemote: filenameRemote,
+			contentType: 'audio/mp3',
+			source: fs.createReadStream(mp3FilePath)
+		});
+
+		const urlToFile = await azureFileService.getLinkToFile({ filenameRemote });
+
+		await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
 
 		const urlToFileIsReachable = await urlIsReachable(urlToFile);
 

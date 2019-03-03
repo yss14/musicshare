@@ -29,6 +29,7 @@ export class AzureFileService implements FileService {
 	}
 
 	public static async makeService(container: string): Promise<AzureFileService>;
+	public static async makeService(container: string, blobStorage: azBlob.BlobService): Promise<AzureFileService>;
 	public static async makeService(container: string, blobStorage?: azBlob.BlobService): Promise<AzureFileService> {
 		const fileService = new AzureFileService(container, blobStorage);
 
@@ -106,11 +107,7 @@ export class AzureFileService implements FileService {
 				}
 			});
 
-			if (stream) {
-				resolve(streamToBuffer(stream));
-			} else {
-				reject(new Error('Stream is not valid'));
-			}
+			resolve(streamToBuffer(stream));
 		});
 	}
 }
