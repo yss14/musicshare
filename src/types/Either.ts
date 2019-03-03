@@ -13,8 +13,8 @@ interface EitherRight<V> extends Either<undefined, V> {
 	right: V;
 }
 
-export const left = <K>(value: K) => ({ left: value, right: undefined });
-export const right = <V>(value: V) => ({ left: undefined, right: value });
+export const left = <K>(value: K): EitherLeft<K> => ({ left: value, right: undefined });
+export const right = <V>(value: V): EitherRight<V> => ({ left: undefined, right: value });
 
 export const isLeft = <K, V>(obj: Either<K, V>): obj is EitherLeft<K> => {
 	return obj.left !== undefined;
