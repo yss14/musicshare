@@ -17,6 +17,7 @@
 	"license": "UNLICENSED",
 	"devDependencies": {
 		"@types/aws-lambda": "^8.10.20",
+		"@types/better-queue": "^3.8.0",
 		"@types/body-parser": "^1.17.0",
 		"@types/cassandra-driver": "^3.6.0",
 		"@types/cors": "^2.8.4",
@@ -46,6 +47,8 @@
 		"axios": "^0.18.0",
 		"azure-storage": "^2.10.2",
 		"bee-queue": "git://github.com/yss14/bee-queue.git#b3a9edfcf597429af5ae9ac431c03b436a4318bb",
+		"better-queue": "^3.8.10",
+		"bind-decorator": "^1.0.11",
 		"body-parser": "^1.18.3",
 		"cassandra-driver": "^3.6.0",
 		"class-transformer": "^0.2.0",

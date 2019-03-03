@@ -16,7 +16,7 @@ export class FileServiceMock implements FileService {
 		return this.getLinkToFileHook();
 	}
 
-	public getFileAsBuffer(filenameRemote: string): Promise<Buffer> {
-		return Promise.resolve(new Buffer('somecontent'));
+	public async getFileAsBuffer(filenameRemote: string): Promise<Buffer> {
+		return new Buffer('somecontent');
 	}
 }

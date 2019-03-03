@@ -2,7 +2,11 @@ import { ISongMetaDataSource, ExtractedSongMetaData } from "./song-meta-formats/
 import { objectKeys } from "../object/object-keys";
 import { IFile } from "../../models/interfaces/IFile";
 
-export class SongMetaDataService {
+export interface ISongMetaDataService {
+	analyse(file: IFile, audioBuffer: Buffer): Promise<ExtractedSongMetaData>;
+}
+
+export class SongMetaDataService implements ISongMetaDataService {
 	constructor(
 		private readonly metaDataSources: ISongMetaDataSource[]
 	) { }
