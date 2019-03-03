@@ -2,9 +2,9 @@
 import "reflect-metadata";
 import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
 import { testData } from "../database/seed";
-import { types as CTypes } from 'cassandra-driver';
 import { Share } from "../models/ShareModel";
 import { setupTestEnv } from "./utils/setup-test-env";
+import { TimeUUID } from "../types/TimeUUID";
 
 const makeUserQuery = (id: string, withShares: boolean = false, libOnly: boolean = true) => {
 	return `
@@ -46,7 +46,7 @@ describe('get user by id', () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv();
 		cleanupHooks.push(cleanUp);
 
-		const userID = CTypes.TimeUuid.fromString('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
+		const userID = TimeUUID.fromString('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
 		const query = makeUserQuery(userID.toString());
 
 		const { body } = await executeGraphQLQuery(graphQLServer, query);

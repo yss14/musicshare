@@ -4,9 +4,9 @@ import { setupTestEnv } from "./utils/setup-test-env";
 import { testData } from "../database/seed";
 import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
 import { Share } from "../models/ShareModel";
-import { types as CTypes } from 'cassandra-driver';
 import { Song } from "../models/SongModel";
 import { includesSong, compareSongs } from "./utils/compare-songs";
+import { TimeUUID } from "../types/TimeUUID";
 
 const makeShareQuery = (id: string, songQuery: string = '') => {
 	return `
@@ -81,7 +81,7 @@ describe('get share by id', () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv();
 		cleanupHooks.push(cleanUp);
 
-		const shareID = CTypes.TimeUuid.fromString('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
+		const shareID = TimeUUID.fromString('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
 		const query = makeShareQuery(shareID.toString());
 
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
@@ -148,7 +148,7 @@ describe('get share song', () => {
 		cleanupHooks.push(cleanUp);
 
 		const shareID = testData.shares.library_user1.id.toString();
-		const songID = CTypes.TimeUuid.fromDate(new Date());
+		const songID = TimeUUID.fromDate(new Date());
 		const query = makeShareQuery(shareID, makeShareSongQuery(songID.toString()));
 
 		const { body } = await executeGraphQLQuery(graphQLServer, query);

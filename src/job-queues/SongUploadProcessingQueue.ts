@@ -1,10 +1,11 @@
 import { ISongService } from '../services/SongService';
-import { types as CTypes } from 'cassandra-driver';
 import { FileService } from '../file-service/FileService';
 import { ISongMetaDataService } from '../utils/song-meta/SongMetaDataService';
 import { IFile } from '../models/interfaces/IFile';
 import * as BetterQueue from 'better-queue';
 import bind from 'bind-decorator';
+import { TimeUUID } from '../types/TimeUUID';
+import { types as CTypes } from 'cassandra-driver';
 
 export interface ISongProcessingQueuePayload {
 	file: IFile;
@@ -73,7 +74,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 				type: songMeta.type,
 				genres: [...(songMeta.genres || [])],
 				label: songMeta.label,
-				share_id: CTypes.TimeUuid.fromString(uploadMeta.shareID.toString()),
+				share_id: TimeUUID.fromString(uploadMeta.shareID.toString()),
 				requires_user_action: !songMeta.title || songMeta.title.trim().length === 0 || !songMeta.artists || songMeta.artists.length === 0,
 				file: JSON.stringify(uploadMeta.file)
 			});

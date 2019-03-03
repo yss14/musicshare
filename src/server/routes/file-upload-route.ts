@@ -14,6 +14,7 @@ import * as BodyParser from 'body-parser';
 import { commonRestErrors } from "../../utils/typed-express/common-rest-errors";
 import { __TEST__ } from "../../utils/env/env-constants";
 import { ISongUploadProcessingQueue, ISongProcessingQueuePayload } from "../../job-queues/SongUploadProcessingQueue";
+import { isTimeUUID } from "../../type-guards/is-timeuuid";
 
 export const fileUploadErrors = {
 	bodyNoValidByteBuffer: { identifier: 'body.novalidbytebuffer', message: 'The body is not a valid byte buffer' },
@@ -48,21 +49,21 @@ const extractBodyBuffer = async (req: express.Request): Promise<Either<IResponse
 	}
 }
 
-const extractUserID = async (req: express.Request): Promise<Either<IResponse, number>> => {
-	if (typeof req.params.userID === 'number') {
-		return right(req.params.userID);
-	} else if (!isNaN(parseInt(req.params.userID))) {
-		return right(parseInt(req.params.userID));
+const extractUserID = async (req: express.Request): Promise<Either<IResponse, string>> => {
+	const { userID } = req.params;
+
+	if (typeof userID === 'string' && isTimeUUID(userID)) {
+		return right(userID);
 	} else {
 		return left(ResponseError(HTTPStatusCodes.BAD_REQUEST, fileUploadErrors.paramUserIDNotValid));
 	}
 }
 
-const extractShareID = async (req: express.Request): Promise<Either<IResponse, number>> => {
-	if (typeof req.params.shareID === 'number') {
-		return right(req.params.shareID);
-	} else if (!isNaN(parseInt(req.params.shareID))) {
-		return right(parseInt(req.params.shareID));
+const extractShareID = async (req: express.Request): Promise<Either<IResponse, string>> => {
+	const { shareID } = req.params;
+
+	if (typeof shareID === 'string' && isTimeUUID(shareID)) {
+		return right(shareID);
 	} else {
 		return left(ResponseError(HTTPStatusCodes.BAD_REQUEST, fileUploadErrors.paramShareIDNotValid));
 	}
@@ -80,7 +81,7 @@ const extractContentType = async (req: express.Request): Promise<Either<IRespons
 
 const requestHandler = (fileService: FileService, uploadProcessingQueue: ISongUploadProcessingQueue) =>
 	// tslint:disable-next-line:max-func-args
-	async (req: express.Request, file: Buffer, userID: number, shareID: number, contentType: string): Promise<IResponse> => {
+	async (req: express.Request, file: Buffer, userID: string, shareID: string, contentType: string): Promise<IResponse> => {
 		const originalFilename = decodeURI(path.basename(req.path));
 		const fileExtension = path.extname(originalFilename).split('.').join('');
 		const remoteFilename = crypto

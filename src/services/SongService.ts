@@ -2,8 +2,8 @@ import { Share } from '../models/ShareModel';
 import { DatabaseConnection } from "../database/DatabaseConnection";
 import { Song } from '../models/SongModel';
 import { ISongByShareDBResult, ISongByShareDBInsert } from '../database/schema/initial-schema';
-import { types as CTypes } from 'cassandra-driver';
 import { sortByTimeUUIDAsc } from '../utils/sort/sort-timeuuid';
+import { TimeUUID } from '../types/TimeUUID';
 
 export class SongNotFoundError extends Error {
 	constructor(shareID: string, songID: string) {
@@ -43,7 +43,7 @@ export class SongService implements ISongService {
 	}
 
 	public async create(song: ISongByShareDBInsert): Promise<string> {
-		let id = CTypes.TimeUuid.now();
+		let id = TimeUUID.now();
 
 		if ((song as any).id) {
 			id = (song as any).id;

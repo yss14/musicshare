@@ -7,6 +7,7 @@ import * as request from 'supertest';
 import { HTTPStatusCodes } from '../types/http-status-codes';
 import { commonRestErrors } from '../utils/typed-express/common-rest-errors';
 import { SongUploadProcessingQueueMock } from './mocks/SongUploadProcessingQueueMock';
+import { TimeUUID } from '../types/TimeUUID';
 
 const mp3FilePath = path.join(__dirname, 'assets', 'SampleAudio.mp3');
 let mp3FileBuffer: Buffer;
@@ -31,7 +32,7 @@ beforeAll(async () => {
 
 test('valid request', async (done) => {
 	const httpRequest = request(defaultExpressApp)
-		.post('/users/2/shares/42/files')
+		.post(`/users/${TimeUUID.now()}/shares/${TimeUUID.now()}/files`)
 		.set('Content-Type', 'audio/mpeg');
 
 	httpRequest.write(mp3FileBuffer);
@@ -46,7 +47,7 @@ test('valid request', async (done) => {
 
 test('invalid request passing a json', async (done) => {
 	const httpRequest = request(defaultExpressApp)
-		.post('/users/2/shares/42/files')
+		.post(`/users/${TimeUUID.now()}/shares/${TimeUUID.now()}/files`)
 		.set('Content-Type', 'application/json');
 
 	httpRequest.send(JSON.stringify({ someProp: 42 }));
@@ -68,7 +69,7 @@ test('invalid request passing too large file', async (done) => {
 	}
 
 	const httpRequest = request(defaultExpressApp)
-		.post('/users/2/shares/42/files')
+		.post(`/users/${TimeUUID.now()}/shares/${TimeUUID.now()}/files`)
 		.set('Content-Type', 'audio/mpeg');
 
 	httpRequest.write(tooLargeFileBuffer);
@@ -83,43 +84,57 @@ test('invalid request passing too large file', async (done) => {
 
 test('invalid request passing invalid userID', async () => {
 	const response1 = await request(defaultExpressApp)
-		.post('/users/true/shares/42/files')
+		.post(`/users/true/shares/${TimeUUID.now()}/files`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
 	const response2 = await request(defaultExpressApp)
-		.post('/users/somestring/shares/42/files')
+		.post(`/users/42.2/shares/${TimeUUID.now()}/files`)
+		.set('Content-Type', 'audio/mpeg')
+		.send();
+
+	const response3 = await request(defaultExpressApp)
+		.post(`/users/abcd-efgh/shares/${TimeUUID.now()}/files`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
 	expect(response1.status).toBe(HTTPStatusCodes.BAD_REQUEST);
 	expect(response2.status).toBe(HTTPStatusCodes.BAD_REQUEST);
+	expect(response3.status).toBe(HTTPStatusCodes.BAD_REQUEST);
 
 	expect(response1.body.error).toEqual(fileUploadErrors.paramUserIDNotValid);
 	expect(response2.body.error).toEqual(fileUploadErrors.paramUserIDNotValid);
+	expect(response3.body.error).toEqual(fileUploadErrors.paramUserIDNotValid);
 });
 
 test('invalid request passing invalid shareID', async () => {
 	const response1 = await request(defaultExpressApp)
-		.post('/users/42/shares/false/files')
+		.post(`/users/${TimeUUID.now()}/shares/false/files`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
 	const response2 = await request(defaultExpressApp)
-		.post('/users/42/shares/somestring/files')
+		.post(`/users/${TimeUUID.now()}/shares/42.2/files`)
+		.set('Content-Type', 'audio/mpeg')
+		.send();
+
+	const response3 = await request(defaultExpressApp)
+		.post(`/users/${TimeUUID.now()}/shares/abcd-efgh/files`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
 	expect(response1.status).toBe(HTTPStatusCodes.BAD_REQUEST);
 	expect(response2.status).toBe(HTTPStatusCodes.BAD_REQUEST);
+	expect(response3.status).toBe(HTTPStatusCodes.BAD_REQUEST);
 
 	expect(response1.body.error).toEqual(fileUploadErrors.paramShareIDNotValid);
 	expect(response2.body.error).toEqual(fileUploadErrors.paramShareIDNotValid);
+	expect(response3.body.error).toEqual(fileUploadErrors.paramShareIDNotValid);
 });
 
 test('invalid request passing no content-type', async (done) => {
 	const httpRequest = request(defaultExpressApp)
-		.post('/users/2/shares/42/files')
+		.post(`/users/${TimeUUID.now()}/shares/${TimeUUID.now()}/files`)
 
 	httpRequest.write(mp3FileBuffer);
 	httpRequest.end((err, res) => {
@@ -147,7 +162,7 @@ test('valid request, but file upload fails', async (done) => {
 	const expressApp = makeExpressApp({ routers: [restRouter] });
 
 	const httpRequest = request(expressApp)
-		.post('/users/2/shares/42/files')
+		.post(`/users/${TimeUUID.now()}/shares/${TimeUUID.now()}/files`)
 		.set('Content-Type', 'audio/mpeg');
 
 	httpRequest.write(mp3FileBuffer);

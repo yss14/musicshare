@@ -2,7 +2,7 @@ import { SongServiceMock } from "./mocks/SongServiceMock";
 import { FileServiceMock } from "./mocks/FileServiceMock";
 import { ISongMetaDataService } from "../utils/song-meta/SongMetaDataService";
 import { SongUploadProcessingQueue, ISongProcessingQueuePayload } from "../job-queues/SongUploadProcessingQueue";
-import { types as CTypes } from 'cassandra-driver';
+import { TimeUUID } from "../types/TimeUUID";
 
 const setupTestEnv = () => {
 	const songService = new SongServiceMock();
@@ -16,8 +16,8 @@ const setupTestEnv = () => {
 
 const makeValidPayload = (): ISongProcessingQueuePayload => ({
 	file: { blob: 'somefile', container: 'songs', fileExtension: 'mp3', originalFilename: 'somefile' },
-	shareID: CTypes.TimeUuid.fromDate(new Date()).toString(),
-	userID: CTypes.TimeUuid.fromDate(new Date()).toString()
+	shareID: TimeUUID.fromDate(new Date()).toString(),
+	userID: TimeUUID.fromDate(new Date()).toString()
 })
 
 test('upload successful', async () => {
@@ -34,7 +34,7 @@ test('wrong payload format', async () => {
 	const { songUploadProcessingQueue } = setupTestEnv();
 	const payload: any = {
 		file: { blob: 'somefile', container: 'songs', fileExtension: 'mp3', originalFilename: 'somefile' },
-		shareID: CTypes.TimeUuid.fromDate(new Date()).toString(),
+		shareID: TimeUUID.fromDate(new Date()).toString(),
 	}
 
 	await expect(songUploadProcessingQueue.enqueueUpload(payload))

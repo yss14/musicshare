@@ -2,7 +2,7 @@ import { ISongService } from "../../services/SongService";
 import { Song } from "../../models/SongModel";
 import { Share } from "../../models/ShareModel";
 import { ISongByShareDBInsert } from "../../database/schema/initial-schema";
-import { types as CTypes } from 'cassandra-driver';
+import { TimeUUID } from "../../types/TimeUUID";
 
 export class SongServiceMock implements ISongService {
 	public async getByID(shareID: string, songID: string): Promise<Song> {
@@ -14,6 +14,6 @@ export class SongServiceMock implements ISongService {
 	}
 
 	public async create(song: ISongByShareDBInsert): Promise<string> {
-		return CTypes.TimeUuid.fromDate(new Date()).toString();
+		return TimeUUID.fromDate(new Date()).toString();
 	}
 }
