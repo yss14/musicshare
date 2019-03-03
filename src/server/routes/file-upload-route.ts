@@ -15,6 +15,7 @@ import { commonRestErrors } from "../../utils/typed-express/common-rest-errors";
 import { __TEST__ } from "../../utils/env/env-constants";
 import { ISongUploadProcessingQueue, ISongProcessingQueuePayload } from "../../job-queues/SongUploadProcessingQueue";
 import { isTimeUUID } from "../../type-guards/is-timeuuid";
+import { NextHandleFunction } from "connect";
 
 export const fileUploadErrors = {
 	bodyNoValidByteBuffer: { identifier: 'body.novalidbytebuffer', message: 'The body is not a valid byte buffer' },
@@ -81,7 +82,7 @@ const extractContentType = async (req: express.Request): Promise<Either<IRespons
 
 const requestHandler = (fileService: FileService, uploadProcessingQueue: ISongUploadProcessingQueue) =>
 	// tslint:disable-next-line:max-func-args
-	async (req: express.Request, file: Buffer, userID: string, shareID: string, contentType: string): Promise<IResponse> => {
+	async (req: express.Request, contentType: string, file: Buffer, userID: string, shareID: string): Promise<IResponse> => {
 		const originalFilename = decodeURI(path.basename(req.path));
 		const fileExtension = path.extname(originalFilename).split('.').join('');
 		const remoteFilename = crypto
@@ -123,10 +124,10 @@ const requestHandler = (fileService: FileService, uploadProcessingQueue: ISongUp
 
 const fileUploadRoute = (fileService: FileService, uploadProcessingQueue: ISongUploadProcessingQueue) => wrapRequestHandler(
 	withMiddleware(
+		extractContentType,
 		extractBodyBuffer,
 		extractUserID,
 		extractShareID,
-		extractContentType
 	)(requestHandler(fileService, uploadProcessingQueue))
 );
 
@@ -135,13 +136,14 @@ interface IFileUploadRouterArgs {
 	uploadProcessingQueue: ISongUploadProcessingQueue;
 	maxFileSize: number;
 	allowedMimeTypes?: string[];
+	bodyParser?: NextHandleFunction;
 }
 
-export const fileUploadRouter = ({ fileService, uploadProcessingQueue, maxFileSize, allowedMimeTypes }: IFileUploadRouterArgs) => {
+export const fileUploadRouter = ({ fileService, uploadProcessingQueue, maxFileSize, allowedMimeTypes, bodyParser }: IFileUploadRouterArgs) => {
 	const finalAllowedMimeTypes = allowedMimeTypes || ['*/*'];
 	const restRoute = fileUploadRoute(fileService, uploadProcessingQueue);
 
 	return express.Router()
-		.use(makeRawBodyParser(maxFileSize, finalAllowedMimeTypes))
+		.use(bodyParser || makeRawBodyParser(maxFileSize, finalAllowedMimeTypes))
 		.post('/users/:userID/shares/:shareID/files', restRoute);
 }

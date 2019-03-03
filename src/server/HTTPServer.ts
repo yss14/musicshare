@@ -53,11 +53,11 @@ export class HTTPServer {
 		}
 	}
 
-	public async start(path: string, port: number): Promise<void> {
+	public async start(path: string, port: number, offerPlayground: boolean): Promise<void> {
 		const serverOptions: Options = {
 			port,
 			endpoint: path,
-			playground: !__PROD__ ? '/playground' : undefined,
+			playground: offerPlayground ? '/playground' : undefined,
 		};
 
 		this.httpServer = await this.graphQLServer.start(serverOptions);

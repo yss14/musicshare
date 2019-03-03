@@ -74,7 +74,7 @@ if (!isProductionEnvironment()) {
 
 	const server = await HTTPServer.makeServer(graphQLServer, fileService, songProcessingQueue);
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);
-	await server.start('/graphql', serverPort);
+	await server.start('/graphql', serverPort, !__PROD__);
 
 	console.info(`Server is running on http://localhost:${serverPort}`);
 	console.info(`GraphQL endpoint available at http://localhost:${serverPort}/graphql`);

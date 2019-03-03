@@ -23,7 +23,8 @@
 		"!**/vendor/**",
 		"!src/index.ts",
 		"!**/__test__/**",
-		"!src/database/seed.ts"
+		"!src/database/seed.ts",
+		"!src/database/fixtures.ts"
 	],
 	"coverageReporters": [
 		"text",

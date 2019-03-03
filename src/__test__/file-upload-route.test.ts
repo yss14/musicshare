@@ -8,6 +8,7 @@ import { HTTPStatusCodes } from '../types/http-status-codes';
 import { commonRestErrors } from '../utils/typed-express/common-rest-errors';
 import { SongUploadProcessingQueueMock } from './mocks/SongUploadProcessingQueueMock';
 import { TimeUUID } from '../types/TimeUUID';
+import { NextHandleFunction } from 'connect';
 
 const mp3FilePath = path.join(__dirname, 'assets', 'SampleAudio.mp3');
 let mp3FileBuffer: Buffer;
@@ -133,7 +134,16 @@ test('invalid request passing invalid shareID', async () => {
 });
 
 test('invalid request passing no content-type', async (done) => {
-	const httpRequest = request(defaultExpressApp)
+	const customBodyParser: NextHandleFunction = (req, res, next) => next();
+	const customRouter = fileUploadRouter({
+		fileService: passingFileService,
+		uploadProcessingQueue: songUploadProcessingQueue,
+		maxFileSize: 10 * 1024 * 1024,
+		allowedMimeTypes: acceptedContentTypes,
+		bodyParser: customBodyParser
+	});
+	const expressApp = makeExpressApp({ routers: [customRouter] });
+	const httpRequest = request(expressApp)
 		.post(`/users/${TimeUUID.now()}/shares/${TimeUUID.now()}/files`)
 
 	httpRequest.write(mp3FileBuffer);
@@ -141,8 +151,7 @@ test('invalid request passing no content-type', async (done) => {
 		if (err) throw err;
 
 		expect(res.status).toBe(HTTPStatusCodes.BAD_REQUEST);
-		// due to how BodyParser.raw() works, the buffer is not handled, and thus the body invalid error is thrown
-		expect(res.body.error).toEqual(fileUploadErrors.bodyNoValidByteBuffer);
+		expect(res.body.error).toEqual(fileUploadErrors.headerContentTypeMissing);
 
 		done();
 	});
