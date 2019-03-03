@@ -35,6 +35,7 @@
 		"@types/uuid": "^3.4.4",
 		"@types/ws": "^6.0.1",
 		"cross-env": "^5.2.0",
+		"find-free-port": "^2.0.0",
 		"jest": "^24.1.0",
 		"jest-extended": "^0.11.1",
 		"ts-jest": "^24.0.0",

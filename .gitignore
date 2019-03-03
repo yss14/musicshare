@@ -78,3 +78,6 @@ build/
 # azurite
 azurite*/
 
+# mac file system files
+*.DS_Store
+
