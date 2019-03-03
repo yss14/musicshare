@@ -6,12 +6,6 @@ export interface IResponse {
 	readonly apply: (res: express.Response) => void;
 }
 
-export const ResponseSuccess = (o: string): IResponse => {
-	return {
-		apply: res => res.send(o)
-	};
-}
-
 export const ResponseSuccessJSON = <T>(status: HTTPStatusCodes, payload: T): IResponse => {
 	return {
 		apply: res => res.status(status).json(payload)

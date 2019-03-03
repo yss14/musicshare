@@ -116,6 +116,7 @@ const requestHandler = (fileService: FileService, uploadProcessingQueue: ISongUp
 
 			return ResponseSuccessJSON(HTTPStatusCodes.CREATED, {});
 		} catch (err) {
+			/* istanbul ignore if */
 			if (!__TEST__) console.error(err);
 
 			return ResponseError(HTTPStatusCodes.INTERNAL_SERVER_ERROR, commonRestErrors.internalServerError);

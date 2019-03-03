@@ -7,31 +7,29 @@ interface ISystemSchemaDBResult {
 	table_name: string;
 }
 
-interface ICreateSchemaOpts {
-	keySpace: string;
-	clear?: boolean;
-}
-
 export const makeDatabaseSchemaWithSeed = async (databaseConnection: DatabaseConnection, seed: DatabaseSeed, opts: ICreateSchemaOpts) => {
 	await makeDatabaseSchema(databaseConnection, opts);
 	await seed();
 }
 
-export const makeDatabaseSchema = async (databaseConnection: DatabaseConnection, opts: ICreateSchemaOpts) => {
-	const shouldClearKeySpace = opts && opts.clear || false;
+interface ICreateSchemaOpts {
+	keySpace: string;
+	clear?: boolean;
+}
 
-	if (shouldClearKeySpace) {
-		await clearKeySpace(databaseConnection, opts.keySpace);
+export const makeDatabaseSchema = async (dbConn: DatabaseConnection, { keySpace, clear = false }: ICreateSchemaOpts) => {
+	if (clear) {
+		await clearKeySpace(dbConn, keySpace);
 	}
 
 	await Promise.all([
-		databaseConnection.execute(users()),
-		databaseConnection.execute(sharesByUser()),
-		databaseConnection.execute(songsByShare())
+		dbConn.execute(users()),
+		dbConn.execute(sharesByUser()),
+		dbConn.execute(songsByShare())
 	]);
 }
 
-const clearKeySpace = async (databaseConnection: DatabaseConnection, keySpace: string): Promise<void> => {
+export const clearKeySpace = async (databaseConnection: DatabaseConnection, keySpace: string): Promise<void> => {
 	const schemaTables = await getSchemaTables(databaseConnection, keySpace);
 
 	for (const schemaTable of schemaTables) {
@@ -39,7 +37,7 @@ const clearKeySpace = async (databaseConnection: DatabaseConnection, keySpace: s
 	}
 }
 
-const getSchemaTables = async (databaseConnection: DatabaseConnection, keySpace: string) => {
+export const getSchemaTables = async (databaseConnection: DatabaseConnection, keySpace: string) => {
 	const dbResults = await databaseConnection.select<ISystemSchemaDBResult>(`
 		SELECT * FROM system_schema.tables WHERE keyspace_name = ?;
 	`, [keySpace]);
@@ -47,7 +45,7 @@ const getSchemaTables = async (databaseConnection: DatabaseConnection, keySpace:
 	return dbResults.map(row => row.table_name);
 }
 
-const dropTable = async (databaseConnection: DatabaseConnection, table: string) => {
+export const dropTable = async (databaseConnection: DatabaseConnection, table: string) => {
 	await databaseConnection.execute(`
 		DROP TABLE ${table};
 	`);

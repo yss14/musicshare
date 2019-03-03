@@ -39,12 +39,6 @@ export class DatabaseConnection {
 			.then(results => results.rows as any as T[]);
 	}
 
-	public async batch(queries: IBatchQuery[]): Promise<ResultSet>;
-	public async batch(queries: IBatchQuery[], options: cassandra.QueryOptions): Promise<ResultSet>;
-	public async batch(queries: IBatchQuery[], options?: cassandra.QueryOptions): Promise<ResultSet> {
-		return this._connection.batch(queries, options);
-	}
-
 	public close() {
 		return new Promise<void>((resolve) => {
 			this._connection.shutdown(() => resolve());

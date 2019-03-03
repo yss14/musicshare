@@ -136,3 +136,23 @@ test('three parameters failing', async () => {
 	expect(httpResponse.status).toBe(HTTPStatusCodes.BAD_REQUEST);
 	expect(httpResponse.body).toEqual({ error: thirdMiddlewareError });
 });
+
+test('catching unhandled error', async () => {
+	const testRoute = wrapRequestHandler(withMiddleware()(
+		async (req) => { throw new Error('Some error') }
+	));
+	const router = express.Router().post('/testroute', testRoute);
+	const expressApp = makeExpressApp({ routers: [router], middleware: [jsonBodyParser] });
+
+	const httpResponse = await supertest(expressApp)
+		.post('/testroute')
+		.send();
+
+	expect(httpResponse.status).toBe(HTTPStatusCodes.INTERNAL_SERVER_ERROR);
+	expect(httpResponse.body).toEqual({
+		error: {
+			identifier: "internalservererror",
+			message: "Something unexpected happend.",
+		}
+	});
+});

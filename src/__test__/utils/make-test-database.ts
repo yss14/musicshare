@@ -42,5 +42,5 @@ export const makeTestDatabase = async () => {
 		}
 	}
 
-	return { database, seed, cleanUp };
+	return { database, seed, cleanUp, databaseKeyspace };
 }
