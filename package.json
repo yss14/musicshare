@@ -18,7 +18,7 @@
 	"author": "Yannick Stachelscheid",
 	"license": "UNLICENSED",
 	"devDependencies": {
-		"@types/aws-lambda": "^8.10.20",
+		"@types/aws-lambda": "^8.10.21",
 		"@types/better-queue": "^3.8.0",
 		"@types/body-parser": "^1.17.0",
 		"@types/cassandra-driver": "^3.6.0",
