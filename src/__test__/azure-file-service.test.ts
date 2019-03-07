@@ -18,6 +18,8 @@ const startAzurite = () => {
 	});
 }
 
+const TIMEOUT = 20000;
+
 let azuriteProcess: ChildProcess | null = null;
 
 beforeAll(async () => {
@@ -77,7 +79,7 @@ describe('file upload', () => {
 			contentType: 'audio/mp3',
 			source: fs.createReadStream(mp3FilePath)
 		});
-	});
+	}, TIMEOUT);
 
 	test('upload already existing file', async () => {
 		const azureFileService = await AzureFileService.makeService(container);
@@ -93,7 +95,7 @@ describe('file upload', () => {
 			contentType: 'audio/mp3',
 			source: fs.createReadStream(mp3FilePath)
 		});
-	});
+	}, TIMEOUT);
 
 	test('blob api throws error for write stream creation', async () => {
 		const blobService = azBlob.createBlobService();
@@ -110,7 +112,7 @@ describe('file upload', () => {
 			contentType: 'audio/mp3',
 			source: fs.createReadStream(mp3FilePath)
 		})).rejects.toThrowError('Cannot create write stream to block blob');
-	});
+	}, TIMEOUT);
 });
 
 // These test cases only work with real-world azure blob at the moment
@@ -194,11 +196,11 @@ describe('get file as buffer', () => {
 		const receivedBuffer = await azureFileService.getFileAsBuffer(filenameRemote);
 
 		expect(receivedBuffer.equals(readBuffer)).toBe(true);
-	});
+	}, TIMEOUT);
 
 	test('get not-existing file as buffer', async () => {
 		const azureFileService = await AzureFileService.makeService(container);
 
 		await expect(azureFileService.getFileAsBuffer('some-not-existing-file.mp3')).rejects.toThrow();
-	});
+	}, TIMEOUT);
 });
