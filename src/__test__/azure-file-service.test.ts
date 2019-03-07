@@ -1,4 +1,4 @@
-import { spawn, ChildProcess } from 'child_process';
+import { ChildProcess, spawn } from 'child_process';
 import * as path from 'path';
 import { AzureFileService } from '../file-service/AzureFileService';
 import * as fs from 'fs';
@@ -21,7 +21,9 @@ const startAzurite = () => {
 let azuriteProcess: ChildProcess | null = null;
 
 beforeAll(async () => {
-	azuriteProcess = await startAzurite();
+	if (!process.env.IS_CI) {
+		azuriteProcess = await startAzurite();
+	}
 });
 
 afterAll(async () => {
@@ -113,63 +115,65 @@ describe('file upload', () => {
 
 // These test cases only work with real-world azure blob at the moment
 // https://github.com/Azure/Azurite/issues/151
-describe('get url to file', () => {
-	const mp3FilePath = path.join(__dirname, 'assets', 'SampleAudio.mp3');
-	const container = 'testupload';
+if (process.env.IS_CI) {
+	describe('get url to file', () => {
+		const mp3FilePath = path.join(__dirname, 'assets', 'SampleAudio.mp3');
+		const container = 'testupload';
 
-	test('get url to uploaded file', async () => {
-		const azureFileService = await AzureFileService.makeService(container);
-		const filenameRemote = 'SomeFile.mp3';
+		test('get url to uploaded file', async () => {
+			const azureFileService = await AzureFileService.makeService(container);
+			const filenameRemote = 'SomeFile.mp3';
 
-		await azureFileService.uploadFile({
-			filenameRemote: filenameRemote,
-			contentType: 'audio/mp3',
-			source: fs.createReadStream(mp3FilePath)
+			await azureFileService.uploadFile({
+				filenameRemote: filenameRemote,
+				contentType: 'audio/mp3',
+				source: fs.createReadStream(mp3FilePath)
+			});
+
+			const urlToFile = await azureFileService.getLinkToFile({ filenameRemote, expireDate: moment().add(20, 'seconds') });
+
+			const urlToFileIsReachable = await urlIsReachable(urlToFile);
+
+			expect(urlToFileIsReachable).toBeTruthy();
 		});
 
-		const urlToFile = await azureFileService.getLinkToFile({ filenameRemote, expireDate: moment().add(20, 'seconds') });
+		test('get url to uploaded file expired', async () => {
+			const azureFileService = await AzureFileService.makeService(container);
+			const filenameRemote = 'SomeFile.mp3';
 
-		const urlToFileIsReachable = await urlIsReachable(urlToFile);
+			await azureFileService.uploadFile({
+				filenameRemote: filenameRemote,
+				contentType: 'audio/mp3',
+				source: fs.createReadStream(mp3FilePath)
+			});
 
-		expect(urlToFileIsReachable).toBeTruthy();
-	});
+			const urlToFile = await azureFileService.getLinkToFile({ filenameRemote, expireDate: moment().add(-20, 'seconds') });
 
-	test('get url to uploaded file expired', async () => {
-		const azureFileService = await AzureFileService.makeService(container);
-		const filenameRemote = 'SomeFile.mp3';
+			const urlToFileIsReachable = await urlIsReachable(urlToFile);
 
-		await azureFileService.uploadFile({
-			filenameRemote: filenameRemote,
-			contentType: 'audio/mp3',
-			source: fs.createReadStream(mp3FilePath)
+			expect(urlToFileIsReachable).toBeFalsy();
 		});
 
-		const urlToFile = await azureFileService.getLinkToFile({ filenameRemote, expireDate: moment().add(-20, 'seconds') });
+		test('get url to uploaded file no end date specified', async () => {
+			const azureFileService = await AzureFileService.makeService(container);
+			const filenameRemote = 'SomeFile.mp3';
 
-		const urlToFileIsReachable = await urlIsReachable(urlToFile);
+			await azureFileService.uploadFile({
+				filenameRemote: filenameRemote,
+				contentType: 'audio/mp3',
+				source: fs.createReadStream(mp3FilePath)
+			});
 
-		expect(urlToFileIsReachable).toBeFalsy();
-	});
+			const urlToFile = await azureFileService.getLinkToFile({ filenameRemote });
 
-	test('get url to uploaded file no end date specified', async () => {
-		const azureFileService = await AzureFileService.makeService(container);
-		const filenameRemote = 'SomeFile.mp3';
+			await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
 
-		await azureFileService.uploadFile({
-			filenameRemote: filenameRemote,
-			contentType: 'audio/mp3',
-			source: fs.createReadStream(mp3FilePath)
+			const urlToFileIsReachable = await urlIsReachable(urlToFile);
+
+			expect(urlToFileIsReachable).toBeFalsy();
 		});
-
-		const urlToFile = await azureFileService.getLinkToFile({ filenameRemote });
-
-		await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
-
-		const urlToFileIsReachable = await urlIsReachable(urlToFile);
-
-		expect(urlToFileIsReachable).toBeFalsy();
 	});
-});
+}
 
 describe('get file as buffer', () => {
 	const mp3FilePath = path.join(__dirname, 'assets', 'SampleAudio.mp3');
