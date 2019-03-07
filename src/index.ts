@@ -22,6 +22,7 @@ import { makeDatabaseSeed } from "./database/seed";
 import { SongService } from "./services/SongService";
 import { ShareService } from "./services/ShareService";
 import { UserService } from "./services/UserService";
+import { ArtistExtractor } from "./utils/song-meta/song-meta-formats/id3/ArtistExtractor";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -55,7 +56,8 @@ if (!isProductionEnvironment()) {
 	const songService = new SongService(database);
 	const shareService = new ShareService(database);
 	const userService = new UserService(database);
-	const songMetaDataService = new SongMetaDataService([new ID3MetaData()]);
+	const artistExtractor = new ArtistExtractor();
+	const songMetaDataService = new SongMetaDataService([new ID3MetaData(artistExtractor)]);
 	const songProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService);
 
 	Container.set('FILE_SERVICE', fileService);
