@@ -16,7 +16,7 @@ import { makeGraphQLServer } from "./server/GraphQLServer";
 import { AzureFileService } from "./file-service/AzureFileService";
 import { __DEV__, __PROD__ } from "./utils/env/env-constants";
 import { SongMetaDataService } from "./utils/song-meta/SongMetaDataService";
-import { ID3MetaData } from "./utils/song-meta/song-meta-formats/ID3MetaData";
+import { ID3MetaData } from "./utils/song-meta/song-meta-formats/id3/ID3MetaData";
 import { makeDatabaseSchemaWithSeed, makeDatabaseSchema } from "./database/schema/make-database-schema";
 import { makeDatabaseSeed } from "./database/seed";
 import { SongService } from "./services/SongService";
