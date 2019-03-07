@@ -11,5 +11,6 @@
 		"**/bower_components": true,
 		"**/build": true
 	},
-	"autoimport.doubleQuotes": false
+	"autoimport.doubleQuotes": false,
+	"typescript.tsdk": "node_modules/typescript/lib"
 }

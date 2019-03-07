@@ -1,57 +1,86 @@
+// tslint:disable-next-line:no-import-side-effect
 import "reflect-metadata";
-import { SongProcessingQueue } from './job-queues/song-processing.queue';
-import { CoreDatabase } from './database/core-database';
-import { Database } from "./database/database";
-import { Server } from './server/server';
+import { SongUploadProcessingQueue } from './job-queues/SongUploadProcessingQueue';
+import { DatabaseConnection } from "./database/DatabaseConnection";
+import { HTTPServer } from './server/HTTPServer';
 import { useContainer } from 'type-graphql';
 import Container from 'typedi';
-import { BlobService } from './server/file-uploader';
-import { NodeEnv } from './types/common-types';
-import * as dotenv from 'dotenv';
-import { SongService } from "./services/song.service";
+import { isProductionEnvironment, isValidNodeEnvironment } from "./utils/env/native-envs";
+import { loadEnvsFromDotenvFile } from "./utils/env/load-envs-from-file";
+import { CustomEnv } from "./utils/env/CustomEnv";
+import { tryParseInt } from "./utils/try-parse/try-parse-int";
+import { UserResolver } from "./resolvers/UserResolver";
+import { ShareResolver } from "./resolvers/ShareResolver";
+import { SongResolver } from "./resolvers/SongResolver";
+import { makeGraphQLServer } from "./server/GraphQLServer";
+import { AzureFileService } from "./file-service/AzureFileService";
+import { __DEV__, __PROD__ } from "./utils/env/env-constants";
+import { SongMetaDataService } from "./utils/song-meta/SongMetaDataService";
+import { ID3MetaData } from "./utils/song-meta/song-meta-formats/id3/ID3MetaData";
+import { makeDatabaseSchemaWithSeed, makeDatabaseSchema } from "./database/schema/make-database-schema";
+import { makeDatabaseSeed } from "./database/seed";
+import { SongService } from "./services/SongService";
+import { ShareService } from "./services/ShareService";
+import { UserService } from "./services/UserService";
+import { ArtistExtractor } from "./utils/song-meta/song-meta-formats/id3/ArtistExtractor";
 
 // enable source map support for error stacks
 require('source-map-support').install();
 
 // load environment variables
-if (process.env.NODE_ENV === NodeEnv.Development || process.env.NODE_ENV === NodeEnv.Testing) {
-	dotenv.load({
-		path: `./${process.env.NODE_ENV}.env`
-	});
+const nodeEnv = process.env.NODE_ENV;
+
+if (!isValidNodeEnvironment(nodeEnv)) {
+	throw new Error(`Invalid node environment ${nodeEnv}`);
+}
+
+if (!isProductionEnvironment()) {
+	loadEnvsFromDotenvFile(nodeEnv);
 }
 
 (async () => {
-	const database = new Database({
-		contactPoints: ['127.0.0.1'],
-		keyspace: 'musicshare'
+	useContainer(Container);
+
+	const databaseHost = process.env[CustomEnv.CASSANDRA_HOST] || '127.0.0.1';
+	const databaseKeyspace = process.env[CustomEnv.CASSANDRA_KEYSPACE] || 'musicshare';
+	const database = new DatabaseConnection({
+		contactPoints: [databaseHost],
+		keyspace: databaseKeyspace
 	});
 
-	const coreDatabase = new CoreDatabase(database);
-
-	await coreDatabase.createSchema({ clear: true });
+	Container.set('DATABASE_CONNECTION', database);
 
 	console.info('Database schema created');
 
-	const songProcessingQueue = new SongProcessingQueue(new SongService(database, null), database);
-	const fileUploadService = new BlobService(songProcessingQueue);
+	const fileService = await AzureFileService.makeService('songs');
+	const songService = new SongService(database);
+	const shareService = new ShareService(database);
+	const userService = new UserService(database);
+	const artistExtractor = new ArtistExtractor();
+	const songMetaDataService = new SongMetaDataService([new ID3MetaData(artistExtractor)]);
+	const songProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService);
 
-	try {
-		await fileUploadService.createContainer('songs');
-	} catch (err) {
-		if (err.message.indexOf('ContainerAlreadyExists') === -1) {
-			console.error(err);
-		}
+	Container.set('FILE_SERVICE', fileService);
+	Container.set('SONG_SERVICE', songService);
+	Container.set('SHARE_SERVICE', shareService);
+	Container.set('USER_SERVICE', userService);
+
+	if (__DEV__) {
+		const seed = await makeDatabaseSeed(database, songService);
+		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
+	} else if (__PROD__) {
+		await makeDatabaseSchema(database, { keySpace: databaseKeyspace });
 	}
 
-	// setup dependency injection
-	// register 3rd party IOC container
-	useContainer(Container);
+	const graphQLServer = await makeGraphQLServer(UserResolver, ShareResolver, SongResolver);
 
-	Container.set({ id: 'DATABASE', factory: () => database });
-	Container.set({ id: 'FILE_UPLOAD', factory: () => fileUploadService });
+	const server = await HTTPServer.makeServer(graphQLServer, fileService, songProcessingQueue);
+	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);
+	await server.start('/graphql', serverPort, !__PROD__);
 
-	const server = new Server(database, fileUploadService);
-	await server.start('/graphql', 4000);
-
-	console.info(`Server is running, GraphQL Playground available at http://localhost:4000/playground`);
-})();
+	console.info(`Server is running on http://localhost:${serverPort}`);
+	console.info(`GraphQL endpoint available at http://localhost:${serverPort}/graphql`);
+	if (__DEV__) console.info(`GraphQL Playground available at http://localhost:${serverPort}/playground`);
+})()
+	.then()
+	.catch(console.error);

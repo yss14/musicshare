@@ -12,21 +12,25 @@
 		"jsx",
 		"json"
 	],
-	"collectCoverage": true,
+	"globalSetup": "./src/__test__/utils/global-setup.ts",
+	"setupFilesAfterEnv": [
+		"jest-extended"
+	],
+	"collectCoverage": false,
 	"collectCoverageFrom": [
-		"!__test__/**/*.ts"
+		"**/*.ts",
+		"!**/node_modules/**",
+		"!**/vendor/**",
+		"!src/index.ts",
+		"!**/__test__/**",
+		"!src/database/seed.ts",
+		"!src/database/fixtures.ts",
+		"!src/utils/env/load-envs-from-file.ts"
 	],
 	"coverageReporters": [
 		"text",
 		"lcov"
 	],
-	"coverageThreshold": {
-		"global": {
-			"branches": 90,
-			"functions": 95,
-			"lines": 80
-		}
-	},
 	"preset": "ts-jest",
 	"testMatch": null
 }

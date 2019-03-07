@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"target": "es2017",
+		"target": "esnext",
 		"module": "commonjs",
 		"outDir": "build/",
 		"lib": [
@@ -8,17 +8,19 @@
 			"es2016",
 			"es2017",
 			"es2018",
-			"esnext"
+			"esnext",
+			"dom"
 		],
 		"forceConsistentCasingInFileNames": true,
 		"noImplicitAny": true,
 		"strict": true,
-		"strictNullChecks": false,
+		"strictNullChecks": true,
 		"noImplicitReturns": true,
 		"allowSyntheticDefaultImports": false,
 		"sourceMap": true,
 		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true
+		"emitDecoratorMetadata": true,
+		"noUnusedLocals": true
 	},
 	"compileOnSave": true,
 	"exclude": [

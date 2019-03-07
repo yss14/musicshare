@@ -36,9 +36,6 @@ build/Release
 node_modules/
 jspm_packages/
 
-# TypeScript v1 declaration files
-typings/
-
 # Optional npm cache directory
 .npm
 
@@ -76,5 +73,8 @@ typings/
 build/
 
 # azurite
-azurite
+azurite*/
+
+# mac file system files
+*.DS_Store
 
