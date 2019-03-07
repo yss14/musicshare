@@ -58,11 +58,13 @@ const makeShareSongQuery = (id: string, props: string[] = []) => {
 	`;
 }
 
+const TIMEOUT = 20000;
+
 const cleanupHooks: (() => Promise<void>)[] = [];
 
 afterAll(async () => {
 	await Promise.all(cleanupHooks.map(hook => hook()));
-});
+}, TIMEOUT);
 
 describe('get share by id', () => {
 	test('get share by id', async () => {
@@ -75,7 +77,7 @@ describe('get share by id', () => {
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
 
 		expect(body).toEqual(makeGraphQLResponse({ share: Share.fromDBResult(share) }));
-	});
+	}, TIMEOUT);
 
 	test('get share by id not existing', async () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv();
@@ -90,7 +92,7 @@ describe('get share by id', () => {
 			{ share: null },
 			[{ message: `Share with id ${shareID} not found` }]
 		));
-	});
+	}, TIMEOUT);
 });
 
 describe('get share songs', () => {
@@ -109,7 +111,7 @@ describe('get share songs', () => {
 		].map(Song.fromDBResult);
 
 		expectedSongs.forEach(expectedSong => includesSong(body.data.share.songs, expectedSong));
-	});
+	}, TIMEOUT);
 
 	test('get all songs of share with range query', async () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv();
@@ -126,7 +128,7 @@ describe('get share songs', () => {
 		].map(Song.fromDBResult);
 
 		expectedSongs.forEach(expectedSong => includesSong(body.data.share.songs, expectedSong));
-	});
+	}, TIMEOUT);
 });
 
 describe('get share song', () => {
@@ -141,7 +143,7 @@ describe('get share song', () => {
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
 
 		compareSongs(Song.fromDBResult(song), body.data.share.song);
-	});
+	}, TIMEOUT);
 
 	test('get share song by id not existing', async () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv();
@@ -155,7 +157,7 @@ describe('get share song', () => {
 
 		expect(body.data.share.song).toBe(null);
 		expect(body.errors).toMatchObject([{ message: `Song with id ${songID} not found in share ${shareID}` }])
-	});
+	}, TIMEOUT);
 
 	test('get share song by id with access url', async () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv();
@@ -169,5 +171,5 @@ describe('get share song', () => {
 
 		expect(body.data.share.song).toBeDefined();
 		expect(body.data.share.song.accessUrl).toBeString();
-	});
+	}, TIMEOUT);
 });

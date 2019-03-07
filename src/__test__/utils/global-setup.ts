@@ -5,7 +5,4 @@ export default async () => {
 	if (!process.env.IS_CI) {
 		loadEnvsFromDotenvFile(NodeEnv.Testing);
 	}
-
-	const TIMELIMIT = 20000;
-	jest.setTimeout(TIMELIMIT);
 }
