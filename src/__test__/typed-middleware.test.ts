@@ -109,6 +109,7 @@ test('two parameters failing', async () => {
 
 test('three parameters success', async () => {
 	const testRoute = wrapRequestHandler(withMiddleware(firstMiddleware, secondMiddleware, thirdMiddleware)(
+		// tslint:disable:max-func-args
 		async (req, v1, v2, v3) => ResponseSuccessJSON(HTTPStatusCodes.OK, { v1, v2, v3 })
 	));
 	const router = express.Router().post('/testroute', testRoute);
@@ -124,6 +125,7 @@ test('three parameters success', async () => {
 
 test('three parameters failing', async () => {
 	const testRoute = wrapRequestHandler(withMiddleware(firstMiddleware, secondMiddleware, thirdMiddleware)(
+		// tslint:disable:max-func-args
 		async (req, v1, v2, v3) => ResponseSuccessJSON(HTTPStatusCodes.OK, { v1, v2, v3 })
 	));
 	const router = express.Router().post('/testroute', testRoute);

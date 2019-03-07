@@ -62,28 +62,29 @@ export class ArtistExtractor {
 	}
 
 	private cutKnownArtists(artistStr: string, artistType: ArtistType): [IArtist[], string] {
+		let newArtistStr = artistStr;
 		const cutArtists: IArtist[] = [];
-		const featuringIndex = this.getFeaturingIndex(artistStr);
+		const featuringIndex = this.getFeaturingIndex(newArtistStr);
 
 		for (const knownArtist of this.knownArtists) {
-			const startIndex = artistStr.indexOf(knownArtist);
+			const startIndex = newArtistStr.indexOf(knownArtist);
 
 			if (startIndex > -1 && startIndex < featuringIndex) {
-				const artistName = artistStr.substr(startIndex, knownArtist.length);
+				const artistName = newArtistStr.substr(startIndex, knownArtist.length);
 				const artist: IArtist = { name: artistName, type: artistType };
 
-				artistStr = artistStr.substr(0, startIndex) + artistStr.substr(startIndex + knownArtist.length);
+				newArtistStr = newArtistStr.substr(0, startIndex) + newArtistStr.substr(startIndex + knownArtist.length);
 
-				if (!this.separators.some(separator => artistStr.indexOf(separator) > -1) && artistStr.trim().length > 0) {
-					artist.suffix = artistStr.trim();
-					artistStr = '';
+				if (!this.separators.some(separator => newArtistStr.indexOf(separator) > -1) && newArtistStr.trim().length > 0) {
+					artist.suffix = newArtistStr.trim();
+					newArtistStr = '';
 				}
 
 				cutArtists.push(artist);
 			}
 		}
 
-		return [cutArtists, artistStr];
+		return [cutArtists, newArtistStr];
 	}
 
 	private getFeaturingIndex(artistStr: string) {

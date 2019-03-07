@@ -294,7 +294,6 @@ export class ID3MetaData implements ISongMetaDataSource {
 		return Array.from(artistNames).map(artistName => ({ name: artistName, type: artistType }));
 	}
 
-
 	private removeUrlClutter(input: string): string {
 		const urls = input.match(urlRegex({ strict: false }));
 		let output = input;
@@ -307,8 +306,6 @@ export class ID3MetaData implements ISongMetaDataSource {
 
 		return output.replace('()', '').replace('[]', '');
 	}
-
-
 
 	private indexOfCharLeft(str: string, needle: string, fromIdx: number) {
 		for (let i = fromIdx; i >= 0; i--) {

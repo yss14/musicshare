@@ -56,7 +56,6 @@
 			"check-parameters"
 		],
 		"no-eval": true,
-		"no-implicit-dependencies": true,
 		"no-invalid-this": true,
 		"no-sparse-arrays": true,
 		"no-consecutive-blank-lines": true,
@@ -78,7 +77,8 @@
 		"use-isnan": true,
 		"max-func-args": true,
 		"no-complex-conditionals": true,
-		"no-commented-out-code": true
+		"no-commented-out-code": true,
+		"no-implicit-dependencies": false
 	},
 	"rulesDirectory": []
 }
