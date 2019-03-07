@@ -24,6 +24,8 @@ beforeAll(async () => {
 	if (!process.env.IS_CI) {
 		azuriteProcess = await startAzurite();
 	}
+
+	console.log(process.env.AZURE_STORAGE_CONNECTION_STRING)
 });
 
 afterAll(async () => {
