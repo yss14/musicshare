@@ -2,7 +2,6 @@ import { makeTestDatabase } from "./make-test-database";
 import { SongService } from "../../services/SongService";
 import { UserService } from "../../services/UserService";
 import { ShareService } from "../../services/ShareService";
-import { useContainer } from "type-graphql";
 import Container from "typedi";
 import { makeGraphQLServer } from "../../server/GraphQLServer";
 import { ShareResolver } from "../../resolvers/ShareResolver";
@@ -26,7 +25,7 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 	const fileService = new FileServiceMock(() => undefined, () => 'http://someurl.de/file.mp3');
 	const songMetaDataService: ISongMetaDataService = { analyse: async () => ({}) };
 	const songUploadProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService);
-	useContainer(Container);
+
 	Container.set('USER_SERVICE', userService);
 	Container.set('SHARE_SERVICE', shareService);
 	Container.set('SONG_SERVICE', songService);
@@ -36,7 +35,7 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 		await seed(songService);
 	}
 
-	const graphQLServer = await makeGraphQLServer(UserResolver, ShareResolver, SongResolver);
+	const graphQLServer = await makeGraphQLServer(Container, UserResolver, ShareResolver, SongResolver);
 
 	if (startServer === true) {
 		await graphQLServer.createHttpServer({});

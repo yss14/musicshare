@@ -3,7 +3,6 @@ import "reflect-metadata";
 import { SongUploadProcessingQueue } from './job-queues/SongUploadProcessingQueue';
 import { DatabaseConnection } from "./database/DatabaseConnection";
 import { HTTPServer } from './server/HTTPServer';
-import { useContainer } from 'type-graphql';
 import Container from 'typedi';
 import { isProductionEnvironment, isValidNodeEnvironment } from "./utils/env/native-envs";
 import { loadEnvsFromDotenvFile } from "./utils/env/load-envs-from-file";
@@ -39,8 +38,6 @@ if (!isProductionEnvironment()) {
 }
 
 (async () => {
-	useContainer(Container);
-
 	const databaseHost = process.env[CustomEnv.CASSANDRA_HOST] || '127.0.0.1';
 	const databaseKeyspace = process.env[CustomEnv.CASSANDRA_KEYSPACE] || 'musicshare';
 	const database = new DatabaseConnection({
@@ -72,7 +69,7 @@ if (!isProductionEnvironment()) {
 		await makeDatabaseSchema(database, { keySpace: databaseKeyspace });
 	}
 
-	const graphQLServer = await makeGraphQLServer(UserResolver, ShareResolver, SongResolver);
+	const graphQLServer = await makeGraphQLServer(Container, UserResolver, ShareResolver, SongResolver);
 
 	const server = await HTTPServer.makeServer(graphQLServer, fileService, songProcessingQueue);
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);

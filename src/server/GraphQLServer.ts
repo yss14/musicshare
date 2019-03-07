@@ -1,9 +1,10 @@
-import { buildSchema } from 'type-graphql';
+import { buildSchema, ContainerType } from 'type-graphql';
 import { GraphQLServer } from 'graphql-yoga';
 
-export const makeGraphQLServer = async (...resolvers: Function[]) => {
+export const makeGraphQLServer = async (container: ContainerType, ...resolvers: Function[]) => {
 	const schema = await buildSchema({
-		resolvers
+		resolvers,
+		container
 	});
 
 	const graphQLServer = new GraphQLServer({ schema });
