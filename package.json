@@ -3,6 +3,17 @@
 	"version": "1.0.0",
 	"private": true,
 	"description": "Simple yet powerful self-hosted open-source music library, powered by NodeJS, GraphQL, and React.",
+	"scripts": {
+		"bootstrap": "lerna bootstrap",
+		"build": "lerna run build --stream",
+		"build:backend": "lerna run build --stream --scope @musicshare/backend",
+		"verify": "lerna run verify --stream",
+		"lint": "lerna run lint --stream --parallel",
+		"lint:backend": "lerna run lint --stream --scope @musicshare/backend",
+		"test": "lerna run test --stream --parallel",
+		"test:backend": "lerna run test --stream --scope @musicshare/backend",
+		"test:ci": "lerna run test:ci --stream --parallel"
+	},
 	"dependencies": {
 		"axios": "^0.18.0",
 		"bind-decorator": "^1.0.11",
