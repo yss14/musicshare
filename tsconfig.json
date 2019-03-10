@@ -1,16 +1,7 @@
 {
 	"compilerOptions": {
-		"target": "esnext",
+		"target": "es5",
 		"module": "commonjs",
-		"outDir": "build/",
-		"lib": [
-			"es2015",
-			"es2016",
-			"es2017",
-			"es2018",
-			"esnext",
-			"dom"
-		],
 		"forceConsistentCasingInFileNames": true,
 		"noImplicitAny": true,
 		"strict": true,
@@ -22,9 +13,5 @@
 		"emitDecoratorMetadata": true,
 		"noUnusedLocals": true
 	},
-	"compileOnSave": true,
-	"exclude": [
-		"node_modules",
-		"build"
-	]
+	"compileOnSave": true
 }
