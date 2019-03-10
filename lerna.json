@@ -1,0 +1,19 @@
+{
+	"version": "1.0.0",
+	"npmClient": "npm",
+	"packages": [
+		"projects/*"
+	],
+	"command": {
+		"publish": {
+			"ignoreChanges": [
+				"**/__test__/**",
+				"*.test.ts",
+				"*.md",
+				"**/jest.json",
+				"**/tslint.json"
+			],
+			"message": "chore(release): publish %v"
+		}
+	}
+}
