@@ -12,8 +12,8 @@
 		"test:watch": "jest --watch --config=jest.json --detectOpenHandles --colors",
 		"test:cov": "cross-env NODE_ENV=test jest --config=jest.json --collectCoverage --detectOpenHandles --colors",
 		"test:ci": "npm run test:cov && codecov",
-		"lint": "tslint --project tsconfig.json --colors",
-		"lint:fix": "tslint --fix --project tsconfig.json --colors",
+		"lint": "tslint --project tsconfig.json",
+		"lint:fix": "tslint --fix --project tsconfig.json",
 		"verify": "tsc --noEmit"
 	},
 	"author": "Yannick Stachelscheid",
