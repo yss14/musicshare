@@ -3,7 +3,26 @@
 	"version": "1.0.0",
 	"private": true,
 	"description": "Simple yet powerful self-hosted open-source music library, powered by NodeJS, GraphQL, and React.",
+	"dependencies": {
+		"axios": "^0.18.0",
+		"bind-decorator": "^1.0.11",
+		"lodash": "^4.17.11",
+		"moment": "^2.24.0",
+		"uuid": "^3.3.2"
+	},
 	"devDependencies": {
-		"lerna": "^3.13.1"
+		"@types/lodash": "^4.14.122",
+		"@types/node": "^11.10.5",
+		"@types/jest": "^24.0.9",
+		"@types/uuid": "^3.4.4",
+		"codecov": "^3.2.0",
+		"lerna": "^3.13.1",
+		"jest": "^24.3.1",
+		"jest-extended": "^0.11.1",
+		"ts-jest": "^24.0.0",
+		"tslint": "^5.13.1",
+		"tslint-clean-code": "^0.2.9",
+		"tslint-eslint-rules": "^5.4.0",
+		"typescript": "^3.3.3333"
 	}
 }
