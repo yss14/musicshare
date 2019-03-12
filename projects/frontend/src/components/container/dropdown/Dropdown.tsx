@@ -64,7 +64,7 @@ class DropdownComponent extends React.Component<IDropdownProps, IDropdownState>{
 		const { className, children, css, title } = this.props;
 
 		const renderedTitle = children.some(child => child.props.selected)
-			? children.find(child => child.props.selected).props.children
+			? children.find(child => child.props.selected)!.props.children
 			: title
 
 		return (

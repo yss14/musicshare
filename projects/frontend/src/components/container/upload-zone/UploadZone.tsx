@@ -45,7 +45,7 @@ class UploadZoneComponent extends React.Component<IUploadZoneProps>{
 
 		console.log(files);
 		files.forEach(file => {
-			dispatch(upload(userID, shareID, new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL), file));
+			dispatch(upload(userID, shareID, new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL!), file));
 		});
 	}
 

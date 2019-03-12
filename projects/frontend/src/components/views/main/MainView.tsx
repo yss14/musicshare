@@ -28,7 +28,7 @@ const MainViewMainView = styled.div`
 
 interface IMainViewProps extends RouteComponentProps<IRouteShare>, IStyledComponentProps,
 	DispatchPropThunk<IStoreSchema, ISharesFetched & IShareSongsFetched> {
-	userID: string;
+	userID: string | null;
 	shares: ISharesSchema;
 }
 
@@ -39,8 +39,8 @@ class MainViewComponent extends React.Component<IMainViewProps> {
 
 		if (prevProps.userID === null && this.props.userID !== null) {
 			dispatch(fetchShares(
-				new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL),
-				userID
+				new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL!),
+				userID!
 			));
 		}
 
@@ -53,7 +53,7 @@ class MainViewComponent extends React.Component<IMainViewProps> {
 				if (prevProps.shares.length === 0) {
 					// get songs for current selected share
 					dispatch(fetchSongs(
-						new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL),
+						new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL!),
 						selectedShare.id
 					));
 				}

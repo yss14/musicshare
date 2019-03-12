@@ -46,7 +46,7 @@ export class MusicShareApi {
 
 	public async query<R>(query: string, variables?: IGraphQLRequestVariables): Promise<R> {
 		const body: IGraphQLRequest = {
-			operationName: null,
+			operationName: undefined,
 			query: `query{${query}}`,
 			variables: variables || {}
 		}
@@ -57,7 +57,11 @@ export class MusicShareApi {
 			throw new GraphQLError(`Error during GraphQL query \n${query}`, response.data.errors);
 		}
 
-		return response.data.data;
+		if (response.data.data) {
+			return response.data.data;
+		} else {
+			throw new GraphQLError('No data received', []);
+		}
 	}
 
 	public async upload(userID: string, shareID: string, file: File, buffer: ArrayBuffer, onProgress: (progress: IAxiosProgress) => void): Promise<void> {

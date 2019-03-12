@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as Infinite from 'react-infinite';
+import Infinite from 'react-infinite';
 import styled from 'styled-components';
 import { ISong } from '../../../redux/shares/shares.schema';
 import { SongListItem } from './SongListItem';
@@ -10,11 +10,11 @@ interface ISongListProps extends IStyledComponentProps {
 }
 
 interface ISongListState {
-	divHeight: number;
+	divHeight: number | null;
 }
 
 class SongListComponent extends React.Component<ISongListProps, ISongListState>{
-	private divRef: HTMLDivElement;
+	private divRef: HTMLDivElement | null = null;
 
 	constructor(props: ISongListProps) {
 		super(props);
@@ -43,7 +43,7 @@ class SongListComponent extends React.Component<ISongListProps, ISongListState>{
 			<div className={className} ref={(ref) => this.divRef = ref}>
 				{
 					divHeight ? (
-						<Infinite elementHeight={20} containerHeight={divHeight}>
+						<Infinite elementHeight={20} containerHeight={divHeight!}>
 							{
 								songs.map((song, idx) => (
 									<SongListItem

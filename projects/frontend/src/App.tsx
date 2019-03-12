@@ -49,14 +49,14 @@ class App extends React.Component {
 	constructor(props: {}) {
 		super(props);
 
-		this.api = new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL);
+		this.api = new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL!); // TODO undefined check
 	}
 
 	public componentDidMount() {
 		// fake login
 		const dispatch: ThunkDispatch<IStoreSchema, void, Action> = store.dispatch;
 
-		dispatch(login(this.api, null, null));
+		dispatch(login(this.api, "", ""));
 	}
 
 	public render() {
