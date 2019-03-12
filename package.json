@@ -4,6 +4,8 @@
 	"private": true,
 	"description": "Simple yet powerful self-hosted open-source music library, powered by NodeJS, GraphQL, and React.",
 	"scripts": {
+		"start:backend": "lerna run start --stream --scope @musicshare/backend",
+		"start:frontend": "lerna run start --stream --scope @musicshare/frontend",
 		"bootstrap": "lerna bootstrap",
 		"build": "lerna run build --stream",
 		"build:backend": "lerna run build --stream --scope @musicshare/backend",
