@@ -33,8 +33,8 @@ class PlayerComponent extends React.Component<IPlayerProps>{
 					onClickNext={this.onClickPrevNext.bind(this, true)}
 				/>
 				<PlaybackFeedback
-					song={null}
-					onSkip={undefined}
+					song={undefined}
+					onSkip={() => undefined}
 					progress={20}
 				/>
 			</div>

@@ -37,7 +37,7 @@ const SongListItemComponent: React.StatelessComponent<ISongListItemProps> = (pro
 			<SongListItemColumnStyled height={height}>{buildSongName(song)}</SongListItemColumnStyled>
 			<SongListItemColumnStyled height={height} width={50}>05:09</SongListItemColumnStyled>
 			<SongListItemColumnStyled height={height} width={150}>{song.artists.join(', ')}</SongListItemColumnStyled>
-			<SongListItemColumnStyled height={height} width={100}>{song.genres.join(', ')}</SongListItemColumnStyled>
+			<SongListItemColumnStyled height={height} width={100}>{(song.genres || []).join(', ')}</SongListItemColumnStyled>
 		</div>
 	);
 }

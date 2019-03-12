@@ -13,7 +13,13 @@ install:
   - npm install
   - npm run bootstrap
 
-script:
-  - npm run build
-  - npm run lint
-  - npm run test:ci
+jobs:
+  include:
+    - stage: Build and Test
+      script:
+        - npm run build:backend
+        - npm run lint
+        - npm run test:ci
+    - # stage name not required, will continue to use `test`
+      script:
+        - npm run build:frontend
