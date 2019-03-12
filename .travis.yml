@@ -17,10 +17,10 @@ jobs:
   include:
     - stage: Build and Test
 
-    script:
-      - npm run build:backend
-      - npm run lint
-      - npm run test:ci
+      script:
+        - npm run build:backend
+        - npm run lint
+        - npm run test:ci
 
-    script:
-      - npm run build:frontend
+      script:
+        - npm run build:frontend
