@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { IStyledComponentProps } from '../../../types/props/StyledComponent.props';
-import Dropzone, { ImageFile } from 'react-dropzone';
+import Dropzone from 'react-dropzone';
 import { bind } from 'bind-decorator';
 import { UploadAction, upload } from '../../../redux/upload/upload.actions';
 import { DispatchPropThunk } from '../../../types/props/DispatchPropThunk';
@@ -40,7 +40,7 @@ interface IUploadZoneProps extends IStyledComponentProps, DispatchPropThunk<ISto
 class UploadZoneComponent extends React.Component<IUploadZoneProps>{
 
 	@bind
-	private onDrop(files: ImageFile[]) {
+	private onDrop(files: File[]) {
 		const { dispatch, userID, shareID } = this.props;
 
 		console.log(files);
@@ -84,7 +84,9 @@ class UploadZoneComponent extends React.Component<IUploadZoneProps>{
 					style={dropzoneStyled}
 					multiple={true}
 					activeStyle={dropzoneDropHoverStyle}
-				/>
+				>
+					Drop here
+				</Dropzone>
 			</div>
 		)
 	}

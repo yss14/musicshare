@@ -7,6 +7,7 @@
 		"bootstrap": "lerna bootstrap",
 		"build": "lerna run build --stream",
 		"build:backend": "lerna run build --stream --scope @musicshare/backend",
+		"build:frontend": "lerna run build --stream --scope @musicshare/frontend",
 		"verify": "lerna run verify --stream",
 		"lint": "lerna run lint --stream --parallel",
 		"lint:backend": "lerna run lint --stream --scope @musicshare/backend",
@@ -17,12 +18,14 @@
 	"dependencies": {
 		"axios": "^0.18.0",
 		"bind-decorator": "^1.0.11",
+		"dotenv": "^6.2.0",
 		"lodash": "^4.17.11",
 		"moment": "^2.24.0",
 		"uuid": "^3.3.2"
 	},
 	"devDependencies": {
 		"@types/lodash": "^4.14.122",
+		"@types/dotenv": "^6.1.0",
 		"@types/node": "^11.10.5",
 		"@types/jest": "^24.0.9",
 		"@types/uuid": "^3.4.4",
