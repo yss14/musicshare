@@ -36,7 +36,7 @@
 		"@types/react-router-dom": "^4.3.1",
 		"@types/react-router-redux": "^5.0.18",
 		"@types/redux-thunk": "^2.1.0",
-		"@types/styled-components": "^3.0.2"
+		"@types/styled-components": "^4.1.12"
 	},
 	"eslintConfig": {
 		"extends": "react-app"
