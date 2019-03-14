@@ -9,7 +9,7 @@
 		"rc-progress": "^2.3.0",
 		"react": "^16.8.4",
 		"react-dom": "^16.8.4",
-		"react-dropzone": "^5.1.1",
+		"react-dropzone": "^10.0.2",
 		"react-infinite": "^0.13.0",
 		"react-redux": "^5.1.1",
 		"react-router-dom": "^4.3.1",
