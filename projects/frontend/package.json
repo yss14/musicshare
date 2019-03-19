@@ -11,14 +11,14 @@
 		"react-dom": "^16.8.4",
 		"react-dropzone": "^5.1.1",
 		"react-infinite": "^0.13.0",
-		"react-redux": "^5.1.1",
-		"react-router-dom": "^4.3.1",
+		"react-redux": "^6.0.1",
+		"react-router-dom": "^5.0.0",
 		"react-router-redux": "^4.0.8",
 		"react-scripts": "^2.1.8",
 		"redux": "^4.0.1",
 		"redux-thunk": "^2.3.0",
 		"styled-components": "^3.4.10",
-		"styled-components-ts": "0.0.14"
+		"styled-components-ts": "0.0.15"
 	},
 	"scripts": {
 		"start": "react-scripts start",
@@ -28,15 +28,15 @@
 	},
 	"devDependencies": {
 		"@types/howler": "^2.1.0",
-		"@types/react": "^16.8.7",
+		"@types/react": "^16.8.8",
 		"@types/react-dom": "^16.8.2",
 		"@types/react-dropzone": "^4.2.2",
-		"@types/react-infinite": "0.0.33",
-		"@types/react-redux": "^6.0.13",
+		"@types/react-infinite": "0.0.34",
+		"@types/react-redux": "^7.0.5",
 		"@types/react-router-dom": "^4.3.1",
 		"@types/react-router-redux": "^5.0.18",
 		"@types/redux-thunk": "^2.1.0",
-		"@types/styled-components": "^3.0.2"
+		"@types/styled-components": "^4.1.12"
 	},
 	"eslintConfig": {
 		"extends": "react-app"
