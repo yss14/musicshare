@@ -12,7 +12,7 @@
 		"react-dropzone": "^5.1.1",
 		"react-infinite": "^0.13.0",
 		"react-redux": "^5.1.1",
-		"react-router-dom": "^4.3.1",
+		"react-router-dom": "^5.0.0",
 		"react-router-redux": "^4.0.8",
 		"react-scripts": "^2.1.8",
 		"redux": "^4.0.1",
