@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 
 /* istanbul ignore next */
 export const loadEnvsFromDotenvFile = (environment: NodeEnv) => {
-	dotenv.load({
+	dotenv.config({
 		path: `./${environment}.env`
 	});
 }

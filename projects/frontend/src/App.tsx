@@ -8,13 +8,11 @@ import { Action } from 'redux';
 import { Provider } from 'react-redux';
 import { Router, Route, Switch } from 'react-router-dom';
 import { MainView } from './components/views/main/MainView';
-import { injectGlobal } from 'styled-components';
+import { createGlobalStyle } from 'styled-components';
 import { createBrowserHistory } from 'history';
 import { NotFoundView } from './components/views/not-found/NotFound';
 
-// global styles
-// tslint:disable-next-line
-injectGlobal`
+const GlobalStyle = createGlobalStyle`
 	html, body, #root {
 		margin: 0px;
 		padding: 0px;
@@ -33,9 +31,11 @@ const store = createReduxStore(history);
 
 export const Root = () => (
 	<Provider store={store}>
-		<Router history={history}>
-			<Route path="/" component={App} />
-		</Router>
+		<GlobalStyle>
+			<Router history={history}>
+				<Route path="/" component={App} />
+			</Router>
+		</GlobalStyle>
 	</Provider>
 );
 
