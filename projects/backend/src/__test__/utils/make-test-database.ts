@@ -9,7 +9,8 @@ export const makeTestDatabase = async () => {
 	const databaseHost = process.env[CustomEnv.CASSANDRA_HOST] || '127.0.0.1';
 	const databaseKeyspace = 'test_' + uuid().split('-').join('');
 	const databaseWithoutScope = new DatabaseConnection({
-		contactPoints: [databaseHost]
+		contactPoints: [databaseHost],
+		localDataCenter: 'datacenter1',
 	});
 
 	await databaseWithoutScope.execute(`
@@ -22,6 +23,7 @@ export const makeTestDatabase = async () => {
 
 	const database = new DatabaseConnection({
 		contactPoints: [databaseHost],
+		localDataCenter: 'datacenter1',
 		keyspace: databaseKeyspace
 	});
 

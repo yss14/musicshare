@@ -42,6 +42,7 @@ if (!isProductionEnvironment()) {
 	const databaseKeyspace = process.env[CustomEnv.CASSANDRA_KEYSPACE] || 'musicshare';
 	const database = new DatabaseConnection({
 		contactPoints: [databaseHost],
+		localDataCenter: 'datacenter1',
 		keyspace: databaseKeyspace
 	});
 
