@@ -1,6 +1,6 @@
 import { DatabaseConnection } from "../DatabaseConnection";
-import { songsByShare, users, sharesByUser } from "./initial-schema";
 import { DatabaseSeed } from "../seed";
+import { UsersTable, SharesByUserTable, SongsByShareTable } from "./tables";
 
 interface ISystemSchemaDBResult {
 	keyspace_name: string;
@@ -23,9 +23,9 @@ export const makeDatabaseSchema = async (dbConn: DatabaseConnection, { keySpace,
 	}
 
 	await Promise.all([
-		dbConn.execute(users()),
-		dbConn.execute(sharesByUser()),
-		dbConn.execute(songsByShare())
+		dbConn.execute(UsersTable.create().cql),
+		dbConn.execute(SharesByUserTable.create().cql),
+		dbConn.execute(SongsByShareTable.create().cql)
 	]);
 }
 
