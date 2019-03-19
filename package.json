@@ -10,6 +10,7 @@
 		"build": "lerna run build --stream",
 		"build:backend": "lerna run build --stream --scope @musicshare/backend",
 		"build:frontend": "lerna run build --stream --scope @musicshare/frontend",
+		"build:cassandra-schema-builder": "lerna run build --stream --scope cassandra-schema-builder",
 		"verify": "lerna run verify --stream",
 		"lint": "lerna run lint --stream --parallel",
 		"lint:backend": "lerna run lint --stream --scope @musicshare/backend",

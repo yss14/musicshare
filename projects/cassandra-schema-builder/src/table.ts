@@ -35,14 +35,15 @@ export const CList = <T extends ColumnType>(): Collection<T> => ({ collection: t
 export interface Column {
 	type: ColumnType | Collection<ColumnType>;
 	primaryKey?: boolean;
+	nullable?: boolean; // offers convinience to enfore certain properties (has no effect on the cql)
 }
 
 export interface Columns {
 	[key: string]: Column;
 }
 
-export const TableSchema = (columns: Columns):
-	{ [key in keyof Columns]: Columns[key] } => columns;
+export const TableSchema = <C extends Columns>(columns: C):
+	{ [key in keyof C]: C[key] } => columns;
 
 type BigInteger = BigInt | number;
 
@@ -89,6 +90,7 @@ type ColumnBaseType<C extends Column> =
 
 type ColumnTypeFinal<C extends Column> =
 	C extends { primaryKey: true } ? ColumnBaseType<C> :
+	C extends { nullable: false } ? ColumnBaseType<C> :
 	ColumnBaseType<C> | null;
 
 export type TableRecord<C extends Columns> = {

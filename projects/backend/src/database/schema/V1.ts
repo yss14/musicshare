@@ -3,15 +3,15 @@ import { TableSchema, ColumnType, CSet } from 'cassandra-schema-builder';
 export namespace DatabaseV1 {
 	export const users = TableSchema({
 		id: { type: ColumnType.TimeUUID, primaryKey: true },
-		name: { type: ColumnType.Varchar },
-		emails: { type: CSet<ColumnType.Boolean>() }
+		name: { type: ColumnType.Varchar, nullable: false },
+		emails: { type: CSet<ColumnType.Boolean>(), nullable: false }
 	});
 
 	export const sharesByUser = TableSchema({
 		id: { type: ColumnType.TimeUUID, primaryKey: true },
-		name: { type: ColumnType.Varchar },
+		name: { type: ColumnType.Varchar, nullable: false },
 		user_id: { type: ColumnType.TimeUUID, primaryKey: true },
-		is_library: { type: ColumnType.Boolean }
+		is_library: { type: ColumnType.Boolean, nullable: false }
 	});
 
 	export const songByShare = TableSchema({
@@ -20,7 +20,7 @@ export namespace DatabaseV1 {
 		suffix: { type: ColumnType.Varchar },
 		year: { type: ColumnType.Int },
 		bpm: { type: ColumnType.SmallInt },
-		date_last_edit: { type: ColumnType.Timestamp },
+		date_last_edit: { type: ColumnType.Timestamp, nullable: false },
 		release_date: { type: ColumnType.Date },
 		is_rip: { type: ColumnType.Boolean },
 		artists: { type: CSet<ColumnType.Varchar>() },
@@ -30,7 +30,7 @@ export namespace DatabaseV1 {
 		genres: { type: CSet<ColumnType.Varchar>() },
 		label: { type: ColumnType.Varchar },
 		share_id: { type: ColumnType.TimeUUID, primaryKey: true },
-		requires_user_action: { type: ColumnType.Boolean },
+		requires_user_action: { type: ColumnType.Boolean, nullable: false },
 		file: { type: ColumnType.Varchar },
 	});
 }
