@@ -32,7 +32,7 @@
 		"@types/react-dom": "^16.8.2",
 		"@types/react-dropzone": "^4.2.2",
 		"@types/react-infinite": "0.0.33",
-		"@types/react-redux": "^6.0.13",
+		"@types/react-redux": "^7.0.5",
 		"@types/react-router-dom": "^4.3.1",
 		"@types/react-router-redux": "^5.0.18",
 		"@types/redux-thunk": "^2.1.0",
