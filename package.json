@@ -16,6 +16,7 @@
 		"lint:backend": "lerna run lint --stream --scope @musicshare/backend",
 		"test": "lerna run test --stream --parallel",
 		"test:backend": "lerna run test --stream --scope @musicshare/backend",
+		"test:cassandra-schema-builder": "lerna run test --stream --scope cassandra-schema-builder",
 		"test:ci": "lerna run test:ci --stream --parallel"
 	},
 	"dependencies": {

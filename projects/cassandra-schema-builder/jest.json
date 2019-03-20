@@ -1,0 +1,32 @@
+{
+	"rootDir": "./src",
+	"transform": {
+		"^.+\\.tsx?$": "ts-jest"
+	},
+	"testEnvironment": "node",
+	"testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(tsx?)$",
+	"moduleFileExtensions": [
+		"ts",
+		"tsx",
+		"js",
+		"jsx",
+		"json"
+	],
+	"setupFilesAfterEnv": [
+		"jest-extended"
+	],
+	"collectCoverage": false,
+	"collectCoverageFrom": [
+		"**/*.ts",
+		"!**/node_modules/**",
+		"!**/vendor/**",
+		"!index.ts",
+		"!**/__test__/**"
+	],
+	"coverageReporters": [
+		"text",
+		"lcov"
+	],
+	"preset": "ts-jest",
+	"testMatch": null
+}

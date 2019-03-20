@@ -1,9 +1,10 @@
 import { types as CTypes } from 'cassandra-driver';
 import { CQL } from './cql';
+import { isString } from 'util';
 
-interface Collection<T extends ColumnType> {
-	type?: T;
-	collection: true;
+export interface Collection<T extends ColumnType> {
+	type: T;
+	collection: 'set' | 'list';
 }
 
 export enum ColumnType {
@@ -29,8 +30,8 @@ export enum ColumnType {
 	VarInt = 'varint'
 }
 
-export const CSet = <T extends ColumnType>(): Collection<T> => ({ collection: true });
-export const CList = <T extends ColumnType>(): Collection<T> => ({ collection: true });
+export const CSet = <T extends ColumnType>(type: T): Collection<T> => ({ collection: 'set', type });
+export const CList = <T extends ColumnType>(type: T): Collection<T> => ({ collection: 'list', type });
 
 export interface Column {
 	type: ColumnType | Collection<ColumnType>;
@@ -97,31 +98,111 @@ export type TableRecord<C extends Columns> = {
 	-readonly [key in keyof C]: ColumnTypeFinal<C[key]>
 };
 
-export type IQuery<C extends Columns[]> = {
-	name?: string;
+type ColumnValuesBase<C extends Columns, Subset extends (keyof C)[]> =
+	{ [key in keyof Subset]: TableRecord<C>[Extract<Subset[key], keyof C>] | CQLFunction };
+
+type ColumnValues<C extends Columns, Subset extends (keyof C)[]> =
+	ColumnValuesBase<C, Subset>[keyof Subset][] &
+	ColumnValuesBase<C, Subset>;
+
+export type IQuery<C extends Columns> = {
 	cql: string;
 	values?: unknown[];
 	columns?: C; // stores result Columns, so that typescript doesn't forget about them
 };
 
+export enum NativeFunction {
+	DateOf = 'dateOf()',
+	Now = 'now()'
+}
+
+interface CQLFunction {
+	func: NativeFunction | string;
+}
+
+export const CQLFunc = (cqlFunction: NativeFunction | string): CQLFunction => ({
+	func: cqlFunction
+});
+
+const isCQLFunction = (value: any): value is CQLFunction => typeof value.func === 'string';
+
 export interface ITable<C extends Columns> {
 	readonly name: string;
-	column<Column extends keyof C>(column: Column): Column;
-	create(): IQuery<[{}]>;
+	create(): IQuery<{}>;
+	insert<Subset extends Keys<C>>(subset: Subset): (values: ColumnValues<C, Subset>) => IQuery<{}>;
+	selectAll<Subset extends Keys<C>>(subset: Subset | "*"):
+		IQuery<Pick<C, Extract<Subset[number], string>>>;
+	select<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset | "*", where: Where, allowFiltering?: boolean):
+		(conditions: ColumnValues<C, Where>) => IQuery<Pick<C, Extract<Subset[number], string>>>;
 }
+
+type NonEmpty<Type> = [Type, ...Type[]];
+type Keys<C extends Columns> = (keyof C)[] & (NonEmpty<keyof C> | []);
 
 export const Table =
 	<Tables extends { [key: string]: Columns }, Table extends Extract<keyof Tables, string>>
 		(tables: Tables, table: Table): ITable<Tables[Table]> => {
 		const columns = tables[table];
 
+		const injectCQLFunctionsIntoQuery = (query: IQuery<{}>): IQuery<{}> => {
+			const values = query.values;
+
+			if (!values || values.length === 0) {
+				return query;
+			}
+
+			const querySplit = query.cql.split('?');
+
+			let i = values.length;
+			while (i--) {
+				const value = values[i];
+
+				if (isCQLFunction(value)) {
+					querySplit[i + 1] = value.func + ', ';
+					values.splice(i, 1);
+				} else {
+					querySplit[i + 1] = '?' + (i === values.length - 1 ? ')' : ',');
+				}
+			}
+
+			return {
+				...query,
+				values,
+				cql: querySplit.join('')
+			}
+		}
+
 		return {
 			name: table,
-			column: (column) => column,
 			create: () => {
 				return {
 					cql: CQL.createTable(table, columns),
 				};
+			},
+			insert: (subset) => {
+				return (values) => injectCQLFunctionsIntoQuery({
+					cql: CQL.insert(table, subset.filter(isString)),
+					values
+				});
+			},
+			selectAll: (subset) => {
+				const cql = subset === '*'
+					? CQL.selectAll(table, subset)
+					: CQL.selectAll(table, subset.filter(isString));
+
+				return {
+					cql
+				}
+			},
+			select: (subset, where, allowFiltering) => {
+				const cql = subset === '*'
+					? CQL.select(table, subset, where.filter(isString), allowFiltering)
+					: CQL.select(table, subset.filter(isString), where.filter(isString), allowFiltering);
+
+				return (values) => ({
+					cql,
+					values
+				});
 			}
 		};
 	};

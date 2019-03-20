@@ -20,7 +20,10 @@
 	"scripts": {
 		"build": "tsc",
 		"verify": "tsc --noEmit",
-		"test": "echo \"Error: run tests from root\" && exit 1"
+		"test": "jest --config=jest.json --detectOpenHandles --colors",
+		"test:watch": "jest --watch --config=jest.json --detectOpenHandles --colors",
+		"test:cov": "jest --config=jest.json --collectCoverage --detectOpenHandles --colors",
+		"test:ci": "npm run test:cov && codecov"
 	},
 	"bugs": {
 		"url": "https://github.com/yss14/musicshare-backend/issues"
@@ -28,5 +31,9 @@
 	"dependencies": {
 		"@types/cassandra-driver": "^4.0.3",
 		"cassandra-driver": "^4.0.0"
+	},
+	"devDependencies": {
+		"@types/uuid": "^3.4.4",
+		"uuid": "^3.3.2"
 	}
 }
