@@ -95,7 +95,7 @@ type ColumnTypeFinal<C extends Column> =
 	ColumnBaseType<C> | null;
 
 export type TableRecord<C extends Columns> = {
-	-readonly [key in keyof C]: ColumnTypeFinal<C[key]>
+	-readonly [key in keyof C]: ColumnTypeFinal<C[key]>;
 };
 
 type ColumnValuesBase<C extends Columns, Subset extends (keyof C)[]> =
@@ -130,6 +130,7 @@ export interface ITable<C extends Columns> {
 	readonly name: string;
 	create(): IQuery<{}>;
 	insert<Subset extends Keys<C>>(subset: Subset): (values: ColumnValues<C, Subset>) => IQuery<{}>;
+	insertFromObj<Subset extends TableRecord<C>>(obj: Subset): IQuery<{}>;
 	selectAll<Subset extends Keys<C>>(subset: Subset | "*"):
 		IQuery<Pick<C, Extract<Subset[number], string>>>;
 	select<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset | "*", where: Where, allowFiltering?: boolean):
@@ -184,6 +185,15 @@ export const Table =
 					cql: CQL.insert(table, subset.filter(isString)),
 					values
 				});
+			},
+			insertFromObj: (obj) => {
+				const subset = Object.keys(obj);
+				const values = Object.values(obj);
+
+				return {
+					cql: CQL.insert(table, subset),
+					values
+				};
 			},
 			selectAll: (subset) => {
 				const cql = subset === '*'
