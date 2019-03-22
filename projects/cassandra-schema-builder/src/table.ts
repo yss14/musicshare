@@ -135,6 +135,7 @@ export interface ITable<C extends Columns> {
 		IQuery<Pick<C, Extract<Subset[number], string>>>;
 	select<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset | "*", where: Where, allowFiltering?: boolean):
 		(conditions: ColumnValues<C, Where>) => IQuery<Pick<C, Extract<Subset[number], string>>>;
+	drop(): IQuery<{}>;
 }
 
 type NonEmpty<Type> = [Type, ...Type[]];
@@ -213,6 +214,9 @@ export const Table =
 					cql,
 					values
 				});
-			}
+			},
+			drop: () => ({
+				cql: CQL.dropTable(name)
+			})
 		};
 	};

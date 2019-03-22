@@ -87,4 +87,6 @@ export namespace CQL {
 
 		return cql;
 	}
+
+	export const dropTable = (tableName: string) => `DROP TABLE ${tableName};`;
 }
