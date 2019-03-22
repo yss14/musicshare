@@ -1,7 +1,7 @@
 import { ObjectType, Field } from "type-graphql";
 import { Song } from "./SongModel";
-import { IShareByUserDBResult } from "../database/schema/initial-schema";
 import { plainToClass } from "class-transformer";
+import { IShareByUserDBResult } from "../database/schema/tables";
 
 @ObjectType({ description: "Object representing a share or a personal library" })
 export class Share {

@@ -1,4 +1,3 @@
-import { makeTestDatabase } from "./make-test-database";
 import { SongService } from "../../services/SongService";
 import { UserService } from "../../services/UserService";
 import { ShareService } from "../../services/ShareService";
@@ -10,6 +9,9 @@ import { UserResolver } from "../../resolvers/UserResolver";
 import { FileServiceMock } from "../mocks/FileServiceMock";
 import { ISongMetaDataService } from "../../utils/song-meta/SongMetaDataService";
 import { SongUploadProcessingQueue } from "../../job-queues/SongUploadProcessingQueue";
+import { makeTestDatabase } from "cassandra-schema-builder";
+import { makeDatabaseSeed } from "../../database/seed";
+import { makeDatabaseSchemaWithSeed } from "../../database/schema/make-database-schema";
 
 interface SetupTestEnvArgs {
 	seedDatabase?: boolean;
@@ -17,7 +19,7 @@ interface SetupTestEnvArgs {
 }
 
 export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvArgs = { seedDatabase: true, startServer: true }) => {
-	const { database, cleanUp, seed } = await makeTestDatabase();
+	const { database, cleanUp, databaseKeyspace } = await makeTestDatabase();
 
 	const songService = new SongService(database);
 	const userService = new UserService(database);
@@ -30,6 +32,11 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 	Container.set('SHARE_SERVICE', shareService);
 	Container.set('SONG_SERVICE', songService);
 	Container.set('FILE_SERVICE', fileService);
+
+	const seed = async (songService: SongService) => {
+		const seed = await makeDatabaseSeed(database, songService);
+		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
+	}
 
 	if (seedDatabase === true) {
 		await seed(songService);

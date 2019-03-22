@@ -1,20 +1,20 @@
 import { SongService } from '../services/SongService';
-import { DatabaseConnection } from "./DatabaseConnection";
 import * as faker from 'faker';
-import { IUserDBResult, IShareByUserDBResult, ISongByShareDBResult } from './schema/initial-schema';
 import { createPrefilledArray } from '../utils/array/create-prefilled-array';
 import { __PROD__, __DEV__ } from '../utils/env/env-constants';
 import { makeFileObject } from '../models/interfaces/IFile';
 import moment = require('moment');
 import { TimeUUID } from '../types/TimeUUID';
 import { types as CTypes } from 'cassandra-driver';
+import { IUsersDBResult, IShareByUserDBResult, ISongByShareDBResult, UsersTable, SharesByUserTable } from './schema/tables';
+import { IDatabaseClient } from 'cassandra-schema-builder';
 
 type Users = 'user1' | 'user2';
 type Shares = 'library_user1' | 'library_user2' | 'some_shared_library';
 type Songs = 'song1_library_user1' | 'song2_library_user1' | 'song3_library_user1';
 
 interface ITestDataSchema {
-	users: { [P in Users]: Required<IUserDBResult>; };
+	users: { [P in Users]: Required<IUsersDBResult>; };
 	shares: { [P in Shares]: Required<IShareByUserDBResult> };
 	songs: { [P in Songs]: Required<ISongByShareDBResult> };
 }
@@ -123,32 +123,18 @@ export const testData: ITestDataSchema = {
 
 export type DatabaseSeed = () => Promise<void>;
 
-export const makeDatabaseSeed = (database: DatabaseConnection, songService: SongService): DatabaseSeed => async (): Promise<void> => {
-	const insertUserQuery = (user: IUserDBResult) => {
-		return database.execute(
-			`INSERT INTO users (${Object.keys(user)}) VALUES (${Object.keys(user).map(() => '?').join(',')})`,
-			Object.values(user)
-		);
-	}
-
-	const insertShareByUserQuery = (shareByUser: IShareByUserDBResult) => {
-		return database.execute(
-			`INSERT INTO shares_by_user (${Object.keys(shareByUser)}) VALUES (${Object.keys(shareByUser).map(() => '?').join(',')})`,
-			Object.values(shareByUser)
-		)
-	}
-
+export const makeDatabaseSeed = (database: IDatabaseClient, songService: SongService): DatabaseSeed => async (): Promise<void> => {
 	// insert users for development and testing
 	if (!__PROD__) {
 		for (const user of Object.values(testData.users)) {
-			await insertUserQuery(user);
+			await database.query(UsersTable.insertFromObj(user));
 		}
 	}
 
 	// insert shares for development and testing
 	if (!__PROD__) {
 		for (const shareByUser of Object.values(testData.shares)) {
-			await insertShareByUserQuery(shareByUser);
+			await database.query(SharesByUserTable.insertFromObj(shareByUser));
 		}
 	}
 

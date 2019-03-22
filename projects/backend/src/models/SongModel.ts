@@ -3,8 +3,8 @@ import { ObjectType, Field } from "type-graphql";
 import { Share } from "./ShareModel";
 import { Nullable } from '../types/Nullable';
 import { ISong } from './interfaces/ISong';
-import { ISongByShareDBResult } from '../database/schema/initial-schema';
 import { plainToClass } from 'class-transformer';
+import { ISongByShareDBResult } from '../database/schema/tables';
 
 @ObjectType({ description: 'This represents a song which can be part of a library or share' })
 export class Song implements Nullable<ISong>{
@@ -81,7 +81,7 @@ export class Song implements Nullable<ISong>{
 				genres: row.genres || [],
 				label: row.label,
 				requiresUserAction: row.requires_user_action,
-				file: JSON.parse(row.file)
+				file: row.file ? JSON.parse(row.file) : {}
 			}
 		)
 	}

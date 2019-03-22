@@ -4,7 +4,7 @@ export namespace DatabaseV1 {
 	export const users = TableSchema({
 		id: { type: ColumnType.TimeUUID, primaryKey: true },
 		name: { type: ColumnType.Varchar, nullable: false },
-		emails: { type: CSet<ColumnType.Boolean>(), nullable: false }
+		emails: { type: CSet(ColumnType.Varchar), nullable: false }
 	});
 
 	export const sharesByUser = TableSchema({
@@ -23,11 +23,11 @@ export namespace DatabaseV1 {
 		date_last_edit: { type: ColumnType.Timestamp, nullable: false },
 		release_date: { type: ColumnType.Date },
 		is_rip: { type: ColumnType.Boolean },
-		artists: { type: CSet<ColumnType.Varchar>() },
-		remixer: { type: CSet<ColumnType.Varchar>() },
-		featurings: { type: CSet<ColumnType.Varchar>() },
+		artists: { type: CSet(ColumnType.Varchar) },
+		remixer: { type: CSet(ColumnType.Varchar) },
+		featurings: { type: CSet(ColumnType.Varchar) },
 		type: { type: ColumnType.Varchar },
-		genres: { type: CSet<ColumnType.Varchar>() },
+		genres: { type: CSet(ColumnType.Varchar) },
 		label: { type: ColumnType.Varchar },
 		share_id: { type: ColumnType.TimeUUID, primaryKey: true },
 		requires_user_action: { type: ColumnType.Boolean, nullable: false },

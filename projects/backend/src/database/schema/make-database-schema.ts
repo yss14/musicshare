@@ -1,14 +1,10 @@
-import { DatabaseConnection } from "../DatabaseConnection";
 import { DatabaseSeed } from "../seed";
 import { UsersTable, SharesByUserTable, SongsByShareTable } from "./tables";
+import { IDatabaseClient, CQL } from "cassandra-schema-builder";
+import { Tables } from "./system-tables";
 
-interface ISystemSchemaDBResult {
-	keyspace_name: string;
-	table_name: string;
-}
-
-export const makeDatabaseSchemaWithSeed = async (databaseConnection: DatabaseConnection, seed: DatabaseSeed, opts: ICreateSchemaOpts) => {
-	await makeDatabaseSchema(databaseConnection, opts);
+export const makeDatabaseSchemaWithSeed = async (database: IDatabaseClient, seed: DatabaseSeed, opts: ICreateSchemaOpts) => {
+	await makeDatabaseSchema(database, opts);
 	await seed();
 }
 
@@ -17,36 +13,22 @@ interface ICreateSchemaOpts {
 	clear?: boolean;
 }
 
-export const makeDatabaseSchema = async (dbConn: DatabaseConnection, { keySpace, clear = false }: ICreateSchemaOpts) => {
+export const makeDatabaseSchema = async (database: IDatabaseClient, { keySpace, clear = false }: ICreateSchemaOpts) => {
 	if (clear) {
-		await clearKeySpace(dbConn, keySpace);
+		await clearKeySpace(database, keySpace);
 	}
 
 	await Promise.all([
-		dbConn.execute(UsersTable.create().cql),
-		dbConn.execute(SharesByUserTable.create().cql),
-		dbConn.execute(SongsByShareTable.create().cql)
+		database.execute(UsersTable.create().cql),
+		database.execute(SharesByUserTable.create().cql),
+		database.execute(SongsByShareTable.create().cql)
 	]);
 }
 
-export const clearKeySpace = async (databaseConnection: DatabaseConnection, keySpace: string): Promise<void> => {
-	const schemaTables = await getSchemaTables(databaseConnection, keySpace);
+export const clearKeySpace = async (database: IDatabaseClient, keySpace: string): Promise<void> => {
+	const schemaTables = await database.query(Tables.select('*', ['keyspace_name'])([keySpace]));
 
 	for (const schemaTable of schemaTables) {
-		await dropTable(databaseConnection, schemaTable);
+		await database.query({ cql: CQL.dropTable(schemaTable.table_name) });
 	}
-}
-
-export const getSchemaTables = async (databaseConnection: DatabaseConnection, keySpace: string) => {
-	const dbResults = await databaseConnection.select<ISystemSchemaDBResult>(`
-		SELECT * FROM system_schema.tables WHERE keyspace_name = ?;
-	`, [keySpace]);
-
-	return dbResults.map(row => row.table_name);
-}
-
-export const dropTable = async (databaseConnection: DatabaseConnection, table: string) => {
-	await databaseConnection.execute(`
-		DROP TABLE ${table};
-	`);
 }
