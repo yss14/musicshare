@@ -15,9 +15,30 @@ export class DatabaseClient implements IDatabaseClient {
 	) { }
 
 	public async query<T extends Columns>(query: IQuery<T>): Promise<QueryRows<T>> {
-		const dbResult = await this.cassandraClient.execute(query.cql, query.values);
+		const dbResult = await this.cassandraClient.execute(
+			query.cql,
+			this.mapValues(query.values),
+			{ prepare: true }
+		);
 
 		return dbResult.rows as any as QueryRows<T>;
+	}
+
+	private mapValues(values: unknown[] | undefined) {
+		if (values === undefined) {
+			return [];
+		}
+
+		const isAllowedObj = (obj: any): obj is (Buffer | Array<unknown>) =>
+			obj instanceof Buffer || obj instanceof Array;
+
+		return values.map(val => {
+			if (typeof val === 'object' && val !== null && !isAllowedObj(val)) {
+				return val.toString();
+			}
+
+			return val;
+		});
 	}
 
 	public async execute(cql: string) {
