@@ -63,6 +63,7 @@ export class Song implements Nullable<ISong>{
 	public readonly accessUrl!: string;
 
 	public static fromDBResult(row: ISongByShareDBResult): Song {
+		// istanbul ignore next
 		return plainToClass(
 			Song,
 			{
