@@ -47,6 +47,7 @@ export class SongService implements ISongService {
 	}
 
 	public async create(song: ISongByShareDBResult): Promise<string> {
+		// istanbul ignore next
 		let id = song.id || TimeUUID.now();
 
 		await this.database.query(
