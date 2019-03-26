@@ -23,7 +23,9 @@
 		"test": "jest --config=jest.json --detectOpenHandles --colors",
 		"test:watch": "jest --watch --config=jest.json --detectOpenHandles --colors",
 		"test:cov": "jest --config=jest.json --collectCoverage --detectOpenHandles --colors",
-		"test:ci": "npm run test:cov && codecov"
+		"test:ci": "npm run test:cov && codecov",
+		"lint": "tslint --project tsconfig.json",
+		"lint:fix": "tslint --fix --project tsconfig.json"
 	},
 	"bugs": {
 		"url": "https://github.com/yss14/musicshare-backend/issues"
