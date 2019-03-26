@@ -2,12 +2,10 @@ import { makeTestDatabase } from "./utils/make-test-database";
 import { ColumnType, Table, CQLFunc, NativeFunction } from "../table";
 import { types as CTypes } from 'cassandra-driver';
 import moment = require("moment");
+import { sortByTimeUUIDAsc } from "./utils/sort-by-timeuuid";
 const Long = require('cassandra-driver').types.Long
 
 const cleanupHooks: (() => Promise<void>)[] = [];
-
-const sortByTimeUUIDAsc = (lhs: CTypes.TimeUuid, rhs: CTypes.TimeUuid) =>
-	lhs.getDate().getTime() - rhs.getDate().getTime();
 
 const setupTestEnv = async (columnType: ColumnType, testValues: unknown[]) => {
 	const { database, cleanUp } = await makeTestDatabase();

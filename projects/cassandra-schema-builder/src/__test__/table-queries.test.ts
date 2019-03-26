@@ -1,6 +1,8 @@
 import { types as CTypes } from 'cassandra-driver';
 import { makeTestDatabase } from "./utils/make-test-database";
 import { ColumnType, TableSchema, Table, NativeFunction, CQLFunc, TableRecord } from "../table";
+import { sortByTimeUUIDAsc } from './utils/sort-by-timeuuid';
+import moment = require('moment');
 
 const cleanupHooks: (() => Promise<void>)[] = [];
 
@@ -57,8 +59,8 @@ describe('insert', () => {
 });
 
 describe('select', () => {
-	const id1 = CTypes.TimeUuid.fromDate(new Date(), 1);
-	const id2 = CTypes.TimeUuid.fromDate(new Date(), 2);
+	const id1 = CTypes.TimeUuid.fromDate(new Date());
+	const id2 = CTypes.TimeUuid.fromDate(moment().add(2, 'seconds').toDate());
 
 	test('selectAll *', async () => {
 		const { database, testTable } = await setupTestEnv();
@@ -66,7 +68,8 @@ describe('select', () => {
 		await database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([id1, 'teststring', true]));
 		await database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([id2, 'teststring2', false]));
 
-		const result = await database.query(testTable.selectAll('*'));
+		const result = (await database.query(testTable.selectAll('*')))
+			.sort((lhs, rhs) => sortByTimeUUIDAsc(lhs.col_id, rhs.col_id));
 
 		expect(result).toMatchObject([
 			{ col_id: id1, col_string: 'teststring', col_boolean: true },
@@ -80,7 +83,8 @@ describe('select', () => {
 		await database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([id1, 'teststring', true]));
 		await database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([id2, 'teststring2', false]));
 
-		const result = await database.query(testTable.selectAll(['col_id', 'col_string']));
+		const result = (await database.query(testTable.selectAll(['col_id', 'col_string'])))
+			.sort((lhs, rhs) => sortByTimeUUIDAsc(lhs.col_id, rhs.col_id));
 
 		expect(result).toMatchObject([
 			{ col_id: id1, col_string: 'teststring' },
