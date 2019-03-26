@@ -33,9 +33,15 @@ export enum ColumnType {
 export const CSet = <T extends ColumnType>(type: T): Collection<T> => ({ collection: 'set', type });
 export const CList = <T extends ColumnType>(type: T): Collection<T> => ({ collection: 'list', type });
 
+export type ClusteringOrderSorting = 'desc' | 'asc';
+export type ClusteringOrderIndexed = { index: number, order: ClusteringOrder };
+export type ClusteringOrder = ClusteringOrderSorting | ClusteringOrderIndexed;
+
 export interface Column {
 	type: ColumnType | Collection<ColumnType>;
-	primaryKey?: boolean;
+	partitionKey?: boolean;
+	clusteringKey?: boolean;
+	clusteringOrder?: ClusteringOrder;
 	nullable?: boolean; // offers convinience to enfore certain properties (has no effect on the cql)
 }
 
@@ -90,7 +96,8 @@ type ColumnBaseType<C extends Column> =
 	unknown;
 
 type ColumnTypeFinal<C extends Column> =
-	C extends { primaryKey: true } ? ColumnBaseType<C> :
+	C extends { partitionKey: true } ? ColumnBaseType<C> :
+	C extends { clusteringKey: true } ? ColumnBaseType<C> :
 	C extends { nullable: false } ? ColumnBaseType<C> :
 	ColumnBaseType<C> | null;
 

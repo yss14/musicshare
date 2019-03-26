@@ -2,7 +2,7 @@ import { TableSchema, ColumnType, Table, CSet, CList } from "../../table";
 
 export namespace TestTables {
 	export const tableWithAllPrimitives = TableSchema({
-		col_ascii: { type: ColumnType.ASCII, nullable: false, primaryKey: true },
+		col_ascii: { type: ColumnType.ASCII, nullable: false, partitionKey: true },
 		col_bigint: { type: ColumnType.BigInt, nullable: false },
 		col_blob: { type: ColumnType.Blob, nullable: false },
 		col_boolean: { type: ColumnType.Boolean, nullable: false },
@@ -24,7 +24,7 @@ export namespace TestTables {
 	});
 
 	export const tableWithAllSets = TableSchema({
-		col_pk: { type: ColumnType.Int, primaryKey: true },
+		col_pk: { type: ColumnType.Int, partitionKey: true },
 		col_set_ascii: { type: CSet(ColumnType.ASCII), nullable: false },
 		col_set_bigint: { type: CSet(ColumnType.BigInt), nullable: false },
 		col_set_blob: { type: CSet(ColumnType.Blob), nullable: false },
@@ -47,7 +47,7 @@ export namespace TestTables {
 	});
 
 	export const tableWithAllLists = TableSchema({
-		col_pk: { type: ColumnType.Int, primaryKey: true },
+		col_pk: { type: ColumnType.Int, partitionKey: true },
 		col_list_ascii: { type: CList(ColumnType.ASCII), nullable: false },
 		col_list_bigint: { type: CList(ColumnType.BigInt), nullable: false },
 		col_list_blob: { type: CList(ColumnType.Blob), nullable: false },

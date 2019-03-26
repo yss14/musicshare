@@ -1,4 +1,4 @@
-import { Columns, ColumnType, Collection } from './table';
+import { Columns, ColumnType, Collection, ClusteringOrder, ClusteringOrderIndexed, ClusteringOrderSorting } from './table';
 
 export namespace CQLErrors {
 	export class InvalidTableSchema extends Error {
@@ -31,22 +31,52 @@ export namespace CQL {
 		return cql;
 	}
 
-	export const createTable = (tableName: string, schema: Columns) => {
-		const primaryKeys = Object.entries(schema)
-			.filter(([_, value]) => value.primaryKey === true)
-			.map(([key, _]) => key);
+	const sortClusteringColumns = (entries: [string, ClusteringOrder][]): [string, ClusteringOrderIndexed][] => {
+		const isEntryWithIndex = (entry: [string, ClusteringOrder]): entry is [string, ClusteringOrderIndexed] =>
+			typeof entry[1] === 'object' && entry[1].index !== undefined && entry[1].order !== undefined;
+		const isEntryWithoutIndex = (entry: [string, ClusteringOrder]): entry is [string, ClusteringOrderSorting] =>
+			typeof entry[1] === 'string';
 
-		if (primaryKeys.length === 0) {
+		const entriesWithIndex = entries.filter(isEntryWithIndex);
+		const entriesWithoutIndex = entries.filter(isEntryWithoutIndex);
+
+		const entriesWithIndexSorted = entriesWithIndex.sort((lhs, rhs) => rhs[1].index - lhs[1].index);
+
+		return entriesWithIndexSorted.concat(entriesWithoutIndex
+			.map((entry): [string, ClusteringOrderIndexed] => [entry[0], { index: Number.MAX_SAFE_INTEGER, order: entry[1] }]));
+	}
+
+	export const createTable = (tableName: string, schema: Columns) => {
+		const partititionKeys = Object.entries(schema)
+			.filter(([_, value]) => value.partitionKey === true)
+			.map(([key, _]) => key);
+		const clusteringKeys = Object.entries(schema)
+			.filter(([_, value]) => value.clusteringKey === true)
+			.map(([key, _]) => key);
+		const clusteringColumns = sortClusteringColumns(
+			Object.entries(schema)
+				.filter(([_, value]) => value.clusteringKey === true && value.clusteringOrder !== undefined)
+				.map(([key, value]): [string, ClusteringOrder] => [key, value.clusteringOrder!])
+		);
+
+		if (partititionKeys.length === 0) {
 			throw new CQLErrors.InvalidTableSchema('No primary key defined', tableName, schema);
 		}
+
+		if (clusteringKeys.length === 0 && clusteringColumns.length > 0) {
+			throw new CQLErrors.InvalidTableSchema('Cannot define clustering order without having clustering key(s)', tableName, schema);
+		}
+
+		const primaryKey = `(${partititionKeys.join(',')})${clusteringKeys.length ? `, ${clusteringKeys.join(', ')}` : ''}`;
+		const clusteringOrder = clusteringColumns.length ? ` WITH CLUSTERING ORDER BY (${clusteringColumns.map(col => `${col[0]} ${col[1].order.toString().toUpperCase()}`)})` : '';
 
 		const cql = [
 			`CREATE TABLE ${tableName} (`,
 			Object.entries(schema).map(([columnName, columnDef]) =>
 				`	${columnName} ${mapColumnType(columnDef.type)},`).join('\n'),
 			`	`,
-			`	PRIMARY KEY(${primaryKeys.join(',')})`,
-			`);`
+			`	PRIMARY KEY(${primaryKey})`,
+			`)${clusteringOrder};`
 		];
 
 		return cql.join('\n');

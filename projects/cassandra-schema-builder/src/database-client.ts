@@ -29,8 +29,8 @@ export class DatabaseClient implements IDatabaseClient {
 			return [];
 		}
 
-		const isAllowedObj = (obj: any): obj is (Buffer | Array<unknown>) =>
-			obj instanceof Buffer || obj instanceof Array;
+		const isAllowedObj = (obj: any): obj is (Buffer | Array<unknown> | Date) =>
+			obj instanceof Buffer || obj instanceof Array || obj instanceof Date;
 
 		return values.map(val => {
 			if (typeof val === 'object' && val !== null && !isAllowedObj(val)) {

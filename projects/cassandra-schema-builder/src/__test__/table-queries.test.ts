@@ -9,7 +9,7 @@ afterAll(async () => {
 });
 
 const testTableSchema = TableSchema({
-	col_id: { type: ColumnType.TimeUUID, primaryKey: true },
+	col_id: { type: ColumnType.TimeUUID, partitionKey: true },
 	col_string: { type: ColumnType.Varchar, nullable: false },
 	col_boolean: { type: ColumnType.Boolean, nullable: false },
 });
