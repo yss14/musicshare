@@ -1,9 +1,9 @@
 import { Share } from '../models/ShareModel';
-import { DatabaseConnection } from "../database/DatabaseConnection";
 import { Song } from '../models/SongModel';
-import { ISongByShareDBResult, ISongByShareDBInsert } from '../database/schema/initial-schema';
 import { sortByTimeUUIDAsc } from '../utils/sort/sort-timeuuid';
 import { TimeUUID } from '../types/TimeUUID';
+import { IDatabaseClient } from 'cassandra-schema-builder';
+import { ISongByShareDBResult, SongsByShareTable } from '../database/schema/tables';
 
 export class SongNotFoundError extends Error {
 	constructor(shareID: string, songID: string) {
@@ -14,50 +14,45 @@ export class SongNotFoundError extends Error {
 export interface ISongService {
 	getByID(shareID: string, songID: string): Promise<Song>;
 	getByShare(share: Share): Promise<Song[]>;
-	create(song: ISongByShareDBInsert): Promise<string>;
+	create(song: ISongByShareDBResult): Promise<string>;
 }
 
 export class SongService implements ISongService {
 	constructor(
-		private readonly database: DatabaseConnection,
+		private readonly database: IDatabaseClient,
 	) { }
 
 	public async getByID(shareID: string, songID: string): Promise<Song> {
-		const rows = await this.database.select<ISongByShareDBResult>(`
-			SELECT * FROM songs_by_share WHERE share_id = ? AND id = ?;
-		`, [shareID, songID]);
+		const dbResults = await this.database.query(
+			SongsByShareTable.select('*', ['share_id', 'id'])
+				([TimeUUID.fromString(shareID), TimeUUID.fromString(songID)])
+		)
 
-		if (rows.length === 0) {
+		if (dbResults.length === 0) {
 			throw new SongNotFoundError(shareID, songID);
-		} else {
-			return Song.fromDBResult(rows[0]);
-		}
-	}
-
-	public getByShare(share: Share): Promise<Song[]> {
-		return this.database.select<ISongByShareDBResult>(`
-			SELECT * FROM songs_by_share WHERE share_id = ?;
-		`, [share.id])
-			.then(rows => rows.map(row => Song.fromDBResult(row)))
-			.then(songs => songs.sort((lhs, rhs) => sortByTimeUUIDAsc(lhs.id, rhs.id)));
-	}
-
-	public async create(song: ISongByShareDBInsert): Promise<string> {
-		let id = TimeUUID.now();
-
-		if ((song as any).id) {
-			id = (song as any).id;
 		}
 
-		const columns = Object.keys(song).filter(k => k !== 'id');
-		const values = columns.map(c => (song as any)[c]);
+		return Song.fromDBResult(dbResults[0]);
 
-		await this.database.execute(`
-			INSERT INTO songs_by_share
-			(id, ${columns.join(',')})
-			VALUES 
-			(?, ${values.map(v => '?').join(',')});
-		`, [id, ...values], { prepare: true });
+	}
+
+	public async getByShare(share: Share): Promise<Song[]> {
+		const dbResults = await this.database.query(
+			SongsByShareTable.select('*', ['share_id'])([TimeUUID.fromString(share.id)])
+		);
+
+		return dbResults
+			.map(Song.fromDBResult)
+			.sort((lhs, rhs) => sortByTimeUUIDAsc(lhs.id, rhs.id));
+	}
+
+	public async create(song: ISongByShareDBResult): Promise<string> {
+		// istanbul ignore next
+		let id = song.id || TimeUUID.now();
+
+		await this.database.query(
+			SongsByShareTable.insertFromObj(song)
+		);
 
 		return id.toString();
 	}

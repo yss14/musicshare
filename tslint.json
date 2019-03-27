@@ -75,7 +75,6 @@
 		"no-var-keyword": true,
 		"triple-equals": true,
 		"use-isnan": true,
-		"max-func-args": true,
 		"no-complex-conditionals": true,
 		"no-commented-out-code": true,
 		"no-implicit-dependencies": false

@@ -1,7 +1,6 @@
 // tslint:disable-next-line:no-import-side-effect
 import "reflect-metadata";
 import { SongUploadProcessingQueue } from './job-queues/SongUploadProcessingQueue';
-import { DatabaseConnection } from "./database/DatabaseConnection";
 import { HTTPServer } from './server/HTTPServer';
 import Container from 'typedi';
 import { isProductionEnvironment, isValidNodeEnvironment } from "./utils/env/native-envs";
@@ -22,6 +21,8 @@ import { SongService } from "./services/SongService";
 import { ShareService } from "./services/ShareService";
 import { UserService } from "./services/UserService";
 import { ArtistExtractor } from "./utils/song-meta/song-meta-formats/id3/ArtistExtractor";
+import { DatabaseClient } from "cassandra-schema-builder";
+import { Client } from "cassandra-driver";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -40,11 +41,13 @@ if (!isProductionEnvironment()) {
 (async () => {
 	const databaseHost = process.env[CustomEnv.CASSANDRA_HOST] || '127.0.0.1';
 	const databaseKeyspace = process.env[CustomEnv.CASSANDRA_KEYSPACE] || 'musicshare';
-	const database = new DatabaseConnection({
-		contactPoints: [databaseHost],
-		localDataCenter: 'datacenter1',
-		keyspace: databaseKeyspace
-	});
+	const database = new DatabaseClient(
+		new Client({
+			contactPoints: [databaseHost],
+			localDataCenter: 'datacenter1',
+			keyspace: databaseKeyspace
+		})
+	);
 
 	Container.set('DATABASE_CONNECTION', database);
 

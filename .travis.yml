@@ -17,6 +17,7 @@ jobs:
   include:
     - stage: Build and Test
       script:
+        - npm run build:cassandra-schema-builder
         - npm run build:backend
         - npm run lint
         - npm run test:ci

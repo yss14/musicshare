@@ -1,7 +1,7 @@
-import { DatabaseConnection } from '../database/DatabaseConnection';
-import { IUserDBResult } from '../database/schema/initial-schema';
-import { plainToClass } from "class-transformer";
 import { User } from '../models/UserModel';
+import { IDatabaseClient } from "cassandra-schema-builder";
+import { UsersTable } from "../database/schema/tables";
+import { TimeUUID } from "../types/TimeUUID";
 
 export class UserNotFoundError extends Error {
 	constructor(id: string) {
@@ -15,29 +15,18 @@ export interface IUserService {
 
 export class UserService implements IUserService {
 	constructor(
-		private readonly database: DatabaseConnection,
+		private readonly database: IDatabaseClient,
 	) { }
 
 	public async getUserByID(id: string): Promise<User> {
-		const rows = await this.database.select<IUserDBResult>(`
-			SELECT * FROM users WHERE id = ?;
-		`, [id]);
+		const dbResults = await this.database.query(
+			UsersTable.select('*', ['id'])([TimeUUID.fromString(id)])
+		);
 
-		if (rows.length !== 1) {
+		if (dbResults.length !== 1) {
 			throw new UserNotFoundError(id);
 		}
 
-		return this.fromDBResult(rows[0]);
-	}
-
-	private fromDBResult(dbResult: IUserDBResult): User {
-		return plainToClass(
-			User,
-			{
-				id: dbResult.id.toString(),
-				name: dbResult.name,
-				emails: dbResult.emails
-			}
-		);
+		return User.fromDBResult(dbResults[0]);
 	}
 }

@@ -1,7 +1,6 @@
 import { ISongService } from "../../services/SongService";
 import { Song } from "../../models/SongModel";
 import { Share } from "../../models/ShareModel";
-import { ISongByShareDBInsert } from "../../database/schema/initial-schema";
 import { TimeUUID } from "../../types/TimeUUID";
 
 export class SongServiceMock implements ISongService {
@@ -13,7 +12,7 @@ export class SongServiceMock implements ISongService {
 		throw 'Not implemented yet';
 	}
 
-	public async create(song: ISongByShareDBInsert): Promise<string> {
+	public async create(): Promise<string> {
 		return TimeUUID.fromDate(new Date()).toString();
 	}
 }

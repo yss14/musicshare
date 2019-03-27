@@ -10,12 +10,17 @@
 		"build": "lerna run build --stream",
 		"build:backend": "lerna run build --stream --scope @musicshare/backend",
 		"build:frontend": "lerna run build --stream --scope @musicshare/frontend",
+		"build:cassandra-schema-builder": "lerna run build --stream --scope cassandra-schema-builder",
 		"verify": "lerna run verify --stream",
+		"verify:backend": "lerna run verify --stream --scope @musicshare/backend",
+		"verify:frontend": "lerna run verify --stream --scope @musicshare/frontend",
+		"verify:cassandra-schema-builder": "lerna run verify --stream --scope cassandra-schema-builder",
 		"lint": "lerna run lint --stream --parallel",
 		"lint:backend": "lerna run lint --stream --scope @musicshare/backend",
-		"test": "lerna run test --stream --parallel",
+		"test": "lerna run test --stream",
 		"test:backend": "lerna run test --stream --scope @musicshare/backend",
-		"test:ci": "lerna run test:ci --stream --parallel"
+		"test:cassandra-schema-builder": "lerna run test --stream --scope cassandra-schema-builder",
+		"test:ci": "lerna run test:ci --stream"
 	},
 	"dependencies": {
 		"axios": "^0.18.0",

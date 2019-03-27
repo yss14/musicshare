@@ -1,7 +1,8 @@
-import { DatabaseConnection } from '../database/DatabaseConnection';
-import { IShareByUserDBResult } from '../database/schema/initial-schema';
 import { User } from '../models/UserModel';
 import { Share } from '../models/ShareModel';
+import { SharesByUserTable } from '../database/schema/tables';
+import { TimeUUID } from '../types/TimeUUID';
+import { IDatabaseClient } from 'cassandra-schema-builder';
 
 export class ShareNotFoundError extends Error {
 	constructor(shareID: string) {
@@ -16,26 +17,26 @@ export interface IShareService {
 
 export class ShareService implements IShareService {
 	constructor(
-		private readonly database: DatabaseConnection,
+		private readonly database: IDatabaseClient,
 	) { }
 
 	public async getSharesByUser(user: User): Promise<Share[]> {
-		const dbResults = await this.database.select<IShareByUserDBResult>(`
-			SELECT * FROM shares_by_user WHERE user_id = ?;
-		`, [user.id]);
+		const dbResults = await this.database.query(
+			SharesByUserTable.select('*', ['user_id'])([TimeUUID.fromString(user.id)])
+		);
 
 		return dbResults.map(Share.fromDBResult);
 	}
 
 	public async getShareByID(shareID: string): Promise<Share> {
-		const dbResults = await this.database.select<IShareByUserDBResult>(`
-			SELECT * FROM shares_by_user WHERE id = ? ALLOW FILTERING;
-		`, [shareID]);
+		const dbResults = await this.database.query(
+			SharesByUserTable.select('*', ['id'], true)([TimeUUID.fromString(shareID)])
+		);
 
 		if (dbResults.length === 0) {
 			throw new ShareNotFoundError(shareID);
-		} else {
-			return Share.fromDBResult(dbResults[0]);
 		}
+
+		return Share.fromDBResult(dbResults[0]);
 	}
 }

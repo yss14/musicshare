@@ -1,0 +1,41 @@
+{
+	"name": "cassandra-schema-builder",
+	"version": "1.0.0",
+	"description": "Typesafe cassandra schema builder",
+	"keywords": [
+		"cassandra",
+		"typescript",
+		"typesafe",
+		"schema",
+		"query"
+	],
+	"author": "Yannick Stachelscheid <stachelscheid@addbots.de>",
+	"homepage": "https://github.com/yss14/musicshare-backend#readme",
+	"license": "MIT",
+	"main": "build/index",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/yss14/musicshare-backend.git"
+	},
+	"scripts": {
+		"build": "tsc",
+		"verify": "tsc --noEmit",
+		"test": "jest --config=jest.json --detectOpenHandles --colors",
+		"test:watch": "jest --watch --config=jest.json --detectOpenHandles --colors",
+		"test:cov": "jest --config=jest.json --collectCoverage --detectOpenHandles --colors",
+		"test:ci": "npm run test:cov && codecov",
+		"lint": "tslint --project tsconfig.json",
+		"lint:fix": "tslint --fix --project tsconfig.json"
+	},
+	"bugs": {
+		"url": "https://github.com/yss14/musicshare-backend/issues"
+	},
+	"dependencies": {
+		"@types/cassandra-driver": "^4.0.3",
+		"cassandra-driver": "^4.0.0"
+	},
+	"devDependencies": {
+		"@types/uuid": "^3.4.4",
+		"uuid": "^3.3.2"
+	}
+}
