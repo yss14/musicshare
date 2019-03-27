@@ -156,6 +156,7 @@ export const Table =
 		const injectCQLFunctionsIntoQuery = (query: IQuery<{}>): IQuery<{}> => {
 			const values = query.values;
 
+			/* istanbul ignore if */
 			if (!values || values.length === 0) {
 				return query;
 			}
@@ -223,7 +224,7 @@ export const Table =
 				});
 			},
 			drop: () => ({
-				cql: CQL.dropTable(name)
+				cql: CQL.dropTable(table)
 			})
 		};
 	};

@@ -45,3 +45,21 @@ test('schema primary key missing', async () => {
 			.toBe('Cannot create table table_without_primarykey due to invalid schema: No primary key defined');
 	}
 });
+
+test('schema with mixed clustering keys', async () => {
+	const { database, cleanUp } = await makeTestDatabase();
+	cleanupHooks.push(cleanUp);
+
+	const tableWithClusteringOrderSchema = TableSchema({
+		some_col: { type: ColumnType.Int, partitionKey: true },
+		some_cluster_col: { type: ColumnType.Int, clusteringKey: true, clusteringOrder: 'asc' },
+		some_other_cluster_col: { type: ColumnType.Int, clusteringKey: true, clusteringOrder: { index: 0, order: 'desc' } },
+		some_yet_other_cluster_col: { type: ColumnType.Int, clusteringKey: true, clusteringOrder: { index: 1, order: 'desc' } },
+	});
+	const tableWithClusteringOrder = Table({ table_without_primarykey: tableWithClusteringOrderSchema }, 'table_without_primarykey');
+
+	expect(tableWithClusteringOrder.create().cql
+		.includes('WITH CLUSTERING ORDER BY (some_other_cluster_col DESC, some_yet_other_cluster_col DESC, some_cluster_col ASC)'))
+		.toBeTruthy()
+	await expect(database.query(tableWithClusteringOrder.create())).resolves.toBe(undefined);
+});

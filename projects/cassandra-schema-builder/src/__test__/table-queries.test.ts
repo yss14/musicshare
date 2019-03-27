@@ -131,3 +131,11 @@ describe('select', () => {
 		]);
 	});
 });
+
+describe('drop', () => {
+	test('drop existing table', async () => {
+		const { database, testTable } = await setupTestEnv();
+
+		await expect(database.query(testTable.drop())).resolves.toBe(undefined);
+	});
+});

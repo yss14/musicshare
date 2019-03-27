@@ -1,5 +1,5 @@
 {
-	"rootDir": "./src",
+	"rootDir": "./",
 	"transform": {
 		"^.+\\.tsx?$": "ts-jest"
 	},
@@ -17,10 +17,10 @@
 	],
 	"collectCoverage": false,
 	"collectCoverageFrom": [
-		"**/*.ts",
+		"src/**/*.ts",
 		"!**/node_modules/**",
 		"!**/vendor/**",
-		"!index.ts",
+		"!src/index.ts",
 		"!**/__test__/**"
 	],
 	"coverageReporters": [
