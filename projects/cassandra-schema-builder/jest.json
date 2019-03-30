@@ -13,7 +13,8 @@
 		"json"
 	],
 	"setupFilesAfterEnv": [
-		"jest-extended"
+		"jest-extended",
+		"./src/__test__/utils/global-setup-after-env.ts"
 	],
 	"collectCoverage": false,
 	"collectCoverageFrom": [
