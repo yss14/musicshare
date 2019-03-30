@@ -118,6 +118,8 @@ export type IQuery<C extends Columns> = {
 	columns?: C; // stores result Columns, so that typescript doesn't forget about them
 };
 
+export const Query = (cql: string, values?: unknown[]): IQuery<{}> => ({ cql, values });
+
 export enum NativeFunction {
 	DateOf = 'dateOf()',
 	Now = 'now()'
