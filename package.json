@@ -6,6 +6,7 @@
 	"scripts": {
 		"start:backend": "lerna run start --stream --scope @musicshare/backend",
 		"start:frontend": "lerna run start --stream --scope @musicshare/frontend",
+		"dev": "npm run build:cassandra-schema-builder && lerna run dev --stream --parallel",
 		"bootstrap": "lerna bootstrap",
 		"build": "lerna run build --stream",
 		"build:backend": "lerna run build --stream --scope @musicshare/backend",
@@ -20,7 +21,8 @@
 		"test": "lerna run test --stream",
 		"test:backend": "lerna run test --stream --scope @musicshare/backend",
 		"test:cassandra-schema-builder": "lerna run test --stream --scope cassandra-schema-builder",
-		"test:ci": "lerna run test:ci --stream"
+		"test:ci": "lerna run test:ci --stream",
+		"postinstall": "npm run bootstrap"
 	},
 	"dependencies": {
 		"axios": "^0.18.0",

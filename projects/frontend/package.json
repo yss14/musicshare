@@ -22,6 +22,7 @@
 	},
 	"scripts": {
 		"start": "react-scripts start",
+		"dev": "npm run start",
 		"build": "react-scripts build",
 		"test": "react-scripts test",
 		"verify": "tsc --noEmit"
