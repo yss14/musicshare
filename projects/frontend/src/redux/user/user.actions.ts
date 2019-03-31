@@ -13,7 +13,7 @@ export interface IUserLoggedIn {
 export const login = (api: MusicShareAPI, email: string, password: string): ThunkAction<Promise<string>, {}, {}, AnyAction> =>
 	async (dispatch: ThunkDispatch<IStoreSchema, void, Action>) => {
 		// fake login
-		const userID = 'f0d8e1f0-aeb1-11e8-a117-43673ffd376b';
+		const userID = process.env.REACT_APP_DEV_USER_ID || 'f0d8e1f0-aeb1-11e8-a117-43673ffd376b';
 		dispatch({
 			type: constants.USER_LOGGED_IN,
 			payload: {
