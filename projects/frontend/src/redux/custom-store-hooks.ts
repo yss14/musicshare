@@ -10,14 +10,10 @@ const { StoreContext: StoreContextOrig, useDispatch: useDispatchOrig, useMappedS
 	Store<IStoreSchema, AnyAction>
 >();
 
-interface DispatchPropThunk<S, A extends Action = AnyAction> {
-	dispatch: ThunkDispatch<S, void, A>;
-}
-
 export const StoreContext = StoreContextOrig;
 export const useMappedState = useMappedStateOrig;
 export const useDispatch = () => {
-	const dispatch: Dispatch<Actions> | DispatchPropThunk<IStoreSchema, Actions> = useDispatchOrig();
+	const dispatch = useDispatchOrig() as (Dispatch<Actions> & ThunkDispatch<IStoreSchema, void, Actions>);
 
-	return <R>(action: Action<R> | ThunkAction<R, {}, {}, AnyAction>): R => dispatch(action as any);
+	return <R>(action: Actions | ThunkAction<R, {}, {}, Actions>): R => dispatch(action as any); // TODO get rid of any
 };

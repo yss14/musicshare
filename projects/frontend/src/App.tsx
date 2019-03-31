@@ -11,6 +11,8 @@ import { makeAPIContext, makeAPIContextValue } from './context/APIContext';
 import { makeConfigFromEnv } from './types/other/config';
 import { makeAPIs } from './apis/make-apis';
 import { StoreContext } from './redux/custom-store-hooks';
+import { ShareView } from './components/views/main/ShareView';
+import { persistUser } from './redux/persist-user';
 
 const GlobalStyle = createGlobalStyle`
 	html, body, #root {
@@ -28,6 +30,8 @@ const GlobalStyle = createGlobalStyle`
 
 const history = createBrowserHistory();
 const store = createReduxStore(history);
+
+persistUser(store);
 
 const config = makeConfigFromEnv();
 const apis = makeAPIs(config);
@@ -54,7 +58,7 @@ const App = () => (
 	<Switch>
 		<Route path="/" exact component={DebugShareSelection} />
 		<Route path="/login" component={Login} />
-		<Route path="/shares/:shareID/" component={MainView} />
+		<Route path="/shares/" component={ShareView} />
 		<Route component={NotFoundView} />
 	</Switch>
 );

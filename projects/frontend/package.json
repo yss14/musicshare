@@ -19,7 +19,8 @@
 		"redux-react-hook": "^3.2.1",
 		"redux-thunk": "^2.3.0",
 		"styled-components": "^4.2.0",
-		"styled-components-ts": "0.0.15"
+		"styled-components-ts": "0.0.15",
+		"use-react-router": "^1.0.5"
 	},
 	"scripts": {
 		"start": "react-scripts start",

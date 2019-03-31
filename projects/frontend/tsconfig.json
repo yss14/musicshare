@@ -19,7 +19,8 @@
 		"noEmit": true,
 		"jsx": "preserve",
 		"experimentalDecorators": true,
-		"pretty": true
+		"pretty": true,
+		"strictNullChecks": true
 	},
 	"include": [
 		"src"

@@ -28,9 +28,9 @@ interface IShareSongsResult {
 }
 
 export const fetchShares = (api: MusicShareAPI, userID: string) =>
-	(dispatch: ThunkDispatch<IStoreSchema, void, ISharesFetched>) => {
+	async (dispatch: ThunkDispatch<IStoreSchema, void, ISharesFetched>) => {
 
-		api.query<ISharesResult>(`
+		const result = await api.query<ISharesResult>(`
 			user(id:"${userID}"){
 				shares{
 					id
@@ -39,16 +39,16 @@ export const fetchShares = (api: MusicShareAPI, userID: string) =>
 					isLibrary
 				}
 			}
-		`).then(result => {
-			dispatch({
-				type: constants.SHARES_FETCHED,
-				payload: result.user.shares.map(share => ({
-					...share,
-					idHash: hash.sha256(share.id).substr(0, 8),
-					songs: []
-				}))
-			})
-		})
+		`);
+
+		dispatch({
+			type: constants.SHARES_FETCHED,
+			payload: result.user.shares.map(share => ({
+				...share,
+				idHash: hash.sha256(share.id).substr(0, 8),
+				songs: []
+			}))
+		});
 	}
 
 export interface IShareSongsFetched {
@@ -60,24 +60,24 @@ export interface IShareSongsFetched {
 }
 
 export const fetchSongs = (api: MusicShareAPI, shareID: string) =>
-	(dispatch: ThunkDispatch<IStoreSchema, void, IShareSongsFetched>) => {
+	async (dispatch: ThunkDispatch<IStoreSchema, void, IShareSongsFetched>) => {
 
-		api.query<IShareSongsResult>(`
-		share(id:"${shareID}"){
-			songs{
-				id, title, suffix, year, bpm, dateLastEdit, releaseDate, isRip, artists, remixer, featurings,
-				type, genres, label, needsUserAction
-			}
-		}
-	`).then(result => {
-			dispatch({
-				type: constants.SHARE_SONGS_FETCHED,
-				payload: {
-					shareID: shareID,
-					songs: result.share.songs
+		const result = await api.query<IShareSongsResult>(`
+			share(id:"${shareID}"){
+				songs{
+					id, title, suffix, year, bpm, dateLastEdit, releaseDate, isRip, artists, remixer, featurings,
+					type, genres, label, requiresUserAction
 				}
-			})
-		})
+			}
+		`);
+
+		dispatch({
+			type: constants.SHARE_SONGS_FETCHED,
+			payload: {
+				shareID: shareID,
+				songs: result.share.songs
+			}
+		});
 	}
 
 export type SharesAction = ISharesFetched | IShareSongsFetched;
