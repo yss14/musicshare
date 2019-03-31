@@ -27,7 +27,7 @@
 		"dev": "npm run start",
 		"build": "react-scripts build",
 		"test": "react-scripts test",
-		"verify": "tsc --noEmit"
+		"verify": "tsc --noEmit --noUnusedLocals"
 	},
 	"devDependencies": {
 		"@types/howler": "^2.1.0",

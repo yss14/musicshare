@@ -2,7 +2,6 @@ import * as React from 'react';
 import { createReduxStore } from './redux/create-store';
 import { Provider } from 'react-redux';
 import { Router, Route, Switch } from 'react-router-dom';
-import { MainView } from './components/views/main/MainView';
 import { createGlobalStyle } from 'styled-components';
 import { createBrowserHistory } from 'history';
 import { NotFoundView } from './components/views/not-found/NotFound';
