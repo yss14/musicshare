@@ -32,7 +32,7 @@ export const DebugShareSelection: React.FunctionComponent = () => {
 					))
 				}
 			</ul>
-			{shares.length === 0 && <p>No shares available</p>}
+			{shares.length === 0 && <p>No shares available. Please check whether the backend service is already running and reload the page when it's ready.</p>}
 		</React.Fragment>
 	);
 }
