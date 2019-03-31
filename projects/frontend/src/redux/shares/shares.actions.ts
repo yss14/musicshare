@@ -1,6 +1,6 @@
 import { ThunkDispatch } from 'redux-thunk';
 import * as constants from './shares.constants';
-import { MusicShareApi } from '../../apis/musicshare-api';
+import { MusicShareAPI } from '../../apis/musicshare-api';
 import { IStoreSchema } from '../store.schema';
 import * as hash from 'js-sha256';
 import { IShareSchema, ISong } from './shares.schema';
@@ -27,7 +27,7 @@ interface IShareSongsResult {
 	}
 }
 
-export const fetchShares = (api: MusicShareApi, userID: string) =>
+export const fetchShares = (api: MusicShareAPI, userID: string) =>
 	(dispatch: ThunkDispatch<IStoreSchema, void, ISharesFetched>) => {
 
 		api.query<ISharesResult>(`
@@ -40,15 +40,15 @@ export const fetchShares = (api: MusicShareApi, userID: string) =>
 				}
 			}
 		`).then(result => {
-				dispatch({
-					type: constants.SHARES_FETCHED,
-					payload: result.user.shares.map(share => ({
-						...share,
-						idHash: hash.sha256(share.id).substr(0, 8),
-						songs: []
-					}))
-				})
+			dispatch({
+				type: constants.SHARES_FETCHED,
+				payload: result.user.shares.map(share => ({
+					...share,
+					idHash: hash.sha256(share.id).substr(0, 8),
+					songs: []
+				}))
 			})
+		})
 	}
 
 export interface IShareSongsFetched {
@@ -59,7 +59,7 @@ export interface IShareSongsFetched {
 	}
 }
 
-export const fetchSongs = (api: MusicShareApi, shareID: string) =>
+export const fetchSongs = (api: MusicShareAPI, shareID: string) =>
 	(dispatch: ThunkDispatch<IStoreSchema, void, IShareSongsFetched>) => {
 
 		api.query<IShareSongsResult>(`
@@ -70,14 +70,14 @@ export const fetchSongs = (api: MusicShareApi, shareID: string) =>
 			}
 		}
 	`).then(result => {
-				dispatch({
-					type: constants.SHARE_SONGS_FETCHED,
-					payload: {
-						shareID: shareID,
-						songs: result.share.songs
-					}
-				})
+			dispatch({
+				type: constants.SHARE_SONGS_FETCHED,
+				payload: {
+					shareID: shareID,
+					songs: result.share.songs
+				}
 			})
+		})
 	}
 
 export type SharesAction = ISharesFetched | IShareSongsFetched;

@@ -7,7 +7,7 @@ import { IStoreSchema } from '../../../redux/store.schema';
 import { connect } from 'react-redux';
 import { fetchShares, ISharesFetched, IShareSongsFetched, fetchSongs } from '../../../redux/shares/shares.actions';
 import { DispatchPropThunk } from '../../../types/props/DispatchPropThunk';
-import { MusicShareApi } from '../../../apis/musicshare-api';
+import { MusicShareAPI } from '../../../apis/musicshare-api';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { IRouteShare } from '../../../types/props/RouterProps';
 import { ISharesSchema } from '../../../redux/shares/shares.schema';
@@ -39,7 +39,7 @@ class MainViewComponent extends React.Component<IMainViewProps> {
 
 		if (prevProps.userID === null && this.props.userID !== null) {
 			dispatch(fetchShares(
-				new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL!),
+				new MusicShareAPI(process.env.REACT_APP_MUSICSHARE_BACKEND_URL!),
 				userID!
 			));
 		}
@@ -53,7 +53,7 @@ class MainViewComponent extends React.Component<IMainViewProps> {
 				if (prevProps.shares.length === 0) {
 					// get songs for current selected share
 					dispatch(fetchSongs(
-						new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL!),
+						new MusicShareAPI(process.env.REACT_APP_MUSICSHARE_BACKEND_URL!),
 						selectedShare.id
 					));
 				}

@@ -6,7 +6,7 @@ import { bind } from 'bind-decorator';
 import { UploadAction, upload } from '../../../redux/upload/upload.actions';
 import { DispatchPropThunk } from '../../../types/props/DispatchPropThunk';
 import { IStoreSchema } from '../../../redux/store.schema';
-import { MusicShareApi } from '../../../apis/musicshare-api';
+import { MusicShareAPI } from '../../../apis/musicshare-api';
 import { IUploadSchema } from '../../../redux/upload/upload.schema';
 import { connect } from 'react-redux';
 import { UploadListItem } from './UploadListItem';
@@ -45,7 +45,7 @@ class UploadZoneComponent extends React.Component<IUploadZoneProps>{
 
 		console.log(files);
 		files.forEach(file => {
-			dispatch(upload(userID, shareID, new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL!), file));
+			dispatch(upload(userID, shareID, new MusicShareAPI(process.env.REACT_APP_MUSICSHARE_BACKEND_URL!), file));
 		});
 	}
 

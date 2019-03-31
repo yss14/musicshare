@@ -1,7 +1,7 @@
 import { blobToArrayBuffer } from './../../utils/blob-to-arraybuffer';
 import { IUploadItem, UploadItemType, UploadItemStatus } from './upload.schema';
 import { ThunkDispatch } from 'redux-thunk';
-import { MusicShareApi, IAxiosProgress } from './../../apis/musicshare-api';
+import { MusicShareAPI, IAxiosProgress } from './../../apis/musicshare-api';
 import * as constants from './upload.constants';
 import { IStoreSchema } from '../store.schema';
 import * as crypto from 'js-sha256';
@@ -43,7 +43,7 @@ export interface IUploadRemove {
 
 let currentUploads: number = 0;
 
-export const upload = (userID: string, shareID: string, api: MusicShareApi, file: File) =>
+export const upload = (userID: string, shareID: string, api: MusicShareAPI, file: File) =>
 	async (dispatch: ThunkDispatch<IStoreSchema, void, UploadAction>) => {
 
 		const arrayBuffer = await blobToArrayBuffer(file);
