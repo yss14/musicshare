@@ -9,6 +9,8 @@ const defaultState: IUserSchema = {
 	refreshToken: null
 }
 
+export const userDefaultState = defaultState;
+
 export const userReducer = (state: IUserSchema = defaultState, action: UserAction): IUserSchema => {
 	switch (action.type) {
 		case constants.USER_LOGGED_IN:

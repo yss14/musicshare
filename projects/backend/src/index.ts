@@ -21,8 +21,8 @@ import { SongService } from "./services/SongService";
 import { ShareService } from "./services/ShareService";
 import { UserService } from "./services/UserService";
 import { ArtistExtractor } from "./utils/song-meta/song-meta-formats/id3/ArtistExtractor";
-import { DatabaseClient } from "cassandra-schema-builder";
-import { Client } from "cassandra-driver";
+import { DatabaseClient, CQL, Query } from "cassandra-schema-builder";
+import { Client, auth } from "cassandra-driver";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -41,11 +41,31 @@ if (!isProductionEnvironment()) {
 (async () => {
 	const databaseHost = process.env[CustomEnv.CASSANDRA_HOST] || '127.0.0.1';
 	const databaseKeyspace = process.env[CustomEnv.CASSANDRA_KEYSPACE] || 'musicshare';
+	const databasePassword = process.env[CustomEnv.CASSANDRA_PASSWORD];
+	const databaseUser = process.env[CustomEnv.CASSANDRA_USER];
+	let authProvider: auth.AuthProvider | null = null;
+
+	if (databasePassword && databaseUser) {
+		authProvider = new auth.PlainTextAuthProvider(databaseUser, databasePassword);
+	}
+
+	const databaseWithoutKeyspace = new DatabaseClient(
+		new Client({
+			contactPoints: [databaseHost],
+			localDataCenter: 'datacenter1',
+			authProvider: authProvider || undefined
+		})
+	);
+
+	await databaseWithoutKeyspace.query(Query(CQL.createKeyspace(databaseKeyspace)));
+	await databaseWithoutKeyspace.close();
+
 	const database = new DatabaseClient(
 		new Client({
 			contactPoints: [databaseHost],
 			localDataCenter: 'datacenter1',
-			keyspace: databaseKeyspace
+			keyspace: databaseKeyspace,
+			authProvider: authProvider || undefined
 		})
 	);
 

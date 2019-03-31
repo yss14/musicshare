@@ -6,11 +6,12 @@ import { bind } from 'bind-decorator';
 import { UploadAction, upload } from '../../../redux/upload/upload.actions';
 import { DispatchPropThunk } from '../../../types/props/DispatchPropThunk';
 import { IStoreSchema } from '../../../redux/store.schema';
-import { MusicShareApi } from '../../../apis/musicshare-api';
 import { IUploadSchema } from '../../../redux/upload/upload.schema';
 import { connect } from 'react-redux';
 import { UploadListItem } from './UploadListItem';
 import imgUpload from '../../../images/upload.png';
+import { useContext } from 'react';
+import { APIContext } from '../../../context/APIContext';
 
 const UploadListWrapper = styled.div`
 	flex: 1;
@@ -43,9 +44,11 @@ class UploadZoneComponent extends React.Component<IUploadZoneProps>{
 	private onDrop(files: File[]) {
 		const { dispatch, userID, shareID } = this.props;
 
+		const { musicshareAPI } = useContext(APIContext);
+
 		console.log(files);
 		files.forEach(file => {
-			dispatch(upload(userID, shareID, new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL!), file));
+			dispatch(upload(userID, shareID, musicshareAPI, file));
 		});
 	}
 

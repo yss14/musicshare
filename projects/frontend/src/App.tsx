@@ -1,16 +1,17 @@
 import * as React from 'react';
-import { MusicShareApi } from './apis/musicshare-api';
 import { createReduxStore } from './redux/create-store';
-import { login } from './redux/user/user.actions';
-import { ThunkDispatch } from 'redux-thunk';
-import { IStoreSchema } from './redux/store.schema';
-import { Action } from 'redux';
 import { Provider } from 'react-redux';
 import { Router, Route, Switch } from 'react-router-dom';
-import { MainView } from './components/views/main/MainView';
 import { createGlobalStyle } from 'styled-components';
 import { createBrowserHistory } from 'history';
 import { NotFoundView } from './components/views/not-found/NotFound';
+import { DebugShareSelection } from './components/views/debug-share-selection/DebugShareSelection';
+import { makeAPIContext, makeAPIContextValue } from './context/APIContext';
+import { makeConfigFromEnv } from './types/other/config';
+import { makeAPIs } from './apis/make-apis';
+import { StoreContext } from './redux/custom-store-hooks';
+import { ShareView } from './components/views/main/ShareView';
+import { persistUser } from './redux/persist-user';
 
 const GlobalStyle = createGlobalStyle`
 	html, body, #root {
@@ -29,13 +30,22 @@ const GlobalStyle = createGlobalStyle`
 const history = createBrowserHistory();
 const store = createReduxStore(history);
 
+persistUser(store);
+
+const config = makeConfigFromEnv();
+const apis = makeAPIs(config);
+const APIContext = makeAPIContext(apis);
+
 export const Root = () => (
 	<Provider store={store}>
-		<GlobalStyle>
-			<Router history={history}>
-				<Route path="/" component={App} />
-			</Router>
-		</GlobalStyle>
+		<StoreContext.Provider value={store}>
+			<APIContext.Provider value={makeAPIContextValue(apis)}>
+				<GlobalStyle />
+				<Router history={history}>
+					<Route path="/" component={App} />
+				</Router>
+			</APIContext.Provider>
+		</StoreContext.Provider>
 	</Provider>
 );
 
@@ -43,30 +53,11 @@ const Login: React.StatelessComponent = () => (
 	<h1>Login</h1>
 );
 
-class App extends React.Component {
-	private readonly api: MusicShareApi;
-
-	constructor(props: {}) {
-		super(props);
-
-		this.api = new MusicShareApi(process.env.REACT_APP_MUSICSHARE_BACKEND_URL!); // TODO undefined check
-	}
-
-	public componentDidMount() {
-		// fake login
-		const dispatch: ThunkDispatch<IStoreSchema, void, Action> = store.dispatch;
-
-		dispatch(login(this.api, "", ""));
-	}
-
-	public render() {
-		return (
-			<Switch>
-
-				<Route path="/login" component={Login} />
-				<Route path="/shares/:shareID/" component={MainView} />
-				<Route component={NotFoundView} />
-			</Switch>
-		);
-	}
-}
+const App = () => (
+	<Switch>
+		<Route path="/" exact component={DebugShareSelection} />
+		<Route path="/login" component={Login} />
+		<Route path="/shares/" component={ShareView} />
+		<Route component={NotFoundView} />
+	</Switch>
+);

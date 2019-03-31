@@ -35,7 +35,7 @@ export class GraphQLError extends Error {
 	}
 }
 
-export class MusicShareApi {
+export class MusicShareAPI {
 	private readonly axiosInstance: AxiosInstance;
 
 	constructor(backendUrl: string) {
@@ -65,12 +65,12 @@ export class MusicShareApi {
 	}
 
 	public async upload(userID: string, shareID: string, file: File, buffer: ArrayBuffer, onProgress: (progress: IAxiosProgress) => void): Promise<void> {
-		return this.axiosInstance.post<void>(
+		await this.axiosInstance.post<void>(
 			`/users/${userID}/shares/${shareID}/files/${file.name}`,
 			buffer,
 			{
 				onUploadProgress: onProgress
 			}
-		) as any as Promise<void>
+		);
 	}
 }

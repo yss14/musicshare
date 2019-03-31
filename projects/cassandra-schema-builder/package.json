@@ -18,7 +18,9 @@
 		"url": "git+https://github.com/yss14/musicshare-backend.git"
 	},
 	"scripts": {
+		"dev": "npm run build:watch",
 		"build": "tsc",
+		"build:watch": "tsc --watch --preserveWatchOutput",
 		"verify": "tsc --noEmit",
 		"test": "jest --config=jest.json --detectOpenHandles --colors",
 		"test:watch": "jest --watch --config=jest.json --detectOpenHandles --colors",

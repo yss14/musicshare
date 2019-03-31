@@ -12,6 +12,7 @@
 		"jsx",
 		"json"
 	],
+	"globalSetup": "./src/__test__/utils/global-setup.ts",
 	"setupFilesAfterEnv": [
 		"jest-extended",
 		"./src/__test__/utils/global-setup-after-env.ts"

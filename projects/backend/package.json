@@ -6,7 +6,9 @@
 	"private": true,
 	"scripts": {
 		"start": "npm run build && cross-env NODE_ENV=development node build/index.js",
+		"start:watch": "tsc-watch --preserveWatchOutput --onSuccess \"cross-env NODE_ENV=development node build/index.js\"",
 		"build": "tsc --project tsconfig.json",
+		"dev": "concurrently \"npm run azurite\" \"npm run start:watch\"",
 		"azurite": "azurite-blob -l azurite",
 		"test": "cross-env NODE_ENV=test jest --config=jest.json --detectOpenHandles --colors",
 		"test:watch": "jest --watch --config=jest.json --detectOpenHandles --colors",

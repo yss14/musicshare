@@ -15,7 +15,7 @@ export namespace CQLErrors {
 export namespace CQL {
 	export const createKeyspace = (keyspaceName: string, replicationFactor: number = 1) => {
 		const cql = `
-			CREATE KEYSPACE ${keyspaceName}
+			CREATE KEYSPACE IF NOT EXISTS ${keyspaceName}
 			WITH REPLICATION = { 
 				'class' : 'SimpleStrategy', 
 				'replication_factor' : ${replicationFactor} 

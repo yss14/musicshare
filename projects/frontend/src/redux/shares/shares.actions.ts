@@ -1,6 +1,6 @@
 import { ThunkDispatch } from 'redux-thunk';
 import * as constants from './shares.constants';
-import { MusicShareApi } from '../../apis/musicshare-api';
+import { MusicShareAPI } from '../../apis/musicshare-api';
 import { IStoreSchema } from '../store.schema';
 import * as hash from 'js-sha256';
 import { IShareSchema, ISong } from './shares.schema';
@@ -27,10 +27,10 @@ interface IShareSongsResult {
 	}
 }
 
-export const fetchShares = (api: MusicShareApi, userID: string) =>
-	(dispatch: ThunkDispatch<IStoreSchema, void, ISharesFetched>) => {
+export const fetchShares = (api: MusicShareAPI, userID: string) =>
+	async (dispatch: ThunkDispatch<IStoreSchema, void, ISharesFetched>) => {
 
-		api.query<ISharesResult>(`
+		const result = await api.query<ISharesResult>(`
 			user(id:"${userID}"){
 				shares{
 					id
@@ -39,16 +39,16 @@ export const fetchShares = (api: MusicShareApi, userID: string) =>
 					isLibrary
 				}
 			}
-		`).then(result => {
-				dispatch({
-					type: constants.SHARES_FETCHED,
-					payload: result.user.shares.map(share => ({
-						...share,
-						idHash: hash.sha256(share.id).substr(0, 8),
-						songs: []
-					}))
-				})
-			})
+		`);
+
+		dispatch({
+			type: constants.SHARES_FETCHED,
+			payload: result.user.shares.map(share => ({
+				...share,
+				idHash: hash.sha256(share.id).substr(0, 8),
+				songs: []
+			}))
+		});
 	}
 
 export interface IShareSongsFetched {
@@ -59,25 +59,25 @@ export interface IShareSongsFetched {
 	}
 }
 
-export const fetchSongs = (api: MusicShareApi, shareID: string) =>
-	(dispatch: ThunkDispatch<IStoreSchema, void, IShareSongsFetched>) => {
+export const fetchSongs = (api: MusicShareAPI, shareID: string) =>
+	async (dispatch: ThunkDispatch<IStoreSchema, void, IShareSongsFetched>) => {
 
-		api.query<IShareSongsResult>(`
-		share(id:"${shareID}"){
-			songs{
-				id, title, suffix, year, bpm, dateLastEdit, releaseDate, isRip, artists, remixer, featurings,
-				type, genres, label, needsUserAction
+		const result = await api.query<IShareSongsResult>(`
+			share(id:"${shareID}"){
+				songs{
+					id, title, suffix, year, bpm, dateLastEdit, releaseDate, isRip, artists, remixer, featurings,
+					type, genres, label, requiresUserAction
+				}
 			}
-		}
-	`).then(result => {
-				dispatch({
-					type: constants.SHARE_SONGS_FETCHED,
-					payload: {
-						shareID: shareID,
-						songs: result.share.songs
-					}
-				})
-			})
+		`);
+
+		dispatch({
+			type: constants.SHARE_SONGS_FETCHED,
+			payload: {
+				shareID: shareID,
+				songs: result.share.songs
+			}
+		});
 	}
 
 export type SharesAction = ISharesFetched | IShareSongsFetched;
