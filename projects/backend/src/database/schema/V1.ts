@@ -33,4 +33,12 @@ export namespace DatabaseV1 {
 		requires_user_action: { type: ColumnType.Boolean, nullable: false },
 		file: { type: ColumnType.Varchar },
 	});
+
+	export const song_types = TableSchema({
+		name: { type: ColumnType.Varchar, clusteringKey: true },
+		group: { type: ColumnType.Varchar, clusteringKey: true },
+		share_id: { type: ColumnType.TimeUUID, partitionKey: true },
+		date_added: { type: ColumnType.Timestamp, nullable: false },
+		date_removed: { type: ColumnType.Timestamp },
+	});
 }
