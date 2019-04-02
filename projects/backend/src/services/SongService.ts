@@ -25,7 +25,7 @@ export class SongService implements ISongService {
 	public async getByID(shareID: string, songID: string): Promise<Song> {
 		const dbResults = await this.database.query(
 			SongsByShareTable.select('*', ['share_id', 'id'])
-				([TimeUUID.fromString(shareID), TimeUUID.fromString(songID)])
+				([TimeUUID(shareID), TimeUUID(songID)])
 		)
 
 		if (dbResults.length === 0) {
@@ -38,7 +38,7 @@ export class SongService implements ISongService {
 
 	public async getByShare(share: Share): Promise<Song[]> {
 		const dbResults = await this.database.query(
-			SongsByShareTable.select('*', ['share_id'])([TimeUUID.fromString(share.id)])
+			SongsByShareTable.select('*', ['share_id'])([TimeUUID(share.id)])
 		);
 
 		return dbResults
@@ -48,7 +48,7 @@ export class SongService implements ISongService {
 
 	public async create(song: ISongByShareDBResult): Promise<string> {
 		// istanbul ignore next
-		let id = song.id || TimeUUID.now();
+		let id = song.id || TimeUUID();
 
 		await this.database.query(
 			SongsByShareTable.insertFromObj(song)

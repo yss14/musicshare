@@ -46,7 +46,7 @@ describe('get user by id', () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv();
 		cleanupHooks.push(cleanUp);
 
-		const userID = TimeUUID.fromString('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
+		const userID = TimeUUID('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
 		const query = makeUserQuery(userID.toString());
 
 		const { body } = await executeGraphQLQuery(graphQLServer, query);

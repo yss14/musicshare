@@ -3,10 +3,10 @@ import moment = require("moment");
 import { sortByTimeUUIDAsc } from "../utils/sort/sort-timeuuid";
 
 test('sort objects', () => {
-	const id1 = TimeUUID.fromDate(moment().subtract(4, 'days').toDate());
-	const id2 = TimeUUID.fromDate(moment().subtract(3, 'days').toDate());
-	const id3 = TimeUUID.fromDate(moment().subtract(2, 'days').toDate());
-	const id4 = TimeUUID.fromDate(moment().subtract(1, 'days').toDate());
+	const id1 = TimeUUID(moment().subtract(4, 'days').toDate());
+	const id2 = TimeUUID(moment().subtract(3, 'days').toDate());
+	const id3 = TimeUUID(moment().subtract(2, 'days').toDate());
+	const id4 = TimeUUID(moment().subtract(1, 'days').toDate());
 
 	const timeUUIDs = [id1, id3, id2, id4];
 

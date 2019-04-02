@@ -61,7 +61,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 			const songMeta = await this.songMetaDataService.analyse(uploadMeta.file, audioBuffer);
 
 			const song = await this.songService.create({
-				id: TimeUUID.now(),
+				id: TimeUUID(),
 				title: songMeta.title || uploadMeta.file.originalFilename,
 				suffix: songMeta.suffix || null,
 				year: songMeta.year,
@@ -75,7 +75,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 				type: songMeta.type || null,
 				genres: [...(songMeta.genres || [])],
 				label: songMeta.label || null,
-				share_id: TimeUUID.fromString(uploadMeta.shareID.toString()),
+				share_id: TimeUUID(uploadMeta.shareID.toString()),
 				requires_user_action: !songMeta.title || songMeta.title.trim().length === 0 || !songMeta.artists || songMeta.artists.length === 0,
 				file: JSON.stringify(uploadMeta.file)
 			});

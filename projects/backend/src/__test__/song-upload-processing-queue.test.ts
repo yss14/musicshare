@@ -16,8 +16,8 @@ const setupTestEnv = () => {
 
 const makeValidPayload = (): ISongProcessingQueuePayload => ({
 	file: { blob: 'somefile', container: 'songs', fileExtension: 'mp3', originalFilename: 'somefile' },
-	shareID: TimeUUID.fromDate(new Date()).toString(),
-	userID: TimeUUID.fromDate(new Date()).toString()
+	shareID: TimeUUID(new Date()).toString(),
+	userID: TimeUUID(new Date()).toString()
 })
 
 test('upload successful', async () => {
@@ -34,7 +34,7 @@ test('wrong payload format', async () => {
 	const { songUploadProcessingQueue } = setupTestEnv();
 	const payload: any = {
 		file: { blob: 'somefile', container: 'songs', fileExtension: 'mp3', originalFilename: 'somefile' },
-		shareID: TimeUUID.fromDate(new Date()).toString(),
+		shareID: TimeUUID(new Date()).toString(),
 	}
 
 	await expect(songUploadProcessingQueue.enqueueUpload(payload))

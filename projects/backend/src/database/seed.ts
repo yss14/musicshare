@@ -32,37 +32,37 @@ export const testData: ITestDataSchema = {
 		user1: {
 			name: 'Yss',
 			emails: generatedEMails(2), // cassandra driver takes arrays as sets
-			id: TimeUUID.fromString('f0d8e1f0-aeb1-11e8-a117-43673ffd376b')
+			id: TimeUUID('f0d8e1f0-aeb1-11e8-a117-43673ffd376b')
 		},
 		user2: {
 			name: 'Simon',
 			emails: generatedEMails(2), // cassandra driver takes arrays as sets
-			id: TimeUUID.fromString('f0d8e1f1-aeb1-11e8-a117-43673ffd376b')
+			id: TimeUUID('f0d8e1f1-aeb1-11e8-a117-43673ffd376b')
 		}
 	},
 	shares: {
 		library_user1: {
-			id: TimeUUID.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
+			id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			name: 'Share Yss',
-			user_id: TimeUUID.fromString('f0d8e1f0-aeb1-11e8-a117-43673ffd376b'),
+			user_id: TimeUUID('f0d8e1f0-aeb1-11e8-a117-43673ffd376b'),
 			is_library: true
 		},
 		library_user2: {
-			id: TimeUUID.fromString('f0d659e0-aeb1-11e8-a117-43673ffd376b'),
+			id: TimeUUID('f0d659e0-aeb1-11e8-a117-43673ffd376b'),
 			name: 'Share Simon',
-			user_id: TimeUUID.fromString('f0d8e1f1-aeb1-11e8-a117-43673ffd376b'),
+			user_id: TimeUUID('f0d8e1f1-aeb1-11e8-a117-43673ffd376b'),
 			is_library: true
 		},
 		some_shared_library: {
-			id: TimeUUID.fromString('f0d359e0-aeb1-11e8-a117-43673ffd376b'),
+			id: TimeUUID('f0d359e0-aeb1-11e8-a117-43673ffd376b'),
 			name: 'Some Shared Library',
-			user_id: TimeUUID.fromString('f0d8e1f0-aeb1-11e8-a117-43673ffd376b'),
+			user_id: TimeUUID('f0d8e1f0-aeb1-11e8-a117-43673ffd376b'),
 			is_library: false
 		}
 	},
 	songs: {
 		song1_library_user1: {
-			id: TimeUUID.fromDate(moment().subtract(3, 'hour').toDate()),
+			id: TimeUUID(moment().subtract(3, 'hour').toDate()),
 			title: 'Zero',
 			suffix: null,
 			year: 2018,
@@ -76,12 +76,12 @@ export const testData: ITestDataSchema = {
 			type: null,
 			genres: ['Trance'],
 			label: null,
-			share_id: TimeUUID.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
+			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			requires_user_action: false,
 			file: JSON.stringify(makeFileObject('songs', 'zero', 'zero_somesuffic', 'mp3'))
 		},
 		song2_library_user1: {
-			id: TimeUUID.fromDate(moment().subtract(2, 'hour').toDate()),
+			id: TimeUUID(moment().subtract(2, 'hour').toDate()),
 			title: 'Perth',
 			suffix: null,
 			year: 2018,
@@ -95,12 +95,12 @@ export const testData: ITestDataSchema = {
 			type: 'Remix',
 			genres: ['Deep House'],
 			label: 'Anjunadeep',
-			share_id: TimeUUID.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
+			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			requires_user_action: false,
 			file: JSON.stringify(makeFileObject('songs', 'perth', 'perth_abgtrip', 'mp3'))
 		},
 		song3_library_user1: {
-			id: TimeUUID.fromDate(moment().subtract(1, 'hour').toDate()),
+			id: TimeUUID(moment().subtract(1, 'hour').toDate()),
 			title: 'Contact',
 			suffix: null,
 			year: 2019,
@@ -114,7 +114,7 @@ export const testData: ITestDataSchema = {
 			type: 'Original Mix',
 			genres: ['Progressive House'],
 			label: 'Anjunadeep',
-			share_id: TimeUUID.fromString('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
+			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			requires_user_action: false,
 			file: JSON.stringify(makeFileObject('songs', 'contact', 'contact_rue_alastor', 'mp3'))
 		}
@@ -149,7 +149,7 @@ export const makeDatabaseSeed = (database: IDatabaseClient, songService: SongSer
 		const prefilledArray = createPrefilledArray(100, {});
 		const songInserts = prefilledArray
 			.map((): Required<ISongByShareDBResult> => ({
-				id: TimeUUID.now(),
+				id: TimeUUID(),
 				title: faker.name.findName(),
 				suffix: null,
 				year: null,

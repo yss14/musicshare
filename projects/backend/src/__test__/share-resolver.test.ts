@@ -83,7 +83,7 @@ describe('get share by id', () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv();
 		cleanupHooks.push(cleanUp);
 
-		const shareID = TimeUUID.fromString('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
+		const shareID = TimeUUID('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
 		const query = makeShareQuery(shareID.toString());
 
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
@@ -150,7 +150,7 @@ describe('get share song', () => {
 		cleanupHooks.push(cleanUp);
 
 		const shareID = testData.shares.library_user1.id.toString();
-		const songID = TimeUUID.fromDate(new Date());
+		const songID = TimeUUID(new Date());
 		const query = makeShareQuery(shareID, makeShareSongQuery(songID.toString()));
 
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
