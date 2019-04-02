@@ -7,14 +7,14 @@ export namespace DatabaseV1 {
 		emails: { type: CSet(ColumnType.Varchar), nullable: false }
 	});
 
-	export const sharesByUser = TableSchema({
+	export const shares_by_user = TableSchema({
 		id: { type: ColumnType.TimeUUID, clusteringKey: true },
 		name: { type: ColumnType.Varchar, nullable: false },
 		user_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		is_library: { type: ColumnType.Boolean, nullable: false }
 	});
 
-	export const songByShare = TableSchema({
+	export const songs_by_shares = TableSchema({
 		id: { type: ColumnType.TimeUUID, clusteringKey: true },
 		title: { type: ColumnType.Varchar },
 		suffix: { type: ColumnType.Varchar },
