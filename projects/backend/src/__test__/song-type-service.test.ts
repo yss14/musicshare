@@ -1,6 +1,7 @@
 import { setupTestEnv } from "./utils/setup-test-env";
 import { testData } from "../database/seed";
 import { defaultSongTypes } from "../database/fixtures";
+import { SongType } from "../models/SongType";
 
 const setupLocalTestEnv = async () => {
 	const { cleanUp, ...testEnv } = await setupTestEnv();
@@ -28,8 +29,8 @@ test('remove song type from share', async () => {
 	const { songTypeService } = await setupLocalTestEnv();
 
 	const shareID = testData.shares.library_user1.id.toString();
-	await songTypeService.removeSongTypeFromShare(shareID, defaultSongTypes[4]);
-	await songTypeService.removeSongTypeFromShare(shareID, defaultSongTypes[9]);
+	await songTypeService.removeSongTypeFromShare(shareID, SongType.fromObject(defaultSongTypes[4]));
+	await songTypeService.removeSongTypeFromShare(shareID, SongType.fromObject(defaultSongTypes[9]));
 
 	const result = await songTypeService.getSongTypesForShare(shareID);
 
