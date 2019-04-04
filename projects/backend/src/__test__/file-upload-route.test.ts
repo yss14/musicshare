@@ -33,7 +33,7 @@ beforeAll(async () => {
 
 test('valid request', async (done) => {
 	const httpRequest = request(defaultExpressApp)
-		.post(`/users/${TimeUUID.now()}/shares/${TimeUUID.now()}/files`)
+		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files`)
 		.set('Content-Type', 'audio/mpeg');
 
 	httpRequest.write(mp3FileBuffer);
@@ -48,7 +48,7 @@ test('valid request', async (done) => {
 
 test('invalid request passing a json', async (done) => {
 	const httpRequest = request(defaultExpressApp)
-		.post(`/users/${TimeUUID.now()}/shares/${TimeUUID.now()}/files`)
+		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files`)
 		.set('Content-Type', 'application/json');
 
 	httpRequest.send(JSON.stringify({ someProp: 42 }));
@@ -70,7 +70,7 @@ test('invalid request passing too large file', async (done) => {
 	}
 
 	const httpRequest = request(defaultExpressApp)
-		.post(`/users/${TimeUUID.now()}/shares/${TimeUUID.now()}/files`)
+		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files`)
 		.set('Content-Type', 'audio/mpeg');
 
 	httpRequest.write(tooLargeFileBuffer);
@@ -85,17 +85,17 @@ test('invalid request passing too large file', async (done) => {
 
 test('invalid request passing invalid userID', async () => {
 	const response1 = await request(defaultExpressApp)
-		.post(`/users/true/shares/${TimeUUID.now()}/files`)
+		.post(`/users/true/shares/${TimeUUID()}/files`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
 	const response2 = await request(defaultExpressApp)
-		.post(`/users/42.2/shares/${TimeUUID.now()}/files`)
+		.post(`/users/42.2/shares/${TimeUUID()}/files`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
 	const response3 = await request(defaultExpressApp)
-		.post(`/users/abcd-efgh/shares/${TimeUUID.now()}/files`)
+		.post(`/users/abcd-efgh/shares/${TimeUUID()}/files`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
@@ -110,17 +110,17 @@ test('invalid request passing invalid userID', async () => {
 
 test('invalid request passing invalid shareID', async () => {
 	const response1 = await request(defaultExpressApp)
-		.post(`/users/${TimeUUID.now()}/shares/false/files`)
+		.post(`/users/${TimeUUID()}/shares/false/files`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
 	const response2 = await request(defaultExpressApp)
-		.post(`/users/${TimeUUID.now()}/shares/42.2/files`)
+		.post(`/users/${TimeUUID()}/shares/42.2/files`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
 	const response3 = await request(defaultExpressApp)
-		.post(`/users/${TimeUUID.now()}/shares/abcd-efgh/files`)
+		.post(`/users/${TimeUUID()}/shares/abcd-efgh/files`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
@@ -144,7 +144,7 @@ test('invalid request passing no content-type', async (done) => {
 	});
 	const expressApp = makeExpressApp({ routers: [customRouter] });
 	const httpRequest = request(expressApp)
-		.post(`/users/${TimeUUID.now()}/shares/${TimeUUID.now()}/files`)
+		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files`)
 
 	httpRequest.write(mp3FileBuffer);
 	httpRequest.end((err, res) => {
@@ -171,7 +171,7 @@ test('valid request, but file upload fails', async (done) => {
 	const expressApp = makeExpressApp({ routers: [restRouter] });
 
 	const httpRequest = request(expressApp)
-		.post(`/users/${TimeUUID.now()}/shares/${TimeUUID.now()}/files`)
+		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files`)
 		.set('Content-Type', 'audio/mpeg');
 
 	httpRequest.write(mp3FileBuffer);

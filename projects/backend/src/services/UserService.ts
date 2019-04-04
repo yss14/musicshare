@@ -20,7 +20,7 @@ export class UserService implements IUserService {
 
 	public async getUserByID(id: string): Promise<User> {
 		const dbResults = await this.database.query(
-			UsersTable.select('*', ['id'])([TimeUUID.fromString(id)])
+			UsersTable.select('*', ['id'])([TimeUUID(id)])
 		);
 
 		if (dbResults.length !== 1) {

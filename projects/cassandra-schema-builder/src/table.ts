@@ -140,6 +140,8 @@ export interface ITable<C extends Columns> {
 	create(): IQuery<{}>;
 	insert<Subset extends Keys<C>>(subset: Subset): (values: ColumnValues<C, Subset>) => IQuery<{}>;
 	insertFromObj<Subset extends TableRecord<C>>(obj: Subset): IQuery<{}>;
+	update<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset, where: Where):
+		(subsetValues: ColumnValues<C, Subset>, whereValues: ColumnValues<C, Where>) => IQuery<{}>;
 	selectAll<Subset extends Keys<C>>(subset: Subset | "*"):
 		IQuery<Pick<C, Extract<Subset[number], string>>>;
 	select<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset | "*", where: Where, allowFiltering?: boolean):
@@ -191,12 +193,10 @@ export const Table =
 					cql: CQL.createTable(table, columns),
 				};
 			},
-			insert: (subset) => {
-				return (values) => injectCQLFunctionsIntoQuery({
-					cql: CQL.insert(table, subset.filter(isString)),
-					values
-				});
-			},
+			insert: (subset) => (values) => injectCQLFunctionsIntoQuery({
+				cql: CQL.insert(table, subset.filter(isString)),
+				values
+			}),
 			insertFromObj: (obj) => {
 				const subset = Object.keys(obj);
 				const values = Object.values(obj);
@@ -206,6 +206,10 @@ export const Table =
 					values
 				};
 			},
+			update: (subset, where) => (subsetValues, whereValues) => ({
+				cql: CQL.update(table, subset.filter(isString), where.filter(isString)),
+				values: subsetValues.concat(whereValues)
+			}),
 			selectAll: (subset) => {
 				const cql = subset === '*'
 					? CQL.selectAll(table, subset)

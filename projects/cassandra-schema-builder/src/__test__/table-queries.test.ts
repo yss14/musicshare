@@ -58,6 +58,35 @@ describe('insert', () => {
 	});
 });
 
+describe('update', () => {
+	const obj1: ITestTableDBResult = {
+		col_id: CTypes.TimeUuid.fromDate(new Date(), 1),
+		col_boolean: false,
+		col_string: 'teststring1'
+	};
+	const obj2: ITestTableDBResult = {
+		col_id: CTypes.TimeUuid.fromDate(new Date(), 2),
+		col_boolean: true,
+		col_string: 'teststring2'
+	};
+
+	test('update where', async () => {
+		const { database, testTable } = await setupTestEnv();
+		await database.query(testTable.insertFromObj(obj1));
+		await database.query(testTable.insertFromObj(obj2));
+
+		await database.query(testTable.update(
+			['col_boolean', 'col_string'], ['col_id'])([false, 'newstring'], [obj2.col_id]));
+
+		const dbResult = await database.query(testTable.selectAll('*'));
+
+		expect(dbResult.sort((lhs, rhs) => sortByTimeUUIDAsc(lhs.col_id, rhs.col_id))).toEqual([
+			{ ...obj1 },
+			{ ...obj2, col_boolean: false, col_string: 'newstring' },
+		]);
+	});
+});
+
 describe('select', () => {
 	const id1 = CTypes.TimeUuid.fromDate(new Date());
 	const id2 = CTypes.TimeUuid.fromDate(moment().add(2, 'seconds').toDate());

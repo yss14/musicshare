@@ -1,9 +1,10 @@
 import { ISongMetaDataSource, ExtractedSongMetaData } from "./song-meta-formats/ISongMetaDataSource";
 import { objectKeys } from "../object/object-keys";
 import { IFile } from "../../models/interfaces/IFile";
+import { ISongType } from "../../models/interfaces/SongType";
 
 export interface ISongMetaDataService {
-	analyse(file: IFile, audioBuffer: Buffer): Promise<ExtractedSongMetaData>;
+	analyse(file: IFile, audioBuffer: Buffer, songTypes: ISongType[]): Promise<ExtractedSongMetaData>;
 }
 
 export class SongMetaDataService implements ISongMetaDataService {
@@ -11,12 +12,12 @@ export class SongMetaDataService implements ISongMetaDataService {
 		private readonly metaDataSources: ISongMetaDataSource[]
 	) { }
 
-	public async analyse(file: IFile, audioBuffer: Buffer) {
+	public async analyse(file: IFile, audioBuffer: Buffer, songTypes: ISongType[]) {
 		let extractedMetaData: ExtractedSongMetaData = {};
 
 		for (const metaDataSource of this.metaDataSources) {
 			if (metaDataSource.isApplicableForFile(file)) {
-				const metaData = await metaDataSource.analyse(file, audioBuffer);
+				const metaData = await metaDataSource.analyse(file, audioBuffer, songTypes);
 
 				extractedMetaData = this.mergeMetaData(extractedMetaData, metaData);
 			}

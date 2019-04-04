@@ -1,3 +1,5 @@
+// tslint:disable-next-line:no-import-side-effect
+import "reflect-metadata";
 import { SongService } from "../../services/SongService";
 import { UserService } from "../../services/UserService";
 import { ShareService } from "../../services/ShareService";
@@ -12,6 +14,7 @@ import { SongUploadProcessingQueue } from "../../job-queues/SongUploadProcessing
 import { makeTestDatabase } from "cassandra-schema-builder";
 import { makeDatabaseSeed } from "../../database/seed";
 import { makeDatabaseSchemaWithSeed } from "../../database/schema/make-database-schema";
+import { SongTypeService } from "../../services/SongTypeService";
 
 interface SetupTestEnvArgs {
 	seedDatabase?: boolean;
@@ -26,15 +29,17 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 	const shareService = new ShareService(database);
 	const fileService = new FileServiceMock(() => undefined, () => 'http://someurl.de/file.mp3');
 	const songMetaDataService: ISongMetaDataService = { analyse: async () => ({}) };
-	const songUploadProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService);
+	const songTypeService = new SongTypeService(database);
+	const songUploadProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
 
 	Container.set('USER_SERVICE', userService);
 	Container.set('SHARE_SERVICE', shareService);
 	Container.set('SONG_SERVICE', songService);
 	Container.set('FILE_SERVICE', fileService);
+	Container.set('SONG_TYPE_SERVICE', songTypeService);
 
 	const seed = async (songService: SongService) => {
-		const seed = await makeDatabaseSeed(database, songService);
+		const seed = await makeDatabaseSeed({ database, songService, songTypeService });
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	}
 
@@ -48,5 +53,15 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 		await graphQLServer.createHttpServer({});
 	}
 
-	return { graphQLServer, database, cleanUp, fileService, shareService, userService, songService, songUploadProcessingQueue };
+	return {
+		graphQLServer,
+		database,
+		cleanUp,
+		fileService,
+		shareService,
+		userService,
+		songService,
+		songUploadProcessingQueue,
+		songTypeService
+	};
 }

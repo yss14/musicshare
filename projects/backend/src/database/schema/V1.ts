@@ -7,14 +7,14 @@ export namespace DatabaseV1 {
 		emails: { type: CSet(ColumnType.Varchar), nullable: false }
 	});
 
-	export const sharesByUser = TableSchema({
+	export const shares_by_user = TableSchema({
 		id: { type: ColumnType.TimeUUID, clusteringKey: true },
 		name: { type: ColumnType.Varchar, nullable: false },
 		user_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		is_library: { type: ColumnType.Boolean, nullable: false }
 	});
 
-	export const songByShare = TableSchema({
+	export const songs_by_shares = TableSchema({
 		id: { type: ColumnType.TimeUUID, clusteringKey: true },
 		title: { type: ColumnType.Varchar },
 		suffix: { type: ColumnType.Varchar },
@@ -32,5 +32,15 @@ export namespace DatabaseV1 {
 		share_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		requires_user_action: { type: ColumnType.Boolean, nullable: false },
 		file: { type: ColumnType.Varchar },
+	});
+
+	export const song_types = TableSchema({
+		name: { type: ColumnType.Varchar, clusteringKey: true },
+		group: { type: ColumnType.Varchar, clusteringKey: true },
+		has_artists: { type: ColumnType.Boolean, nullable: false },
+		alternative_names: { type: CSet(ColumnType.Varchar) },
+		share_id: { type: ColumnType.TimeUUID, partitionKey: true },
+		date_added: { type: ColumnType.Timestamp, nullable: false },
+		date_removed: { type: ColumnType.Timestamp },
 	});
 }

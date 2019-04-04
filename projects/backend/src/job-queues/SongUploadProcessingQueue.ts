@@ -6,6 +6,7 @@ import * as BetterQueue from 'better-queue';
 import bind from 'bind-decorator';
 import { TimeUUID } from '../types/TimeUUID';
 import { types as CTypes } from 'cassandra-driver';
+import { ISongTypeService } from '../services/SongTypeService';
 
 export interface ISongProcessingQueuePayload {
 	file: IFile;
@@ -32,7 +33,8 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 	constructor(
 		private readonly songService: ISongService,
 		private readonly fileService: FileService,
-		private readonly songMetaDataService: ISongMetaDataService
+		private readonly songMetaDataService: ISongMetaDataService,
+		private readonly songTypeService: ISongTypeService,
 	) {
 		this.jobQueue = new BetterQueue<ISongProcessingQueuePayload, string>(this.process);
 	}
@@ -57,11 +59,12 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 
 		try {
 			const audioBuffer = await this.fileService.getFileAsBuffer(uploadMeta.file.blob);
+			const songTypes = await this.songTypeService.getSongTypesForShare(uploadMeta.shareID);
 
-			const songMeta = await this.songMetaDataService.analyse(uploadMeta.file, audioBuffer);
+			const songMeta = await this.songMetaDataService.analyse(uploadMeta.file, audioBuffer, songTypes);
 
 			const song = await this.songService.create({
-				id: TimeUUID.now(),
+				id: TimeUUID(),
 				title: songMeta.title || uploadMeta.file.originalFilename,
 				suffix: songMeta.suffix || null,
 				year: songMeta.year,
@@ -75,7 +78,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 				type: songMeta.type || null,
 				genres: [...(songMeta.genres || [])],
 				label: songMeta.label || null,
-				share_id: TimeUUID.fromString(uploadMeta.shareID.toString()),
+				share_id: TimeUUID(uploadMeta.shareID.toString()),
 				requires_user_action: !songMeta.title || songMeta.title.trim().length === 0 || !songMeta.artists || songMeta.artists.length === 0,
 				file: JSON.stringify(uploadMeta.file)
 			});

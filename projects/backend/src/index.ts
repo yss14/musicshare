@@ -23,6 +23,7 @@ import { UserService } from "./services/UserService";
 import { ArtistExtractor } from "./utils/song-meta/song-meta-formats/id3/ArtistExtractor";
 import { DatabaseClient, CQL, Query } from "cassandra-schema-builder";
 import { Client, auth } from "cassandra-driver";
+import { SongTypeService } from "./services/SongTypeService";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -77,17 +78,19 @@ if (!isProductionEnvironment()) {
 	const songService = new SongService(database);
 	const shareService = new ShareService(database);
 	const userService = new UserService(database);
+	const songTypeService = new SongTypeService(database);
 	const artistExtractor = new ArtistExtractor();
 	const songMetaDataService = new SongMetaDataService([new ID3MetaData(artistExtractor)]);
-	const songProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService);
+	const songProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
 
 	Container.set('FILE_SERVICE', fileService);
 	Container.set('SONG_SERVICE', songService);
 	Container.set('SHARE_SERVICE', shareService);
 	Container.set('USER_SERVICE', userService);
+	Container.set('SONG_TYPE_SERVICE', songTypeService);
 
 	if (__DEV__) {
-		const seed = await makeDatabaseSeed(database, songService);
+		const seed = await makeDatabaseSeed({ database, songService, songTypeService });
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	} else if (__PROD__) {
 		await makeDatabaseSchema(database, { keySpace: databaseKeyspace });

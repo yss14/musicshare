@@ -119,6 +119,14 @@ export namespace CQL {
 		return cql;
 	}
 
+	export const update = (tableName: string, subset: string[], where: string[]) => {
+		const cql = `UPDATE ${tableName} `
+			+ `SET ${subset.map(col => `${col} = ?`).join(', ')} `
+			+ `WHERE ${where.map(col => `${col} = ?`).join(' AND ')};`
+
+		return cql;
+	}
+
 	export const selectAll = (tableName: string, subset: string[] | '*') => {
 		const cql = `SELECT ${subset === '*' ? '*' : subset.join(', ')} `
 			+ `FROM ${tableName};`;

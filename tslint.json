@@ -16,11 +16,6 @@
 		"no-irregular-whitespace": true,
 		"no-multi-spaces": true,
 		"class-name": true,
-		"variable-name": [
-			true,
-			"allow-leading-underscore",
-			"allow-pascal-case"
-		],
 		"no-unused-expression": true,
 		"no-floating-promises": true,
 		"no-constant-condition": true,

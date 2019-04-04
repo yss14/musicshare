@@ -13,6 +13,6 @@ export class SongServiceMock implements ISongService {
 	}
 
 	public async create(): Promise<string> {
-		return TimeUUID.fromDate(new Date()).toString();
+		return TimeUUID(new Date()).toString();
 	}
 }

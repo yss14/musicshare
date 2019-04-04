@@ -1,6 +1,6 @@
 import * as ID3Parser from 'id3-parser';
 import urlRegex = require('url-regex');
-import { songTypes, genres, ISongType } from '../../../../database/fixtures';
+import { genres } from '../../../../database/fixtures';
 import * as _ from 'lodash';
 import { tryParseInt } from '../../../try-parse/try-parse-int';
 import { ISongMetaDataSource, ExtractedSongMetaData } from '../ISongMetaDataSource';
@@ -8,6 +8,7 @@ import { IFile } from '../../../../models/interfaces/IFile';
 import { ArtistExtractor, IArtist, ArtistType } from './ArtistExtractor';
 import { IID3Tag } from 'id3-parser/lib/interface';
 import moment = require('moment');
+import { ISongType } from '../../../../models/interfaces/SongType';
 const similarity = require('similarity');
 
 export class ID3MetaData implements ISongMetaDataSource {
@@ -19,7 +20,7 @@ export class ID3MetaData implements ISongMetaDataSource {
 		return file.fileExtension.toLowerCase() === 'mp3';
 	}
 
-	public async analyse(file: IFile, audioBuffer: Buffer): Promise<ExtractedSongMetaData> {
+	public async analyse(file: IFile, audioBuffer: Buffer, songTypes: ISongType[]): Promise<ExtractedSongMetaData> {
 		const id3Tags = await ID3Parser.parse(audioBuffer);
 		const extractedMetaData: ExtractedSongMetaData = {
 			artists: [],

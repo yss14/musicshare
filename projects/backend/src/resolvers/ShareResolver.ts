@@ -1,18 +1,21 @@
-import { SongService } from '../services/SongService';
+import { ISongService } from '../services/SongService';
 import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
 import { Share } from "../models/ShareModel";
 import { Song } from "../models/SongModel";
-import { ShareService } from "../services/ShareService";
+import { IShareService } from "../services/ShareService";
 import { Inject } from 'typedi';
+import { ISongTypeService } from '../services/SongTypeService';
+import { SongType } from '../models/SongType';
 
 @Resolver(of => Share)
 export class ShareResolver {
 	constructor(
-		@Inject('SHARE_SERVICE') private readonly shareService: ShareService,
-		@Inject('SONG_SERVICE') private readonly songService: SongService,
+		@Inject('SHARE_SERVICE') private readonly shareService: IShareService,
+		@Inject('SONG_SERVICE') private readonly songService: ISongService,
+		@Inject('SONG_TYPE_SERVICE') private readonly songTypeService: ISongTypeService,
 	) { }
 
-	@Query(returns => Share, { nullable: true })
+	@Query(() => Share, { nullable: true })
 	public share(@Arg("id") id: string): Promise<Share | null> {
 		return this.shareService.getShareByID(id);
 	}
@@ -32,10 +35,19 @@ export class ShareResolver {
 	}
 
 	@FieldResolver()
-	public async song(
+	public song(
 		@Root() share: Share,
 		@Arg('id') id: string
 	): Promise<Song | null> {
-		return await this.songService.getByID(share.id, id);
+		return this.songService.getByID(share.id, id);
+	}
+
+	@FieldResolver(() => [SongType])
+	public async songTypes(
+		@Root() share: Share
+	): Promise<SongType[]> {
+		const songTypes = await this.songTypeService.getSongTypesForShare(share.id);
+
+		return songTypes;
 	}
 }

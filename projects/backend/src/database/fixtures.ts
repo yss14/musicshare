@@ -1,22 +1,18 @@
-export interface ISongType {
-	name: string;
-	hasArtists: boolean;
-	alternativeNames?: string[];
-}
+import { ISongType } from "../models/interfaces/SongType";
 
-export const songTypes: ISongType[] = [
-	{ name: 'Acapella', hasArtists: false },
-	{ name: 'Radio Edit', hasArtists: false },
-	{ name: 'Bootleg', hasArtists: true },
-	{ name: 'Club Mix', hasArtists: true },
-	{ name: 'Edit', hasArtists: true },
-	{ name: 'Extended Mix', hasArtists: true },
-	{ name: 'Instrumental Mix', hasArtists: true, alternativeNames: ['Instrumental'] },
-	{ name: 'MashUp', hasArtists: true },
-	{ name: 'Original Mix', hasArtists: false },
-	{ name: 'Remake', hasArtists: true },
-	{ name: 'Vocal Mix', hasArtists: false },
-	{ name: 'Remix', hasArtists: true, alternativeNames: ['Mix', 'Extended Remix'] },
+export const defaultSongTypes: ISongType[] = [
+	{ name: 'Acapella', hasArtists: false, group: 'Electronic Music' },
+	{ name: 'Radio Edit', hasArtists: false, group: 'Electronic Music' },
+	{ name: 'Bootleg', hasArtists: true, group: 'Electronic Music' },
+	{ name: 'Club Mix', hasArtists: true, group: 'Electronic Music' },
+	{ name: 'Edit', hasArtists: true, group: 'Electronic Music' },
+	{ name: 'Extended Mix', hasArtists: true, group: 'Electronic Music' },
+	{ name: 'Instrumental Mix', hasArtists: true, alternativeNames: ['Instrumental'], group: 'Electronic Music' },
+	{ name: 'MashUp', hasArtists: true, group: 'Electronic Music' },
+	{ name: 'Original Mix', hasArtists: false, group: 'Electronic Music' },
+	{ name: 'Remake', hasArtists: true, group: 'Electronic Music' },
+	{ name: 'Vocal Mix', hasArtists: false, group: 'Electronic Music' },
+	{ name: 'Remix', hasArtists: true, alternativeNames: ['Mix', 'Extended Remix'], group: 'Electronic Music' },
 ];
 
 export const genres: string[] = ['Big Room', 'Chillstep', 'Dance', 'Deep House', 'Drum & Bass', 'Dubstep',
