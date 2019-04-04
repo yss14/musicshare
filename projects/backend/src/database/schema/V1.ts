@@ -37,6 +37,8 @@ export namespace DatabaseV1 {
 	export const song_types = TableSchema({
 		name: { type: ColumnType.Varchar, clusteringKey: true },
 		group: { type: ColumnType.Varchar, clusteringKey: true },
+		has_artists: { type: ColumnType.Boolean, nullable: false },
+		alternative_names: { type: CSet(ColumnType.Varchar) },
 		share_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		date_added: { type: ColumnType.Timestamp, nullable: false },
 		date_removed: { type: ColumnType.Timestamp },

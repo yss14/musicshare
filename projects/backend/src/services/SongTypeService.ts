@@ -1,13 +1,16 @@
 import { IDatabaseClient } from "cassandra-schema-builder";
 import { SongTypesTable, ISongTypeDBResult } from "../database/schema/tables";
 import { TimeUUID } from "../types/TimeUUID";
+import { ISongType } from "../models/interfaces/SongType";
+import { SongType } from "../models/SongType";
+import { flatten } from 'lodash';
 
 export interface ISongTypeService {
-	getSongTypesForShare(shareID: string): Promise<string[]>;
-	getSongTypesForShares(shareIDs: string[]): Promise<string[]>;
+	getSongTypesForShare(shareID: string): Promise<SongType[]>;
+	getSongTypesForShares(shareIDs: string[]): Promise<SongType[]>;
 
-	addSongTypeToShare(shareID: string, name: string, group: string): Promise<void>;
-	removeSongTypeFromShare(shareID: string, name: string, group: string): Promise<void>;
+	addSongTypeToShare(shareID: string, songType: SongType): Promise<void>;
+	removeSongTypeFromShare(shareID: string, songType: SongType): Promise<void>;
 }
 
 const makeQueryWithShareID = (database: IDatabaseClient, shareID: string) =>
@@ -17,9 +20,7 @@ const makeInsertSongTypeQuery = (songTypeObj: ISongTypeDBResult) => SongTypesTab
 const makeDeleteSongTypeQuery = () =>
 	SongTypesTable.update(['date_removed'], ['share_id', 'name', 'group']);
 
-const filterNotRemovedAndMapName = (rows: ISongTypeDBResult[]) => rows
-	.filter(row => row.date_removed === null)
-	.map(row => row.name);
+const filterNotRemoved = (row: ISongTypeDBResult) => row.date_removed === null;
 
 export class SongTypeService implements ISongTypeService {
 	constructor(
@@ -29,28 +30,26 @@ export class SongTypeService implements ISongTypeService {
 	public async getSongTypesForShare(shareID: string) {
 		const dbResult = await makeQueryWithShareID(this.database, shareID);
 
-		return filterNotRemovedAndMapName(dbResult);
+		return dbResult
+			.filter(filterNotRemoved)
+			.map(SongType.fromDBResult);
 	}
 
 	public async getSongTypesForShares(shareIDs: string[]) {
 		const dbResults = await Promise.all(shareIDs.map(shareID => makeQueryWithShareID(this.database, shareID)));
 
-		return Array.from(
-			dbResults
-				.map(filterNotRemovedAndMapName)
-				.reduce((uniqueSongtypes, songtypes) => {
-					songtypes.forEach(songtype => uniqueSongtypes.add(songtype));
-
-					return uniqueSongtypes;
-				}, new Set<string>())
-		);
+		return flatten(dbResults)
+			.filter(filterNotRemoved)
+			.map(SongType.fromDBResult);
 	}
 
-	public async addSongTypeToShare(shareID: string, name: string, group: string) {
+	public async addSongTypeToShare(shareID: string, songType: ISongType) {
 		const insertQuery = makeInsertSongTypeQuery({
 			share_id: TimeUUID(shareID),
-			name,
-			group,
+			name: songType.name,
+			group: songType.group,
+			alternative_names: songType.alternativeNames || null,
+			has_artists: songType.hasArtists,
 			date_added: new Date(),
 			date_removed: null
 		});
@@ -58,7 +57,8 @@ export class SongTypeService implements ISongTypeService {
 		await this.database.query(insertQuery);
 	}
 
-	public async removeSongTypeFromShare(shareID: string, name: string, group: string) {
+	public async removeSongTypeFromShare(shareID: string, songType: ISongType) {
+		const { name, group } = songType;
 		const deleteQuery = makeDeleteSongTypeQuery()([new Date()], [TimeUUID(shareID), name, group]);
 
 		await this.database.query(deleteQuery);

@@ -1,15 +1,19 @@
+// tslint:disable-next-line:no-import-side-effect
+import "reflect-metadata";
 import { SongServiceMock } from "./mocks/SongServiceMock";
 import { FileServiceMock } from "./mocks/FileServiceMock";
 import { ISongMetaDataService } from "../utils/song-meta/SongMetaDataService";
 import { SongUploadProcessingQueue, ISongProcessingQueuePayload } from "../job-queues/SongUploadProcessingQueue";
 import { TimeUUID } from "../types/TimeUUID";
+import { SongTypeServiceMock } from "./mocks/SongTypeServiceMock";
 
 const setupTestEnv = () => {
 	const songService = new SongServiceMock();
 	const fileService = new FileServiceMock(() => undefined, () => '');
 	const songMetaDataService: ISongMetaDataService = { analyse: async () => ({}) };
+	const songTypeServiceMock = SongTypeServiceMock();
 
-	const songUploadProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService);
+	const songUploadProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeServiceMock);
 
 	return { songService, fileService, songMetaDataService, songUploadProcessingQueue };
 }

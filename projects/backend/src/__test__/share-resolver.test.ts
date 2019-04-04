@@ -7,8 +7,9 @@ import { Share } from "../models/ShareModel";
 import { Song } from "../models/SongModel";
 import { includesSong, compareSongs } from "./utils/compare-songs";
 import { TimeUUID } from "../types/TimeUUID";
+import { defaultSongTypes } from "../database/fixtures";
 
-const makeShareQuery = (id: string, songQuery: string = '') => {
+const makeShareQuery = (id: string, additionalQueries: string[] = []) => {
 	return `
 		query{
 			share(id: "${id}"){
@@ -16,7 +17,7 @@ const makeShareQuery = (id: string, songQuery: string = '') => {
 				name,
 				userID,
 				isLibrary,
-				${songQuery}
+				${additionalQueries.join(',\n')}
 			}
 		}
 	`;
@@ -57,6 +58,15 @@ const makeShareSongQuery = (id: string, props: string[] = []) => {
 		}
 	`;
 }
+
+const makeShareSongTypesQuery = () => `
+	songTypes{
+		name,
+		group,
+		hasArtists,
+		alternativeNames
+	}
+`;
 
 const TIMEOUT = 20000;
 
@@ -101,7 +111,7 @@ describe('get share songs', () => {
 		cleanupHooks.push(cleanUp);
 
 		const share = testData.shares.library_user1;
-		const query = makeShareQuery(share.id.toString(), makeShareSongsQuery());
+		const query = makeShareQuery(share.id.toString(), [makeShareSongsQuery()]);
 
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
 		const expectedSongs = [
@@ -118,7 +128,7 @@ describe('get share songs', () => {
 		cleanupHooks.push(cleanUp);
 
 		const share = testData.shares.library_user1;
-		const query = makeShareQuery(share.id.toString(), makeShareSongsQuery([1, 2]));
+		const query = makeShareQuery(share.id.toString(), [makeShareSongsQuery([1, 2])]);
 
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
 
@@ -138,7 +148,7 @@ describe('get share song', () => {
 
 		const share = testData.shares.library_user1;
 		const song = testData.songs.song2_library_user1;
-		const query = makeShareQuery(share.id.toString(), makeShareSongQuery(song.id.toString()));
+		const query = makeShareQuery(share.id.toString(), [makeShareSongQuery(song.id.toString())]);
 
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
 
@@ -151,7 +161,7 @@ describe('get share song', () => {
 
 		const shareID = testData.shares.library_user1.id.toString();
 		const songID = TimeUUID(new Date());
-		const query = makeShareQuery(shareID, makeShareSongQuery(songID.toString()));
+		const query = makeShareQuery(shareID, [makeShareSongQuery(songID.toString())]);
 
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
 
@@ -165,11 +175,25 @@ describe('get share song', () => {
 
 		const share = testData.shares.library_user1;
 		const song = testData.songs.song2_library_user1;
-		const query = makeShareQuery(share.id.toString(), makeShareSongQuery(song.id.toString(), ['accessUrl']));
+		const query = makeShareQuery(share.id.toString(), [makeShareSongQuery(song.id.toString(), ['accessUrl'])]);
 
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
 
 		expect(body.data.share.song).toBeDefined();
 		expect(body.data.share.song.accessUrl).toBeString();
 	}, TIMEOUT);
+});
+
+describe('get share related data', () => {
+	test('get share song types', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv();
+		cleanupHooks.push(cleanUp);
+
+		const shareID = testData.shares.library_user1.id.toString();
+		const query = makeShareQuery(shareID, [makeShareSongTypesQuery()]);
+
+		const { body } = await executeGraphQLQuery(graphQLServer, query);
+
+		expect(body.data.share.songTypes).toBeArrayOfSize(defaultSongTypes.length);
+	});
 });

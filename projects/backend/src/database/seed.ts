@@ -8,6 +8,9 @@ import { TimeUUID } from '../types/TimeUUID';
 import { types as CTypes } from 'cassandra-driver';
 import { IUsersDBResult, IShareByUserDBResult, ISongByShareDBResult, UsersTable, SharesByUserTable } from './schema/tables';
 import { IDatabaseClient } from 'cassandra-schema-builder';
+import { defaultSongTypes } from './fixtures';
+import { ISongTypeService } from '../services/SongTypeService';
+import { SongType } from '../models/SongType';
 
 type Users = 'user1' | 'user2';
 type Shares = 'library_user1' | 'library_user2' | 'some_shared_library';
@@ -123,7 +126,13 @@ export const testData: ITestDataSchema = {
 
 export type DatabaseSeed = () => Promise<void>;
 
-export const makeDatabaseSeed = (database: IDatabaseClient, songService: SongService): DatabaseSeed => async (): Promise<void> => {
+interface IMakeDatabaseSeedArgs {
+	database: IDatabaseClient;
+	songService: SongService;
+	songTypeService: ISongTypeService;
+}
+
+export const makeDatabaseSeed = ({ database, songService, songTypeService }: IMakeDatabaseSeedArgs): DatabaseSeed => async (): Promise<void> => {
 	// insert users for development and testing
 	if (!__PROD__) {
 		for (const user of Object.values(testData.users)) {
@@ -135,6 +144,9 @@ export const makeDatabaseSeed = (database: IDatabaseClient, songService: SongSer
 	if (!__PROD__) {
 		for (const shareByUser of Object.values(testData.shares)) {
 			await database.query(SharesByUserTable.insertFromObj(shareByUser));
+
+			await Promise.all(defaultSongTypes.map(songType =>
+				songTypeService.addSongTypeToShare(shareByUser.id.toString(), SongType.fromObject(songType))))
 		}
 	}
 
@@ -170,4 +182,6 @@ export const makeDatabaseSeed = (database: IDatabaseClient, songService: SongSer
 
 		await Promise.all(songInserts.map(s => songService.create(s)));
 	}
+
+
 }

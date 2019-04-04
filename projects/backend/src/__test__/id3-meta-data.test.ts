@@ -5,6 +5,7 @@ import { IFile } from '../models/interfaces/IFile';
 import { ISong } from '../models/interfaces/ISong';
 import { Nullable } from '../types/Nullable';
 import { id3Samples } from './assets/id3-samples';
+import { defaultSongTypes } from '../database/fixtures';
 
 jest.mock('id3-parser');
 
@@ -38,7 +39,7 @@ describe('filename is main source', () => {
 		const id3MetaData = new ID3MetaData(new ArtistExtractor(['Vintage & Morelli']));
 
 		const filename = 'Ilan Bluestone, Giuseppe de Luca - I Believe (Vintage & Morelli Extended Mix)';
-		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''));
+		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''), defaultSongTypes);
 
 		const expectedResult: Partial<Nullable<ISong>> = {
 			artists: ['Ilan Bluestone', 'Giuseppe de Luca'],
@@ -54,7 +55,7 @@ describe('filename is main source', () => {
 		const id3MetaData = new ID3MetaData(new ArtistExtractor(['Myon & Shane 54']));
 
 		const filename = '02 Keep Your Secrets (Myon & Shane 54 Summer Of Love Mix)';
-		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''));
+		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''), defaultSongTypes);
 
 		const expectedResult: Partial<Nullable<ISong>> = {
 			artists: [],
@@ -71,7 +72,7 @@ describe('filename is main source', () => {
 		const id3MetaData = new ID3MetaData(new ArtistExtractor(['EDX']));
 
 		const filename = 'The Avener, Adam Cohen - We Go Home (EDX\'s Paris at Night Remix)';
-		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''));
+		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''), defaultSongTypes);
 
 		const expectedResult: Partial<Nullable<ISong>> = {
 			artists: ['The Avener', 'Adam Cohen'],
@@ -88,7 +89,7 @@ describe('filename is main source', () => {
 		const id3MetaData = new ID3MetaData(new ArtistExtractor([]));
 
 		const filename = 'The Avener, Adam Cohen - We Go Home (EDX\'s Paris at Night Remix)';
-		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''));
+		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''), defaultSongTypes);
 
 		const expectedResult: Partial<Nullable<ISong>> = {
 			artists: ['The Avener', 'Adam Cohen'],
@@ -105,7 +106,7 @@ describe('filename is main source', () => {
 		const id3MetaData = new ID3MetaData(new ArtistExtractor(['Lilly Wood & The Prick']));
 
 		const filename = 'Lilly Wood & The Prick and Robin Schulz - Prayer In C (Stefan Dabruck Remix)';
-		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''));
+		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''), defaultSongTypes);
 
 		const expectedResult: Partial<Nullable<ISong>> = {
 			artists: ['Lilly Wood & The Prick', 'Robin Schulz'],
@@ -121,7 +122,7 @@ describe('filename is main source', () => {
 		const id3MetaData = new ID3MetaData(new ArtistExtractor([]));
 
 		const filename = 'Galantis - Runaway (U&I) (Kaskade Remix)';
-		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''));
+		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''), defaultSongTypes);
 
 		const expectedResult: Partial<Nullable<ISong>> = {
 			artists: ['Galantis'],
@@ -137,7 +138,7 @@ describe('filename is main source', () => {
 		const id3MetaData = new ID3MetaData(new ArtistExtractor([]));
 
 		const filename = 'Sander Van Doorn & MOTi - Lost (Extended Mix) (someurl.Net)';
-		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''));
+		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''), defaultSongTypes);
 
 		const expectedResult: Partial<Nullable<ISong>> = {
 			artists: ['Sander Van Doorn', 'MOTi'],
@@ -152,7 +153,7 @@ describe('filename is main source', () => {
 		const id3MetaData = new ID3MetaData(new ArtistExtractor([]));
 
 		const filename = 'Sultan + Shepard - Chasing (In The Night) (feat.';
-		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''));
+		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''), defaultSongTypes);
 
 		const expectedResult: Partial<Nullable<ISong>> = {
 			artists: ['Sultan + Shepard'],
@@ -168,7 +169,7 @@ describe('filename is main source', () => {
 		const id3MetaData = new ID3MetaData(new ArtistExtractor([]));
 
 		const filename = 'Sander Van Doorn & MOTi - Lost [Extended Mix]';
-		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''));
+		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''), defaultSongTypes);
 
 		const expectedResult: Partial<Nullable<ISong>> = {
 			artists: ['Sander Van Doorn', 'MOTi'],
@@ -183,7 +184,7 @@ describe('filename is main source', () => {
 		const id3MetaData = new ID3MetaData(new ArtistExtractor([]));
 
 		const filename = 'We Won\'t Be Alone (feat. Laura Brehm)';
-		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''));
+		const result = await id3MetaData.analyse(makeTestFile(filename), Buffer.from(''), defaultSongTypes);
 
 		const expectedResult: Partial<Nullable<ISong>> = {
 			artists: [],
@@ -203,7 +204,7 @@ describe('id3 meta data from real files', () => {
 
 			const id3MetaData = new ID3MetaData(new ArtistExtractor(testData.knownArtists || []));
 
-			const result = await id3MetaData.analyse(makeTestFile(testData.originalFilename), Buffer.from(''));
+			const result = await id3MetaData.analyse(makeTestFile(testData.originalFilename), Buffer.from(''), defaultSongTypes);
 
 			expect(result).toEqual(testData.expectedOutput);
 		});

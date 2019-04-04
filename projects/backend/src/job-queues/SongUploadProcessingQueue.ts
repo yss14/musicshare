@@ -6,6 +6,7 @@ import * as BetterQueue from 'better-queue';
 import bind from 'bind-decorator';
 import { TimeUUID } from '../types/TimeUUID';
 import { types as CTypes } from 'cassandra-driver';
+import { ISongTypeService } from '../services/SongTypeService';
 
 export interface ISongProcessingQueuePayload {
 	file: IFile;
@@ -32,7 +33,8 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 	constructor(
 		private readonly songService: ISongService,
 		private readonly fileService: FileService,
-		private readonly songMetaDataService: ISongMetaDataService
+		private readonly songMetaDataService: ISongMetaDataService,
+		private readonly songTypeService: ISongTypeService,
 	) {
 		this.jobQueue = new BetterQueue<ISongProcessingQueuePayload, string>(this.process);
 	}
@@ -57,8 +59,9 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 
 		try {
 			const audioBuffer = await this.fileService.getFileAsBuffer(uploadMeta.file.blob);
+			const songTypes = await this.songTypeService.getSongTypesForShare(uploadMeta.shareID);
 
-			const songMeta = await this.songMetaDataService.analyse(uploadMeta.file, audioBuffer);
+			const songMeta = await this.songMetaDataService.analyse(uploadMeta.file, audioBuffer, songTypes);
 
 			const song = await this.songService.create({
 				id: TimeUUID(),
