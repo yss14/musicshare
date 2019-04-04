@@ -33,21 +33,21 @@
 		"uuid": "^3.3.2"
 	},
 	"devDependencies": {
-		"@types/dotenv": "^6.1.0",
+		"@types/dotenv": "^6.1.1",
 		"@types/jest": "^24.0.9",
 		"@types/lodash": "^4.14.123",
-		"@types/node": "^11.12.0",
+		"@types/node": "^11.13.0",
 		"@types/uuid": "^3.4.4",
-		"codecov": "^3.2.0",
+		"codecov": "^3.3.0",
 		"concurrently": "^4.1.0",
-		"jest": "^24.5.0",
+		"jest": "^24.7.1",
 		"jest-extended": "^0.11.1",
 		"lerna": "^3.13.1",
-		"ts-jest": "^24.0.0",
+		"ts-jest": "^24.0.1",
 		"tsc-watch": "^2.1.2",
-		"tslint": "^5.14.0",
+		"tslint": "^5.15.0",
 		"tslint-clean-code": "^0.2.9",
 		"tslint-eslint-rules": "^5.4.0",
-		"typescript": "^3.3.3333"
+		"typescript": "^3.4.1"
 	}
 }
