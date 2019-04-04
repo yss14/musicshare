@@ -1,3 +1,5 @@
+// tslint:disable-next-line:no-import-side-effect
+import "reflect-metadata";
 import { SongService } from "../../services/SongService";
 import { UserService } from "../../services/UserService";
 import { ShareService } from "../../services/ShareService";
@@ -51,5 +53,15 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 		await graphQLServer.createHttpServer({});
 	}
 
-	return { graphQLServer, database, cleanUp, fileService, shareService, userService, songService, songUploadProcessingQueue };
+	return {
+		graphQLServer,
+		database,
+		cleanUp,
+		fileService,
+		shareService,
+		userService,
+		songService,
+		songUploadProcessingQueue,
+		songTypeService
+	};
 }

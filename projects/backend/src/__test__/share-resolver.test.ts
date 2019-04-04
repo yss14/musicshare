@@ -1,5 +1,3 @@
-// tslint:disable-next-line:no-import-side-effect
-import "reflect-metadata";
 import { setupTestEnv } from "./utils/setup-test-env";
 import { testData } from "../database/seed";
 import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";

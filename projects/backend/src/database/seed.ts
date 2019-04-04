@@ -182,6 +182,4 @@ export const makeDatabaseSeed = ({ database, songService, songTypeService }: IMa
 
 		await Promise.all(songInserts.map(s => songService.create(s)));
 	}
-
-
 }

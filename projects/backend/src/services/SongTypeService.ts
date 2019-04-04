@@ -1,7 +1,6 @@
 import { IDatabaseClient } from "cassandra-schema-builder";
 import { SongTypesTable, ISongTypeDBResult } from "../database/schema/tables";
 import { TimeUUID } from "../types/TimeUUID";
-import { ISongType } from "../models/interfaces/SongType";
 import { SongType } from "../models/SongType";
 import { flatten } from 'lodash';
 
@@ -43,12 +42,12 @@ export class SongTypeService implements ISongTypeService {
 			.map(SongType.fromDBResult);
 	}
 
-	public async addSongTypeToShare(shareID: string, songType: ISongType) {
+	public async addSongTypeToShare(shareID: string, songType: SongType) {
 		const insertQuery = makeInsertSongTypeQuery({
 			share_id: TimeUUID(shareID),
 			name: songType.name,
 			group: songType.group,
-			alternative_names: songType.alternativeNames || null,
+			alternative_names: songType.alternativeNames,
 			has_artists: songType.hasArtists,
 			date_added: new Date(),
 			date_removed: null
@@ -57,7 +56,7 @@ export class SongTypeService implements ISongTypeService {
 		await this.database.query(insertQuery);
 	}
 
-	public async removeSongTypeFromShare(shareID: string, songType: ISongType) {
+	public async removeSongTypeFromShare(shareID: string, songType: SongType) {
 		const { name, group } = songType;
 		const deleteQuery = makeDeleteSongTypeQuery()([new Date()], [TimeUUID(shareID), name, group]);
 
