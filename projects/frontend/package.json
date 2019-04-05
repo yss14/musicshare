@@ -27,7 +27,8 @@
 		"dev": "npm run start",
 		"build": "react-scripts build",
 		"test": "react-scripts test",
-		"verify": "tsc --noEmit --noUnusedLocals"
+		"verify": "tsc --noEmit --noUnusedLocals",
+		"lint": "eslint . --ext .js,.ts,.tsx,.jsx"
 	},
 	"devDependencies": {
 		"@types/howler": "^2.1.0",
@@ -39,7 +40,11 @@
 		"@types/react-router-dom": "^4.3.1",
 		"@types/react-router-redux": "^5.0.18",
 		"@types/redux-thunk": "^2.1.0",
-		"@types/styled-components": "^4.1.12"
+		"@types/styled-components": "^4.1.12",
+		"@typescript-eslint/eslint-plugin": "^1.6.0",
+		"@typescript-eslint/parser": "^1.6.0",
+		"eslint": "^5.16.0",
+		"eslint-plugin-react-hooks": "^1.6.0"
 	},
 	"eslintConfig": {
 		"extends": "react-app"
