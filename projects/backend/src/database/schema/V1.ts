@@ -34,11 +34,19 @@ export namespace DatabaseV1 {
 		file: { type: ColumnType.Varchar },
 	});
 
-	export const song_types = TableSchema({
+	export const song_types_by_share = TableSchema({
 		name: { type: ColumnType.Varchar, clusteringKey: true },
 		group: { type: ColumnType.Varchar, clusteringKey: true },
 		has_artists: { type: ColumnType.Boolean, nullable: false },
 		alternative_names: { type: CSet(ColumnType.Varchar) },
+		share_id: { type: ColumnType.TimeUUID, partitionKey: true },
+		date_added: { type: ColumnType.Timestamp, nullable: false },
+		date_removed: { type: ColumnType.Timestamp },
+	});
+
+	export const genres_by_share = TableSchema({
+		name: { type: ColumnType.Varchar, clusteringKey: true },
+		group: { type: ColumnType.Varchar, clusteringKey: true },
 		share_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		date_added: { type: ColumnType.Timestamp, nullable: false },
 		date_removed: { type: ColumnType.Timestamp },

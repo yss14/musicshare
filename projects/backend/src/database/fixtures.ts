@@ -1,4 +1,5 @@
 import { ISongType } from "../models/interfaces/SongType";
+import { IGenre } from "../models/interfaces/Genre";
 
 export const defaultSongTypes: ISongType[] = [
 	{ name: 'Acapella', hasArtists: false, group: 'Electronic Music' },
@@ -15,7 +16,9 @@ export const defaultSongTypes: ISongType[] = [
 	{ name: 'Remix', hasArtists: true, alternativeNames: ['Mix', 'Extended Remix'], group: 'Electronic Music' },
 ];
 
-export const genres: string[] = ['Big Room', 'Chillstep', 'Dance', 'Deep House', 'Drum & Bass', 'Dubstep',
+export const defaultGenres: IGenre[] = [
+	'Big Room', 'Chillstep', 'Dance', 'Deep House', 'Drum & Bass', 'Dubstep',
 	'Electro House', 'Electronica', 'Future Bass', 'Future House', 'Hard Techno', 'Hardstyle', 'House',
 	'Indie Dance', 'Minimal', 'Progressive House', 'Progressive Trance', 'Psy Trance', 'Tech House', 'Techno',
-	'Trance', 'Trap', 'Pop'];
+	'Trance', 'Trap', 'Pop'
+].map(name => ({ name, group: 'Electronic Music' }));
