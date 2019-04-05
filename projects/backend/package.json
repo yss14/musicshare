@@ -33,6 +33,7 @@
 		"@types/supertest": "^2.0.7",
 		"@types/url-regex": "^4.1.0",
 		"@types/ws": "^6.0.1",
+		"azurite": "^2.7.0",
 		"cross-env": "^5.2.0",
 		"find-free-port": "^2.0.0"
 	},
