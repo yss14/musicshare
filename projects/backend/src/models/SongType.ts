@@ -1,6 +1,6 @@
 import { ISongType } from "./interfaces/SongType";
 import { ObjectType, Field } from "type-graphql";
-import { ISongTypeDBResult } from "../database/schema/tables";
+import { ISongTypeByShareDBResult } from "../database/schema/tables";
 import { plainToClass } from "class-transformer";
 
 @ObjectType({ description: 'This represents a song song' })
@@ -17,7 +17,7 @@ export class SongType implements ISongType {
 	@Field(() => [String])
 	public readonly alternativeNames!: string[];
 
-	public static fromDBResult(dbResult: ISongTypeDBResult): SongType {
+	public static fromDBResult(dbResult: ISongTypeByShareDBResult): SongType {
 		return plainToClass(
 			SongType,
 			{

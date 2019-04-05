@@ -1,5 +1,5 @@
 import { IDatabaseClient } from "cassandra-schema-builder";
-import { SongTypesTable, ISongTypeDBResult } from "../database/schema/tables";
+import { SongTypesByShareTable, ISongTypeByShareDBResult } from "../database/schema/tables";
 import { TimeUUID } from "../types/TimeUUID";
 import { SongType } from "../models/SongType";
 import { flatten } from 'lodash';
@@ -13,13 +13,13 @@ export interface ISongTypeService {
 }
 
 const makeQueryWithShareID = (database: IDatabaseClient, shareID: string) =>
-	database.query(SongTypesTable.select('*', ['share_id'])([TimeUUID(shareID)]));
+	database.query(SongTypesByShareTable.select('*', ['share_id'])([TimeUUID(shareID)]));
 
-const makeInsertSongTypeQuery = (songTypeObj: ISongTypeDBResult) => SongTypesTable.insertFromObj(songTypeObj);
+const makeInsertSongTypeQuery = (songTypeObj: ISongTypeByShareDBResult) => SongTypesByShareTable.insertFromObj(songTypeObj);
 const makeDeleteSongTypeQuery = () =>
-	SongTypesTable.update(['date_removed'], ['share_id', 'name', 'group']);
+	SongTypesByShareTable.update(['date_removed'], ['share_id', 'name', 'group']);
 
-const filterNotRemoved = (row: ISongTypeDBResult) => row.date_removed === null;
+const filterNotRemoved = (row: ISongTypeByShareDBResult) => row.date_removed === null;
 
 export class SongTypeService implements ISongTypeService {
 	constructor(
