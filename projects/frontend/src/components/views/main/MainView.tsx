@@ -58,23 +58,24 @@ const MainViewHOC = () => {
 
 	const { history, match } = useReactRouter<IRouteShare>();
 	const [songFetched, setSongsFetched] = useState<boolean>(false);
+	const dispatch = useDispatch();
+	const { musicshareAPI } = useContext(APIContext);
 
-	const share = shares.find(share => share.id === match.params.shareID)
+	const share = shares.find(share => share.id === match.params.shareID);
+
+	useEffect(() => {
+		if (userID && share) {
+			dispatch(fetchSongs(musicshareAPI, share.id)).then(() => {
+				setSongsFetched(true);
+			});
+		}
+	}, [musicshareAPI, share, dispatch, userID]);
 
 	if (userID === null || !share) {
 		history.push('/404');
 
 		return null;
 	}
-
-	const dispatch = useDispatch();
-	const { musicshareAPI } = useContext(APIContext);
-
-	useEffect(() => {
-		dispatch(fetchSongs(musicshareAPI, share.id)).then(() => {
-			setSongsFetched(true);
-		});
-	}, []);
 
 	return songFetched ? <MainViewStyled shares={shares} userID={userID} share={share} /> : null;
 }

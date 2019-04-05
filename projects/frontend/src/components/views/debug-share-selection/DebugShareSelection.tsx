@@ -18,7 +18,7 @@ export const DebugShareSelection: React.FunctionComponent = () => {
 		dispatch(login(musicshareAPI, '', '')).then(userID => {
 			dispatch(fetchShares(musicshareAPI, userID));
 		});
-	}, []);
+	}, [musicshareAPI, dispatch]);
 
 	return (
 		<React.Fragment>

@@ -19,19 +19,21 @@ export const ShareProvider: React.FunctionComponent<{}> = ({ children }) => {
 
 	const { id: userID } = useUser();
 	const { musicshareAPI } = useAPIs();
+	const { history } = useRouter();
+
+	useEffect(() => {
+		if (userID) {
+			dispatch(fetchShares(musicshareAPI, userID)).then(() => {
+				setSharesFetched(true);
+			});
+		}
+	}, [musicshareAPI, userID, dispatch]);
 
 	if (!userID) {
-		const { history } = useRouter();
 		history.push('/');
 
 		return null;
 	}
-
-	useEffect(() => {
-		dispatch(fetchShares(musicshareAPI, userID)).then(() => {
-			setSharesFetched(true);
-		});
-	}, []);
 
 	return sharesFetched && children ? (<React.Fragment>{children}</React.Fragment>) : null;
 }

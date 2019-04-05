@@ -4,6 +4,9 @@
 		"tslint-react",
 		"tslint-config-prettier"
 	],
+	"plugins": [
+		"react-hooks"
+	],
 	"rules": {
 		"object-literal-shorthand": false,
 		"array-type": false,
@@ -12,7 +15,9 @@
 		"ordered-imports": false,
 		"object-literal-sort-keys": false,
 		"member-ordering": false,
-		"jsx-no-lambda": false
+		"jsx-no-lambda": false,
+		"react-hooks/rules-of-hooks": "error",
+		"react-hooks/exhaustive-deps": "warn"
 	},
 	"linterOptions": {
 		"exclude": [
