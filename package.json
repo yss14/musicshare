@@ -7,6 +7,7 @@
 		"start:backend": "lerna run start --stream --scope @musicshare/backend",
 		"start:frontend": "lerna run start --stream --scope @musicshare/frontend",
 		"dev": "npm run build:cassandra-schema-builder && lerna run dev --stream --parallel",
+		"dev:backend": "npm run build:cassandra-schema-builder && lerna run dev --stream --scope @musicshare/backend",
 		"bootstrap": "lerna bootstrap",
 		"build": "lerna run build --stream",
 		"build:backend": "lerna run build --stream --scope @musicshare/backend",
