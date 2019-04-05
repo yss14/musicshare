@@ -20,4 +20,14 @@ export class Genre implements IGenre {
 			}
 		);
 	}
+
+	public static fromObject(obj: IGenre): Genre {
+		return plainToClass(
+			Genre,
+			{
+				name: obj.name,
+				group: obj.group,
+			}
+		);
+	}
 }

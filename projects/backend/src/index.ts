@@ -93,7 +93,7 @@ if (!isProductionEnvironment()) {
 	Container.set('GENRE_SERVICE', genreService);
 
 	if (__DEV__) {
-		const seed = await makeDatabaseSeed({ database, songService, songTypeService });
+		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService });
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	} else if (__PROD__) {
 		await makeDatabaseSchema(database, { keySpace: databaseKeyspace });

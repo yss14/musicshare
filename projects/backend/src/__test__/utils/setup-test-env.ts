@@ -42,7 +42,7 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 	Container.set('GENRE_SERVICE', genreService);
 
 	const seed = async (songService: SongService) => {
-		const seed = await makeDatabaseSeed({ database, songService, songTypeService });
+		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService });
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	}
 
@@ -65,6 +65,7 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 		userService,
 		songService,
 		songUploadProcessingQueue,
-		songTypeService
+		songTypeService,
+		genreService,
 	};
 }
