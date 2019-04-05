@@ -24,6 +24,7 @@ import { ArtistExtractor } from "./utils/song-meta/song-meta-formats/id3/ArtistE
 import { DatabaseClient, CQL, Query } from "cassandra-schema-builder";
 import { Client, auth } from "cassandra-driver";
 import { SongTypeService } from "./services/SongTypeService";
+import { GenreService } from "./services/GenreService";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -79,6 +80,7 @@ if (!isProductionEnvironment()) {
 	const shareService = new ShareService(database);
 	const userService = new UserService(database);
 	const songTypeService = new SongTypeService(database);
+	const genreService = new GenreService(database);
 	const artistExtractor = new ArtistExtractor();
 	const songMetaDataService = new SongMetaDataService([new ID3MetaData(artistExtractor)]);
 	const songProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
@@ -88,6 +90,7 @@ if (!isProductionEnvironment()) {
 	Container.set('SHARE_SERVICE', shareService);
 	Container.set('USER_SERVICE', userService);
 	Container.set('SONG_TYPE_SERVICE', songTypeService);
+	Container.set('GENRE_SERVICE', genreService);
 
 	if (__DEV__) {
 		const seed = await makeDatabaseSeed({ database, songService, songTypeService });
