@@ -47,7 +47,9 @@
 		"tsc-watch": "^2.1.2",
 		"tslint": "^5.15.0",
 		"tslint-clean-code": "^0.2.9",
+		"tslint-config-prettier": "^1.18.0",
 		"tslint-eslint-rules": "^5.4.0",
+		"tslint-react": "^4.0.0",
 		"typescript": "^3.4.1"
 	}
 }
