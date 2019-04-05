@@ -15,6 +15,7 @@ import { makeTestDatabase } from "cassandra-schema-builder";
 import { makeDatabaseSeed } from "../../database/seed";
 import { makeDatabaseSchemaWithSeed } from "../../database/schema/make-database-schema";
 import { SongTypeService } from "../../services/SongTypeService";
+import { GenreService } from "../../services/GenreService";
 
 interface SetupTestEnvArgs {
 	seedDatabase?: boolean;
@@ -30,6 +31,7 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 	const fileService = new FileServiceMock(() => undefined, () => 'http://someurl.de/file.mp3');
 	const songMetaDataService: ISongMetaDataService = { analyse: async () => ({}) };
 	const songTypeService = new SongTypeService(database);
+	const genreService = new GenreService(database);
 	const songUploadProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
 
 	Container.set('USER_SERVICE', userService);
@@ -37,9 +39,10 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 	Container.set('SONG_SERVICE', songService);
 	Container.set('FILE_SERVICE', fileService);
 	Container.set('SONG_TYPE_SERVICE', songTypeService);
+	Container.set('GENRE_SERVICE', genreService);
 
 	const seed = async (songService: SongService) => {
-		const seed = await makeDatabaseSeed({ database, songService, songTypeService });
+		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService });
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	}
 
@@ -62,6 +65,7 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 		userService,
 		songService,
 		songUploadProcessingQueue,
-		songTypeService
+		songTypeService,
+		genreService,
 	};
 }

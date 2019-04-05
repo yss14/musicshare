@@ -1,6 +1,6 @@
 import * as ID3Parser from 'id3-parser';
 import urlRegex = require('url-regex');
-import { genres } from '../../../../database/fixtures';
+import { defaultGenres } from '../../../../database/fixtures';
 import * as _ from 'lodash';
 import { tryParseInt } from '../../../try-parse/try-parse-int';
 import { ISongMetaDataSource, ExtractedSongMetaData } from '../ISongMetaDataSource';
@@ -166,15 +166,17 @@ export class ID3MetaData implements ISongMetaDataSource {
 				}
 
 				//Genre
+				const genreNames = defaultGenres.map(defaultGenre => defaultGenre.name);
+
 				if (id3Tags.genre !== undefined) {
-					if (genres.indexOf(id3Tags.genre) > -1) {
+					if (genreNames.indexOf(id3Tags.genre) > -1) {
 						extractedMetaData.genres!.push(id3Tags.genre);
 					} else {
 						//Similarity test
 						let bestScore = 0;
 						let _genre = '';
 
-						genres.forEach(genre => {
+						genreNames.forEach(genre => {
 							const sim = similarity(id3Tags.genre, genre)
 							if (sim > bestScore) {
 								bestScore = sim;

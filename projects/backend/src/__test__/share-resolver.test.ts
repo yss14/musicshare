@@ -5,7 +5,7 @@ import { Share } from "../models/ShareModel";
 import { Song } from "../models/SongModel";
 import { includesSong, compareSongs } from "./utils/compare-songs";
 import { TimeUUID } from "../types/TimeUUID";
-import { defaultSongTypes } from "../database/fixtures";
+import { defaultSongTypes, defaultGenres } from "../database/fixtures";
 
 const makeShareQuery = (id: string, additionalQueries: string[] = []) => {
 	return `
@@ -66,13 +66,18 @@ const makeShareSongTypesQuery = () => `
 	}
 `;
 
-const TIMEOUT = 20000;
+const makeShareGenresQuery = () => `
+	genres{
+		name,
+		group
+	}
+`;
 
 const cleanupHooks: (() => Promise<void>)[] = [];
 
 afterAll(async () => {
 	await Promise.all(cleanupHooks.map(hook => hook()));
-}, TIMEOUT);
+});
 
 describe('get share by id', () => {
 	test('get share by id', async () => {
@@ -85,7 +90,7 @@ describe('get share by id', () => {
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
 
 		expect(body).toEqual(makeGraphQLResponse({ share: Share.fromDBResult(share) }));
-	}, TIMEOUT);
+	});
 
 	test('get share by id not existing', async () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv();
@@ -100,7 +105,7 @@ describe('get share by id', () => {
 			{ share: null },
 			[{ message: `Share with id ${shareID} not found` }]
 		));
-	}, TIMEOUT);
+	});
 });
 
 describe('get share songs', () => {
@@ -119,7 +124,7 @@ describe('get share songs', () => {
 		].map(Song.fromDBResult);
 
 		expectedSongs.forEach(expectedSong => includesSong(body.data.share.songs, expectedSong));
-	}, TIMEOUT);
+	});
 
 	test('get all songs of share with range query', async () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv();
@@ -136,7 +141,7 @@ describe('get share songs', () => {
 		].map(Song.fromDBResult);
 
 		expectedSongs.forEach(expectedSong => includesSong(body.data.share.songs, expectedSong));
-	}, TIMEOUT);
+	});
 });
 
 describe('get share song', () => {
@@ -151,7 +156,7 @@ describe('get share song', () => {
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
 
 		compareSongs(Song.fromDBResult(song), body.data.share.song);
-	}, TIMEOUT);
+	});
 
 	test('get share song by id not existing', async () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv();
@@ -165,7 +170,7 @@ describe('get share song', () => {
 
 		expect(body.data.share.song).toBe(null);
 		expect(body.errors).toMatchObject([{ message: `Song with id ${songID} not found in share ${shareID}` }])
-	}, TIMEOUT);
+	});
 
 	test('get share song by id with access url', async () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv();
@@ -179,7 +184,7 @@ describe('get share song', () => {
 
 		expect(body.data.share.song).toBeDefined();
 		expect(body.data.share.song.accessUrl).toBeString();
-	}, TIMEOUT);
+	});
 });
 
 describe('get share related data', () => {
@@ -193,5 +198,17 @@ describe('get share related data', () => {
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
 
 		expect(body.data.share.songTypes).toBeArrayOfSize(defaultSongTypes.length);
+	});
+
+	test('get share genres', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv();
+		cleanupHooks.push(cleanUp);
+
+		const shareID = testData.shares.library_user1.id.toString();
+		const query = makeShareQuery(shareID, [makeShareGenresQuery()]);
+
+		const { body } = await executeGraphQLQuery(graphQLServer, query);
+
+		expect(body.data.share.genres).toBeArrayOfSize(defaultGenres.length);
 	});
 });
