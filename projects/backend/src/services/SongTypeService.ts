@@ -12,7 +12,7 @@ export interface ISongTypeService {
 	removeSongTypeFromShare(shareID: string, songType: SongType): Promise<void>;
 }
 
-const makeQueryWithShareID = (database: IDatabaseClient, shareID: string) =>
+const selectQueryWithShareID = (database: IDatabaseClient, shareID: string) =>
 	database.query(SongTypesByShareTable.select('*', ['share_id'])([TimeUUID(shareID)]));
 
 const makeInsertSongTypeQuery = (songTypeObj: ISongTypeByShareDBResult) => SongTypesByShareTable.insertFromObj(songTypeObj);
@@ -27,7 +27,7 @@ export class SongTypeService implements ISongTypeService {
 	) { }
 
 	public async getSongTypesForShare(shareID: string) {
-		const dbResult = await makeQueryWithShareID(this.database, shareID);
+		const dbResult = await selectQueryWithShareID(this.database, shareID);
 
 		return dbResult
 			.filter(filterNotRemoved)
@@ -35,7 +35,7 @@ export class SongTypeService implements ISongTypeService {
 	}
 
 	public async getSongTypesForShares(shareIDs: string[]) {
-		const dbResults = await Promise.all(shareIDs.map(shareID => makeQueryWithShareID(this.database, shareID)));
+		const dbResults = await Promise.all(shareIDs.map(shareID => selectQueryWithShareID(this.database, shareID)));
 
 		return flatten(dbResults)
 			.filter(filterNotRemoved)
