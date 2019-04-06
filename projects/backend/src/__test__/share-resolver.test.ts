@@ -6,6 +6,7 @@ import { Song } from "../models/SongModel";
 import { includesSong, compareSongs } from "./utils/compare-songs";
 import { TimeUUID } from "../types/TimeUUID";
 import { defaultSongTypes, defaultGenres } from "../database/fixtures";
+import { Artist } from "../models/ArtistModel";
 
 const makeShareQuery = (id: string, additionalQueries: string[] = []) => {
 	return `
@@ -70,6 +71,12 @@ const makeShareGenresQuery = () => `
 	genres{
 		name,
 		group
+	}
+`;
+
+const makeShareArtistsQuery = () => `
+	artists{
+		name
 	}
 `;
 
@@ -210,5 +217,24 @@ describe('get share related data', () => {
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
 
 		expect(body.data.share.genres).toBeArrayOfSize(defaultGenres.length);
+	});
+
+	test('get share artists', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv();
+		cleanupHooks.push(cleanUp);
+
+		const shareID = testData.shares.library_user1.id.toString();
+		const query = makeShareQuery(shareID, [makeShareArtistsQuery()]);
+
+		const { body } = await executeGraphQLQuery(graphQLServer, query);
+
+		expect(body.data.share.artists).toIncludeAllMembers([
+			'Oliver Smith',
+			'Natalie Holmes',
+			'Kink',
+			'Dusky',
+			'Rue',
+			'Alastor'
+		].map(Artist.fromString));
 	});
 });
