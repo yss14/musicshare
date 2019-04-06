@@ -13,7 +13,7 @@ export class SongNotFoundError extends Error {
 
 export interface ISongService {
 	getByID(shareID: string, songID: string): Promise<Song>;
-	getByShare(share: Share): Promise<Song[]>;
+	getByShare(shareID: string): Promise<Song[]>;
 	create(song: ISongByShareDBResult): Promise<string>;
 }
 
@@ -36,9 +36,9 @@ export class SongService implements ISongService {
 
 	}
 
-	public async getByShare(share: Share): Promise<Song[]> {
+	public async getByShare(shareID: string): Promise<Song[]> {
 		const dbResults = await this.database.query(
-			SongsByShareTable.select('*', ['share_id'])([TimeUUID(share.id)])
+			SongsByShareTable.select('*', ['share_id'])([TimeUUID(shareID)])
 		);
 
 		return dbResults
