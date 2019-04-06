@@ -29,7 +29,7 @@ export class ShareResolver {
 		@Arg('from', { nullable: true }) from?: number,
 		@Arg('take', { nullable: true }) take?: number
 	): Promise<Song[]> {
-		const songs = await this.songService.getByShare(share);
+		const songs = await this.songService.getByShare(share.id);
 
 		const startIdx = (from || 1) - 1;
 		const endIdx = (take || songs.length) - 1;
