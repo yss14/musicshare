@@ -28,9 +28,9 @@ export class ArtistService implements IArtistService {
 	private fromSongArray(songs: Song[]): Artist[] {
 		const uniqueArtists = songs
 			.reduce((artistsSet: Set<string>, song) => {
-				song.artists.forEach(artistsSet.add);
-				song.remixer.forEach(artistsSet.add);
-				song.featurings.forEach(artistsSet.add);
+				song.artists.forEach(artist => artistsSet.add(artist));
+				song.remixer.forEach(remixer => artistsSet.add(remixer));
+				song.featurings.forEach(featuring => artistsSet.add(featuring));
 
 				return artistsSet;
 			}, new Set<string>());

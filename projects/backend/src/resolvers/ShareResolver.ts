@@ -8,6 +8,8 @@ import { ISongTypeService } from '../services/SongTypeService';
 import { SongType } from '../models/SongType';
 import { Genre } from '../models/GenreModel';
 import { IGenreService } from '../services/GenreService';
+import { IArtistService } from '../services/ArtistService';
+import { Artist } from '../models/ArtistModel';
 
 @Resolver(of => Share)
 export class ShareResolver {
@@ -16,6 +18,7 @@ export class ShareResolver {
 		@Inject('SONG_SERVICE') private readonly songService: ISongService,
 		@Inject('SONG_TYPE_SERVICE') private readonly songTypeService: ISongTypeService,
 		@Inject('GENRE_SERVICE') private readonly genreService: IGenreService,
+		@Inject('ARTIST_SERVICE') private readonly artistService: IArtistService,
 	) { }
 
 	@Query(() => Share, { nullable: true })
@@ -61,5 +64,14 @@ export class ShareResolver {
 		const genres = await this.genreService.getGenresForShare(share.id);
 
 		return genres;
+	}
+
+	@FieldResolver(() => [Artist])
+	public async artists(
+		@Root() share: Share
+	): Promise<Artist[]> {
+		const artists = await this.artistService.getArtistsForShare(share.id);
+
+		return artists;
 	}
 }
