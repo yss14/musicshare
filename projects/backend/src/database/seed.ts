@@ -16,7 +16,7 @@ import { Genre } from '../models/GenreModel';
 
 type Users = 'user1' | 'user2';
 type Shares = 'library_user1' | 'library_user2' | 'some_shared_library';
-type Songs = 'song1_library_user1' | 'song2_library_user1' | 'song3_library_user1';
+type Songs = 'song1_library_user1' | 'song2_library_user1' | 'song3_library_user1' | 'song1_some_shared_library';
 
 interface ITestDataSchema {
 	users: { [P in Users]: Required<IUsersDBResult>; };
@@ -120,6 +120,25 @@ export const testData: ITestDataSchema = {
 			genres: ['Progressive House'],
 			label: 'Anjunadeep',
 			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
+			requires_user_action: false,
+			file: JSON.stringify(makeFileObject('songs', 'contact', 'contact_rue_alastor', 'mp3'))
+		},
+		song1_some_shared_library: {
+			id: TimeUUID(moment().subtract(2, 'hour').toDate()),
+			title: 'Contact',
+			suffix: null,
+			year: 2019,
+			bpm: 125,
+			date_last_edit: new Date(),
+			release_date: null,
+			is_rip: false,
+			artists: ['Rue', 'Alastor'],
+			remixer: ['Marsh'],
+			featurings: [],
+			type: 'Remix',
+			genres: ['Progressive House'],
+			label: 'Anjunadeep',
+			share_id: TimeUUID('f0d359e0-aeb1-11e8-a117-43673ffd376b'),
 			requires_user_action: false,
 			file: JSON.stringify(makeFileObject('songs', 'contact', 'contact_rue_alastor', 'mp3'))
 		}

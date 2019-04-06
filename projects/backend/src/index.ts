@@ -25,6 +25,7 @@ import { DatabaseClient, CQL, Query } from "cassandra-schema-builder";
 import { Client, auth } from "cassandra-driver";
 import { SongTypeService } from "./services/SongTypeService";
 import { GenreService } from "./services/GenreService";
+import { ArtistService } from "./services/ArtistService";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -81,6 +82,7 @@ if (!isProductionEnvironment()) {
 	const userService = new UserService(database);
 	const songTypeService = new SongTypeService(database);
 	const genreService = new GenreService(database);
+	const artistService = new ArtistService(songService);
 	const artistExtractor = new ArtistExtractor();
 	const songMetaDataService = new SongMetaDataService([new ID3MetaData(artistExtractor)]);
 	const songProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
@@ -91,6 +93,7 @@ if (!isProductionEnvironment()) {
 	Container.set('USER_SERVICE', userService);
 	Container.set('SONG_TYPE_SERVICE', songTypeService);
 	Container.set('GENRE_SERVICE', genreService);
+	Container.set('ARTIST_SERVICE', artistService);
 
 	if (__DEV__) {
 		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService });
