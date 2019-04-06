@@ -20,7 +20,7 @@ export class ArtistService implements IArtistService {
 	}
 
 	public async getArtistsForShares(shareIDs: string[]) {
-		const shareSongs = await Promise.all(shareIDs.map(this.songService.getByShare));
+		const shareSongs = await Promise.all(shareIDs.map((shareID) => this.songService.getByShare(shareID)));
 
 		return this.fromSongArray(flatten(shareSongs));
 	}

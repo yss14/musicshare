@@ -70,5 +70,6 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 		songUploadProcessingQueue,
 		songTypeService,
 		genreService,
+		artistService,
 	};
 }
