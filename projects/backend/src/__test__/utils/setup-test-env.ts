@@ -16,6 +16,7 @@ import { makeDatabaseSeed } from "../../database/seed";
 import { makeDatabaseSchemaWithSeed } from "../../database/schema/make-database-schema";
 import { SongTypeService } from "../../services/SongTypeService";
 import { GenreService } from "../../services/GenreService";
+import { ArtistService } from "../../services/ArtistService";
 
 interface SetupTestEnvArgs {
 	seedDatabase?: boolean;
@@ -31,6 +32,7 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 	const fileService = new FileServiceMock(() => undefined, () => 'http://someurl.de/file.mp3');
 	const songMetaDataService: ISongMetaDataService = { analyse: async () => ({}) };
 	const songTypeService = new SongTypeService(database);
+	const artistService = new ArtistService(songService);
 	const genreService = new GenreService(database);
 	const songUploadProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
 
@@ -40,6 +42,7 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 	Container.set('FILE_SERVICE', fileService);
 	Container.set('SONG_TYPE_SERVICE', songTypeService);
 	Container.set('GENRE_SERVICE', genreService);
+	Container.set('ARTIST_SERVICE', artistService);
 
 	const seed = async (songService: SongService) => {
 		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService });
@@ -67,5 +70,6 @@ export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvAr
 		songUploadProcessingQueue,
 		songTypeService,
 		genreService,
+		artistService,
 	};
 }
