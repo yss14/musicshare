@@ -3,6 +3,7 @@
 	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
+		"antd": "^3.16.1",
 		"color-lerp": "^1.0.5",
 		"howler": "^2.1.1",
 		"js-sha256": "^0.9.0",

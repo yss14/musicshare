@@ -1,50 +1,40 @@
-import * as React from 'react';
-import styled from 'styled-components';
-import { IStyledComponentProps } from '../../types/props/StyledComponent.props';
+import * as React from "react";
+import styled from "styled-components";
+import { IStyledComponentProps } from "../../types/props/StyledComponent.props";
 
-import imgControlPlay from '../../images/player/control_play.png';
-import imgControlPause from '../../images/player/control_pause.png';
-import imgControlPrev from '../../images/player/control_go_back.png';
-import imgControlNext from '../../images/player/control_go_forward.png';
+import { Button, Icon } from "antd";
 
-const Button = styled.div`
-	height: 100%;
-	width: 40px;
-	background-size: 30px;
-	background-repeat: no-repeat;
-	background-position: center;
-	cursor: pointer;
-	display: inline-block;
+const ButtonGroup = Button.Group;
+
+const StyledBtnGrp = styled(ButtonGroup)`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0px 20px;
 `;
 
 interface IPlayerControlsProps extends IStyledComponentProps {
-	isPlaying: boolean;
-	onClickPlayPause: () => void;
-	onClickNext: () => void;
-	onClickPrev: () => void;
+  isPlaying: boolean;
+  onClickPlayPause: () => void;
+  onClickNext: () => void;
+  onClickPrev: () => void;
 }
 
-const PlayerControlsComponent: React.StatelessComponent<IPlayerControlsProps> = (props) => (
-	<div className={props.className}>
-		<Button
-			style={{ backgroundImage: `url(${imgControlPrev})` }}
-			onClick={props.onClickPrev}
-		/>
-		<Button
-			style={{ backgroundImage: `url(${props.isPlaying ? imgControlPause : imgControlPlay})` }}
-			onClick={props.onClickPlayPause}
-		/>
-		<Button
-			style={{ backgroundImage: `url(${imgControlNext})` }}
-			onClick={props.onClickNext}
-		/>
-	</div>
+const PlayerControlsComponent: React.StatelessComponent<
+  IPlayerControlsProps
+> = props => (
+  <StyledBtnGrp style={{ display: "flex" }}>
+    <Button>
+      <Icon type="backward" theme="filled" />
+    </Button>
+    <Button>
+      <Icon type="play-circle" theme="filled" />
+    </Button>
+    <Button>
+      <Icon type="forward" theme="filled" />
+    </Button>
+  </StyledBtnGrp>
 );
 
-const PlayerControlsStyled = styled(PlayerControlsComponent)`
-	height: 100%;
-	padding: 5px;
-	width: 160px;
-`;
-
-export const PlayerControls = PlayerControlsStyled;
+export const PlayerControls = PlayerControlsComponent;
