@@ -1,63 +1,75 @@
-import * as React from 'react';
-import { createReduxStore } from './redux/create-store';
-import { Provider } from 'react-redux';
-import { Router, Route, Switch } from 'react-router-dom';
-import { createGlobalStyle } from 'styled-components';
-import { createBrowserHistory } from 'history';
-import { NotFoundView } from './components/views/not-found/NotFound';
-import { DebugShareSelection } from './components/views/debug-share-selection/DebugShareSelection';
-import { makeAPIContext, makeAPIContextValue } from './context/APIContext';
-import { makeConfigFromEnv } from './types/other/config';
-import { makeAPIs } from './apis/make-apis';
-import { StoreContext } from './redux/custom-store-hooks';
-import { ShareView } from './components/views/main/ShareView';
-import { persistUser } from './redux/persist-user';
+import React, { Component } from "react";
+import { ApolloProvider } from "react-apollo";
+import { ApolloClient } from "apollo-client";
+import { InMemoryCache } from "apollo-cache-inmemory";
+import { HttpLink } from "apollo-link-http";
+import { onError } from "apollo-link-error";
+import { ApolloLink } from "apollo-link";
+import { resolvers } from "./resolvers";
+import "./antd.css";
 
-const GlobalStyle = createGlobalStyle`
-	html, body, #root {
-		margin: 0px;
-		padding: 0px;
-		width: 100%;
-		height: 100%;
-	}
-
-	* { 
-		box-sizing: border-box;
-		font-family: 'Open Sans';
-	}
-`;
-
-const history = createBrowserHistory();
-const store = createReduxStore(history);
-
-persistUser(store);
+import { makeConfigFromEnv } from "./config";
+import Shares from "./pages/shares/Shares";
+import gql from "graphql-tag";
 
 const config = makeConfigFromEnv();
-const apis = makeAPIs(config);
-const APIContext = makeAPIContext(apis);
 
-export const Root = () => (
-	<Provider store={store}>
-		<StoreContext.Provider value={store}>
-			<APIContext.Provider value={makeAPIContextValue(apis)}>
-				<GlobalStyle />
-				<Router history={history}>
-					<Route path="/" component={App} />
-				</Router>
-			</APIContext.Provider>
-		</StoreContext.Provider>
-	</Provider>
-);
+//Client side schema - only "needed" for testing with Apollo DevTools chrome Extension
+const typeDefs = gql`
+  extend type Query {
+    todos: [any]!
+    visibilityFilter: string!
+  }
 
-const Login: React.StatelessComponent = () => (
-	<h1>Login</h1>
-);
+  extend type Mutation {
+    toggleTodo(id: ID!): any
+    updateVisibilityFilter(visibilityFilter: string!): any
+  }
+`;
 
-const App = () => (
-	<Switch>
-		<Route path="/" exact component={DebugShareSelection} />
-		<Route path="/login" component={Login} />
-		<Route path="/shares/" component={ShareView} />
-		<Route component={NotFoundView} />
-	</Switch>
-);
+const cache = new InMemoryCache();
+const client = new ApolloClient({
+  link: ApolloLink.from([
+    onError(({ graphQLErrors, networkError }) => {
+      if (graphQLErrors)
+        graphQLErrors.map(({ message, locations, path }) =>
+          console.log(
+            `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+          )
+        );
+      if (networkError) console.log(`[Network error]: ${networkError}`);
+    }),
+    new HttpLink({
+      uri: config.services.musicshare.backendURL
+    })
+  ]),
+  cache,
+  typeDefs,
+  resolvers
+});
+
+//initial cache data
+const data = {
+  todos: [],
+  visibilityFilter: "SHOW_ALL",
+  networkStatus: {
+    __typename: "NetworkStatus",
+    isConnected: false
+  }
+};
+
+cache.writeData({ data });
+
+client.onResetStore(async () => cache.writeData({ data }));
+
+class App extends Component {
+  render() {
+    return (
+      <ApolloProvider client={client}>
+        <Shares />
+      </ApolloProvider>
+    );
+  }
+}
+
+export default App;

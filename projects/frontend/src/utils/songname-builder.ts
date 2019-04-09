@@ -1,4 +1,4 @@
-import { ISong } from './../redux/shares/shares.schema';
+import { ISong } from '../schemas/shares.schema';
 
 export const buildSongName = (song: ISong): string => {
 	let name = song.title;
