@@ -1,45 +1,51 @@
 {
-  "name": "@musicshare/frontend",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@types/graphql": "^14.2.0",
-    "@types/jest": "24.0.11",
-    "@types/node": "11.13.2",
-    "@types/react": "16.8.13",
-    "@types/react-dom": "16.8.3",
-    "@types/react-router-dom": "^4.3.1",
-    "antd": "^3.16.2",
-    "apollo-cache-inmemory": "^1.5.1",
-    "apollo-client": "^2.5.1",
-    "apollo-link": "^1.2.11",
-    "apollo-link-error": "^1.1.10",
-    "apollo-link-http": "^1.5.14",
-    "graphql": "^14.2.1",
-    "graphql-tag": "^2.10.1",
-    "react": "^16.8.6",
-    "react-apollo": "^2.5.4",
-    "react-dom": "^16.8.6",
-    "react-router-dom": "^5.0.0",
-    "react-scripts": "2.1.8",
-    "typescript": "3.4.2"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "dev": "npm run start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "verify": "tsc --noEmit --noUnusedLocals",
-    "lint": "eslint . --ext .js,.ts,.tsx,.jsx"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ]
+	"name": "@musicshare/frontend",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"@types/graphql": "^14.2.0",
+		"@types/jest": "24.0.11",
+		"@types/node": "11.13.2",
+		"@types/react": "16.8.13",
+		"@types/react-dom": "16.8.3",
+		"@types/react-router-dom": "^4.3.1",
+		"antd": "^3.16.2",
+		"apollo-cache-inmemory": "^1.5.1",
+		"apollo-client": "^2.5.1",
+		"apollo-link": "^1.2.11",
+		"apollo-link-error": "^1.1.10",
+		"apollo-link-http": "^1.5.14",
+		"graphql": "^14.2.1",
+		"graphql-tag": "^2.10.1",
+		"react": "^16.8.6",
+		"react-apollo": "^2.5.4",
+		"react-dom": "^16.8.6",
+		"react-router-dom": "^5.0.0",
+		"react-scripts": "2.1.8",
+		"typescript": "3.4.2"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"dev": "npm run start",
+		"build": "react-scripts build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject",
+		"verify": "tsc --noEmit --noUnusedLocals",
+		"lint": "eslint . --ext .js,.ts,.tsx,.jsx"
+	},
+	"eslintConfig": {
+		"extends": "react-app"
+	},
+	"browserslist": [
+		">0.2%",
+		"not dead",
+		"not ie <= 11",
+		"not op_mini all"
+	],
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "^1.6.0",
+		"@typescript-eslint/parser": "^1.6.0",
+		"eslint": "^5.16.0",
+		"eslint-plugin-react-hooks": "^1.6.0"
+	}
 }
