@@ -65,6 +65,5 @@ export const resolvers = {
       const data = { visibilityFilter, __typename: "Filter" };
       cache.writeData({ data });
     }
-  },
-
+  }
 };

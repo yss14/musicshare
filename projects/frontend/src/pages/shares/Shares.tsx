@@ -50,11 +50,6 @@ const UPDATE_LOCAL_VISIBILITY_FILTER = gql`
 `;
 
 class ShareQuery extends Query<IData, IVariables> {}
-class VisibilityQuery extends Query<IVisibilityData, undefined> {}
-class VisibilityMutation extends Mutation<
-  IVisibilityData,
-  IVisibilityVariables
-> {}
 
 const Shares = () => (
   <>
@@ -79,7 +74,7 @@ const Shares = () => (
         }
       }}
     </ShareQuery>
-    <VisibilityQuery query={GET_LOCAL_VISIBILITY_FILTER}>
+    <Query<IVisibilityData, undefined> query={GET_LOCAL_VISIBILITY_FILTER}>
       {({ loading, error, data }) => {
         if (loading) {
           return <div>Loading ...</div>;
@@ -90,15 +85,15 @@ const Shares = () => (
           return <div>{data.visibilityFilter}</div>;
         }
       }}
-    </VisibilityQuery>
-    <VisibilityMutation
+    </Query>
+    <Mutation<IVisibilityData, IVisibilityVariables>
       mutation={UPDATE_LOCAL_VISIBILITY_FILTER}
       variables={{ visibilityFilter: "UPDATED_FILTER" }}
     >
       {toggleVisibilityFilter => (
         <button onClick={e => toggleVisibilityFilter()}>Update filter</button>
       )}
-    </VisibilityMutation>
+    </Mutation>
   </>
 );
 

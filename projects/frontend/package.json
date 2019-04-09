@@ -1,5 +1,5 @@
 {
-  "name": "musicshare-f",
+  "name": "@musicshare/frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -26,9 +26,12 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "dev": "npm run start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "verify": "tsc --noEmit --noUnusedLocals",
+    "lint": "eslint . --ext .js,.ts,.tsx,.jsx"
   },
   "eslintConfig": {
     "extends": "react-app"

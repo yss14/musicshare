@@ -9,12 +9,12 @@ import { resolvers } from "./resolvers";
 import "./antd.css";
 
 import { makeConfigFromEnv } from "./config";
-import Shares from "./Shares";
+import Shares from "./pages/shares/Shares";
 import gql from "graphql-tag";
 
 const config = makeConfigFromEnv();
 
-//Client side schema
+//Client side schema - only "needed" for testing with Apollo DevTools chrome Extension
 const typeDefs = gql`
   extend type Query {
     todos: [any]!
@@ -23,7 +23,7 @@ const typeDefs = gql`
 
   extend type Mutation {
     toggleTodo(id: ID!): any
-    updateVisibilityFilter(visibilityFilter: string!):any
+    updateVisibilityFilter(visibilityFilter: string!): any
   }
 `;
 
