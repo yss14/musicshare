@@ -1,6 +1,7 @@
 import React from "react";
 import gql from "graphql-tag";
 import { Query, Mutation } from "react-apollo";
+import { Link } from "react-router-dom";
 
 interface IData {
   user: {
@@ -67,7 +68,9 @@ const Shares = () => (
           return (
             <ul>
               {data.user.shares.map(el => (
-                <li key={el.id}>{el.name}</li>
+                <li key={el.id}>
+                  <Link to={`/shares/${el.id}`}>{el.name}</Link>
+                </li>
               ))}
             </ul>
           );

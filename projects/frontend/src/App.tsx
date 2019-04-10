@@ -6,11 +6,13 @@ import { HttpLink } from "apollo-link-http";
 import { onError } from "apollo-link-error";
 import { ApolloLink } from "apollo-link";
 import { resolvers } from "./resolvers";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import "./antd.css";
 
 import { makeConfigFromEnv } from "./config";
 import Shares from "./pages/shares/Shares";
 import gql from "graphql-tag";
+import Routing from "./Routing";
 
 const config = makeConfigFromEnv();
 
@@ -66,7 +68,9 @@ class App extends Component {
   render() {
     return (
       <ApolloProvider client={client}>
-        <Shares />
+        <Router>
+          <Routing />
+        </Router>
       </ApolloProvider>
     );
   }
