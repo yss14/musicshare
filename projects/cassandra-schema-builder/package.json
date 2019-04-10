@@ -39,5 +39,6 @@
 	"devDependencies": {
 		"@types/uuid": "^3.4.4",
 		"uuid": "^3.3.2"
-	}
+	},
+	"gitHead": "d527e7af144f70089f9d26cff3b997c0810d6991"
 }
