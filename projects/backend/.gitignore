@@ -79,3 +79,7 @@ azurite*/
 # mac file system files
 *.DS_Store
 
+# because dependabot can't handle private locally linked dependencies
+package-lock.json
+npm-shrinkwrap.json
+
