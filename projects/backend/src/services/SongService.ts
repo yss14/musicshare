@@ -3,6 +3,8 @@ import { sortByTimeUUIDAsc } from '../utils/sort/sort-timeuuid';
 import { TimeUUID } from '../types/TimeUUID';
 import { IDatabaseClient } from 'cassandra-schema-builder';
 import { ISongByShareDBResult, SongsByShareTable } from '../database/schema/tables';
+import { SongInput } from '../inputs/SongInput';
+import * as snakeCaseObjKeys from 'snakecase-keys';
 
 export class SongNotFoundError extends Error {
 	constructor(shareID: string, songID: string) {
@@ -14,6 +16,7 @@ export interface ISongService {
 	getByID(shareID: string, songID: string): Promise<Song>;
 	getByShare(shareID: string): Promise<Song[]>;
 	create(song: ISongByShareDBResult): Promise<string>;
+	update(shareID: string, songID: string, song: SongInput): Promise<void>;
 }
 
 export class SongService implements ISongService {
@@ -54,5 +57,14 @@ export class SongService implements ISongService {
 		);
 
 		return id.toString();
+	}
+
+	public async update(shareID: string, songID: string, song: SongInput): Promise<void> {
+		const inputSnakeCased = snakeCaseObjKeys(song);
+
+		await this.database.query(
+			SongsByShareTable.update(Object.keys(inputSnakeCased) as any, ['id', 'share_id'])
+				(Object.values(inputSnakeCased), [TimeUUID(songID), TimeUUID(shareID)])
+		);
 	}
 }

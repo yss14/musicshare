@@ -1,14 +1,17 @@
 import { Song } from '../models/SongModel';
-import { Resolver, FieldResolver, Root, ResolverInterface } from "type-graphql";
+import { Resolver, FieldResolver, Root, ResolverInterface, Mutation, Arg } from "type-graphql";
 import { Inject } from 'typedi';
 import { File } from '../models/FileModel';
 import { FileService } from '../file-service/FileService';
 import moment = require('moment');
+import { SongInput } from '../inputs/SongInput';
+import { ISongService } from '../services/SongService';
 
 @Resolver(of => Song)
 export class SongResolver implements ResolverInterface<Song>{
 	constructor(
-		@Inject('FILE_SERVICE') private readonly fileService: FileService
+		@Inject('FILE_SERVICE') private readonly fileService: FileService,
+		@Inject('SONG_SERVICE') private readonly songService: ISongService,
 	) { }
 
 	@FieldResolver()
@@ -27,5 +30,20 @@ export class SongResolver implements ResolverInterface<Song>{
 		} else {
 			throw new Error(`Song ${song.id} has no file attached`);
 		}
+	}
+
+	@Mutation(() => Song, { nullable: true })
+	public async updateSong(
+		@Arg('songID') songID: string,
+		@Arg('shareID') shareID: string,
+		@Arg('input') song: SongInput
+	): Promise<Song | null> {
+		if (song.isValid()) {
+			await this.songService.update(shareID, songID, song);
+
+			return this.songService.getByID(shareID, songID);
+		}
+
+		return null;
 	}
 }
