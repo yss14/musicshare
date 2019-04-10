@@ -6,13 +6,14 @@ import { HttpLink } from "apollo-link-http";
 import { onError } from "apollo-link-error";
 import { ApolloLink } from "apollo-link";
 import { resolvers } from "./resolvers";
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-import "./antd.css";
+import { BrowserRouter as Router } from "react-router-dom";
 
 import { makeConfigFromEnv } from "./config";
-import Shares from "./pages/shares/Shares";
 import gql from "graphql-tag";
 import Routing from "./Routing";
+import { Row, Col } from "antd";
+import "./antd.css";
+import Menu from "./components/Menu";
 
 const config = makeConfigFromEnv();
 
@@ -69,7 +70,21 @@ class App extends Component {
     return (
       <ApolloProvider client={client}>
         <Router>
-          <Routing />
+          <Row
+            type="flex"
+            justify="start"
+            style={{ width: "100vw", height: "100vh" }}
+          >
+            <Col xs={0} sm={0} md={8}>
+              <Menu />
+            </Col>
+            <Col xs={24} sm={24} md={0}>
+              <Menu horizontal />
+            </Col>
+            <Col xs={24} sm={24} md={16}>
+              <Routing />
+            </Col>
+          </Row>
         </Router>
       </ApolloProvider>
     );
