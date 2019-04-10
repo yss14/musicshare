@@ -24,7 +24,7 @@
 		"verify": "tsc --noEmit",
 		"test": "jest --config=jest.json --detectOpenHandles --colors",
 		"test:watch": "jest --watch --config=jest.json --detectOpenHandles --colors",
-		"test:cov": "jest --config=jest.json --collectCoverage --detectOpenHandles --colors",
+		"test:cov": "jest --config=jest.json --collectCoverage --detectOpenHandles --colors --forceExit",
 		"test:ci": "npm run test:cov && codecov",
 		"lint": "tslint --project tsconfig.json",
 		"lint:fix": "tslint --fix --project tsconfig.json"
