@@ -53,7 +53,7 @@ const UPDATE_LOCAL_VISIBILITY_FILTER = gql`
 class ShareQuery extends Query<IData, IVariables> {}
 
 const Shares = () => (
-  <>
+  <div>
     <ShareQuery
       query={GET_SHARES}
       variables={{ id: "f0d8e1f0-aeb1-11e8-a117-43673ffd376b" }}
@@ -63,7 +63,6 @@ const Shares = () => (
           return <div>Loading ...</div>;
         }
         if (error) return `Error!: ${error}`;
-        console.log(data);
         if (data) {
           return (
             <ul>
@@ -97,7 +96,7 @@ const Shares = () => (
         <button onClick={e => toggleVisibilityFilter()}>Update filter</button>
       )}
     </Mutation>
-  </>
+  </div>
 );
 
 export default Shares;
