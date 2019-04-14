@@ -36,7 +36,7 @@ export class SongResolver implements ResolverInterface<Song>{
 	public async updateSong(
 		@Arg('songID') songID: string,
 		@Arg('shareID') shareID: string,
-		@Arg('input') song: SongInput
+		@Arg('song') song: SongInput
 	): Promise<Song | null> {
 		if (song.isValid()) {
 			await this.songService.update(shareID, songID, song);

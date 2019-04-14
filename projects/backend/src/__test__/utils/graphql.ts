@@ -8,6 +8,7 @@ export const executeGraphQLQuery = async (server: GraphQLServer, query: string) 
 		.post('/')
 		.set('Accept', 'application/json')
 		.send({ query })
+		.expect((res) => (res.status < 200 || res.status > 204 ? console.log(res.body) : 0))
 		.expect(HTTPStatusCodes.OK)
 		.expect('Content-Type', /json/);
 

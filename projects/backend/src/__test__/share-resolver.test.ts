@@ -7,6 +7,7 @@ import { includesSong, compareSongs } from "./utils/compare-songs";
 import { TimeUUID } from "../types/TimeUUID";
 import { defaultSongTypes, defaultGenres } from "../database/fixtures";
 import { Artist } from "../models/ArtistModel";
+import { songKeys } from "./fixtures/song-query";
 
 const makeShareQuery = (id: string, additionalQueries: string[] = []) => {
 	return `
@@ -21,25 +22,6 @@ const makeShareQuery = (id: string, additionalQueries: string[] = []) => {
 		}
 	`;
 }
-
-const songKeys = `
-	id,
-	title,
-	suffix,
-	year,
-	bpm,
-	dateLastEdit,
-	releaseDate,
-	isRip,
-	artists,
-	remixer,
-	featurings,
-	type,
-	genres,
-	label,
-	requiresUserAction,
-	file{container, blob, fileExtension,originalFilename}
-`;
 
 const makeShareSongsQuery = (range?: [number, number]) => {
 	return `

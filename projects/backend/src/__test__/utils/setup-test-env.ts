@@ -19,11 +19,12 @@ import { GenreService } from "../../services/GenreService";
 import { ArtistService } from "../../services/ArtistService";
 
 interface SetupTestEnvArgs {
+	mockDatabase?: boolean;
 	seedDatabase?: boolean;
 	startServer?: boolean;
 }
 
-export const setupTestEnv = async ({ seedDatabase, startServer }: SetupTestEnvArgs = { seedDatabase: true, startServer: true }) => {
+export const setupTestEnv = async ({ seedDatabase, startServer, mockDatabase }: SetupTestEnvArgs = { seedDatabase: true, startServer: true }) => {
 	const { database, cleanUp, databaseKeyspace } = await makeTestDatabase();
 
 	const songService = new SongService(database);
