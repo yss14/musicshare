@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React from "react";
 import { ApolloProvider } from "react-apollo";
 import { ApolloClient } from "apollo-client";
 import { InMemoryCache } from "apollo-cache-inmemory";
@@ -10,13 +10,9 @@ import { BrowserRouter as Router } from "react-router-dom";
 
 import { makeConfigFromEnv } from "./config";
 import gql from "graphql-tag";
-import Routing from "./Routing";
-import { Icon, Layout, Typography } from "antd";
-import "./antd.css";
-import Menu from "./components/Menu";
+import AppWrapper from "./AppWrapper";
+import { ThemeProvider } from "styled-components";
 
-const { Header, Sider, Footer, Content } = Layout;
-const { Title, Paragraph, Text } = Typography;
 const config = makeConfigFromEnv();
 
 //Client side schema - only "needed" for testing with Apollo DevTools chrome Extension
@@ -67,69 +63,22 @@ cache.writeData({ data });
 
 client.onResetStore(async () => cache.writeData({ data }));
 
+const theme = {
+  main: "#275dad",
+  white: "#fcf7f8",
+  lightgrey: "#aba9c3",
+  grey: "#ced3dc",
+  darkgrey: "#474350"
+};
+
 const App = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const toggleCollapse = () => {
-    setCollapsed(collapsed => !collapsed);
-  };
   return (
     <ApolloProvider client={client}>
-      <Router>
-        <Layout>
-          <Header style={{ position: "fixed", zIndex: 10, width: "100%" }}>
-            header
-          </Header>
-          <Layout>
-            <Sider
-              theme="light"
-              collapsible
-              style={{
-                marginTop: "64px",
-                marginBottom: "48px",
-                height: "calc(100% - 64px)",
-                position: "fixed",
-                zIndex: 9,
-                left: 0
-              }}
-              collapsed={collapsed}
-              onCollapse={toggleCollapse}
-            >
-              <Menu />
-              <Icon
-                style={{
-                  fontSize: "18px",
-                  lineHeight: "64px",
-                  padding: "0 24px",
-                  width: "100%",
-                  borderRight: "1px solid #e8e8e8"
-                }}
-                type={collapsed ? "menu-unfold" : "menu-fold"}
-                onClick={toggleCollapse}
-              />
-            </Sider>
-            <Content
-              style={{
-                marginTop: "64px",
-                marginLeft: collapsed ? "80px" : "200px"
-              }}
-            >
-              <Routing />
-            </Content>
-          </Layout>
-
-          <Footer
-            style={{
-              position: "fixed",
-              bottom: 0,
-              width: "100%",
-              zIndex: 10,
-              height: "48px"
-            }}
-          >
-            <Paragraph>Footer</Paragraph>
-          </Footer>
-        </Layout>
-      </Router>
+      <ThemeProvider theme={theme}>
+        <Router>
+          <AppWrapper />
+        </Router>
+      </ThemeProvider>
     </ApolloProvider>
   );
 };
