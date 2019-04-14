@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { ApolloProvider } from "react-apollo";
 import { ApolloClient } from "apollo-client";
 import { InMemoryCache } from "apollo-cache-inmemory";
@@ -10,10 +10,8 @@ import { BrowserRouter as Router } from "react-router-dom";
 
 import { makeConfigFromEnv } from "./config";
 import gql from "graphql-tag";
-import Routing from "./Routing";
-import { Row, Col } from "antd";
-import "./antd.css";
-import Menu from "./components/Menu";
+import AppWrapper from "./AppWrapper";
+import { ThemeProvider } from "styled-components";
 
 const config = makeConfigFromEnv();
 
@@ -65,30 +63,24 @@ cache.writeData({ data });
 
 client.onResetStore(async () => cache.writeData({ data }));
 
-class App extends Component {
-  render() {
-    return (
-      <ApolloProvider client={client}>
+const theme = {
+  main: "#275dad",
+  white: "#fcf7f8",
+  lightgrey: "#aba9c3",
+  grey: "#ced3dc",
+  darkgrey: "#474350"
+};
+
+const App = () => {
+  return (
+    <ApolloProvider client={client}>
+      <ThemeProvider theme={theme}>
         <Router>
-          <Row
-            type="flex"
-            justify="start"
-            style={{ width: "100vw", height: "100vh" }}
-          >
-            <Col xs={0} sm={0} md={8}>
-              <Menu />
-            </Col>
-            <Col xs={24} sm={24} md={0}>
-              <Menu horizontal />
-            </Col>
-            <Col xs={24} sm={24} md={16}>
-              <Routing />
-            </Col>
-          </Row>
+          <AppWrapper />
         </Router>
-      </ApolloProvider>
-    );
-  }
-}
+      </ThemeProvider>
+    </ApolloProvider>
+  );
+};
 
 export default App;

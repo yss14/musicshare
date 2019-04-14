@@ -76,23 +76,27 @@ const NavMenu = ({ horizontal, match, history, location }: IMenuProps) => {
         if (loading) {
           return <div>Loading ...</div>;
         }
-        if (error) return `Error!: ${error}`;
+        if (error) {
+          return `Error!: ${error}`;
+        }
         if (data) {
           return (
-            <StyledMenu
-              horizontal={horizontal}
+            <Menu
+              style={{ height: "calc(100% - 64px)", overflow: "auto" }}
               onClick={handleClick}
               selectedKeys={[current]}
               mode={horizontal ? "horizontal" : "inline"}
             >
               <Menu.Item key="home">
                 <Icon type="home" />
-                Home
+                <span>
+                  <Link to={`/`}>Home</Link>
+                </span>
               </Menu.Item>
               <SubMenu
                 title={
                   <span className="submenu-title-wrapper">
-                    <Icon type="share-alt" /> Shares
+                    <Icon type="share-alt" /> <span>Shares</span>
                   </span>
                 }
               >
@@ -111,7 +115,7 @@ const NavMenu = ({ horizontal, match, history, location }: IMenuProps) => {
               <SubMenu
                 title={
                   <span className="submenu-title-wrapper">
-                    <Icon type="profile" /> Library
+                    <Icon type="profile" /> <span>Library</span>
                   </span>
                 }
               >
@@ -122,7 +126,7 @@ const NavMenu = ({ horizontal, match, history, location }: IMenuProps) => {
                   <Menu.Item key="8">Option 8</Menu.Item>
                 </SubMenu>
               </SubMenu>
-            </StyledMenu>
+            </Menu>
           );
         }
       }}
