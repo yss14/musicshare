@@ -25,6 +25,7 @@ interface SetupTestEnvArgs {
 	startServer?: boolean;
 }
 
+// tslint:disable:no-parameter-reassignment
 export const setupTestEnv = async ({ seedDatabase, startServer, mockDatabase }: SetupTestEnvArgs) => {
 	seedDatabase = seedDatabase || true;
 	startServer = startServer || true;
