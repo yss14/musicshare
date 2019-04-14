@@ -17,6 +17,7 @@ import { makeDatabaseSchemaWithSeed } from "../../database/schema/make-database-
 import { SongTypeService } from "../../services/SongTypeService";
 import { GenreService } from "../../services/GenreService";
 import { ArtistService } from "../../services/ArtistService";
+import { makeMockedDatabase } from "../mocks/mock-database";
 
 interface SetupTestEnvArgs {
 	mockDatabase?: boolean;
@@ -24,8 +25,18 @@ interface SetupTestEnvArgs {
 	startServer?: boolean;
 }
 
-export const setupTestEnv = async ({ seedDatabase, startServer, mockDatabase }: SetupTestEnvArgs = { seedDatabase: true, startServer: true }) => {
-	const { database, cleanUp, databaseKeyspace } = await makeTestDatabase();
+export const setupTestEnv = async ({ seedDatabase, startServer, mockDatabase }: SetupTestEnvArgs) => {
+	seedDatabase = seedDatabase || true;
+	startServer = startServer || true;
+	mockDatabase = mockDatabase || false;
+
+	let database = makeMockedDatabase();
+	let databaseKeyspace = '';
+	let cleanUp = async (): Promise<void> => undefined;
+
+	if (!mockDatabase) {
+		({ database, cleanUp, databaseKeyspace } = await makeTestDatabase());
+	}
 
 	const songService = new SongService(database);
 	const userService = new UserService(database);
@@ -50,7 +61,7 @@ export const setupTestEnv = async ({ seedDatabase, startServer, mockDatabase }: 
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	}
 
-	if (seedDatabase === true) {
+	if (!mockDatabase && seedDatabase === true) {
 		await seed(songService);
 	}
 

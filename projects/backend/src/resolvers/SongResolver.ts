@@ -44,6 +44,6 @@ export class SongResolver implements ResolverInterface<Song>{
 			return this.songService.getByID(shareID, songID);
 		}
 
-		return null;
+		throw new Error('Song input is not valid');
 	}
 }

@@ -4,7 +4,7 @@ import { defaultSongTypes } from "../database/fixtures";
 import { SongType } from "../models/SongType";
 
 const setupLocalTestEnv = async () => {
-	const { cleanUp, ...testEnv } = await setupTestEnv();
+	const { cleanUp, ...testEnv } = await setupTestEnv({});
 	cleanupHooks.push(cleanUp);
 
 	return testEnv;

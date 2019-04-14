@@ -25,7 +25,7 @@ const makeValidPayload = (): ISongProcessingQueuePayload => ({
 })
 
 test('upload successful', async () => {
-	const { songUploadProcessingQueue } = setupTestEnv();
+	const { songUploadProcessingQueue } = setupTestEnv({});
 	const payload = makeValidPayload();
 
 	const result = await songUploadProcessingQueue.enqueueUpload(payload);
@@ -35,7 +35,7 @@ test('upload successful', async () => {
 });
 
 test('wrong payload format', async () => {
-	const { songUploadProcessingQueue } = setupTestEnv();
+	const { songUploadProcessingQueue } = setupTestEnv({});
 	const payload: any = {
 		file: { blob: 'somefile', container: 'songs', fileExtension: 'mp3', originalFilename: 'somefile' },
 		shareID: TimeUUID(new Date()).toString(),
@@ -46,7 +46,7 @@ test('wrong payload format', async () => {
 });
 
 test('meta data error', async () => {
-	const { songUploadProcessingQueue, songMetaDataService } = setupTestEnv();
+	const { songUploadProcessingQueue, songMetaDataService } = setupTestEnv({});
 	songMetaDataService.analyse = async () => { throw 'Cannot read property title of undefined' };
 	const payload = makeValidPayload();
 

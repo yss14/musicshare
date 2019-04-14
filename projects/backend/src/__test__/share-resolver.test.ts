@@ -70,7 +70,7 @@ afterAll(async () => {
 
 describe('get share by id', () => {
 	test('get share by id', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv();
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const share = testData.shares.library_user1;
@@ -82,7 +82,7 @@ describe('get share by id', () => {
 	});
 
 	test('get share by id not existing', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv();
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const shareID = TimeUUID('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
@@ -99,7 +99,7 @@ describe('get share by id', () => {
 
 describe('get share songs', () => {
 	test('get all songs of share', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv();
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const share = testData.shares.library_user1;
@@ -116,7 +116,7 @@ describe('get share songs', () => {
 	});
 
 	test('get all songs of share with range query', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv();
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const share = testData.shares.library_user1;
@@ -135,7 +135,7 @@ describe('get share songs', () => {
 
 describe('get share song', () => {
 	test('get share song by id', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv();
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const share = testData.shares.library_user1;
@@ -148,7 +148,7 @@ describe('get share song', () => {
 	});
 
 	test('get share song by id not existing', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv();
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const shareID = testData.shares.library_user1.id.toString();
@@ -162,7 +162,7 @@ describe('get share song', () => {
 	});
 
 	test('get share song by id with access url', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv();
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const share = testData.shares.library_user1;
@@ -178,7 +178,7 @@ describe('get share song', () => {
 
 describe('get share related data', () => {
 	test('get share song types', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv();
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const shareID = testData.shares.library_user1.id.toString();
@@ -190,7 +190,7 @@ describe('get share related data', () => {
 	});
 
 	test('get share genres', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv();
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const shareID = testData.shares.library_user1.id.toString();
@@ -202,7 +202,7 @@ describe('get share related data', () => {
 	});
 
 	test('get share artists', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv();
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const shareID = testData.shares.library_user1.id.toString();

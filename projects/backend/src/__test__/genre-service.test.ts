@@ -4,7 +4,7 @@ import { defaultGenres } from "../database/fixtures";
 import { Genre } from "../models/GenreModel";
 
 const setupLocalTestEnv = async () => {
-	const { cleanUp, ...testEnv } = await setupTestEnv();
+	const { cleanUp, ...testEnv } = await setupTestEnv({});
 	cleanupHooks.push(cleanUp);
 
 	return testEnv;
