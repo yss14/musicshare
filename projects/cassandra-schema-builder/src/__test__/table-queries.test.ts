@@ -30,14 +30,14 @@ const setupTestEnv = async () => {
 
 describe('insert', () => {
 	test('insert with cql function', async () => {
-		const { database, testTable } = await setupTestEnv({});
+		const { database, testTable } = await setupTestEnv();
 
 		await expect(database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([CQLFunc(NativeFunction.Now), 'teststring', true])))
 			.resolves.toBeUndefined();
 	});
 
 	test('insert all values prepared statement', async () => {
-		const { database, testTable } = await setupTestEnv({});
+		const { database, testTable } = await setupTestEnv();
 
 		const id = CTypes.TimeUuid.fromDate(new Date(), 1);
 
@@ -46,7 +46,7 @@ describe('insert', () => {
 	});
 
 	test('insert from object', async () => {
-		const { database, testTable } = await setupTestEnv({});
+		const { database, testTable } = await setupTestEnv();
 
 		const obj: ITestTableDBResult = {
 			col_id: CTypes.TimeUuid.fromDate(new Date(), 1),
@@ -71,7 +71,7 @@ describe('update', () => {
 	};
 
 	test('update where', async () => {
-		const { database, testTable } = await setupTestEnv({});
+		const { database, testTable } = await setupTestEnv();
 		await database.query(testTable.insertFromObj(obj1));
 		await database.query(testTable.insertFromObj(obj2));
 
@@ -92,7 +92,7 @@ describe('select', () => {
 	const id2 = CTypes.TimeUuid.fromDate(moment().add(2, 'seconds').toDate());
 
 	test('selectAll *', async () => {
-		const { database, testTable } = await setupTestEnv({});
+		const { database, testTable } = await setupTestEnv();
 
 		await database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([id1, 'teststring', true]));
 		await database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([id2, 'teststring2', false]));
@@ -107,7 +107,7 @@ describe('select', () => {
 	});
 
 	test('selectAll subset', async () => {
-		const { database, testTable } = await setupTestEnv({});
+		const { database, testTable } = await setupTestEnv();
 
 		await database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([id1, 'teststring', true]));
 		await database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([id2, 'teststring2', false]));
@@ -122,7 +122,7 @@ describe('select', () => {
 	});
 
 	test('select * where', async () => {
-		const { database, testTable } = await setupTestEnv({});
+		const { database, testTable } = await setupTestEnv();
 
 		await database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([id1, 'teststring', true]));
 		await database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([id2, 'teststring2', false]));
@@ -135,7 +135,7 @@ describe('select', () => {
 	});
 
 	test('select subset where', async () => {
-		const { database, testTable } = await setupTestEnv({});
+		const { database, testTable } = await setupTestEnv();
 
 		await database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([id1, 'teststring', true]));
 		await database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([id2, 'teststring2', false]));
@@ -148,7 +148,7 @@ describe('select', () => {
 	});
 
 	test('select subset where allowFiltering', async () => {
-		const { database, testTable } = await setupTestEnv({});
+		const { database, testTable } = await setupTestEnv();
 
 		await database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([id1, 'teststring', true]));
 		await database.query(testTable.insert(['col_id', 'col_string', 'col_boolean'])([id2, 'teststring2', false]));
@@ -163,7 +163,7 @@ describe('select', () => {
 
 describe('drop', () => {
 	test('drop existing table', async () => {
-		const { database, testTable } = await setupTestEnv({});
+		const { database, testTable } = await setupTestEnv();
 
 		await expect(database.query(testTable.drop())).resolves.toBe(undefined);
 	});
