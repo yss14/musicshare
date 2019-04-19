@@ -14,4 +14,8 @@ export class SongServiceMock implements ISongService {
 	public async create(): Promise<string> {
 		return TimeUUID(new Date()).toString();
 	}
+
+	public async update() {
+		throw 'Not implemented yet';
+	}
 }

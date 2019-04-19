@@ -32,7 +32,7 @@ afterAll(async () => {
 
 describe('get user by id', () => {
 	test('get user by id', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv();
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const { users } = testData;
@@ -43,7 +43,7 @@ describe('get user by id', () => {
 	});
 
 	test('get user by id not existing', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv();
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const userID = TimeUUID('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
@@ -60,7 +60,7 @@ describe('get user by id', () => {
 
 describe('get users shares', () => {
 	test('get users shares only lib', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv();
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const testUser = testData.users.user1;
@@ -77,7 +77,7 @@ describe('get users shares', () => {
 	});
 
 	test('get users shares all', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv();
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const testUser = testData.users.user1;

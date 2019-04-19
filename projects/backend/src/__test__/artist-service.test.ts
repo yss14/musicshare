@@ -3,7 +3,7 @@ import { testData } from "../database/seed";
 import { Artist } from "../models/ArtistModel";
 
 const setupLocalTestEnv = async () => {
-	const { cleanUp, ...testEnv } = await setupTestEnv();
+	const { cleanUp, ...testEnv } = await setupTestEnv({});
 	cleanupHooks.push(cleanUp);
 
 	return testEnv;
