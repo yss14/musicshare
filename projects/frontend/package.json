@@ -29,7 +29,7 @@
     "babel-plugin-import": "^1.11.0",
     "customize-cra": "^0.2.12",
     "react-app-rewired": "^2.1.1",
-    "typescript": "3.4.4"
+    "typescript": "3.4.5"
   },
   "scripts": {
     "start": "react-app-rewired start",
