@@ -146,6 +146,7 @@ export interface ITable<C extends Columns> {
 		IQuery<Pick<C, Extract<Subset[number], string>>>;
 	select<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset | "*", where: Where, allowFiltering?: boolean):
 		(conditions: ColumnValues<C, Where>) => IQuery<Pick<C, Extract<Subset[number], string>>>;
+	selectWhere(where: string, values: unknown[]): IQuery<C>;
 	drop(): IQuery<{}>;
 }
 
@@ -228,6 +229,12 @@ export const Table =
 					cql,
 					values
 				});
+			},
+			selectWhere: (where, values) => {
+				return {
+					cql: `SELECT * FROM ${name} WHERE ${where};`,
+					values
+				}
 			},
 			drop: () => ({
 				cql: CQL.dropTable(table)

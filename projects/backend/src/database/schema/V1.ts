@@ -51,4 +51,10 @@ export namespace DatabaseV1 {
 		date_added: { type: ColumnType.Timestamp, nullable: false },
 		date_removed: { type: ColumnType.Timestamp },
 	});
+
+	export const user_login_credentials = TableSchema({
+		email: { type: ColumnType.Varchar, clusteringKey: true },
+		user_id: { type: ColumnType.TimeUUID, clusteringKey: true },
+		credential: { type: ColumnType.Varchar, nullable: false },
+	})
 }
