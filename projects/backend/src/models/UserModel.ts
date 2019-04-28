@@ -11,8 +11,8 @@ export class User {
 	@Field()
 	public readonly name!: string;
 
-	@Field(type => [String])
-	public readonly emails!: Set<string>;
+	@Field()
+	public readonly email!: string;
 
 	@Field(type => [Share])
 	public readonly shares!: Share[];
@@ -23,7 +23,7 @@ export class User {
 			{
 				id: dbResult.id.toString(),
 				name: dbResult.name,
-				emails: dbResult.emails
+				emails: dbResult.email
 			}
 		);
 	}

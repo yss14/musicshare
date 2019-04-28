@@ -13,6 +13,7 @@ import { ISongTypeService } from '../services/SongTypeService';
 import { SongType } from '../models/SongType';
 import { IGenreService } from '../services/GenreService';
 import { Genre } from '../models/GenreModel';
+import { IPasswordLoginService } from '../auth/PasswordLoginService';
 
 type Users = 'user1' | 'user2';
 type Shares = 'library_user1' | 'library_user2' | 'some_shared_library';
@@ -24,24 +25,16 @@ interface ITestDataSchema {
 	songs: { [P in Songs]: Required<ISongByShareDBResult> };
 }
 
-const generatedEMails = (numbersOfEMails: number): string[] => {
-	const prefilledArray = createPrefilledArray(numbersOfEMails, '');
-
-	return prefilledArray
-		.map(() => faker.internet.email())
-		.sort();
-}
-
 export const testData: ITestDataSchema = {
 	users: {
 		user1: {
 			name: 'Yss',
-			emails: generatedEMails(2), // cassandra driver takes arrays as sets
+			email: 'yannick.stachelscheid@musicshare.whatever',
 			id: TimeUUID('f0d8e1f0-aeb1-11e8-a117-43673ffd376b')
 		},
 		user2: {
 			name: 'Simon',
-			emails: generatedEMails(2), // cassandra driver takes arrays as sets
+			email: faker.internet.email(),
 			id: TimeUUID('f0d8e1f1-aeb1-11e8-a117-43673ffd376b')
 		}
 	},
@@ -152,13 +145,16 @@ interface IMakeDatabaseSeedArgs {
 	songService: SongService;
 	songTypeService: ISongTypeService;
 	genreService: IGenreService;
+	passwordLoginService: IPasswordLoginService;
 }
 
-export const makeDatabaseSeed = ({ database, songService, songTypeService, genreService }: IMakeDatabaseSeedArgs): DatabaseSeed => async (): Promise<void> => {
+export const makeDatabaseSeed = ({ database, songService, songTypeService, genreService, passwordLoginService }: IMakeDatabaseSeedArgs): DatabaseSeed => async (): Promise<void> => {
 	// insert users for development and testing
 	if (!__PROD__) {
 		for (const user of Object.values(testData.users)) {
 			await database.query(UsersTable.insertFromObj(user));
+
+			await passwordLoginService.register({ userID: user.id.toString(), email: user.email, password: 'test1234' });
 		}
 	}
 

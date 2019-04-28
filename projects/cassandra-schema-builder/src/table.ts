@@ -232,7 +232,7 @@ export const Table =
 			},
 			selectWhere: (where, values) => {
 				return {
-					cql: `SELECT * FROM ${name} WHERE ${where};`,
+					cql: `SELECT * FROM ${table} WHERE ${where};`,
 					values
 				}
 			},

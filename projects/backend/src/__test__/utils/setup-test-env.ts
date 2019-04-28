@@ -61,7 +61,7 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 	Container.set('PASSWORD_LOGIN_SERVICE', passwordLoginService);
 
 	const seed = async (songService: SongService) => {
-		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService });
+		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService });
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	}
 

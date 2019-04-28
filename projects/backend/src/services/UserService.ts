@@ -33,7 +33,7 @@ export class UserService implements IUserService {
 
 	public async getUserByEMail(email: string): Promise<User> {
 		const dbResults = await this.database.query(
-			UsersTable.selectWhere(`? IN emails`, [email])
+			UsersTable.select('*', ['email'], true)([email])
 		);
 
 		if (dbResults.length !== 1) {

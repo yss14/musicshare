@@ -104,7 +104,7 @@ if (!isProductionEnvironment()) {
 	Container.set('PASSWORD_LOGIN_SERVICE', passwordLoginService);
 
 	if (__DEV__) {
-		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService });
+		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService });
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	} else if (__PROD__) {
 		await makeDatabaseSchema(database, { keySpace: databaseKeyspace });

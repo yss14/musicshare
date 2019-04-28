@@ -5,7 +5,7 @@ import { Scopes } from '../types/context';
 interface IJWTTokenSchema {
 	userID: string;
 	userName: string;
-	emails: string[];
+	email: string;
 	scopes: Scopes;
 }
 
@@ -23,11 +23,11 @@ export class AuthenticationService implements IAuthenticationService {
 		const jwtPayload: IJWTTokenSchema = {
 			userID: user.id,
 			userName: user.name,
-			emails: Array.from(user.emails),
+			email: user.email,
 			scopes
 		}
 
-		const jwtToken = JWT.sign(jwtPayload, this.jwtSecret, { expiresIn });
+		const jwtToken = JWT.sign(jwtPayload, this.jwtSecret, { expiresIn: expiresIn || '14 days' });
 
 		return jwtToken;
 	}
