@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import gql from "graphql-tag";
 import { Query, Mutation, MutationFn } from "react-apollo";
 import { RouteComponentProps, withRouter } from "react-router-dom";
@@ -61,10 +61,6 @@ const GET_SHARE = gql`
     }
   }
 `;
-
-interface IRouteProps {
-  id: string;
-}
 
 const columns = [
   {

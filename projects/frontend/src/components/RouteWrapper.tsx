@@ -10,14 +10,7 @@ import styled from "styled-components";
 import Menu from "./Menu";
 import Dropzone from "./Dropzone";
 import { Flex, Box } from "./Flex";
-import gql from "graphql-tag";
-import { Query } from "react-apollo";
-import {
-  ILocalUserVariables,
-  ILocalShareVariables,
-  ILocalShareData,
-  ILocalUserData
-} from "../resolvers/types.local";
+
 const { Sider, Content } = Layout;
 
 const StyledSider = styled(Sider)`
@@ -54,17 +47,6 @@ interface IRouteWrapperProps {
   children: (currentContainer: any) => ReactNode;
 }
 
-const GET_SHARE_ID = gql`
-  query {
-    shareId @client
-  }
-`;
-const GET_USER_ID = gql`
-  query {
-    userId @client
-  }
-`;
-
 const RouteWrapper = ({ children }: IRouteWrapperProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [currentContainer, setCurrentContainer] = useState<MutableRefObject<
@@ -83,103 +65,63 @@ const RouteWrapper = ({ children }: IRouteWrapperProps) => {
   });
 
   return (
-    <Query<ILocalUserData, ILocalUserVariables> query={GET_USER_ID}>
-      {localUserQuery => {
-        if (localUserQuery.data) {
-          return (
-            <Query<ILocalShareData, ILocalShareVariables> query={GET_SHARE_ID}>
-              {localShareQuery => {
-                if (localUserQuery.data && localShareQuery.data) {
-                  return (
-                    <>
-                      <StyledSider
-                        theme="light"
-                        collapsible
-                        collapsed={collapsed}
-                        onCollapse={toggleCollapse}
-                      >
-                        <Menu />
-                        <CollapseIcon
-                          type={collapsed ? "menu-unfold" : "menu-fold"}
-                          onClick={toggleCollapse}
-                        />
-                      </StyledSider>
-                      <StyledContent collapsed={collapsed}>
-                        <Dropzone
-                          userId={localUserQuery.data.userId}
-                          shareId={localShareQuery.data.shareId}
-                        >
-                          {uploadItems => {
-                            /*if ("error") {
+    <>
+      <StyledSider
+        theme="light"
+        collapsible
+        collapsed={collapsed}
+        onCollapse={toggleCollapse}
+      >
+        <Menu />
+        <CollapseIcon
+          type={collapsed ? "menu-unfold" : "menu-fold"}
+          onClick={toggleCollapse}
+        />
+      </StyledSider>
+      <StyledContent collapsed={collapsed}>
+        <Dropzone>
+          {uploadItems => {
+            /*if ("error") {
 				return <div>Error.</div>;
 			  }*/
-                            const percent =
-                              uploadItems.reduce(
-                                (prev, curr) => prev + curr.progress,
-                                0
-                              ) / uploadItems.length;
-                            const done = uploadItems.reduce(
-                              (prev, curr) =>
-                                (prev = curr.status === 2 || curr.status === 3),
-                              false
-                            );
+            const percent =
+              uploadItems.reduce((prev, curr) => prev + curr.progress, 0) /
+              uploadItems.length;
+            const done = uploadItems.reduce(
+              (prev, curr) => (prev = curr.status === 2 || curr.status === 3),
+              false
+            );
 
-                            const failed = uploadItems.find(
-                              el => el.status === 3
-                            );
+            const failed = uploadItems.find(el => el.status === 3);
 
-                            return (
-                              <Flex direction="column">
-                                {uploadItems.length > 0 ? (
-                                  <Box>
-                                    <Progress
-                                      style={{
-                                        padding: 10,
-                                        background: "white"
-                                      }}
-                                      percent={
-                                        done
-                                          ? 100
-                                          : uploadItems.reduce(
-                                              (prev, curr) =>
-                                                prev + curr.progress,
-                                              0
-                                            ) / uploadItems.length
-                                      }
-                                      showInfo={false}
-                                      status={
-                                        done
-                                          ? failed
-                                            ? "exception"
-                                            : "success"
-                                          : "active"
-                                      }
-                                    />
-                                  </Box>
-                                ) : null}
-                                <Box>
-                                  <div
-                                    style={{ width: "100%", height: "100%" }}
-                                    ref={myRef}
-                                  >
-                                    {currentContainer &&
-                                      children(currentContainer)}
-                                  </div>
-                                </Box>
-                              </Flex>
-                            );
-                          }}
-                        </Dropzone>
-                      </StyledContent>
-                    </>
-                  );
-                }
-              }}
-            </Query>
-          );
-        }
-      }}
-    </Query>
+            return (
+              <Flex direction="column">
+                {uploadItems.length > 0 ? (
+                  <Box>
+                    <Progress
+                      style={{
+                        padding: 10,
+                        background: "white"
+                      }}
+                      percent={done ? 100 : percent}
+                      showInfo={false}
+                      status={
+                        done ? (failed ? "exception" : "success") : "active"
+                      }
+                    />
+                  </Box>
+                ) : null}
+                <Box>
+                  <div style={{ width: "100%", height: "100%" }} ref={myRef}>
+                    {currentContainer && children(currentContainer)}
+                  </div>
+                </Box>
+              </Flex>
+            );
+          }}
+        </Dropzone>
+      </StyledContent>
+    </>
   );
 };
 
