@@ -16,19 +16,22 @@
     "apollo-link": "^1.2.11",
     "apollo-link-error": "^1.1.10",
     "apollo-link-http": "^1.5.14",
+    "babel-plugin-import": "^1.11.0",
+    "customize-cra": "^0.2.12",
+    "flexbox-react": "^4.4.0",
     "graphql": "^14.2.1",
     "graphql-tag": "^2.10.1",
+    "js-sha256": "^0.9.0",
     "less": "^3.9.0",
+    "less-loader": "^4.1.0",
     "react": "^16.8.6",
     "react-apollo": "^2.5.4",
+    "react-app-rewired": "^2.1.1",
     "react-dom": "^16.8.6",
+    "react-dropzone": "^10.1.4",
     "react-router-dom": "^5.0.0",
     "react-scripts": "2.1.8",
     "styled-components": "^4.2.0",
-    "less-loader": "^4.1.0",
-    "babel-plugin-import": "^1.11.0",
-    "customize-cra": "^0.2.12",
-    "react-app-rewired": "^2.1.1",
     "typescript": "3.4.5"
   },
   "scripts": {
@@ -50,8 +53,8 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^1.6.0",
-    "@typescript-eslint/parser": "^1.6.0",
+    "@typescript-eslint/eslint-plugin": "^1.7.0",
+    "@typescript-eslint/parser": "^1.7.0",
     "eslint": "^5.16.0",
     "eslint-plugin-react-hooks": "^1.6.0"
   }

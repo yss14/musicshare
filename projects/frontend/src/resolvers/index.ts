@@ -1,32 +1,19 @@
 import { MutationContext } from "react-apollo";
 import gql from "graphql-tag";
 import { InMemoryCache } from "apollo-cache-inmemory";
+import {
+  ITodoVariables,
+  IEmailVariables,
+  IVisibilityVariables,
+  IShareVariables
+} from "./types";
 
 // CLIENT RESOLVERS FOR LOCAL STATE
 
 // These are just sample implementations of resolvers that should be split up into seperate files later.
-export interface ITodoVariables {
-  id: string;
-}
-
-export interface IEmailVariables {
-  id: string;
-  email: string;
-}
-
-export interface IVisibilityVariables {
-  visibilityFilter: string;
-}
-
 interface ITodo {
   completed: boolean;
 }
-
-const GET_CART_ITEMS = gql`
-  query GetCartItems {
-    cartItems @client
-  }
-`;
 
 export const resolvers = {
   Mutation: {
@@ -64,6 +51,13 @@ export const resolvers = {
     ) => {
       const data = { visibilityFilter, __typename: "Filter" };
       cache.writeData({ data });
+    },
+    updateShareId: (
+      _: any,
+      { shareId }: IShareVariables,
+      { cache }: { cache: InMemoryCache }
+    ) => {
+      cache.writeData({ data: { shareId } });
     }
   }
 };
