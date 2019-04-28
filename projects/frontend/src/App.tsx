@@ -52,6 +52,8 @@ const client = new ApolloClient({
 //initial cache data
 const data = {
   todos: [],
+  userId: "f0d8e1f0-aeb1-11e8-a117-43673ffd376b",
+  shareId: "",
   visibilityFilter: "SHOW_ALL",
   networkStatus: {
     __typename: "NetworkStatus",
@@ -65,7 +67,8 @@ client.onResetStore(async () => cache.writeData({ data }));
 
 const theme = {
   main: "#275dad",
-  white: "#fcf7f8",
+  white: "#ffffff",
+  y: "#fcf7f8",
   lightgrey: "#aba9c3",
   grey: "#ced3dc",
   darkgrey: "#474350"

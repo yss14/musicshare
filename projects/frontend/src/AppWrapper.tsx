@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import { Icon, Layout, Typography } from "antd";
+import { Layout } from "antd";
 import Routing from "./Routing";
-import Menu from "./components/Menu";
 import styled from "styled-components";
+import Player from "./components/Player";
+import HeaderMenu from "./components/HeaderMenu";
 
-const { Header, Sider, Footer, Content } = Layout;
-const { Paragraph } = Typography;
+const { Header, Footer } = Layout;
 
 const StyledHeader = styled(Header)`
   position: fixed;
-  background-color: ${(props: { theme: any }) => props.theme.darkgrey};
+  background-color: ${(props: { theme: any }) => props.theme.lightgrey};
   z-index: 10;
+  padding: 0;
+  height: 48px;
   width: 100%;
 `;
 
@@ -22,62 +24,18 @@ const StyledFooter = styled(Footer)`
   height: 48px;
 `;
 
-const CollapseIcon = styled(Icon)`
-  font-size: 18px;
-  line-height: 64px;
-  padding: 0 24px;
-  width: 100%;
-  border-right: 1px solid #e8e8e8;
-`;
-
-const StyledSider = styled(Sider)`
-  margin-top: 64px;
-  margin-bottom: 48px;
-  height: calc(100% - 64px);
-  position: fixed;
-  z-index: 9;
-  left: 0;
-`;
-
-const StyledContent = styled(Content)`
-  margin-top: 64px;
-  margin-bottom: 48px;
-  padding: 20px;
-  background-color: ${(props: { collapsed: boolean; theme: any }) =>
-    props.theme.lightgrey};
-
-  margin-left: ${(props: { collapsed: boolean; theme: any }) =>
-    props.collapsed ? "80px" : "200px"};
-`;
-
 export default () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const toggleCollapse = () => {
-    setCollapsed(collapsed => !collapsed);
-  };
   return (
     <Layout>
-      <StyledHeader>header</StyledHeader>
+      <StyledHeader>
+        <HeaderMenu />
+      </StyledHeader>
       <Layout style={{ height: "100vh" }}>
-        <StyledSider
-          theme="light"
-          collapsible
-          collapsed={collapsed}
-          onCollapse={toggleCollapse}
-        >
-          <Menu />
-          <CollapseIcon
-            type={collapsed ? "menu-unfold" : "menu-fold"}
-            onClick={toggleCollapse}
-          />
-        </StyledSider>
-        <StyledContent collapsed={collapsed}>
-          <Routing />
-        </StyledContent>
+        <Routing />
       </Layout>
 
       <StyledFooter>
-        <Paragraph>Footer</Paragraph>
+        <Player />
       </StyledFooter>
     </Layout>
   );
