@@ -1,5 +1,5 @@
 import { ISongService } from '../services/SongService';
-import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
+import { Resolver, Query, Arg, FieldResolver, Root, Authorized } from "type-graphql";
 import { Share } from "../models/ShareModel";
 import { Song } from "../models/SongModel";
 import { IShareService } from "../services/ShareService";
@@ -21,11 +21,13 @@ export class ShareResolver {
 		@Inject('ARTIST_SERVICE') private readonly artistService: IArtistService,
 	) { }
 
+	@Authorized()
 	@Query(() => Share, { nullable: true })
 	public share(@Arg("id") id: string): Promise<Share | null> {
 		return this.shareService.getShareByID(id);
 	}
 
+	@Authorized()
 	@FieldResolver()
 	public async songs(
 		@Root() share: Share,
@@ -40,6 +42,7 @@ export class ShareResolver {
 		return songs.filter((_, idx) => idx >= startIdx && idx <= endIdx);
 	}
 
+	@Authorized()
 	@FieldResolver()
 	public song(
 		@Root() share: Share,
@@ -48,6 +51,7 @@ export class ShareResolver {
 		return this.songService.getByID(share.id, id);
 	}
 
+	@Authorized()
 	@FieldResolver(() => [SongType])
 	public async songTypes(
 		@Root() share: Share
@@ -57,6 +61,7 @@ export class ShareResolver {
 		return songTypes;
 	}
 
+	@Authorized()
 	@FieldResolver(() => [Genre])
 	public async genres(
 		@Root() share: Share
@@ -66,6 +71,7 @@ export class ShareResolver {
 		return genres;
 	}
 
+	@Authorized()
 	@FieldResolver(() => [Artist])
 	public async artists(
 		@Root() share: Share

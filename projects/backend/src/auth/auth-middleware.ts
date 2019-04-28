@@ -35,7 +35,7 @@ export const auth: CustomRequestHandler = (req, res, next) => {
 
 export const graphQLAuthChecker: AuthChecker<IContext> = ({ context: { userID } }, roles) => {
 	if (roles.length === 0) {
-		return userID !== null;
+		return userID !== null && userID !== undefined;
 	}
 
 	if (!userID) {

@@ -1,6 +1,6 @@
 import { IShareService } from '../services/ShareService';
 import { User } from '../models/UserModel';
-import { Resolver, Arg, Query, FieldResolver, Root, Mutation } from "type-graphql";
+import { Resolver, Arg, Query, FieldResolver, Root, Mutation, Authorized } from "type-graphql";
 import { Share } from '../models/ShareModel';
 import { IUserService } from '../services/UserService';
 import { Inject } from 'typedi';
@@ -16,11 +16,13 @@ export class UserResolver {
 		@Inject('PASSWORD_LOGIN_SERVICE') private readonly passwordLoginService: IPasswordLoginService,
 	) { }
 
+	@Authorized()
 	@Query(returns => User, { nullable: true })
 	public user(@Arg("id") id: string): Promise<User | null> {
 		return this.userService.getUserByID(id);
 	}
 
+	@Authorized()
 	@FieldResolver()
 	public shares(
 		@Root() user: User,

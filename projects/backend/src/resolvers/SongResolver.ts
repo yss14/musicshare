@@ -1,5 +1,5 @@
 import { Song } from '../models/SongModel';
-import { Resolver, FieldResolver, Root, ResolverInterface, Mutation, Arg } from "type-graphql";
+import { Resolver, FieldResolver, Root, ResolverInterface, Mutation, Arg, Authorized } from "type-graphql";
 import { Inject } from 'typedi';
 import { File } from '../models/FileModel';
 import { FileService } from '../file-service/FileService';
@@ -14,11 +14,13 @@ export class SongResolver implements ResolverInterface<Song>{
 		@Inject('SONG_SERVICE') private readonly songService: ISongService,
 	) { }
 
+	@Authorized()
 	@FieldResolver()
 	public file(@Root() song: Song): File {
 		return song.file;
 	}
 
+	@Authorized()
 	@FieldResolver()
 	public accessUrl(@Root() song: Song): Promise<string> {
 		/* istanbul ignore else */
@@ -32,6 +34,7 @@ export class SongResolver implements ResolverInterface<Song>{
 		}
 	}
 
+	@Authorized()
 	@Mutation(() => Song, { nullable: true })
 	public async updateSong(
 		@Arg('songID') songID: string,
