@@ -1,13 +1,20 @@
-import { buildSchema, ContainerType } from 'type-graphql';
-import { GraphQLServer } from 'graphql-yoga';
+import { buildSchema, ContainerType, AuthChecker } from 'type-graphql';
+import { ApolloServer } from "apollo-server-express";
+import { ContextRequest } from '../types/context';
 
-export const makeGraphQLServer = async (container: ContainerType, ...resolvers: Function[]) => {
+export const makeGraphQLServer = async <C = unknown>(container: ContainerType, authChecker: AuthChecker<C>, ...resolvers: Function[]) => {
 	const schema = await buildSchema({
 		resolvers,
-		container
+		container,
+		authChecker
 	});
 
-	const graphQLServer = new GraphQLServer({ schema });
+	const graphQLServer = new ApolloServer({
+		schema,
+		context: ({ req }: { req: ContextRequest }) => {
+			return req.context;
+		}
+	});
 
 	return graphQLServer;
 }

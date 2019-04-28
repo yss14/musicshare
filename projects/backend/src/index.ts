@@ -26,6 +26,8 @@ import { Client, auth } from "cassandra-driver";
 import { SongTypeService } from "./services/SongTypeService";
 import { GenreService } from "./services/GenreService";
 import { ArtistService } from "./services/ArtistService";
+import { graphQLAuthChecker } from "./auth/auth-middleware";
+import { IContext } from "./types/context";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -102,11 +104,11 @@ if (!isProductionEnvironment()) {
 		await makeDatabaseSchema(database, { keySpace: databaseKeyspace });
 	}
 
-	const graphQLServer = await makeGraphQLServer(Container, UserResolver, ShareResolver, SongResolver);
+	const graphQLServer = await makeGraphQLServer<IContext>(Container, graphQLAuthChecker, UserResolver, ShareResolver, SongResolver);
 
 	const server = await HTTPServer.makeServer(graphQLServer, fileService, songProcessingQueue);
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);
-	await server.start('/graphql', serverPort, !__PROD__);
+	await server.start('/graphql', serverPort);
 
 	console.info(`Server is running on http://localhost:${serverPort}`);
 	console.info(`GraphQL endpoint available at http://localhost:${serverPort}/graphql`);

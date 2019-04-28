@@ -1,10 +1,13 @@
-import { GraphQLServer } from "graphql-yoga";
 import supertest = require("supertest");
 import { HTTPStatusCodes } from "../../types/http-status-codes";
 import { jsonParsedObject } from "./json-parsed-object";
+import { ApolloServer } from "apollo-server-express";
+import * as express from 'express';
 
-export const executeGraphQLQuery = async (server: GraphQLServer, query: string, expectedHTTPCode: HTTPStatusCodes = 200) => {
-	const httpResponse = await supertest(server.express)
+export const executeGraphQLQuery = async (server: ApolloServer, query: string, expectedHTTPCode: HTTPStatusCodes = 200) => {
+	const expressApp = express();
+
+	const httpResponse = await supertest(expressApp)
 		.post('/')
 		.set('Accept', 'application/json')
 		.send({ query })

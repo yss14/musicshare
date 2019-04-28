@@ -66,10 +66,12 @@ export const setupTestEnv = async ({ seedDatabase, startServer, mockDatabase }: 
 		await seed(songService);
 	}
 
-	const graphQLServer = await makeGraphQLServer(Container, UserResolver, ShareResolver, SongResolver);
+	const authChecker = () => true;
+
+	const graphQLServer = await makeGraphQLServer(Container, authChecker, UserResolver, ShareResolver, SongResolver);
 
 	if (startServer === true) {
-		await graphQLServer.createHttpServer({});
+		//await graphQLServer.createHttpServer({});
 	}
 
 	return {

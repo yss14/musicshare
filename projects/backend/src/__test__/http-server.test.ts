@@ -17,7 +17,7 @@ test('start http server', async () => {
 	const httpServer = await HTTPServer.makeServer(graphQLServer, fileService, songUploadProcessingQueue);
 	const port = await findFreePort();
 
-	await expect(httpServer.start('graphqltest', port, false)).toResolve();
+	await expect(httpServer.start('graphqltest', port)).toResolve();
 
 	await httpServer.stop();
 });
@@ -29,7 +29,7 @@ test('start http server with graphql playground', async () => {
 	const httpServer = await HTTPServer.makeServer(graphQLServer, fileService, songUploadProcessingQueue);
 	const port = await findFreePort();
 
-	await expect(httpServer.start('graphqltest', port, true)).toResolve();
+	await expect(httpServer.start('graphqltest', port)).toResolve();
 
 	await httpServer.stop();
 });

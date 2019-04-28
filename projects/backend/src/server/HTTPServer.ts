@@ -1,4 +1,3 @@
-import { GraphQLServer, Options } from 'graphql-yoga';
 import * as express from 'express';
 import * as path from 'path';
 import * as Cors from 'cors';
@@ -8,6 +7,7 @@ import { __DEV__, __PROD__ } from '../utils/env/env-constants';
 import { FileService } from '../file-service/FileService';
 import { SongUploadProcessingQueue } from '../job-queues/SongUploadProcessingQueue';
 import { Server } from 'net';
+import { ApolloServer } from 'apollo-server-express';
 
 const ONE_HUNDRED_MEGABYTE = 100 * 1024 * 1024;
 
@@ -16,14 +16,16 @@ export class HTTPServer {
 	private httpServer!: Server;
 
 	private constructor(
-		private readonly graphQLServer: GraphQLServer,
+		private readonly graphQLServer: ApolloServer,
 		private readonly fileService: FileService,
 		private readonly uploadProcessingQueue: SongUploadProcessingQueue
 	) {
-		this.expressApp = graphQLServer.express;
+		this.expressApp = express();
+
+		graphQLServer.applyMiddleware({ app: this.expressApp });
 	}
 
-	public static async makeServer(graphQLServer: GraphQLServer, fileService: FileService, uploadProcessingQueue: SongUploadProcessingQueue) {
+	public static async makeServer(graphQLServer: ApolloServer, fileService: FileService, uploadProcessingQueue: SongUploadProcessingQueue) {
 		const httpServer = new HTTPServer(graphQLServer, fileService, uploadProcessingQueue);
 
 		httpServer.makeExpressSetup();
@@ -53,19 +55,15 @@ export class HTTPServer {
 		}
 	}
 
-	public async start(path: string, port: number, offerPlayground: boolean): Promise<void> {
-		const serverOptions: Options = {
-			port,
-			endpoint: path,
-			playground: offerPlayground ? '/playground' : undefined,
-		};
+	public async start(path: string, port: number): Promise<void> {
+		this.graphQLServer.setGraphQLPath(path);
 
-		this.httpServer = await this.graphQLServer.start(serverOptions);
+		this.httpServer = await this.expressApp.listen({ port });
 		await this.makeRestRoutes();
 	}
 
 	public stop(): Promise<void> {
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve) => {
 			this.httpServer.close(() => resolve());
 		});
 	}
