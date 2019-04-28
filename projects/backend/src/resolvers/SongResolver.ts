@@ -1,6 +1,5 @@
 import { Song } from '../models/SongModel';
-import { Resolver, FieldResolver, Root, ResolverInterface, Mutation, Arg } from "type-graphql";
-import { Inject } from 'typedi';
+import { Resolver, FieldResolver, Root, ResolverInterface, Mutation, Arg, Authorized } from "type-graphql";
 import { File } from '../models/FileModel';
 import { FileService } from '../file-service/FileService';
 import moment = require('moment');
@@ -10,15 +9,17 @@ import { ISongService } from '../services/SongService';
 @Resolver(of => Song)
 export class SongResolver implements ResolverInterface<Song>{
 	constructor(
-		@Inject('FILE_SERVICE') private readonly fileService: FileService,
-		@Inject('SONG_SERVICE') private readonly songService: ISongService,
+		private readonly fileService: FileService,
+		private readonly songService: ISongService,
 	) { }
 
+	@Authorized()
 	@FieldResolver()
 	public file(@Root() song: Song): File {
 		return song.file;
 	}
 
+	@Authorized()
 	@FieldResolver()
 	public accessUrl(@Root() song: Song): Promise<string> {
 		/* istanbul ignore else */
@@ -32,6 +33,7 @@ export class SongResolver implements ResolverInterface<Song>{
 		}
 	}
 
+	@Authorized()
 	@Mutation(() => Song, { nullable: true })
 	public async updateSong(
 		@Arg('songID') songID: string,
@@ -44,6 +46,7 @@ export class SongResolver implements ResolverInterface<Song>{
 			return this.songService.getByID(shareID, songID);
 		}
 
+		// istanbul ignore next
 		throw new Error('Song input is not valid');
 	}
 }

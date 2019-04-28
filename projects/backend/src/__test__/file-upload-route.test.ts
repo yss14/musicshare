@@ -9,6 +9,7 @@ import { commonRestErrors } from '../utils/typed-express/common-rest-errors';
 import { SongUploadProcessingQueueMock } from './mocks/SongUploadProcessingQueueMock';
 import { TimeUUID } from '../types/TimeUUID';
 import { NextHandleFunction } from 'connect';
+import { CustomRequestHandler } from '../types/context';
 
 const mp3FilePath = path.join(__dirname, 'assets', 'SampleAudio.mp3');
 let mp3FileBuffer: Buffer;
@@ -19,11 +20,13 @@ const passingFileService = new FileServiceMock(
 	() => ''
 );
 const songUploadProcessingQueue = new SongUploadProcessingQueueMock();
+const mockedAuth: CustomRequestHandler = (req, res, next) => next();
 const defaultRestRouter = fileUploadRouter({
 	fileService: passingFileService,
 	uploadProcessingQueue: songUploadProcessingQueue,
 	maxFileSize: 10 * 1024 * 1024,
-	allowedMimeTypes: acceptedContentTypes
+	allowedMimeTypes: acceptedContentTypes,
+	auth: mockedAuth,
 });
 const defaultExpressApp = makeExpressApp({ routers: [defaultRestRouter] });
 
@@ -33,7 +36,7 @@ beforeAll(async () => {
 
 test('valid request', async (done) => {
 	const httpRequest = request(defaultExpressApp)
-		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files`)
+		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files/SampleAudio.mp3`)
 		.set('Content-Type', 'audio/mpeg');
 
 	httpRequest.write(mp3FileBuffer);
@@ -48,7 +51,7 @@ test('valid request', async (done) => {
 
 test('invalid request passing a json', async (done) => {
 	const httpRequest = request(defaultExpressApp)
-		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files`)
+		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files/SampleAudio.mp3`)
 		.set('Content-Type', 'application/json');
 
 	httpRequest.send(JSON.stringify({ someProp: 42 }));
@@ -70,7 +73,7 @@ test('invalid request passing too large file', async (done) => {
 	}
 
 	const httpRequest = request(defaultExpressApp)
-		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files`)
+		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files/SampleAudio.mp3`)
 		.set('Content-Type', 'audio/mpeg');
 
 	httpRequest.write(tooLargeFileBuffer);
@@ -85,17 +88,17 @@ test('invalid request passing too large file', async (done) => {
 
 test('invalid request passing invalid userID', async () => {
 	const response1 = await request(defaultExpressApp)
-		.post(`/users/true/shares/${TimeUUID()}/files`)
+		.post(`/users/true/shares/${TimeUUID()}/files/SampleAudio.mp3`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
 	const response2 = await request(defaultExpressApp)
-		.post(`/users/42.2/shares/${TimeUUID()}/files`)
+		.post(`/users/42.2/shares/${TimeUUID()}/files/SampleAudio.mp3`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
 	const response3 = await request(defaultExpressApp)
-		.post(`/users/abcd-efgh/shares/${TimeUUID()}/files`)
+		.post(`/users/abcd-efgh/shares/${TimeUUID()}/files/SampleAudio.mp3`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
@@ -110,17 +113,17 @@ test('invalid request passing invalid userID', async () => {
 
 test('invalid request passing invalid shareID', async () => {
 	const response1 = await request(defaultExpressApp)
-		.post(`/users/${TimeUUID()}/shares/false/files`)
+		.post(`/users/${TimeUUID()}/shares/false/files/SampleAudio.mp3`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
 	const response2 = await request(defaultExpressApp)
-		.post(`/users/${TimeUUID()}/shares/42.2/files`)
+		.post(`/users/${TimeUUID()}/shares/42.2/files/SampleAudio.mp3`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
 	const response3 = await request(defaultExpressApp)
-		.post(`/users/${TimeUUID()}/shares/abcd-efgh/files`)
+		.post(`/users/${TimeUUID()}/shares/abcd-efgh/files/SampleAudio.mp3`)
 		.set('Content-Type', 'audio/mpeg')
 		.send();
 
@@ -140,11 +143,12 @@ test('invalid request passing no content-type', async (done) => {
 		uploadProcessingQueue: songUploadProcessingQueue,
 		maxFileSize: 10 * 1024 * 1024,
 		allowedMimeTypes: acceptedContentTypes,
-		bodyParser: customBodyParser
+		bodyParser: customBodyParser,
+		auth: mockedAuth,
 	});
 	const expressApp = makeExpressApp({ routers: [customRouter] });
 	const httpRequest = request(expressApp)
-		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files`)
+		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files/SampleAudio.mp3`)
 
 	httpRequest.write(mp3FileBuffer);
 	httpRequest.end((err, res) => {
@@ -166,12 +170,13 @@ test('valid request, but file upload fails', async (done) => {
 		fileService: failingFileService,
 		uploadProcessingQueue: songUploadProcessingQueue,
 		maxFileSize: 10 * 1024 * 1024,
-		allowedMimeTypes: acceptedContentTypes
+		allowedMimeTypes: acceptedContentTypes,
+		auth: mockedAuth,
 	});
 	const expressApp = makeExpressApp({ routers: [restRouter] });
 
 	const httpRequest = request(expressApp)
-		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files`)
+		.post(`/users/${TimeUUID()}/shares/${TimeUUID()}/files/SampleAudio.mp3`)
 		.set('Content-Type', 'audio/mpeg');
 
 	httpRequest.write(mp3FileBuffer);

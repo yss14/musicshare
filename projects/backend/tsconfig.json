@@ -11,9 +11,15 @@
 		],
 		"target": "esnext",
 		"outDir": "build/",
+		"skipLibCheck": true,
+		"rootDir": "src"
 	},
+	"include": [
+		"src/**/*"
+	],
 	"exclude": [
 		"node_modules",
-		"build"
+		"build",
+		"azurite"
 	]
 }

@@ -8,9 +8,11 @@ export interface IShareByUserDBResult extends TableRecord<typeof CoreTables.shar
 export interface ISongByShareDBResult extends TableRecord<typeof CoreTables.songs_by_shares> { }
 export interface ISongTypeByShareDBResult extends TableRecord<typeof CoreTables.song_types_by_share> { }
 export interface IGenreByShareDBResult extends TableRecord<typeof CoreTables.genres_by_share> { }
+export interface IUserLoginCredentialDBResult extends TableRecord<typeof CoreTables.user_login_credentials> { }
 
 export const UsersTable = Table(CoreTables, 'users');
 export const SharesByUserTable = Table(CoreTables, 'shares_by_user');
 export const SongsByShareTable = Table(CoreTables, 'songs_by_shares');
 export const SongTypesByShareTable = Table(CoreTables, 'song_types_by_share');
 export const GenresByShareTable = Table(CoreTables, 'genres_by_share');
+export const UserLoginCredentialsTable = Table(CoreTables, 'user_login_credentials');

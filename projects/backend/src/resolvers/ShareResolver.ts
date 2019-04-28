@@ -1,9 +1,8 @@
 import { ISongService } from '../services/SongService';
-import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
+import { Resolver, Query, Arg, FieldResolver, Root, Authorized } from "type-graphql";
 import { Share } from "../models/ShareModel";
 import { Song } from "../models/SongModel";
 import { IShareService } from "../services/ShareService";
-import { Inject } from 'typedi';
 import { ISongTypeService } from '../services/SongTypeService';
 import { SongType } from '../models/SongType';
 import { Genre } from '../models/GenreModel';
@@ -14,18 +13,20 @@ import { Artist } from '../models/ArtistModel';
 @Resolver(of => Share)
 export class ShareResolver {
 	constructor(
-		@Inject('SHARE_SERVICE') private readonly shareService: IShareService,
-		@Inject('SONG_SERVICE') private readonly songService: ISongService,
-		@Inject('SONG_TYPE_SERVICE') private readonly songTypeService: ISongTypeService,
-		@Inject('GENRE_SERVICE') private readonly genreService: IGenreService,
-		@Inject('ARTIST_SERVICE') private readonly artistService: IArtistService,
+		private readonly shareService: IShareService,
+		private readonly songService: ISongService,
+		private readonly songTypeService: ISongTypeService,
+		private readonly genreService: IGenreService,
+		private readonly artistService: IArtistService,
 	) { }
 
+	@Authorized()
 	@Query(() => Share, { nullable: true })
 	public share(@Arg("id") id: string): Promise<Share | null> {
 		return this.shareService.getShareByID(id);
 	}
 
+	@Authorized()
 	@FieldResolver()
 	public async songs(
 		@Root() share: Share,
@@ -40,6 +41,7 @@ export class ShareResolver {
 		return songs.filter((_, idx) => idx >= startIdx && idx <= endIdx);
 	}
 
+	@Authorized()
 	@FieldResolver()
 	public song(
 		@Root() share: Share,
@@ -48,6 +50,7 @@ export class ShareResolver {
 		return this.songService.getByID(share.id, id);
 	}
 
+	@Authorized()
 	@FieldResolver(() => [SongType])
 	public async songTypes(
 		@Root() share: Share
@@ -57,6 +60,7 @@ export class ShareResolver {
 		return songTypes;
 	}
 
+	@Authorized()
 	@FieldResolver(() => [Genre])
 	public async genres(
 		@Root() share: Share
@@ -66,6 +70,7 @@ export class ShareResolver {
 		return genres;
 	}
 
+	@Authorized()
 	@FieldResolver(() => [Artist])
 	public async artists(
 		@Root() share: Share

@@ -26,6 +26,11 @@ import { Client, auth } from "cassandra-driver";
 import { SongTypeService } from "./services/SongTypeService";
 import { GenreService } from "./services/GenreService";
 import { ArtistService } from "./services/ArtistService";
+import { graphQLAuthChecker, makeAuthExtractor } from "./auth/auth-middleware";
+import { IContext } from "./types/context";
+import { PasswordLoginService } from "./auth/PasswordLoginService";
+import { AuthenticationService } from "./auth/AuthenticationService";
+import { v4 as uuid } from 'uuid';
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -86,27 +91,29 @@ if (!isProductionEnvironment()) {
 	const artistExtractor = new ArtistExtractor();
 	const songMetaDataService = new SongMetaDataService([new ID3MetaData(artistExtractor)]);
 	const songProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
+	const authService = new AuthenticationService(process.env[CustomEnv.JWT_SECRET] || uuid());
+	const passwordLoginService = PasswordLoginService({ authService, database, userService });
 
-	Container.set('FILE_SERVICE', fileService);
-	Container.set('SONG_SERVICE', songService);
-	Container.set('SHARE_SERVICE', shareService);
-	Container.set('USER_SERVICE', userService);
-	Container.set('SONG_TYPE_SERVICE', songTypeService);
-	Container.set('GENRE_SERVICE', genreService);
-	Container.set('ARTIST_SERVICE', artistService);
+	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService);
+	const songResolver = new SongResolver(fileService, songService);
+	const userResolver = new UserResolver(userService, shareService, passwordLoginService);
+
+	Container.set(ShareResolver, shareResolver);
+	Container.set(SongResolver, songResolver);
+	Container.set(UserResolver, userResolver);
 
 	if (__DEV__) {
-		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService });
+		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService });
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	} else if (__PROD__) {
 		await makeDatabaseSchema(database, { keySpace: databaseKeyspace });
 	}
 
-	const graphQLServer = await makeGraphQLServer(Container, UserResolver, ShareResolver, SongResolver);
+	const graphQLServer = await makeGraphQLServer<IContext>(Container, graphQLAuthChecker, UserResolver, ShareResolver, SongResolver);
 
-	const server = await HTTPServer.makeServer(graphQLServer, fileService, songProcessingQueue);
+	const server = HTTPServer({ graphQLServer, fileService, uploadProcessingQueue: songProcessingQueue, authExtractor: makeAuthExtractor(authService) });
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);
-	await server.start('/graphql', serverPort, !__PROD__);
+	await server.start('/graphql', serverPort);
 
 	console.info(`Server is running on http://localhost:${serverPort}`);
 	console.info(`GraphQL endpoint available at http://localhost:${serverPort}/graphql`);

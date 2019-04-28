@@ -18,18 +18,21 @@ import { SongTypeService } from "../../services/SongTypeService";
 import { GenreService } from "../../services/GenreService";
 import { ArtistService } from "../../services/ArtistService";
 import { makeMockedDatabase } from "../mocks/mock-database";
+import { AuthenticationService } from "../../auth/AuthenticationService";
+import { PasswordLoginService } from "../../auth/PasswordLoginService";
+import uuid = require("uuid");
 
 interface SetupTestEnvArgs {
 	mockDatabase?: boolean;
 	seedDatabase?: boolean;
-	startServer?: boolean;
 }
 
 // tslint:disable:no-parameter-reassignment
-export const setupTestEnv = async ({ seedDatabase, startServer, mockDatabase }: SetupTestEnvArgs) => {
+export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvArgs) => {
 	seedDatabase = seedDatabase || true;
-	startServer = startServer || true;
 	mockDatabase = mockDatabase || false;
+
+	const testID = uuid();
 
 	let database = makeMockedDatabase();
 	let databaseKeyspace = '';
@@ -48,17 +51,19 @@ export const setupTestEnv = async ({ seedDatabase, startServer, mockDatabase }: 
 	const artistService = new ArtistService(songService);
 	const genreService = new GenreService(database);
 	const songUploadProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
+	const authService = new AuthenticationService('dev_secret');
+	const passwordLoginService = PasswordLoginService({ authService, database, userService });
 
-	Container.set('USER_SERVICE', userService);
-	Container.set('SHARE_SERVICE', shareService);
-	Container.set('SONG_SERVICE', songService);
-	Container.set('FILE_SERVICE', fileService);
-	Container.set('SONG_TYPE_SERVICE', songTypeService);
-	Container.set('GENRE_SERVICE', genreService);
-	Container.set('ARTIST_SERVICE', artistService);
+	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService);
+	const songResolver = new SongResolver(fileService, songService);
+	const userResolver = new UserResolver(userService, shareService, passwordLoginService);
+
+	Container.of(testID).set(ShareResolver, shareResolver);
+	Container.of(testID).set(SongResolver, songResolver);
+	Container.of(testID).set(UserResolver, userResolver);
 
 	const seed = async (songService: SongService) => {
-		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService });
+		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService });
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	}
 
@@ -66,11 +71,9 @@ export const setupTestEnv = async ({ seedDatabase, startServer, mockDatabase }: 
 		await seed(songService);
 	}
 
-	const graphQLServer = await makeGraphQLServer(Container, UserResolver, ShareResolver, SongResolver);
+	const authChecker = () => true;
 
-	if (startServer === true) {
-		await graphQLServer.createHttpServer({});
-	}
+	const graphQLServer = await makeGraphQLServer(Container.of(testID), authChecker, UserResolver, ShareResolver, SongResolver);
 
 	return {
 		graphQLServer,
@@ -84,5 +87,7 @@ export const setupTestEnv = async ({ seedDatabase, startServer, mockDatabase }: 
 		songTypeService,
 		genreService,
 		artistService,
+		authService,
+		passwordLoginService,
 	};
 }

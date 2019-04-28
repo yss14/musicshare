@@ -4,7 +4,7 @@ export namespace DatabaseV1 {
 	export const users = TableSchema({
 		id: { type: ColumnType.TimeUUID, partitionKey: true },
 		name: { type: ColumnType.Varchar, nullable: false },
-		emails: { type: CSet(ColumnType.Varchar), nullable: false }
+		email: { type: ColumnType.Varchar, clusteringKey: true },
 	});
 
 	export const shares_by_user = TableSchema({
@@ -51,4 +51,10 @@ export namespace DatabaseV1 {
 		date_added: { type: ColumnType.Timestamp, nullable: false },
 		date_removed: { type: ColumnType.Timestamp },
 	});
+
+	export const user_login_credentials = TableSchema({
+		email: { type: ColumnType.Varchar, partitionKey: true },
+		user_id: { type: ColumnType.TimeUUID, clusteringKey: true },
+		credential: { type: ColumnType.Varchar, nullable: false },
+	})
 }

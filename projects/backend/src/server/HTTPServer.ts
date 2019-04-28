@@ -1,6 +1,5 @@
-import { GraphQLServer, Options } from 'graphql-yoga';
 import * as express from 'express';
-import * as path from 'path';
+import * as pathModule from 'path';
 import * as Cors from 'cors';
 import * as Morgan from 'morgan';
 import { fileUploadRouter } from './routes/file-upload-route';
@@ -8,65 +7,59 @@ import { __DEV__, __PROD__ } from '../utils/env/env-constants';
 import { FileService } from '../file-service/FileService';
 import { SongUploadProcessingQueue } from '../job-queues/SongUploadProcessingQueue';
 import { Server } from 'net';
+import { ApolloServer } from 'apollo-server-express';
+import { auth } from '../auth/auth-middleware';
+import { CustomRequestHandler } from '../types/context';
 
 const ONE_HUNDRED_MEGABYTE = 100 * 1024 * 1024;
 
-export class HTTPServer {
-	private expressApp!: express.Application;
-	private httpServer!: Server;
+export interface IHTTPServerArgs {
+	graphQLServer: ApolloServer;
+	fileService: FileService;
+	uploadProcessingQueue: SongUploadProcessingQueue;
+	authExtractor: CustomRequestHandler;
+}
 
-	private constructor(
-		private readonly graphQLServer: GraphQLServer,
-		private readonly fileService: FileService,
-		private readonly uploadProcessingQueue: SongUploadProcessingQueue
-	) {
-		this.expressApp = graphQLServer.express;
-	}
+export interface IHTTPServer {
+	start(path: string, port: number): Promise<void>;
+	stop(): Promise<void>;
+}
 
-	public static async makeServer(graphQLServer: GraphQLServer, fileService: FileService, uploadProcessingQueue: SongUploadProcessingQueue) {
-		const httpServer = new HTTPServer(graphQLServer, fileService, uploadProcessingQueue);
+export const HTTPServer = ({ fileService, graphQLServer, uploadProcessingQueue, authExtractor }: IHTTPServerArgs): IHTTPServer => {
+	let httpServer: Server;
+	const expressApp = express();
 
-		httpServer.makeExpressSetup();
+	expressApp.use(Cors());
+	expressApp.disable('x-powered-by');
+	expressApp.use(Morgan('dev'));
+	expressApp.use(authExtractor as any);
 
-		return httpServer;
-	}
+	graphQLServer.applyMiddleware({ app: expressApp });
 
-	private makeExpressSetup() {
-		this.expressApp.use(Cors());
-		this.expressApp.disable('x-powered-by');
-		this.expressApp.use(Morgan('dev'));
-	}
+	const start = async (path: string, port: number) => {
+		graphQLServer.setGraphQLPath(path);
 
-	private async makeRestRoutes() {
+		httpServer = await expressApp.listen({ port });
+
 		const fileUploadRoutes = fileUploadRouter({
-			fileService: this.fileService,
-			uploadProcessingQueue: this.uploadProcessingQueue,
-			maxFileSize: ONE_HUNDRED_MEGABYTE
+			fileService: fileService,
+			uploadProcessingQueue: uploadProcessingQueue,
+			maxFileSize: ONE_HUNDRED_MEGABYTE,
+			auth
 		});
-		this.expressApp.use(fileUploadRoutes);
+		expressApp.use(fileUploadRoutes);
 
 		/* istanbul ignore next */
 		if (!__PROD__) {
-			this.expressApp.get('/static/debug/*', (req: express.Request, res: express.Response) => {
-				res.sendFile(path.join(__dirname, '../../src/', req.path));
+			expressApp.get('/static/debug/*', (req: express.Request, res: express.Response) => {
+				res.sendFile(pathModule.join(__dirname, '../../src/', req.path));
 			})
 		}
 	}
 
-	public async start(path: string, port: number, offerPlayground: boolean): Promise<void> {
-		const serverOptions: Options = {
-			port,
-			endpoint: path,
-			playground: offerPlayground ? '/playground' : undefined,
-		};
+	const stop = () => new Promise<void>((resolve) => {
+		httpServer.close(() => resolve());
+	});
 
-		this.httpServer = await this.graphQLServer.start(serverOptions);
-		await this.makeRestRoutes();
-	}
-
-	public stop(): Promise<void> {
-		return new Promise((resolve, reject) => {
-			this.httpServer.close(() => resolve());
-		});
-	}
+	return { start, stop };
 }

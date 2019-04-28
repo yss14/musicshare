@@ -8,6 +8,15 @@ node_js:
   - "10"
 
 cache: npm
+
+env:
+  - CXX=g++-6
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-6
       
 install:  
   - npm install

@@ -11,9 +11,13 @@ export class UserServiceMock implements IUserService {
 		const user = this.users.find(user => user.id === id);
 
 		if (!user) {
-			throw new UserNotFoundError(id);
+			throw new UserNotFoundError('id', id);
 		}
 
 		return user;
+	}
+
+	public async getUserByEMail(email: string): Promise<User> {
+		throw 'Not implemented yet';
 	}
 }

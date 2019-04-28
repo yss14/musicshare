@@ -85,6 +85,8 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 
 			return callback(undefined, song);
 		} catch (err) {
+			console.error(err);
+
 			return callback(err);
 		}
 	}
