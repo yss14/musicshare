@@ -6,9 +6,10 @@ import * as express from 'express';
 
 export const executeGraphQLQuery = async (server: ApolloServer, query: string, expectedHTTPCode: HTTPStatusCodes = 200) => {
 	const expressApp = express();
+	server.applyMiddleware({ app: expressApp });
 
 	const httpResponse = await supertest(expressApp)
-		.post('/')
+		.post('/graphql')
 		.set('Accept', 'application/json')
 		.send({ query })
 		.expect((res) => res.status !== expectedHTTPCode ? console.log(res.body) : 0)
