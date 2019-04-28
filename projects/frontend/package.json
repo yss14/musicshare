@@ -5,8 +5,8 @@
   "dependencies": {
     "@types/graphql": "^14.2.0",
     "@types/jest": "24.0.11",
-    "@types/node": "11.13.5",
-    "@types/react": "16.8.13",
+    "@types/node": "11.13.7",
+    "@types/react": "16.8.14",
     "@types/react-dom": "16.8.4",
     "@types/react-router-dom": "^4.3.1",
     "@types/styled-components": "^4.1.14",
@@ -29,7 +29,7 @@
     "babel-plugin-import": "^1.11.0",
     "customize-cra": "^0.2.12",
     "react-app-rewired": "^2.1.1",
-    "typescript": "3.4.4"
+    "typescript": "3.4.5"
   },
   "scripts": {
     "start": "react-app-rewired start",
