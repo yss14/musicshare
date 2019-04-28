@@ -30,35 +30,38 @@ const typeDefs = gql`
 
 const cache = new InMemoryCache();
 const client = new ApolloClient({
-  link: ApolloLink.from([
-    onError(({ graphQLErrors, networkError }) => {
-      if (graphQLErrors)
-        graphQLErrors.map(({ message, locations, path }) =>
-          console.log(
-            `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
-          )
-        );
-      if (networkError) console.log(`[Network error]: ${networkError}`);
-    }),
-    new HttpLink({
-      uri: config.services.musicshare.backendURL
-    })
-  ]),
-  cache,
-  typeDefs,
-  resolvers
+	link: ApolloLink.from([
+		onError(({ graphQLErrors, networkError }) => {
+			if (graphQLErrors)
+				graphQLErrors.map(({ message, locations, path }) =>
+					console.log(
+						`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+					)
+				);
+			if (networkError) console.log(`[Network error]: ${networkError}`);
+		}),
+		new HttpLink({
+			uri: config.services.musicshare.backendURL,
+			headers: {
+				authorization: config.services.musicshare.authTokenDev
+			}
+		})
+	]),
+	cache,
+	typeDefs,
+	resolvers
 });
 
 //initial cache data
 const data = {
-  todos: [],
-  userId: "f0d8e1f0-aeb1-11e8-a117-43673ffd376b",
-  shareId: "",
-  visibilityFilter: "SHOW_ALL",
-  networkStatus: {
-    __typename: "NetworkStatus",
-    isConnected: false
-  }
+	todos: [],
+	userId: "f0d8e1f0-aeb1-11e8-a117-43673ffd376b",
+	shareId: "",
+	visibilityFilter: "SHOW_ALL",
+	networkStatus: {
+		__typename: "NetworkStatus",
+		isConnected: false
+	}
 };
 
 cache.writeData({ data });
@@ -66,24 +69,24 @@ cache.writeData({ data });
 client.onResetStore(async () => cache.writeData({ data }));
 
 const theme = {
-  main: "#275dad",
-  white: "#ffffff",
-  y: "#fcf7f8",
-  lightgrey: "#aba9c3",
-  grey: "#ced3dc",
-  darkgrey: "#474350"
+	main: "#275dad",
+	white: "#ffffff",
+	y: "#fcf7f8",
+	lightgrey: "#aba9c3",
+	grey: "#ced3dc",
+	darkgrey: "#474350"
 };
 
 const App = () => {
-  return (
-    <ApolloProvider client={client}>
-      <ThemeProvider theme={theme}>
-        <Router>
-          <AppWrapper />
-        </Router>
-      </ThemeProvider>
-    </ApolloProvider>
-  );
+	return (
+		<ApolloProvider client={client}>
+			<ThemeProvider theme={theme}>
+				<Router>
+					<AppWrapper />
+				</Router>
+			</ThemeProvider>
+		</ApolloProvider>
+	);
 };
 
 export default App;
