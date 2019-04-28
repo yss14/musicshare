@@ -28,7 +28,7 @@ export const uploadFile = (
 ) => async (dispatch: any) => {
   const arrayBuffer = await blobToArrayBuffer(file);
   const hash = crypto.sha256(arrayBuffer);
-
+  console.log(shareID);
   dispatch({
     type: UPLOAD_QUEUED,
     payload: {

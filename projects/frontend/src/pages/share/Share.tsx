@@ -123,7 +123,8 @@ const MutationWrapper = ({ match }: RouteComponentProps<{ id: string }>) => {
 const Share = ({ updateShareId, id }: IShareProps) => {
   useEffect(() => {
     updateShareId();
-  }, []);
+    console.log("update", id);
+  }, [id]);
 
   return (
     <Query<IData, IVariables> query={GET_SHARE} variables={{ id }}>

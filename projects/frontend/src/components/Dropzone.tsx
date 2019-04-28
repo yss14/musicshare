@@ -88,10 +88,14 @@ export default ({ children }: WrapperProps) => {
 
 const Dropzone = ({ userId, shareId, children }: IDropzoneProps) => {
   const [state, dispatch] = useReducer(reducer, []);
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    // Do something with the files
-    acceptedFiles.forEach(file => uploadFile(userId, shareId, file)(dispatch));
-  }, []);
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      acceptedFiles.forEach(file =>
+        uploadFile(userId, shareId, file)(dispatch)
+      );
+    },
+    [shareId, userId]
+  );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop
   });

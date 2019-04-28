@@ -15,12 +15,6 @@ interface ITodo {
   completed: boolean;
 }
 
-const GET_CART_ITEMS = gql`
-  query GetCartItems {
-    cartItems @client
-  }
-`;
-
 export const resolvers = {
   Mutation: {
     toggleTodo: (
@@ -63,8 +57,7 @@ export const resolvers = {
       { shareId }: IShareVariables,
       { cache }: { cache: InMemoryCache }
     ) => {
-      const data = { shareId, __typename: "Share" };
-      cache.writeData({ data });
+      cache.writeData({ data: { shareId } });
     }
   }
 };
