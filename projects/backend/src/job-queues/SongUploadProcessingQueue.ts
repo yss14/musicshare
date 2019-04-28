@@ -53,7 +53,6 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 
 	@bind
 	private async process(uploadMeta: ISongProcessingQueuePayload, callback: BetterQueue.ProcessFunctionCb<string>): Promise<void> {
-		console.log(uploadMeta);
 		if (!isSongProcessingQueuePayload(uploadMeta)) {
 			return callback(new Error('Received job queue payload is no ISongProcessingQueuePayload, skip processing...'));
 		}
@@ -64,7 +63,6 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 
 			const songMeta = await this.songMetaDataService.analyse(uploadMeta.file, audioBuffer, songTypes);
 
-			console.log('create')
 			const song = await this.songService.create({
 				id: TimeUUID(),
 				title: songMeta.title || uploadMeta.file.originalFilename,
