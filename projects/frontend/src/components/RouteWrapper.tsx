@@ -5,10 +5,11 @@ import React, {
   useEffect,
   MutableRefObject
 } from "react";
-import { Icon, Layout } from "antd";
+import { Icon, Layout, Progress } from "antd";
 import styled from "styled-components";
 import Menu from "./Menu";
 import Dropzone from "./Dropzone";
+import { Flex, Box } from "./Flex";
 const { Sider, Content } = Layout;
 
 const StyledSider = styled(Sider)`
@@ -74,9 +75,30 @@ const RouteWrapper = ({ children }: IRouteWrapperProps) => {
       </StyledSider>
       <StyledContent collapsed={collapsed}>
         <Dropzone>
-          <div style={{ width: "100%", height: "200px" }} ref={myRef}>
-            {currentContainer && children(currentContainer)}
-          </div>
+          {({ progress, loading, error }) => {
+            if (error) {
+              return <div>Error.</div>;
+            }
+            return (
+              <Flex direction="column">
+                {loading ? (
+                  <Box>
+                    <Progress
+                      style={{ padding: 10, background: "white" }}
+                      percent={progress}
+                      showInfo={false}
+                      status="active"
+                    />
+                  </Box>
+                ) : null}
+                <Box>
+                  <div style={{ width: "100%", height: "100%" }} ref={myRef}>
+                    {currentContainer && children(currentContainer)}
+                  </div>
+                </Box>
+              </Flex>
+            );
+          }}
         </Dropzone>
       </StyledContent>
     </>
