@@ -6,7 +6,7 @@ export const makeGraphQLServer = async <C = unknown>(container: ContainerType, a
 	const schema = await buildSchema({
 		resolvers,
 		container,
-		authChecker
+		authChecker,
 	});
 
 	const graphQLServer = new ApolloServer({
