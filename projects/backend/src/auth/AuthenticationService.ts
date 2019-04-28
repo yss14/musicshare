@@ -27,6 +27,7 @@ export class AuthenticationService implements IAuthenticationService {
 			email: user.email,
 			scopes
 		}
+		// istanbul ignore next
 		const defaultExpire = __PROD__ ? '14 days' : '365 days';
 
 		const jwtToken = JWT.sign(jwtPayload, this.jwtSecret, { expiresIn: expiresIn || defaultExpire });
@@ -43,6 +44,7 @@ export class AuthenticationService implements IAuthenticationService {
 					return;
 				}
 
+				// istanbul ignore next
 				resolve(typeof payload === 'object' ? payload : JSON.parse(payload));
 			});
 		});
