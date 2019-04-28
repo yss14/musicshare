@@ -42,7 +42,7 @@ export const PasswordLoginService = ({ authService, database, userService }: IPa
 
 		const user = await userService.getUserByEMail(email);
 
-		const authToken = await authService.issueToken(user, '*');
+		const authToken = await authService.issueToken(user, []); // TODO add scopes
 
 		return authToken;
 	}

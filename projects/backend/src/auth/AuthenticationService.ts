@@ -1,12 +1,6 @@
 import * as JWT from 'jsonwebtoken';
 import { User } from '../models/UserModel';
-
-interface IShareScope {
-	shareID: string;
-	permissions: string[];
-}
-
-type Scopes = '*' | IShareScope[];
+import { Scopes } from '../types/context';
 
 interface IJWTTokenSchema {
 	userID: string;
