@@ -23,7 +23,7 @@ export class User {
 			{
 				id: dbResult.id.toString(),
 				name: dbResult.name,
-				emails: dbResult.email
+				email: dbResult.email
 			}
 		);
 	}

@@ -1,10 +1,11 @@
 // tslint:disable-next-line:no-import-side-effect
 import "reflect-metadata";
 import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
-import { testData } from "../database/seed";
+import { testData, testPassword } from "../database/seed";
 import { Share } from "../models/ShareModel";
 import { setupTestEnv } from "./utils/setup-test-env";
 import { TimeUUID } from "../types/TimeUUID";
+import * as argon2 from 'argon2';
 
 const makeUserQuery = (id: string, withShares: boolean = false, libOnly: boolean = true) => {
 	return `
@@ -12,7 +13,7 @@ const makeUserQuery = (id: string, withShares: boolean = false, libOnly: boolean
 			user(id: "${id}"){
 				id,
 				name,
-				emails,
+				email,
 				${withShares ? `shares(libOnly: ${libOnly}){
 					id,
 					name,
@@ -23,6 +24,12 @@ const makeUserQuery = (id: string, withShares: boolean = false, libOnly: boolean
 		}
 	`;
 }
+
+const makeLoginMutation = (email: string, password: string) => `
+	mutation{
+		login(email: "${email}", password: "${password}")
+	}
+`;
 
 const cleanupHooks: (() => Promise<void>)[] = [];
 
@@ -91,5 +98,65 @@ describe('get users shares', () => {
 				shares: [testData.shares.some_shared_library, testData.shares.library_user1].map(Share.fromDBResult)
 			}
 		}));
+	});
+});
+
+describe('login', () => {
+	test('successful', async () => {
+		const { graphQLServer, cleanUp, authService } = await setupTestEnv({});
+		cleanupHooks.push(cleanUp);
+
+		const testUser = testData.users.user1;
+		const query = makeLoginMutation(testUser.email, testPassword);
+
+		const { body } = await executeGraphQLQuery(graphQLServer, query);
+
+		expect(body.data.login).toBeString();
+		await expect(authService.verifyToken(body.data.login)).resolves.toBeObject();
+	});
+
+	test('wrong password', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
+		cleanupHooks.push(cleanUp);
+
+		const testUser = testData.users.user1;
+		const query = makeLoginMutation(testUser.email, testPassword + 'wrong');
+
+		const { body } = await executeGraphQLQuery(graphQLServer, query);
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: `Login credentials invalid` }]
+		));
+	});
+
+	test('already hashed password', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
+		cleanupHooks.push(cleanUp);
+
+		const testUser = testData.users.user1;
+		const query = makeLoginMutation(testUser.email, await argon2.hash(testPassword));
+
+		const { body } = await executeGraphQLQuery(graphQLServer, query);
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: `Login credentials invalid` }]
+		));
+	});
+
+	test('not existing email', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
+		cleanupHooks.push(cleanUp);
+
+		const testUser = testData.users.user1;
+		const query = makeLoginMutation(testUser.email + 'a', testPassword);
+
+		const { body } = await executeGraphQLQuery(graphQLServer, query);
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: `Login credentials invalid` }]
+		));
 	});
 });

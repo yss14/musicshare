@@ -25,6 +25,8 @@ interface ITestDataSchema {
 	songs: { [P in Songs]: Required<ISongByShareDBResult> };
 }
 
+export const testPassword = 'test1234';
+
 export const testData: ITestDataSchema = {
 	users: {
 		user1: {
@@ -154,7 +156,7 @@ export const makeDatabaseSeed = ({ database, songService, songTypeService, genre
 		for (const user of Object.values(testData.users)) {
 			await database.query(UsersTable.insertFromObj(user));
 
-			await passwordLoginService.register({ userID: user.id.toString(), email: user.email, password: 'test1234' });
+			await passwordLoginService.register({ userID: user.id.toString(), email: user.email, password: testPassword });
 		}
 	}
 

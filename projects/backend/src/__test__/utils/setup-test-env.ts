@@ -85,5 +85,6 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 		songTypeService,
 		genreService,
 		artistService,
+		authService,
 	};
 }
