@@ -5,7 +5,7 @@ import { Share } from '../models/ShareModel';
 import { IUserService } from '../services/UserService';
 import { Inject } from 'typedi';
 import { IPasswordLoginService, LoginNotFound, LoginCredentialsInvalid } from '../auth/PasswordLoginService';
-import { InternalServerError } from '../types/interna-server-error';
+import { InternalServerError } from '../types/internal-server-error';
 
 @Resolver(of => User)
 export class UserResolver {
