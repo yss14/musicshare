@@ -94,14 +94,13 @@ if (!isProductionEnvironment()) {
 	const authService = new AuthenticationService(process.env[CustomEnv.JWT_SECRET] || uuid());
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
 
-	Container.set('FILE_SERVICE', fileService);
-	Container.set('SONG_SERVICE', songService);
-	Container.set('SHARE_SERVICE', shareService);
-	Container.set('USER_SERVICE', userService);
-	Container.set('SONG_TYPE_SERVICE', songTypeService);
-	Container.set('GENRE_SERVICE', genreService);
-	Container.set('ARTIST_SERVICE', artistService);
-	Container.set('PASSWORD_LOGIN_SERVICE', passwordLoginService);
+	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService);
+	const songResolver = new SongResolver(fileService, songService);
+	const userResolver = new UserResolver(userService, shareService, passwordLoginService);
+
+	Container.set(ShareResolver, shareResolver);
+	Container.set(SongResolver, songResolver);
+	Container.set(UserResolver, userResolver);
 
 	if (__DEV__) {
 		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService });

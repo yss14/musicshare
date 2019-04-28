@@ -1,6 +1,5 @@
 import { Song } from '../models/SongModel';
 import { Resolver, FieldResolver, Root, ResolverInterface, Mutation, Arg, Authorized } from "type-graphql";
-import { Inject } from 'typedi';
 import { File } from '../models/FileModel';
 import { FileService } from '../file-service/FileService';
 import moment = require('moment');
@@ -10,8 +9,8 @@ import { ISongService } from '../services/SongService';
 @Resolver(of => Song)
 export class SongResolver implements ResolverInterface<Song>{
 	constructor(
-		@Inject('FILE_SERVICE') private readonly fileService: FileService,
-		@Inject('SONG_SERVICE') private readonly songService: ISongService,
+		private readonly fileService: FileService,
+		private readonly songService: ISongService,
 	) { }
 
 	@Authorized()

@@ -3,7 +3,6 @@ import { User } from '../models/UserModel';
 import { Resolver, Arg, Query, FieldResolver, Root, Mutation, Authorized } from "type-graphql";
 import { Share } from '../models/ShareModel';
 import { IUserService } from '../services/UserService';
-import { Inject } from 'typedi';
 import { IPasswordLoginService, LoginNotFound, LoginCredentialsInvalid } from '../auth/PasswordLoginService';
 import { InternalServerError } from '../types/internal-server-error';
 
@@ -11,9 +10,9 @@ import { InternalServerError } from '../types/internal-server-error';
 export class UserResolver {
 
 	constructor(
-		@Inject('USER_SERVICE') private readonly userService: IUserService,
-		@Inject('SHARE_SERVICE') private readonly shareService: IShareService,
-		@Inject('PASSWORD_LOGIN_SERVICE') private readonly passwordLoginService: IPasswordLoginService,
+		private readonly userService: IUserService,
+		private readonly shareService: IShareService,
+		private readonly passwordLoginService: IPasswordLoginService,
 	) { }
 
 	@Authorized()

@@ -3,7 +3,6 @@ import { Resolver, Query, Arg, FieldResolver, Root, Authorized } from "type-grap
 import { Share } from "../models/ShareModel";
 import { Song } from "../models/SongModel";
 import { IShareService } from "../services/ShareService";
-import { Inject } from 'typedi';
 import { ISongTypeService } from '../services/SongTypeService';
 import { SongType } from '../models/SongType';
 import { Genre } from '../models/GenreModel';
@@ -14,11 +13,11 @@ import { Artist } from '../models/ArtistModel';
 @Resolver(of => Share)
 export class ShareResolver {
 	constructor(
-		@Inject('SHARE_SERVICE') private readonly shareService: IShareService,
-		@Inject('SONG_SERVICE') private readonly songService: ISongService,
-		@Inject('SONG_TYPE_SERVICE') private readonly songTypeService: ISongTypeService,
-		@Inject('GENRE_SERVICE') private readonly genreService: IGenreService,
-		@Inject('ARTIST_SERVICE') private readonly artistService: IArtistService,
+		private readonly shareService: IShareService,
+		private readonly songService: ISongService,
+		private readonly songTypeService: ISongTypeService,
+		private readonly genreService: IGenreService,
+		private readonly artistService: IArtistService,
 	) { }
 
 	@Authorized()

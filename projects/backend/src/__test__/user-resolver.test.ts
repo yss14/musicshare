@@ -160,18 +160,17 @@ describe('login', () => {
 		));
 	});
 
-	// Does not work in concurrent mode; needs refactoring to get rid of typedi
-	/*test.only('unexpected internal error', async () => {
-		const { graphQLServer, cleanUp, passwordLoginService } = await setupTestEnv({});
+	test('unexpected internal error', async () => {
+		const { graphQLServer, cleanUp, database } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
-
-		passwordLoginService.login = (() => { throw new Error('Some unexpected error'); }).bind(passwordLoginService);
 
 		const testUser = testData.users.user1;
 		const query = makeLoginMutation(testUser.email, testPassword);
 
+		await database.close(); // force unexpected error
+
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
-		console.log(body)
+
 		expect(body.errors[0].message.indexOf('An internal server error occured')).toBeGreaterThan(-1);
-	});*/
+	});
 });
