@@ -11,7 +11,7 @@ afterAll(async () => {
 });
 
 test('start http server', async () => {
-	const { graphQLServer, fileService, songUploadProcessingQueue, cleanUp } = await setupTestEnv({ seedDatabase: false, startServer: false });
+	const { graphQLServer, fileService, songUploadProcessingQueue, cleanUp } = await setupTestEnv({ seedDatabase: false });
 	cleanupHooks.push(cleanUp);
 
 	const httpServer = await HTTPServer.makeServer(graphQLServer, fileService, songUploadProcessingQueue);
@@ -23,7 +23,7 @@ test('start http server', async () => {
 });
 
 test('start http server with graphql playground', async () => {
-	const { graphQLServer, fileService, songUploadProcessingQueue, cleanUp } = await setupTestEnv({ seedDatabase: false, startServer: false });
+	const { graphQLServer, fileService, songUploadProcessingQueue, cleanUp } = await setupTestEnv({ seedDatabase: false });
 	cleanupHooks.push(cleanUp);
 
 	const httpServer = await HTTPServer.makeServer(graphQLServer, fileService, songUploadProcessingQueue);
