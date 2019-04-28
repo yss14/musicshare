@@ -28,6 +28,9 @@ import { GenreService } from "./services/GenreService";
 import { ArtistService } from "./services/ArtistService";
 import { graphQLAuthChecker } from "./auth/auth-middleware";
 import { IContext } from "./types/context";
+import { PasswordLoginService } from "./auth/PasswordLoginService";
+import { AuthenticationService } from "./auth/AuthenticationService";
+import { v4 as uuid } from 'uuid';
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -88,6 +91,8 @@ if (!isProductionEnvironment()) {
 	const artistExtractor = new ArtistExtractor();
 	const songMetaDataService = new SongMetaDataService([new ID3MetaData(artistExtractor)]);
 	const songProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
+	const authService = new AuthenticationService(process.env[CustomEnv.JWT_SECRET] || uuid());
+	const passwordLoginService = PasswordLoginService({ authService, database, userService });
 
 	Container.set('FILE_SERVICE', fileService);
 	Container.set('SONG_SERVICE', songService);
@@ -96,6 +101,7 @@ if (!isProductionEnvironment()) {
 	Container.set('SONG_TYPE_SERVICE', songTypeService);
 	Container.set('GENRE_SERVICE', genreService);
 	Container.set('ARTIST_SERVICE', artistService);
+	Container.set('PASSWORD_LOGIN_SERVICE', passwordLoginService);
 
 	if (__DEV__) {
 		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService });

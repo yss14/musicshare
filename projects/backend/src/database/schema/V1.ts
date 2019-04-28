@@ -53,7 +53,7 @@ export namespace DatabaseV1 {
 	});
 
 	export const user_login_credentials = TableSchema({
-		email: { type: ColumnType.Varchar, clusteringKey: true },
+		email: { type: ColumnType.Varchar, partitionKey: true },
 		user_id: { type: ColumnType.TimeUUID, clusteringKey: true },
 		credential: { type: ColumnType.Varchar, nullable: false },
 	})

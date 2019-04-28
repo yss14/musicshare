@@ -17,10 +17,27 @@ interface IPasswordLoginServiceArgs {
 	userService: IUserService;
 }
 
+export interface IPasswordLoginService {
+	register(args: IRegsiterArgs): Promise<void>;
+	login(email: string, password: string): Promise<string>;
+}
+
+export class LoginNotFound extends Error {
+	constructor(email: string) {
+		super(`Login for email ${email} not found`);
+	}
+}
+
+export class LoginCredentialsInvalid extends Error {
+	constructor() {
+		super(`Login credentials invalid`);
+	}
+}
+
 const getUserLoginCredentialsQuery = UserLoginCredentialsTable.select('*', ['email']);
 const insertLoginCredentialsQuery = UserLoginCredentialsTable.insert(['email', 'user_id', 'credential']);
 
-export const PasswordLoginService = ({ authService, database, userService }: IPasswordLoginServiceArgs) => {
+export const PasswordLoginService = ({ authService, database, userService }: IPasswordLoginServiceArgs): IPasswordLoginService => {
 	const register = async ({ email, userID, password }: IRegsiterArgs) => {
 		const passwordHashed = await hashPassword(password);
 
@@ -31,13 +48,13 @@ export const PasswordLoginService = ({ authService, database, userService }: IPa
 		const loginCredentials = await database.query(getUserLoginCredentialsQuery([email]));
 
 		if (loginCredentials.length === 0) {
-			throw new Error(`Login for email ${email} not found`);
+			throw new LoginNotFound(email);
 		}
 
 		const credentialsValid = await argon2.verify(loginCredentials[0].credential, password);
 
 		if (!credentialsValid) {
-			throw new Error('Login credentials invalid');
+			throw new LoginCredentialsInvalid();
 		}
 
 		const user = await userService.getUserByEMail(email);

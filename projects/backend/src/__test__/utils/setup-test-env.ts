@@ -18,6 +18,8 @@ import { SongTypeService } from "../../services/SongTypeService";
 import { GenreService } from "../../services/GenreService";
 import { ArtistService } from "../../services/ArtistService";
 import { makeMockedDatabase } from "../mocks/mock-database";
+import { AuthenticationService } from "../../auth/AuthenticationService";
+import { PasswordLoginService } from "../../auth/PasswordLoginService";
 
 interface SetupTestEnvArgs {
 	mockDatabase?: boolean;
@@ -48,6 +50,8 @@ export const setupTestEnv = async ({ seedDatabase, startServer, mockDatabase }: 
 	const artistService = new ArtistService(songService);
 	const genreService = new GenreService(database);
 	const songUploadProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
+	const authService = new AuthenticationService('dev_secret');
+	const passwordLoginService = PasswordLoginService({ authService, database, userService });
 
 	Container.set('USER_SERVICE', userService);
 	Container.set('SHARE_SERVICE', shareService);
@@ -56,6 +60,7 @@ export const setupTestEnv = async ({ seedDatabase, startServer, mockDatabase }: 
 	Container.set('SONG_TYPE_SERVICE', songTypeService);
 	Container.set('GENRE_SERVICE', genreService);
 	Container.set('ARTIST_SERVICE', artistService);
+	Container.set('PASSWORD_LOGIN_SERVICE', passwordLoginService);
 
 	const seed = async (songService: SongService) => {
 		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService });
