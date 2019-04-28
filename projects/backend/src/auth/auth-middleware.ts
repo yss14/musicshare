@@ -6,28 +6,38 @@ import { AuthChecker } from 'type-graphql';
 export const makeAuthExtractor = (authService: IAuthenticationService): CustomRequestHandler => async (req, res, next) => {
 	req.context = { userID: null, scopes: [] };
 
-	const authHeader = req.headers.authorization;
+	try {
+		const authHeader = req.headers.authorization;
 
-	if (authHeader === undefined) {
-		return next();
+		if (authHeader === undefined) {
+			return next();
+		}
+
+		const tokenDecoded = await authService.verifyToken(authHeader);
+
+		if (!tokenDecoded) {
+			return res.status(HTTPStatusCodes.UNAUTHORIZED).end();
+		}
+
+		const { userID, scopes } = tokenDecoded;
+
+		req.context = { userID, scopes };
+
+		next();
+	} catch (err) {
+		if (err.name !== 'JsonWebTokenError') {
+			console.error(err);
+
+			return res.status(HTTPStatusCodes.INTERNAL_SERVER_ERROR).end();
+		}
+
+		next();
 	}
-
-	const tokenDecoded = await authService.verifyToken(authHeader);
-
-	if (!tokenDecoded) {
-		return res.status(HTTPStatusCodes.UNAUTHORIZED).end();
-	}
-
-	const { userID, scopes } = tokenDecoded;
-
-	req.context = { userID, scopes };
-
-	next();
 }
 
 export const auth: CustomRequestHandler = (req, res, next) => {
 	if (req.context.userID === null) {
-		//return res.status(HTTPStatusCodes.UNAUTHORIZED).end();
+		return res.status(HTTPStatusCodes.UNAUTHORIZED).end();
 	}
 
 	next();
