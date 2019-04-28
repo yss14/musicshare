@@ -65,7 +65,8 @@ client.onResetStore(async () => cache.writeData({ data }));
 
 const theme = {
   main: "#275dad",
-  white: "#fcf7f8",
+  white: "#ffffff",
+  y: "#fcf7f8",
   lightgrey: "#aba9c3",
   grey: "#ced3dc",
   darkgrey: "#474350"

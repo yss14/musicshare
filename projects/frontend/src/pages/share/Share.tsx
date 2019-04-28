@@ -1,7 +1,10 @@
 import React from "react";
 import gql from "graphql-tag";
 import { Query } from "react-apollo";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, withRouter } from "react-router-dom";
+import { Table } from "antd";
+import { buildSongName } from "../../utils/songname-builder";
+import { ISong } from "../../schemas/shares.schema";
 
 interface IData {
   share: {
@@ -59,7 +62,44 @@ interface IRouteProps {
   id: string;
 }
 
-const Shares = ({ match }: RouteComponentProps<IRouteProps>) => {
+const columns = [
+  {
+    title: "Title",
+    dataIndex: "titleStats",
+    width: 200,
+    key: "title",
+    render: (song: ISong) => <a href="#">{buildSongName(song)}</a>
+  },
+  {
+    title: "Artists",
+    dataIndex: "artists",
+    width: 150,
+    key: "artists",
+    render: (artists: string[]) =>
+      artists.reduce((prev, curr) => prev + ", " + curr)
+  },
+  {
+    title: "Release date",
+    dataIndex: "releaseDate",
+    width: 100,
+    key: "duration",
+    render: (releaseDate: string) => releaseDate
+  },
+  {
+    title: "Genres",
+    dataIndex: "genres",
+    width: 150,
+    key: "genres",
+    render: (genres: string[]) =>
+      genres.reduce((prev, curr) => prev + ", " + curr)
+  }
+];
+
+interface IShareProps extends RouteComponentProps<IRouteProps> {
+  container: any;
+}
+
+const Share = ({ match, container }: IShareProps) => {
   const { id } = match.params;
   return (
     <>
@@ -70,12 +110,18 @@ const Shares = ({ match }: RouteComponentProps<IRouteProps>) => {
           }
           if (error) return `Error!: ${error}`;
           if (data) {
+            const songs = data.share.songs.map(song => ({
+              ...song,
+              titleStats: song
+            }));
             return (
-              <ul>
-                {data.share.songs.map(el => (
-                  <li key={el.id}>{el.title}</li>
-                ))}
-              </ul>
+              <Table
+                size="middle"
+                columns={columns}
+                dataSource={songs}
+                pagination={false}
+                scroll={{ y: 1242 }}
+              />
             );
           }
         }}
@@ -84,4 +130,4 @@ const Shares = ({ match }: RouteComponentProps<IRouteProps>) => {
   );
 };
 
-export default Shares;
+export default withRouter(Share);
