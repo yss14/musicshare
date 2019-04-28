@@ -3,6 +3,9 @@ import "reflect-metadata";
 import { setupTestEnv } from "./utils/setup-test-env";
 import { HTTPServer } from "../server/HTTPServer";
 import { findFreePort } from "./utils/find-free-port";
+import { CustomRequestHandler } from "../types/context";
+
+const mockedAuthExtractor: CustomRequestHandler = (req, res, next) => next();
 
 const cleanupHooks: (() => Promise<void>)[] = [];
 
@@ -14,7 +17,7 @@ test('start http server', async () => {
 	const { graphQLServer, fileService, songUploadProcessingQueue, cleanUp } = await setupTestEnv({ seedDatabase: false });
 	cleanupHooks.push(cleanUp);
 
-	const httpServer = await HTTPServer.makeServer(graphQLServer, fileService, songUploadProcessingQueue);
+	const httpServer = HTTPServer({ graphQLServer, fileService, uploadProcessingQueue: songUploadProcessingQueue, authExtractor: mockedAuthExtractor });
 	const port = await findFreePort();
 
 	await expect(httpServer.start('graphqltest', port)).toResolve();
@@ -26,7 +29,7 @@ test('start http server with graphql playground', async () => {
 	const { graphQLServer, fileService, songUploadProcessingQueue, cleanUp } = await setupTestEnv({ seedDatabase: false });
 	cleanupHooks.push(cleanUp);
 
-	const httpServer = await HTTPServer.makeServer(graphQLServer, fileService, songUploadProcessingQueue);
+	const httpServer = HTTPServer({ graphQLServer, fileService, uploadProcessingQueue: songUploadProcessingQueue, authExtractor: mockedAuthExtractor });
 	const port = await findFreePort();
 
 	await expect(httpServer.start('graphqltest', port)).toResolve();

@@ -16,6 +16,7 @@ import { __TEST__ } from "../../utils/env/env-constants";
 import { ISongUploadProcessingQueue, ISongProcessingQueuePayload } from "../../job-queues/SongUploadProcessingQueue";
 import { isTimeUUID } from "../../type-guards/is-timeuuid";
 import { NextHandleFunction } from "connect";
+import { CustomRequestHandler } from "../../types/context";
 
 export const fileUploadErrors = {
 	bodyNoValidByteBuffer: { identifier: 'body.novalidbytebuffer', message: 'The body is not a valid byte buffer' },
@@ -138,13 +139,14 @@ interface IFileUploadRouterArgs {
 	maxFileSize: number;
 	allowedMimeTypes?: string[];
 	bodyParser?: NextHandleFunction;
+	auth: CustomRequestHandler;
 }
 
-export const fileUploadRouter = ({ fileService, uploadProcessingQueue, maxFileSize, allowedMimeTypes, bodyParser }: IFileUploadRouterArgs) => {
+export const fileUploadRouter = ({ fileService, uploadProcessingQueue, maxFileSize, allowedMimeTypes, bodyParser, auth }: IFileUploadRouterArgs) => {
 	const finalAllowedMimeTypes = allowedMimeTypes || ['*/*'];
 	const restRoute = fileUploadRoute(fileService, uploadProcessingQueue);
 
 	return express.Router()
 		.use(bodyParser || makeRawBodyParser(maxFileSize, finalAllowedMimeTypes))
-		.post('/users/:userID/shares/:shareID/files', restRoute);
+		.post('/users/:userID/shares/:shareID/files/:filename', auth as any, restRoute);
 }

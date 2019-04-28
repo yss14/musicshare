@@ -9,6 +9,7 @@ import { commonRestErrors } from '../utils/typed-express/common-rest-errors';
 import { SongUploadProcessingQueueMock } from './mocks/SongUploadProcessingQueueMock';
 import { TimeUUID } from '../types/TimeUUID';
 import { NextHandleFunction } from 'connect';
+import { CustomRequestHandler } from '../types/context';
 
 const mp3FilePath = path.join(__dirname, 'assets', 'SampleAudio.mp3');
 let mp3FileBuffer: Buffer;
@@ -19,11 +20,13 @@ const passingFileService = new FileServiceMock(
 	() => ''
 );
 const songUploadProcessingQueue = new SongUploadProcessingQueueMock();
+const mockedAuth: CustomRequestHandler = (req, res, next) => next();
 const defaultRestRouter = fileUploadRouter({
 	fileService: passingFileService,
 	uploadProcessingQueue: songUploadProcessingQueue,
 	maxFileSize: 10 * 1024 * 1024,
-	allowedMimeTypes: acceptedContentTypes
+	allowedMimeTypes: acceptedContentTypes,
+	auth: mockedAuth,
 });
 const defaultExpressApp = makeExpressApp({ routers: [defaultRestRouter] });
 
@@ -140,7 +143,8 @@ test('invalid request passing no content-type', async (done) => {
 		uploadProcessingQueue: songUploadProcessingQueue,
 		maxFileSize: 10 * 1024 * 1024,
 		allowedMimeTypes: acceptedContentTypes,
-		bodyParser: customBodyParser
+		bodyParser: customBodyParser,
+		auth: mockedAuth,
 	});
 	const expressApp = makeExpressApp({ routers: [customRouter] });
 	const httpRequest = request(expressApp)
@@ -166,7 +170,8 @@ test('valid request, but file upload fails', async (done) => {
 		fileService: failingFileService,
 		uploadProcessingQueue: songUploadProcessingQueue,
 		maxFileSize: 10 * 1024 * 1024,
-		allowedMimeTypes: acceptedContentTypes
+		allowedMimeTypes: acceptedContentTypes,
+		auth: mockedAuth,
 	});
 	const expressApp = makeExpressApp({ routers: [restRouter] });
 
