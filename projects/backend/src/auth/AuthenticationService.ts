@@ -1,6 +1,7 @@
 import * as JWT from 'jsonwebtoken';
 import { User } from '../models/UserModel';
 import { Scopes } from '../types/context';
+import { __PROD__ } from '../utils/env/env-constants';
 
 interface IJWTTokenSchema {
 	userID: string;
@@ -26,8 +27,9 @@ export class AuthenticationService implements IAuthenticationService {
 			email: user.email,
 			scopes
 		}
+		const defaultExpire = __PROD__ ? '14 days' : '365 days';
 
-		const jwtToken = JWT.sign(jwtPayload, this.jwtSecret, { expiresIn: expiresIn || '14 days' });
+		const jwtToken = JWT.sign(jwtPayload, this.jwtSecret, { expiresIn: expiresIn || defaultExpire });
 
 		return jwtToken;
 	}
