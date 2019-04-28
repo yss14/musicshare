@@ -11,11 +11,7 @@ export default () => {
     <Suspense fallback={<Spin />}>
       <Route
         path="/shares/:id"
-        render={() => (
-          <RouteWrapper>
-            {container => <Share container={container} />}
-          </RouteWrapper>
-        )}
+        render={() => <RouteWrapper>{container => <Share />}</RouteWrapper>}
       />
       <Route
         path="/library"

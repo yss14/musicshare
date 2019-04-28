@@ -1,10 +1,19 @@
-import React, { useCallback, useState } from "react";
+import React, {
+  useCallback,
+  useState,
+  useReducer,
+  useEffect,
+  ReactNode
+} from "react";
 import { useDropzone } from "react-dropzone";
 import { Icon, Typography } from "antd";
 import styled from "styled-components";
+import { uploadFile } from "../utils/upload/uploadFile";
+import { reducer } from "../utils/upload/upload.reducer";
+import { IUploadItem } from "../schemas/upload.schema";
 
 const StyledIcon = styled(Icon)`
-  font-size: 48px;
+  font-size: 64px;
 `;
 
 const { Title } = Typography;
@@ -14,7 +23,7 @@ const UploadContainer = styled.div`
   top: 48px;
   left: 200px;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 96px);
   display: flex;
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 100;
@@ -27,20 +36,24 @@ const Blur = styled.div`
   filter: ${(props: { active: boolean }) => (props.active ? "blur(3px)" : "")};
 `;
 
-interface IChildrenProps {
-  progress: number;
-  loading: boolean;
-  error?: string;
-}
 interface IDropzoneProps {
-  children: ({ progress, loading, error }: IChildrenProps) => React.ReactNode;
+  shareId: string;
+  userId: string;
+  children: (uploadItems: IUploadItem[]) => ReactNode;
 }
-export default ({ children }: IDropzoneProps) => {
-  const [files, setFiles] = useState<File[]>([]);
 
-  const onDrop = useCallback(acceptedFiles => {
+export default ({ userId, shareId, children }: IDropzoneProps) => {
+  const [files, setFiles] = useState<File[]>([]);
+  const [state, dispatch] = useReducer(reducer, []);
+  console.log(userId);
+  useEffect(() => {
+    console.log(state);
+  }, [state]);
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
     // Do something with the files
     setFiles(acceptedFiles);
+    acceptedFiles.forEach(file => uploadFile(userId, shareId, file)(dispatch));
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop
@@ -55,13 +68,7 @@ export default ({ children }: IDropzoneProps) => {
           <Title level={1}>Drop here to upload track</Title>
         </UploadContainer>
       ) : null}
-      <Blur active={isDragActive}>
-        {children({
-          progress: 20,
-          loading: files.length > 0,
-          error: undefined
-        })}
-      </Blur>
+      <Blur active={isDragActive}>{children(state)}</Blur>
     </div>
   );
 };

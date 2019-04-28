@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import gql from "graphql-tag";
-import { Query } from "react-apollo";
+import { Query, Mutation, MutationFn } from "react-apollo";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Table } from "antd";
 import { buildSongName } from "../../utils/songname-builder";
 import { ISong } from "../../schemas/shares.schema";
+import {
+  ILocalShareVariables,
+  ILocalShareData
+} from "../../resolvers/types.local";
 
 interface IData {
   share: {
@@ -95,39 +99,61 @@ const columns = [
   }
 ];
 
-interface IShareProps extends RouteComponentProps<IRouteProps> {
-  container: any;
+interface IShareProps {
+  id: string;
+  updateShareId: MutationFn<ILocalShareData, ILocalShareVariables>;
 }
 
-const Share = ({ match, container }: IShareProps) => {
+const UPDATE_SHARE_ID = gql`
+  mutation updateShareId($shareId: string!) {
+    updateShareId(shareId: $shareId) @client
+  }
+`;
+
+const MutationWrapper = ({ match }: RouteComponentProps<{ id: string }>) => {
   const { id } = match.params;
   return (
-    <>
-      <Query<IData, IVariables> query={GET_SHARE} variables={{ id }}>
-        {({ loading, error, data }) => {
-          if (loading) {
-            return <div>Loading ...</div>;
-          }
-          if (error) return `Error!: ${error}`;
-          if (data) {
-            const songs = data.share.songs.map(song => ({
-              ...song,
-              titleStats: song
-            }));
-            return (
-              <Table
-                size="middle"
-                columns={columns}
-                dataSource={songs}
-                pagination={false}
-                scroll={{ y: 1242 }}
-              />
-            );
-          }
-        }}
-      </Query>
-    </>
+    <Mutation<ILocalShareData, ILocalShareVariables>
+      mutation={UPDATE_SHARE_ID}
+      variables={{ shareId: id }}
+    >
+      {updateShareId => {
+        return <Share id={id} updateShareId={updateShareId} />;
+      }}
+    </Mutation>
   );
 };
 
-export default withRouter(Share);
+const Share = ({ updateShareId, id }: IShareProps) => {
+  useEffect(() => {
+    updateShareId();
+  }, []);
+
+  return (
+    <Query<IData, IVariables> query={GET_SHARE} variables={{ id }}>
+      {({ loading, error, data }) => {
+        if (loading) {
+          return <div>Loading ...</div>;
+        }
+        if (error) return `Error!: ${error}`;
+        if (data) {
+          const songs = data.share.songs.map(song => ({
+            ...song,
+            titleStats: song
+          }));
+          return (
+            <Table
+              size="middle"
+              columns={columns}
+              dataSource={songs}
+              pagination={false}
+              scroll={{ y: 1242 }}
+            />
+          );
+        }
+      }}
+    </Query>
+  );
+};
+
+export default withRouter(MutationWrapper);

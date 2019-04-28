@@ -2,28 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { Menu, Icon } from "antd";
 import { ClickParam } from "antd/lib/menu";
 import styled from "styled-components";
-import { Query } from "react-apollo";
+import { Query, Mutation } from "react-apollo";
 import gql from "graphql-tag";
-import { Link, withRouter, RouteComponentProps } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import { Typography } from "antd";
-import { createPortal } from "react-dom";
+
+import { IUserData, IUserVariables } from "../resolvers/types";
 
 const { Title } = Typography;
 const { SubMenu, ItemGroup, Item } = Menu;
-
-interface IData {
-  user: {
-    shares: {
-      id: string;
-      name: string;
-      userID: string;
-    }[];
-  };
-}
-
-interface IVariables {
-  id: string;
-}
 
 const GET_SHARES = gql`
   query user($id: String!) {
@@ -63,7 +50,7 @@ const NavMenu = () => {
   }, []);
 
   return (
-    <Query<IData, IVariables>
+    <Query<IUserData, IUserVariables>
       query={GET_SHARES}
       variables={{ id: "f0d8e1f0-aeb1-11e8-a117-43673ffd376b" }}
     >
@@ -103,6 +90,7 @@ const NavMenu = () => {
                         <Icon type="share-alt" />
                         {share.name}
                       </Link>
+                      )}
                     </Menu.Item>
                   ))}
                 </ItemGroup>
