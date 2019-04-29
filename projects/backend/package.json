@@ -61,6 +61,7 @@
 		"jsonwebtoken": "^8.5.1",
 		"mime-types": "^2.1.22",
 		"morgan": "^1.9.1",
+		"mp3-duration": "^1.1.0",
 		"reflect-metadata": "^0.1.13",
 		"similarity": "^1.1.1",
 		"snakecase-keys": "^2.1.0",

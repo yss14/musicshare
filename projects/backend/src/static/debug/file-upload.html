@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<label for="path">Path</label><input id="path" /><button onclick="find().catch(e=>alert(JSON.stringify(e, null, 4)))">Find</button><br /><br />
+<label for="path">Path</label><input id="path" /><button
+	onclick="find().catch(e=>alert(JSON.stringify(e, null, 4)))">Find</button><br /><br />
+<label for="auth">AuthToken</label><input id="auth" type="text" /><br /><br />
 <label for="path">File</label><input type="file" id="file" />
 <button onclick="save()">Save</button><br />
 <pre id="info"></pre>
@@ -16,6 +18,7 @@
 	async function save() {
 		const path = $("#path").value;
 		const file = $("#file").files[0];
+		const authToken = $("#auth").value;
 		const content = await new Promise((resolve, reject) => {
 			const reader = new FileReader();
 			reader.onload = (e) => resolve(e.target.result);
@@ -29,6 +32,7 @@
 			headers: {
 				"xxx-raw": "1",
 				"content-type": file.type,
+				"authorization": authToken,
 			},
 		}));
 		const url = await res.json();

@@ -80,7 +80,8 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 				label: songMeta.label || null,
 				share_id: TimeUUID(uploadMeta.shareID.toString()),
 				requires_user_action: !songMeta.title || songMeta.title.trim().length === 0 || !songMeta.artists || songMeta.artists.length === 0,
-				file: JSON.stringify(uploadMeta.file)
+				file: JSON.stringify(uploadMeta.file),
+				duration: songMeta.duration || 0,
 			});
 
 			return callback(undefined, song);
