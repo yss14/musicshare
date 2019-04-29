@@ -23,7 +23,7 @@ export class MP3SongDuration implements ISongMetaDataSource {
 			const duration = await mp3Duration(audioBuffer);
 
 			return duration;
-		} catch (err) {
+		} catch (err) /* istanbul ignore next */ {
 			console.error(err);
 
 			return null;
