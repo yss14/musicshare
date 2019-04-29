@@ -12,6 +12,7 @@ import { makeConfigFromEnv } from "./config";
 import gql from "graphql-tag";
 import AppWrapper from "./AppWrapper";
 import { ThemeProvider } from "styled-components";
+import { ConfigContext } from "./context/configContext";
 
 const config = makeConfigFromEnv();
 
@@ -81,9 +82,11 @@ const App = () => {
 	return (
 		<ApolloProvider client={client}>
 			<ThemeProvider theme={theme}>
-				<Router>
-					<AppWrapper />
-				</Router>
+				<ConfigContext.Provider value={config}>
+					<Router>
+						<AppWrapper />
+					</Router>
+				</ConfigContext.Provider>
 			</ThemeProvider>
 		</ApolloProvider>
 	);
