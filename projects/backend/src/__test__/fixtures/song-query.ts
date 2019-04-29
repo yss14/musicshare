@@ -14,5 +14,6 @@ export const songKeys = `
 	genres,
 	label,
 	requiresUserAction,
-	file{container, blob, fileExtension,originalFilename}
+	file{container, blob, fileExtension,originalFilename},
+	duration
 `;
