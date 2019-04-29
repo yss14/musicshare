@@ -205,7 +205,7 @@ export const makeDatabaseSeed = ({ database, songService, songTypeService, genre
 				share_id: testData.shares.library_user1.id,
 				requires_user_action: false,
 				file: JSON.stringify(makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3')),
-				duration: Math.floor(Math.random() * 400),
+				duration: 120 + Math.floor(Math.random() * 400),
 			}));
 
 		await Promise.all(songInserts.map(s => songService.create(s)));
