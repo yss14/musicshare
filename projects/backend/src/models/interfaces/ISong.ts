@@ -11,4 +11,5 @@ export interface ISong {
 	type: string;
 	genres: string[];
 	label: string;
+	duration: number;
 }

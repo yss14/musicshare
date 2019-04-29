@@ -31,6 +31,7 @@ import { IContext } from "./types/context";
 import { PasswordLoginService } from "./auth/PasswordLoginService";
 import { AuthenticationService } from "./auth/AuthenticationService";
 import { v4 as uuid } from 'uuid';
+import { MP3SongDuration } from "./utils/song-meta/song-meta-formats/id3/MP3SongDuration";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -89,7 +90,10 @@ if (!isProductionEnvironment()) {
 	const genreService = new GenreService(database);
 	const artistService = new ArtistService(songService);
 	const artistExtractor = new ArtistExtractor();
-	const songMetaDataService = new SongMetaDataService([new ID3MetaData(artistExtractor)]);
+	const songMetaDataService = new SongMetaDataService([
+		new ID3MetaData(artistExtractor),
+		new MP3SongDuration()
+	]);
 	const songProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
 	const authService = new AuthenticationService(process.env[CustomEnv.JWT_SECRET] || uuid());
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });

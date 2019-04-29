@@ -62,6 +62,9 @@ export class Song implements Nullable<ISong>{
 	@Field()
 	public readonly accessUrl!: string;
 
+	@Field()
+	public readonly duration!: number;
+
 	public static fromDBResult(row: ISongByShareDBResult): Song {
 		// istanbul ignore next
 		return plainToClass(
@@ -82,7 +85,8 @@ export class Song implements Nullable<ISong>{
 				genres: row.genres || [],
 				label: row.label,
 				requiresUserAction: row.requires_user_action,
-				file: row.file ? JSON.parse(row.file) : {}
+				file: row.file ? JSON.parse(row.file) : {},
+				duration: row.duration,
 			}
 		)
 	}

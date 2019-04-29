@@ -32,6 +32,7 @@ export namespace DatabaseV1 {
 		share_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		requires_user_action: { type: ColumnType.Boolean, nullable: false },
 		file: { type: ColumnType.Varchar },
+		duration: { type: ColumnType.Int, nullable: false },
 	});
 
 	export const song_types_by_share = TableSchema({

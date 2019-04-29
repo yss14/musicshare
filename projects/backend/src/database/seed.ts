@@ -78,7 +78,8 @@ export const testData: ITestDataSchema = {
 			label: null,
 			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			requires_user_action: false,
-			file: JSON.stringify(makeFileObject('songs', 'zero', 'zero_somesuffic', 'mp3'))
+			file: JSON.stringify(makeFileObject('songs', 'zero', 'zero_somesuffic', 'mp3')),
+			duration: 401,
 		},
 		song2_library_user1: {
 			id: TimeUUID(moment().subtract(2, 'hour').toDate()),
@@ -97,7 +98,8 @@ export const testData: ITestDataSchema = {
 			label: 'Anjunadeep',
 			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			requires_user_action: false,
-			file: JSON.stringify(makeFileObject('songs', 'perth', 'perth_abgtrip', 'mp3'))
+			file: JSON.stringify(makeFileObject('songs', 'perth', 'perth_abgtrip', 'mp3')),
+			duration: 370,
 		},
 		song3_library_user1: {
 			id: TimeUUID(moment().subtract(1, 'hour').toDate()),
@@ -116,7 +118,8 @@ export const testData: ITestDataSchema = {
 			label: 'Anjunadeep',
 			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			requires_user_action: false,
-			file: JSON.stringify(makeFileObject('songs', 'contact', 'contact_rue_alastor', 'mp3'))
+			file: JSON.stringify(makeFileObject('songs', 'contact', 'contact_rue_alastor', 'mp3')),
+			duration: 248,
 		},
 		song1_some_shared_library: {
 			id: TimeUUID(moment().subtract(2, 'hour').toDate()),
@@ -135,7 +138,8 @@ export const testData: ITestDataSchema = {
 			label: 'Anjunadeep',
 			share_id: TimeUUID('f0d359e0-aeb1-11e8-a117-43673ffd376b'),
 			requires_user_action: false,
-			file: JSON.stringify(makeFileObject('songs', 'contact', 'contact_rue_alastor', 'mp3'))
+			file: JSON.stringify(makeFileObject('songs', 'contact', 'contact_rue_alastor', 'mp3')),
+			duration: 248,
 		}
 	}
 }
@@ -200,7 +204,8 @@ export const makeDatabaseSeed = ({ database, songService, songTypeService, genre
 				label: null,
 				share_id: testData.shares.library_user1.id,
 				requires_user_action: false,
-				file: JSON.stringify(makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3'))
+				file: JSON.stringify(makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3')),
+				duration: Math.floor(Math.random() * 400),
 			}));
 
 		await Promise.all(songInserts.map(s => songService.create(s)));
