@@ -42,6 +42,17 @@ export class ShareResolver {
 	}
 
 	@Authorized()
+	@FieldResolver(() => [Song])
+	public async songsDirty(
+		@Root() share: Share,
+		@Arg('lastTimestamp') lastTimestamp: number,
+	): Promise<Song[]> {
+		const songs = await this.songService.getByShareDirty(share.id, lastTimestamp);
+
+		return songs;
+	}
+
+	@Authorized()
 	@FieldResolver()
 	public song(
 		@Root() share: Share,

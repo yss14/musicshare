@@ -15,6 +15,7 @@ export class SongNotFoundError extends Error {
 export interface ISongService {
 	getByID(shareID: string, songID: string): Promise<Song>;
 	getByShare(shareID: string): Promise<Song[]>;
+	getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]>;
 	create(song: ISongByShareDBResult): Promise<string>;
 	update(shareID: string, songID: string, song: SongInput): Promise<void>;
 }
@@ -46,6 +47,12 @@ export class SongService implements ISongService {
 		return dbResults
 			.map(Song.fromDBResult)
 			.sort((lhs, rhs) => sortByTimeUUIDAsc(lhs.id, rhs.id));
+	}
+
+	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]> {
+		const songs = await this.getByShare(shareID);
+
+		return songs.filter(song => song.dateLastEdit > lastTimestamp);
 	}
 
 	public async create(song: ISongByShareDBResult): Promise<string> {
