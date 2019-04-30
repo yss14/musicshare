@@ -1,5 +1,5 @@
 import { DatabaseSeed } from "../seed";
-import { UsersTable, SharesByUserTable, SongsByShareTable, SongTypesByShareTable, GenresByShareTable, UserLoginCredentialsTable } from "./tables";
+import { UsersTable, SharesByUserTable, SongsByShareTable, SongTypesByShareTable, GenresByShareTable, UserLoginCredentialsTable, PlaylistsByShareTable, SongsByPlaylistTable } from "./tables";
 import { IDatabaseClient, CQL } from "cassandra-schema-builder";
 import { Tables } from "./system-tables";
 
@@ -25,6 +25,8 @@ export const makeDatabaseSchema = async (database: IDatabaseClient, { keySpace, 
 		database.execute(SongTypesByShareTable.create().cql),
 		database.execute(GenresByShareTable.create().cql),
 		database.execute(UserLoginCredentialsTable.create().cql),
+		database.execute(PlaylistsByShareTable.create().cql),
+		database.execute(SongsByPlaylistTable.create().cql),
 	]);
 }
 
