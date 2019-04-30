@@ -39,12 +39,14 @@ describe('update song mutation', () => {
 			artists: ['Some new artist'],
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
+		const timestampBeforeUpdate = Date.now();
 
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
 
 		const { updateSong } = body.data;
 
 		expect(updateSong).toMatchObject(input);
+		expect(updateSong.dateLastEdit).toBeGreaterThan(timestampBeforeUpdate);
 	});
 
 	test('title null', async () => {

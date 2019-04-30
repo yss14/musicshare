@@ -15,6 +15,7 @@ export class SongNotFoundError extends Error {
 export interface ISongService {
 	getByID(shareID: string, songID: string): Promise<Song>;
 	getByShare(shareID: string): Promise<Song[]>;
+	getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]>;
 	create(song: ISongByShareDBResult): Promise<string>;
 	update(shareID: string, songID: string, song: SongInput): Promise<void>;
 }
@@ -48,6 +49,12 @@ export class SongService implements ISongService {
 			.sort((lhs, rhs) => sortByTimeUUIDAsc(lhs.id, rhs.id));
 	}
 
+	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]> {
+		const songs = await this.getByShare(shareID);
+
+		return songs.filter(song => song.dateLastEdit > lastTimestamp);
+	}
+
 	public async create(song: ISongByShareDBResult): Promise<string> {
 		// istanbul ignore next
 		let id = song.id || TimeUUID();
@@ -60,7 +67,10 @@ export class SongService implements ISongService {
 	}
 
 	public async update(shareID: string, songID: string, song: SongInput): Promise<void> {
-		const inputSnakeCased = snakeCaseObjKeys(song);
+		const inputSnakeCased: Partial<ISongByShareDBResult> = {
+			...snakeCaseObjKeys(song),
+			date_last_edit: new Date(),
+		}
 
 		await this.database.query(
 			SongsByShareTable.update(Object.keys(inputSnakeCased) as any, ['id', 'share_id'])

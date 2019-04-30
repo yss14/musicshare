@@ -11,6 +11,10 @@ export class SongServiceMock implements ISongService {
 		throw 'Not implemented yet';
 	}
 
+	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]> {
+		throw 'Not implemented yet';
+	}
+
 	public async create(): Promise<string> {
 		return TimeUUID(new Date()).toString();
 	}

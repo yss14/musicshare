@@ -62,12 +62,12 @@ export const testData: ITestDataSchema = {
 	},
 	songs: {
 		song1_library_user1: {
-			id: TimeUUID(moment().subtract(3, 'hour').toDate()),
+			id: TimeUUID(moment().subtract(3, 'hours').toDate()),
 			title: 'Zero',
 			suffix: null,
 			year: 2018,
 			bpm: null,
-			date_last_edit: new Date(),
+			date_last_edit: moment().subtract(3, 'hours').toDate(),
 			release_date: CTypes.LocalDate.fromDate(new Date('2018-03-11')),
 			is_rip: false,
 			artists: ['Oliver Smith'],
@@ -82,12 +82,12 @@ export const testData: ITestDataSchema = {
 			duration: 401,
 		},
 		song2_library_user1: {
-			id: TimeUUID(moment().subtract(2, 'hour').toDate()),
+			id: TimeUUID(moment().subtract(2, 'hours').toDate()),
 			title: 'Perth',
 			suffix: null,
 			year: 2018,
 			bpm: null,
-			date_last_edit: new Date(),
+			date_last_edit: moment().subtract(2, 'hours').toDate(),
 			release_date: CTypes.LocalDate.fromDate(new Date('2019-01-02')),
 			is_rip: true,
 			artists: ['Kink'],
@@ -107,7 +107,7 @@ export const testData: ITestDataSchema = {
 			suffix: null,
 			year: 2019,
 			bpm: 125,
-			date_last_edit: new Date(),
+			date_last_edit: moment().subtract(1, 'hour').toDate(),
 			release_date: null,
 			is_rip: false,
 			artists: ['Rue', 'Alastor'],
@@ -187,7 +187,7 @@ export const makeDatabaseSeed = ({ database, songService, songTypeService, genre
 	if (__DEV__) {
 		const prefilledArray = createPrefilledArray(100, {});
 		const songInserts = prefilledArray
-			.map((): Required<ISongByShareDBResult> => ({
+			.map((_, idx): Required<ISongByShareDBResult> => ({
 				id: TimeUUID(),
 				title: faker.name.findName(),
 				suffix: null,

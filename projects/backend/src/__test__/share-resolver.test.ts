@@ -8,6 +8,7 @@ import { TimeUUID } from "../types/TimeUUID";
 import { defaultSongTypes, defaultGenres } from "../database/fixtures";
 import { Artist } from "../models/ArtistModel";
 import { songKeys } from "./fixtures/song-query";
+import moment = require("moment");
 
 const makeShareQuery = (id: string, additionalQueries: string[] = []) => {
 	return `
@@ -26,6 +27,14 @@ const makeShareQuery = (id: string, additionalQueries: string[] = []) => {
 const makeShareSongsQuery = (range?: [number, number]) => {
 	return `
 		songs${range ? `(from: ${range[0]} take: ${range[1]})` : ''}{
+			${songKeys}
+		}
+	`;
+}
+
+const makeShareSongsDirtyQuery = (lastTimestamp: number) => {
+	return `
+		songsDirty(lastTimestamp: ${lastTimestamp}){
 			${songKeys}
 		}
 	`;
@@ -130,6 +139,26 @@ describe('get share songs', () => {
 		].map(Song.fromDBResult);
 
 		expectedSongs.forEach(expectedSong => includesSong(body.data.share.songs, expectedSong));
+	});
+
+	test('get all dirty songs', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
+		cleanupHooks.push(cleanUp);
+
+		const share = testData.shares.library_user1;
+		const lastTimestamp = moment().subtract(150, 'minutes').valueOf();
+		const query = makeShareQuery(share.id.toString(), [makeShareSongsDirtyQuery(lastTimestamp)]);
+
+		const { body } = await executeGraphQLQuery(graphQLServer, query);
+
+		const expectedSongs = [
+			testData.songs.song2_library_user1,
+			testData.songs.song3_library_user1,
+		].map(Song.fromDBResult);
+
+		const receivedSongs = body.data.share.songsDirty;
+		expect(receivedSongs.length).toBe(2);
+		expectedSongs.forEach(expectedSong => includesSong(receivedSongs, expectedSong));
 	});
 });
 
