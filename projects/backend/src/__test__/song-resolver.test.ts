@@ -27,7 +27,7 @@ describe('update song mutation', () => {
 	const share = testData.shares.library_user1;
 	const song = testData.songs.song1_library_user1;
 
-	test.only('valid input', async () => {
+	test('valid input', async () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
