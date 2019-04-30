@@ -67,7 +67,10 @@ export class SongService implements ISongService {
 	}
 
 	public async update(shareID: string, songID: string, song: SongInput): Promise<void> {
-		const inputSnakeCased = snakeCaseObjKeys(song);
+		const inputSnakeCased: Partial<ISongByShareDBResult> = {
+			...snakeCaseObjKeys(song),
+			date_last_edit: new Date(),
+		}
 
 		await this.database.query(
 			SongsByShareTable.update(Object.keys(inputSnakeCased) as any, ['id', 'share_id'])

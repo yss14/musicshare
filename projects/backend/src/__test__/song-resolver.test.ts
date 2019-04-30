@@ -27,7 +27,7 @@ describe('update song mutation', () => {
 	const share = testData.shares.library_user1;
 	const song = testData.songs.song1_library_user1;
 
-	test('valid input', async () => {
+	test.only('valid input', async () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
@@ -39,12 +39,14 @@ describe('update song mutation', () => {
 			artists: ['Some new artist'],
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
+		const timestampBeforeUpdate = Date.now();
 
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
 
 		const { updateSong } = body.data;
 
 		expect(updateSong).toMatchObject(input);
+		expect(updateSong.dateLastEdit).toBeGreaterThan(timestampBeforeUpdate);
 	});
 
 	test('title null', async () => {
