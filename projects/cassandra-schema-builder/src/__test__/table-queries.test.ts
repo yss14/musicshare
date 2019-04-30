@@ -159,6 +159,16 @@ describe('select', () => {
 			{ col_id: id2, col_string: 'teststring2' },
 		]);
 	});
+
+	test('select custom where', async () => {
+		const testTable = Table({ test_table: testTableSchema }, 'test_table');
+		const customWhere = 'some_key > ? AND some_other_key = ?;';
+		const customValues = [42, 'hello'];
+		const query = testTable.selectWhere(customWhere)(customValues);
+
+		expect(query.cql).toBe(`SELECT * FROM test_table WHERE ${customWhere};`);
+		expect(query.values).toEqual(customValues);
+	});
 });
 
 describe('drop', () => {
