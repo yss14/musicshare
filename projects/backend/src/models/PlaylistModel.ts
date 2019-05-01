@@ -23,7 +23,7 @@ export class Playlist {
 				id: dbResult.id.toString(),
 				name: dbResult.name,
 				shareID: dbResult.share_id.toString(),
-				dateAdded: dbResult.date_added
+				dateAdded: dbResult.id.getDate(),
 			}
 		);
 	}

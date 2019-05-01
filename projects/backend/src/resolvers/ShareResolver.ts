@@ -9,6 +9,8 @@ import { Genre } from '../models/GenreModel';
 import { IGenreService } from '../services/GenreService';
 import { IArtistService } from '../services/ArtistService';
 import { Artist } from '../models/ArtistModel';
+import { Playlist } from '../models/PlaylistModel';
+import { IPlaylistService } from '../services/PlaylistService';
 
 @Resolver(of => Share)
 export class ShareResolver {
@@ -18,6 +20,7 @@ export class ShareResolver {
 		private readonly songTypeService: ISongTypeService,
 		private readonly genreService: IGenreService,
 		private readonly artistService: IArtistService,
+		private readonly playlistService: IPlaylistService,
 	) { }
 
 	@Authorized()
@@ -47,9 +50,7 @@ export class ShareResolver {
 		@Root() share: Share,
 		@Arg('lastTimestamp') lastTimestamp: number,
 	): Promise<Song[]> {
-		const songs = await this.songService.getByShareDirty(share.id, lastTimestamp);
-
-		return songs;
+		return this.songService.getByShareDirty(share.id, lastTimestamp);
 	}
 
 	@Authorized()
@@ -66,9 +67,7 @@ export class ShareResolver {
 	public async songTypes(
 		@Root() share: Share
 	): Promise<SongType[]> {
-		const songTypes = await this.songTypeService.getSongTypesForShare(share.id);
-
-		return songTypes;
+		return this.songTypeService.getSongTypesForShare(share.id);
 	}
 
 	@Authorized()
@@ -76,9 +75,7 @@ export class ShareResolver {
 	public async genres(
 		@Root() share: Share
 	): Promise<Genre[]> {
-		const genres = await this.genreService.getGenresForShare(share.id);
-
-		return genres;
+		return this.genreService.getGenresForShare(share.id);
 	}
 
 	@Authorized()
@@ -86,8 +83,14 @@ export class ShareResolver {
 	public async artists(
 		@Root() share: Share
 	): Promise<Artist[]> {
-		const artists = await this.artistService.getArtistsForShare(share.id);
+		return this.artistService.getArtistsForShare(share.id);
+	}
 
-		return artists;
+	@Authorized()
+	@FieldResolver(() => [Playlist])
+	public async playlists(
+		@Root() share: Share,
+	): Promise<Playlist[]> {
+		return this.playlistService.getPlaylistsForShare(share.id);
 	}
 }

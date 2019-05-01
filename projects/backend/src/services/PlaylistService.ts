@@ -8,12 +8,13 @@ import * as snakeCaseObjKeys from 'snakecase-keys';
 export type OrderUpdate = [number, number];
 
 export interface IPlaylistService {
-	create(shareID: string, name: string): Promise<Playlist>;
+	create(shareID: string, name: string, id?: string): Promise<Playlist>;
 	delete(id: string): Promise<void>;
 	rename(id: string, newName: string): Promise<void>;
 	addSongs(id: string, songs: Song[]): Promise<void>;
 	getSongs(id: string): Promise<Song[]>;
 	updateOrder(id: string, orderUpdates: OrderUpdate[]): Promise<Song[]>;
+	getPlaylistsForShare(shareID: string): Promise<Playlist[]>;
 }
 
 interface IPlaylistServiceArgs {
@@ -21,12 +22,11 @@ interface IPlaylistServiceArgs {
 }
 
 export const PlaylistService = ({ database }: IPlaylistServiceArgs): IPlaylistService => {
-	const create = async (shareID: string, name: string) => {
+	const create = async (shareID: string, name: string, id?: string) => {
 		const playlistObj: IPlaylistByShareDBResult = {
-			id: TimeUUID(),
+			id: TimeUUID(id || new Date()),
 			name,
 			share_id: TimeUUID(shareID),
-			date_added: new Date(),
 			date_removed: null
 		};
 
@@ -49,13 +49,16 @@ export const PlaylistService = ({ database }: IPlaylistServiceArgs): IPlaylistSe
 
 	const addSongs = async (id: string, songs: Song[]) => {
 		const currentSongs = await getSongs(id);
-		const songObjects: ISongByPlaylistDBResult[] = songs.map((song, idx) => ({
-			...(snakeCaseObjKeys(song) as ISongByShareDBResult),
-			playlist_id: TimeUUID(id),
-			position: currentSongs.length + idx,
-			date_added: new Date(),
-			date_removed: null,
-		}));
+		const songObjects: ISongByPlaylistDBResult[] = songs
+			.filter(song => currentSongs.findIndex(currentSong => currentSong.id === song.id) === -1)
+			.map(({ requiresUserAction, ...song }, idx) => ({
+				...(snakeCaseObjKeys(song) as ISongByShareDBResult),
+				playlist_id: TimeUUID(id),
+				position: currentSongs.length + idx,
+				date_added: new Date(),
+				date_removed: null,
+				file: JSON.stringify(song.file),
+			}));
 
 		await Promise.all(songObjects.map(songObj => database.query(SongsByPlaylistTable.insertFromObj(songObj))));
 	};
@@ -64,12 +67,20 @@ export const PlaylistService = ({ database }: IPlaylistServiceArgs): IPlaylistSe
 		const songs = await database.query(SongsByPlaylistTable.select('*', ['playlist_id'])([TimeUUID(id)]));
 
 		return songs
-			.filter(song => song.date_removed !== null)
+			.filter(song => song.date_removed === null)
 			.map(song => Song.fromDBResult({ ...song, requires_user_action: false }));
 	};
 
 	const updateOrder = async (id: string, orderUpdates: OrderUpdate[]) => {
 		throw 'Not implemented yet';
+	}
+
+	const getPlaylistsForShare = async (shareID: string): Promise<Playlist[]> => {
+		const playlists = await database.query(PlaylistsByShareTable.select('*', ['share_id'])([TimeUUID(shareID)]));
+
+		return playlists
+			.filter(playlist => playlist.date_removed === null)
+			.map(Playlist.fromDBResult);
 	}
 
 	return {
@@ -79,5 +90,6 @@ export const PlaylistService = ({ database }: IPlaylistServiceArgs): IPlaylistSe
 		addSongs,
 		getSongs,
 		updateOrder,
+		getPlaylistsForShare,
 	}
 };
