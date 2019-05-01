@@ -2,7 +2,6 @@ import { TableSchema, ColumnType, CSet } from 'cassandra-schema-builder';
 
 export namespace DatabaseV1 {
 	const baseSchema = TableSchema({
-		date_added: { type: ColumnType.Timestamp, nullable: false },
 		date_removed: { type: ColumnType.Timestamp },
 	});
 
@@ -60,6 +59,7 @@ export namespace DatabaseV1 {
 		name: { type: ColumnType.Varchar, clusteringKey: true },
 		group: { type: ColumnType.Varchar, clusteringKey: true },
 		share_id: { type: ColumnType.TimeUUID, partitionKey: true },
+		date_added: { type: ColumnType.Timestamp, nullable: false },
 	});
 
 	export const user_login_credentials = TableSchema({
@@ -78,7 +78,9 @@ export namespace DatabaseV1 {
 	export const songs_by_playlist = TableSchema({
 		...baseSchema,
 		...songSchema,
+		share_id: { type: ColumnType.TimeUUID, nullable: false }, // not required to be partitionKey for our queries
 		playlist_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		position: { type: ColumnType.Int, nullable: false },
+		date_added: { type: ColumnType.Timestamp, nullable: false },
 	});
 }
