@@ -1,9 +1,9 @@
-import { Song } from "../models/SongModel";
+import { ShareSong } from "../models/SongModel";
 import { Field, InputType } from "type-graphql";
 import { MinLength, MaxLength, Min, Max, IsInt } from "class-validator";
 
 @InputType()
-export class SongInput implements Partial<Song>{
+export class SongUpdateInput implements Partial<ShareSong>{
 	@Field({ nullable: true })
 	@MinLength(1)
 	@MaxLength(200)
@@ -55,7 +55,7 @@ export class SongInput implements Partial<Song>{
 	public readonly label?: string | null;
 
 	public isValid() {
-		const nonNullableAttributes: (keyof SongInput)[] = ['title', 'artists', 'type', 'isRip'];
+		const nonNullableAttributes: (keyof SongUpdateInput)[] = ['title', 'artists', 'type', 'isRip'];
 
 		for (const nonNullableAttribute of nonNullableAttributes) {
 			if (this[nonNullableAttribute] === null) {

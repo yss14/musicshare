@@ -5,8 +5,7 @@ export namespace DatabaseV1 {
 		date_removed: { type: ColumnType.Timestamp },
 	});
 
-	const songSchema = TableSchema({
-		// TODO add baseSchema
+	export const song_base_schema = TableSchema({
 		id: { type: ColumnType.TimeUUID, clusteringKey: true },
 		title: { type: ColumnType.Varchar },
 		suffix: { type: ColumnType.Varchar },
@@ -40,7 +39,7 @@ export namespace DatabaseV1 {
 	});
 
 	export const songs_by_shares = TableSchema({
-		...songSchema,
+		...song_base_schema,
 		requires_user_action: { type: ColumnType.Boolean, nullable: false },
 	});
 
@@ -77,7 +76,7 @@ export namespace DatabaseV1 {
 
 	export const songs_by_playlist = TableSchema({
 		...baseSchema,
-		...songSchema,
+		...song_base_schema,
 		share_id: { type: ColumnType.TimeUUID, nullable: false }, // not required to be partitionKey for our queries
 		playlist_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		position: { type: ColumnType.Int, nullable: false },

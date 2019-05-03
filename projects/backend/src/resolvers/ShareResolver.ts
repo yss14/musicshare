@@ -1,7 +1,7 @@
 import { ISongService } from '../services/SongService';
 import { Resolver, Query, Arg, FieldResolver, Root, Authorized } from "type-graphql";
 import { Share } from "../models/ShareModel";
-import { Song } from "../models/SongModel";
+import { ShareSong } from "../models/SongModel";
 import { IShareService } from "../services/ShareService";
 import { ISongTypeService } from '../services/SongTypeService';
 import { SongType } from '../models/SongType';
@@ -35,7 +35,7 @@ export class ShareResolver {
 		@Root() share: Share,
 		@Arg('from', { nullable: true }) from?: number,
 		@Arg('take', { nullable: true }) take?: number
-	): Promise<Song[]> {
+	): Promise<ShareSong[]> {
 		const songs = await this.songService.getByShare(share.id);
 
 		const startIdx = (from || 1) - 1;
@@ -45,11 +45,11 @@ export class ShareResolver {
 	}
 
 	@Authorized()
-	@FieldResolver(() => [Song])
+	@FieldResolver(() => [ShareSong])
 	public async songsDirty(
 		@Root() share: Share,
 		@Arg('lastTimestamp') lastTimestamp: number,
-	): Promise<Song[]> {
+	): Promise<ShareSong[]> {
 		return this.songService.getByShareDirty(share.id, lastTimestamp);
 	}
 
@@ -58,7 +58,7 @@ export class ShareResolver {
 	public song(
 		@Root() share: Share,
 		@Arg('id') id: string
-	): Promise<Song | null> {
+	): Promise<ShareSong | null> {
 		return this.songService.getByID(share.id, id);
 	}
 

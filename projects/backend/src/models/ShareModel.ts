@@ -1,5 +1,5 @@
 import { ObjectType, Field } from "type-graphql";
-import { Song } from "./SongModel";
+import { ShareSong } from "./SongModel";
 import { plainToClass } from "class-transformer";
 import { IShareByUserDBResult } from "../database/schema/tables";
 
@@ -17,11 +17,11 @@ export class Share {
 	@Field()
 	public readonly isLibrary!: boolean;
 
-	@Field(type => [Song])
-	public readonly songs!: Song[];
+	@Field(type => [ShareSong])
+	public readonly songs!: ShareSong[];
 
-	@Field(type => Song, { nullable: true })
-	public readonly song!: Song | null;
+	@Field(type => ShareSong, { nullable: true })
+	public readonly song!: ShareSong | null;
 
 	public static fromDBResult(dbResult: IShareByUserDBResult): Share {
 		return plainToClass(

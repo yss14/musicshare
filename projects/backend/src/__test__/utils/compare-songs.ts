@@ -1,6 +1,6 @@
-import { Song } from "../../models/SongModel";
+import { ShareSong } from "../../models/SongModel";
 
-export const compareSongs = (lhs: Song, rhs: Song) => {
+export const compareSongs = (lhs: ShareSong, rhs: ShareSong) => {
 	const { artists: lArtists, remixer: lRemixer, featurings: lFeaturings, genres: lGenres, ...lRest } = lhs;
 	const { artists: rArtists, remixer: rRemixer, featurings: rFeaturings, genres: rGenres, ...rRest } = rhs;
 
@@ -13,7 +13,7 @@ export const compareSongs = (lhs: Song, rhs: Song) => {
 	expect(lRest).toEqual(rRest);
 }
 
-export const includesSong = (songs: Song[], song: Song) => {
+export const includesSong = (songs: ShareSong[], song: ShareSong) => {
 	const expectedSong = songs.find(s => s.id === song.id);
 
 	if (!expectedSong) {

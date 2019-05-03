@@ -1,15 +1,15 @@
-import { SongInput } from "../inputs/SongInput";
+import { SongUpdateInput } from "../inputs/SongInput";
 import { songKeys } from "./fixtures/song-query";
 import { setupTestEnv } from "./utils/setup-test-env";
 import { testData } from "../database/seed";
 import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
 import { HTTPStatusCodes } from "../types/http-status-codes";
 
-const inputToString = (input: SongInput): string => {
+const inputToString = (input: SongUpdateInput): string => {
 	return '{' + Object.entries(input).map(entry => `${entry[0]}:${JSON.stringify(entry[1])}`).join(',') + '}';
 }
 
-const makeUpdateSongMutation = (shareID: string, songID: string, input: SongInput) => `
+const makeUpdateSongMutation = (shareID: string, songID: string, input: SongUpdateInput) => `
 	mutation{
 		updateSong(shareID: "${shareID}", songID: "${songID}", song: ${inputToString(input)}){
 			${songKeys}
@@ -31,7 +31,7 @@ describe('update song mutation', () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
-		const input: any = <SongInput>{
+		const input: any = <SongUpdateInput>{
 			bpm: 140,
 			isRip: false,
 			title: 'Some new title',
@@ -52,7 +52,7 @@ describe('update song mutation', () => {
 	test('title null', async () => {
 		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
 
-		const input: any = <SongInput>{
+		const input: any = <SongUpdateInput>{
 			title: null as any,
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
@@ -68,7 +68,7 @@ describe('update song mutation', () => {
 	test('title empty', async () => {
 		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
 
-		const input: any = <SongInput>{
+		const input: any = <SongUpdateInput>{
 			title: '',
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
@@ -84,7 +84,7 @@ describe('update song mutation', () => {
 	test('invalid year', async () => {
 		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
 
-		const input: any = <SongInput>{
+		const input: any = <SongUpdateInput>{
 			year: 195,
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
@@ -100,7 +100,7 @@ describe('update song mutation', () => {
 	test('empty artist item', async () => {
 		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
 
-		const input: any = <SongInput>{
+		const input: any = <SongUpdateInput>{
 			artists: ['some valid', ''],
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
@@ -116,7 +116,7 @@ describe('update song mutation', () => {
 	test('null artist', async () => {
 		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
 
-		const input: any = <SongInput>{
+		const input: any = <SongUpdateInput>{
 			artists: null as any,
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
@@ -132,7 +132,7 @@ describe('update song mutation', () => {
 	test('null artist item', async () => {
 		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
 
-		const input: any = <SongInput>{
+		const input: any = <SongUpdateInput>{
 			artists: ['some valid', null],
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
@@ -143,7 +143,7 @@ describe('update song mutation', () => {
 	test('null type', async () => {
 		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
 
-		const input: any = <SongInput>{
+		const input: any = <SongUpdateInput>{
 			type: null as any,
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
@@ -159,7 +159,7 @@ describe('update song mutation', () => {
 	test('empty type', async () => {
 		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
 
-		const input: any = <SongInput>{
+		const input: any = <SongUpdateInput>{
 			type: '',
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);

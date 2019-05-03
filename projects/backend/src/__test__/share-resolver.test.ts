@@ -2,7 +2,7 @@ import { setupTestEnv } from "./utils/setup-test-env";
 import { testData } from "../database/seed";
 import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
 import { Share } from "../models/ShareModel";
-import { Song } from "../models/SongModel";
+import { shareSongFromDBResult } from "../models/SongModel";
 import { includesSong, compareSongs } from "./utils/compare-songs";
 import { TimeUUID } from "../types/TimeUUID";
 import { defaultSongTypes, defaultGenres } from "../database/fixtures";
@@ -119,7 +119,7 @@ describe('get share songs', () => {
 			testData.songs.song1_library_user1,
 			testData.songs.song2_library_user1,
 			testData.songs.song3_library_user1,
-		].map(Song.fromDBResult);
+		].map(shareSongFromDBResult);
 
 		expectedSongs.forEach(expectedSong => includesSong(body.data.share.songs, expectedSong));
 	});
@@ -136,7 +136,7 @@ describe('get share songs', () => {
 		const expectedSongs = [
 			testData.songs.song1_library_user1,
 			testData.songs.song2_library_user1,
-		].map(Song.fromDBResult);
+		].map(shareSongFromDBResult);
 
 		expectedSongs.forEach(expectedSong => includesSong(body.data.share.songs, expectedSong));
 	});
@@ -154,7 +154,7 @@ describe('get share songs', () => {
 		const expectedSongs = [
 			testData.songs.song2_library_user1,
 			testData.songs.song3_library_user1,
-		].map(Song.fromDBResult);
+		].map(shareSongFromDBResult);
 
 		const receivedSongs = body.data.share.songsDirty;
 		expect(receivedSongs.length).toBe(2);
@@ -173,7 +173,7 @@ describe('get share song', () => {
 
 		const { body } = await executeGraphQLQuery(graphQLServer, query);
 
-		compareSongs(Song.fromDBResult(song), body.data.share.song);
+		compareSongs(shareSongFromDBResult(song), body.data.share.song);
 	});
 
 	test('get share song by id not existing', async () => {
