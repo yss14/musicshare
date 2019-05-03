@@ -82,6 +82,15 @@ const makeSharePlaylistsQuery = () => `
 	}
 `;
 
+const makeSharePlaylistQuery = (playlistID: string) => `
+	playlist(playlistID: "${playlistID}"){
+		id,
+		name,
+		shareID,
+		dateAdded,
+	}
+`;
+
 const cleanupHooks: (() => Promise<void>)[] = [];
 
 afterAll(async () => {
@@ -279,5 +288,19 @@ describe('get share playlists', () => {
 			, 'name');
 
 		expect(receivedPlaylists).toEqual(expectedPlaylists);
+	});
+
+	test('get by id', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
+		cleanupHooks.push(cleanUp);
+
+		const shareID = testData.shares.library_user1.id.toString();
+		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
+		const query = makeShareQuery(shareID, [makeSharePlaylistQuery(playlistID)]);
+
+		const { body } = await executeGraphQLQuery(graphQLServer, query);
+
+		expect(body.data.share.playlist)
+			.toEqual(JSON.parse(JSON.stringify(Playlist.fromDBResult(testData.playlists.playlist1_library_user1))))
 	});
 });

@@ -1,5 +1,5 @@
 import { ISongService } from '../services/SongService';
-import { Resolver, Query, Arg, FieldResolver, Root, Authorized } from "type-graphql";
+import { Resolver, Query, Arg, FieldResolver, Root, Authorized, Args } from "type-graphql";
 import { Share } from "../models/ShareModel";
 import { ShareSong } from "../models/SongModel";
 import { IShareService } from "../services/ShareService";
@@ -11,6 +11,7 @@ import { IArtistService } from '../services/ArtistService';
 import { Artist } from '../models/ArtistModel';
 import { Playlist } from '../models/PlaylistModel';
 import { IPlaylistService } from '../services/PlaylistService';
+import { PlaylistIDArg } from '../args/playlist-args';
 
 @Resolver(of => Share)
 export class ShareResolver {
@@ -92,5 +93,14 @@ export class ShareResolver {
 		@Root() share: Share,
 	): Promise<Playlist[]> {
 		return this.playlistService.getPlaylistsForShare(share.id);
+	}
+
+	@Authorized()
+	@FieldResolver(() => Playlist)
+	public async playlist(
+		@Root() share: Share,
+		@Args() { playlistID }: PlaylistIDArg,
+	): Promise<Playlist> {
+		return this.playlistService.getByID(share.id, playlistID);
 	}
 }
