@@ -260,6 +260,7 @@ export const Table =
 
 				let logged = '';
 
+				// istanbul ignore next
 				if (opts) {
 					if (opts.logged === true) {
 						logged = 'LOGGED';
@@ -268,8 +269,10 @@ export const Table =
 					}
 				}
 
+				// istanbul ignore next
 				const timestamp = opts && opts.usingTimestamp;
 
+				// istanbul ignore next
 				const cql = `
 					BEGIN ${logged} BATCH ${timestamp ? `USING TIMESTAMP ${timestamp}` : ''}
 						${quries.map(query => query.cql).join('\n')}
