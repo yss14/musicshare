@@ -9,6 +9,8 @@ import { defaultSongTypes, defaultGenres } from "../database/fixtures";
 import { Artist } from "../models/ArtistModel";
 import { songKeys } from "./fixtures/song-query";
 import moment = require("moment");
+import { Playlist } from "../models/PlaylistModel";
+import { sortBy } from 'lodash';
 
 const makeShareQuery = (id: string, additionalQueries: string[] = []) => {
 	return `
@@ -68,6 +70,15 @@ const makeShareGenresQuery = () => `
 const makeShareArtistsQuery = () => `
 	artists{
 		name
+	}
+`;
+
+const makeSharePlaylistsQuery = () => `
+	playlists{
+		id,
+		name,
+		shareID,
+		dateAdded,
 	}
 `;
 
@@ -247,5 +258,26 @@ describe('get share related data', () => {
 			'Rue',
 			'Alastor'
 		].map(Artist.fromString));
+	});
+});
+
+describe('get share playlists', () => {
+	test('all playlists', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
+		cleanupHooks.push(cleanUp);
+
+		const shareID = testData.shares.library_user1.id.toString();
+		const query = makeShareQuery(shareID, [makeSharePlaylistsQuery()]);
+
+		const { body } = await executeGraphQLQuery(graphQLServer, query);
+
+		const receivedPlaylists = sortBy(body.data.share.playlists, 'name');
+		const expectedPlaylists = sortBy(
+			[testData.playlists.playlist1_library_user1, testData.playlists.playlist2_library_user1]
+				.map(Playlist.fromDBResult)
+				.map(playlist => JSON.parse(JSON.stringify(playlist)))
+			, 'name');
+
+		expect(receivedPlaylists).toEqual(expectedPlaylists);
 	});
 });
