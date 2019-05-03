@@ -133,6 +133,8 @@ export const testData: ITestDataSchema = {
 		song1_some_shared_library: {
 			...songContactAlastor,
 			share_id: TimeUUID('f0d359e0-aeb1-11e8-a117-43673ffd376b'),
+			remixer: ['Marsh'],
+			type: 'Remix',
 		}
 	},
 	playlists: {
