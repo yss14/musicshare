@@ -99,7 +99,7 @@ if (!isProductionEnvironment()) {
 	const songProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
 	const authService = new AuthenticationService(process.env[CustomEnv.JWT_SECRET] || uuid());
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
-	const playlistService = PlaylistService({ database });
+	const playlistService = PlaylistService({ database, songService });
 
 	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService);
 	const songResolver = new SongResolver(fileService, songService);

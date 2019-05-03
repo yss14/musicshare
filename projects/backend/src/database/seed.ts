@@ -15,7 +15,6 @@ import { IGenreService } from '../services/GenreService';
 import { Genre } from '../models/GenreModel';
 import { IPasswordLoginService } from '../auth/PasswordLoginService';
 import { IPlaylistService } from '../services/PlaylistService';
-import { Song } from '../models/SongModel';
 
 type Users = 'user1' | 'user2';
 type Shares = 'library_user1' | 'library_user2' | 'some_shared_library';
@@ -199,7 +198,11 @@ export const makeDatabaseSeed = ({ database, songService, songTypeService, genre
 			for (const playlist of Object.values(testData.playlists)) {
 				await playlistService.create(playlist.share_id.toString(), playlist.name, playlist.id.toString());
 
-				await playlistService.addSongs(playlist.id.toString(), playlist.songs.map(Song.fromDBResult));
+				await playlistService.addSongs(
+					playlist.share_id.toString(),
+					playlist.id.toString(),
+					playlist.songs.map(song => song.id.toString())
+				);
 			}
 		}
 

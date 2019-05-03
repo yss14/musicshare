@@ -42,6 +42,7 @@
 		"find-free-port": "^2.0.0"
 	},
 	"dependencies": {
+		"@types/graphql": "^14.2.0",
 		"apollo-server": "^2.4.8",
 		"apollo-server-core": "^2.4.8",
 		"apollo-server-express": "^2.4.8",

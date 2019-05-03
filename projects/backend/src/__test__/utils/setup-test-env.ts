@@ -55,7 +55,7 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 	const songUploadProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
 	const authService = new AuthenticationService('dev_secret');
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
-	const playlistService = PlaylistService({ database });
+	const playlistService = PlaylistService({ database, songService });
 
 	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService);
 	const songResolver = new SongResolver(fileService, songService);
