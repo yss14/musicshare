@@ -85,6 +85,14 @@ describe('update', () => {
 			{ ...obj2, col_boolean: false, col_string: 'newstring' },
 		]);
 	});
+
+	test('update if exists false', () => {
+		const testTable = Table({ test_table: testTableSchema }, 'test_table');
+		const id = CTypes.TimeUuid.fromDate(new Date(), 1);
+		const updateQuery = testTable.update(['col_boolean'], ['col_id'], { ifExists: false })([false], [id]);
+
+		expect(updateQuery.cql).toBe(`UPDATE test_table SET col_boolean = ? WHERE col_id = ? ;`);
+	});
 });
 
 describe('select', () => {
@@ -198,7 +206,7 @@ describe('batch', () => {
 
 		const queries = [
 			testTable.update(['col_boolean', 'col_string'], ['col_id'])([true, 'newstring1'], [obj1.col_id]),
-			testTable.update(['col_boolean', 'col_string'], ['col_id'])([false, 'newstring2'], [obj2.col_id]),
+			testTable.update(['col_boolean', 'col_string'], ['col_id'])([true, 'newstring1'], [obj1.col_id]),
 		];
 
 		await database.query(testTable.batch(queries));
@@ -207,7 +215,7 @@ describe('batch', () => {
 
 		expect(dbResult.sort((lhs, rhs) => sortByTimeUUIDAsc(lhs.col_id, rhs.col_id))).toEqual([
 			{ ...obj1, col_boolean: true, col_string: 'newstring1' },
-			{ ...obj2, col_boolean: false, col_string: 'newstring2' },
+			{ ...obj2 },
 		]);
 	});
 
