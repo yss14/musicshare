@@ -69,7 +69,7 @@ export class ShareSong extends Song implements Nullable<ISong>{
 	public readonly requiresUserAction!: boolean;
 }
 
-
+// istanbul ignore next
 const songMapper = (row: ISongBaseDBResult) => ({
 	id: row.id.toString(),
 	title: row.title,

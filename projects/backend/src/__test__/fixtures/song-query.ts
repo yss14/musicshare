@@ -1,4 +1,4 @@
-export const songKeys = `
+const baseSongKeys = `
 	id,
 	title,
 	suffix,
@@ -13,7 +13,18 @@ export const songKeys = `
 	type,
 	genres,
 	label,
-	requiresUserAction,
 	file{container, blob, fileExtension,originalFilename},
 	duration
 `;
+
+export const songKeys = `
+	${baseSongKeys},
+	requiresUserAction
+`;
+
+export const playlistSongKeys = `
+	${baseSongKeys},
+	playlistID,
+	position,
+	dateAdded
+`

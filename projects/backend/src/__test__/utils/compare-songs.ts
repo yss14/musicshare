@@ -1,6 +1,6 @@
-import { ShareSong } from "../../models/SongModel";
+import { ShareSong, PlaylistSong } from "../../models/SongModel";
 
-export const compareSongs = (lhs: ShareSong, rhs: ShareSong) => {
+export const compareSongs = <S extends ShareSong | PlaylistSong>(lhs: S, rhs: S) => {
 	const { artists: lArtists, remixer: lRemixer, featurings: lFeaturings, genres: lGenres, ...lRest } = lhs;
 	const { artists: rArtists, remixer: rRemixer, featurings: rFeaturings, genres: rGenres, ...rRest } = rhs;
 
@@ -10,10 +10,17 @@ export const compareSongs = (lhs: ShareSong, rhs: ShareSong) => {
 	expect(lFeaturings.sort()).toEqual(rFeaturings.sort());
 	expect(lGenres.sort()).toEqual(rGenres);
 
-	expect(lRest).toEqual(rRest);
+	if (isPlaylistSongRest(lRest) && isPlaylistSongRest(rRest)) {
+		const { dateAdded: dateAddedL, ...lRestWithoutDate } = lRest;
+		const { dateAdded: dateAddedR, ...rRestWithoutDate } = rRest;
+
+		expect(lRestWithoutDate).toEqual(rRestWithoutDate);
+	} else {
+		expect(lRest).toEqual(rRest);
+	}
 }
 
-export const includesSong = (songs: ShareSong[], song: ShareSong) => {
+export const includesSong = <S extends ShareSong | PlaylistSong>(songs: S[], song: S) => {
 	const expectedSong = songs.find(s => s.id === song.id);
 
 	if (!expectedSong) {
@@ -22,3 +29,7 @@ export const includesSong = (songs: ShareSong[], song: ShareSong) => {
 
 	compareSongs(expectedSong, song);
 }
+
+type SongRest<S extends ShareSong | PlaylistSong> = Pick<S, Exclude<keyof S, "artists" | "remixer" | "featurings" | "genres">>
+
+const isPlaylistSongRest = (obj: any): obj is SongRest<PlaylistSong> => obj.dateAdded !== undefined;

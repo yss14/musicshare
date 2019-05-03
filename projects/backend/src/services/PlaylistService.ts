@@ -8,10 +8,17 @@ import { ISongService } from "./SongService";
 
 export type OrderUpdate = [string, number];
 
+export class PlaylistNotFoundError extends Error {
+	constructor(playlistID: string) {
+		super(`Playlist with id ${playlistID} not found`);
+	}
+}
+
 export interface IPlaylistService {
+	getByID(shareID: string, playlistID: string): Promise<Playlist>;
 	create(shareID: string, name: string, id?: string): Promise<Playlist>;
-	delete(id: string): Promise<void>;
-	rename(id: string, newName: string): Promise<void>;
+	delete(shareID: string, playlistID: string): Promise<void>;
+	rename(shareID: string, playlistID: string, newName: string): Promise<void>;
 	addSongs(shareID: string, playlistID: string, songIDs: string[]): Promise<void>;
 	getSongs(id: string): Promise<PlaylistSong[]>;
 	updateOrder(id: string, orderUpdates: OrderUpdate[]): Promise<void>;
@@ -24,6 +31,18 @@ interface IPlaylistServiceArgs {
 }
 
 export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs): IPlaylistService => {
+	const getByID = async (shareID: string, playlistID: string) => {
+		const playlists = await getPlaylistsForShare(shareID);
+
+		const playlist = playlists.find(playlist => playlist.id === playlistID);
+
+		if (!playlist) {
+			throw new PlaylistNotFoundError(playlistID);
+		}
+
+		return playlist;
+	}
+
 	const create = async (shareID: string, name: string, id?: string) => {
 		const playlistObj: IPlaylistByShareDBResult = {
 			id: TimeUUID(id || new Date()),
@@ -37,23 +56,28 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		return Playlist.fromDBResult(playlistObj);
 	};
 
-	const del = async (id: string) => {
+	const del = async (shareID: string, playlistID: string) => {
 		await database.query(
-			PlaylistsByShareTable.update(['date_removed'], ['id'])([new Date()], [TimeUUID(id)])
+			PlaylistsByShareTable.update(['date_removed'], ['share_id', 'id'])
+				([new Date()], [TimeUUID(shareID), TimeUUID(playlistID)])
 		);
 	};
 
-	const rename = async (id: string, newName: string) => {
+	const rename = async (shareID: string, playlistID: string, newName: string) => {
 		await database.query(
-			PlaylistsByShareTable.update(['name'], ['id'])([newName], [TimeUUID(id)])
+			PlaylistsByShareTable.update(['name'], ['share_id', 'id'])
+				([newName], [TimeUUID(shareID), TimeUUID(playlistID)])
 		);
 	};
 
 	const addSongs = async (shareID: string, playlistID: string, songIDs: string[]) => {
+		const songNotInPlaylist = (songID: string) => currentSongs.findIndex(currentSong => currentSong.id === songID) === -1;
+		const songShouldBeAdded = (songID: string) => songIDs.includes(songID);
+
 		const currentSongs = await getSongs(playlistID);
 		const shareSongs = await songService.getByShare(shareID);
 		const songObjects: ISongByPlaylistDBResult[] = shareSongs
-			.filter(song => currentSongs.findIndex(currentSong => currentSong.id === song.id) === -1)
+			.filter(song => songShouldBeAdded(song.id) && songNotInPlaylist(song.id))
 			.map(({ requiresUserAction, ...song }, idx) => ({
 				...(snakeCaseObjKeys(song) as ISongByShareDBResult),
 				playlist_id: TimeUUID(playlistID),
@@ -74,10 +98,20 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 			.map(song => playlistSongFromDBResult({ ...song }));
 	};
 
-	const updateOrder = async (id: string, orderUpdates: OrderUpdate[]) => {
+	const updateOrder = async (playlistID: string, orderUpdates: OrderUpdate[]) => {
+		const currentSongs = await getSongs(playlistID);
+		const someSongsIDsPartOfPlaylist = orderUpdates.map(orderUpdate =>
+			orderUpdate[0]).some(songID =>
+				currentSongs.findIndex(currentSong =>
+					currentSong.id === songID) === -1)
+
+		if (someSongsIDsPartOfPlaylist) {
+			throw new Error(`Some songs are not part of this playlist`)
+		}
+
 		const updateOrderQuery = SongsByPlaylistTable.update(['position'], ['playlist_id', 'id']);
 		const queries = orderUpdates
-			.map(orderUpdate => updateOrderQuery([orderUpdate[1]], [TimeUUID(id), TimeUUID(orderUpdate[0])]));
+			.map(orderUpdate => updateOrderQuery([orderUpdate[1]], [TimeUUID(playlistID), TimeUUID(orderUpdate[0])]));
 
 		await database.query(SongsByPlaylistTable.batch(queries));
 	}
@@ -91,6 +125,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 	}
 
 	return {
+		getByID,
 		create,
 		delete: del,
 		rename,
