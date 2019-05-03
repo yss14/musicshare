@@ -5,5 +5,5 @@ import { Length } from "class-validator";
 export class ShareIDArg {
 	@Length(36, 36)
 	@Field(() => String)
-	shareID!: string;
+	public readonly shareID!: string;
 }

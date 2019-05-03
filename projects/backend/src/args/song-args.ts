@@ -5,5 +5,5 @@ import { Length } from "class-validator";
 export class SongIDsArg {
 	@Length(36, 36, { each: true })
 	@Field(() => [String])
-	songIDs!: string[];
+	public readonly songIDs!: string[];
 }

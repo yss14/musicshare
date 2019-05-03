@@ -5,19 +5,19 @@ import { Length } from "class-validator";
 export class PlaylistIDArg {
 	@Length(36, 36)
 	@Field(() => String)
-	playlistID!: string;
+	public readonly playlistID!: string;
 }
 
 @ArgsType()
 export class PlaylistNameArg {
 	@Length(2, 100)
 	@Field(() => String)
-	name!: string;
+	public readonly name!: string;
 }
 
 @ArgsType()
 export class PlaylistNewNameArg {
 	@Length(2, 100)
 	@Field(() => String)
-	newName!: string;
+	public readonly newName!: string;
 }
