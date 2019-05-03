@@ -135,6 +135,11 @@ export const CQLFunc = (cqlFunction: NativeFunction | string): CQLFunction => ({
 
 const isCQLFunction = (value: any): value is CQLFunction => typeof value.func === 'string';
 
+interface IBatchOptions {
+	logged?: boolean;
+	usingTimestamp?: number;
+}
+
 export interface ITable<C extends Columns> {
 	readonly name: string;
 	create(): IQuery<{}>;
@@ -148,6 +153,7 @@ export interface ITable<C extends Columns> {
 		(conditions: ColumnValues<C, Where>) => IQuery<Pick<C, Extract<Subset[number], string>>>;
 	selectWhere(where: string): (values: unknown[]) => IQuery<C>;
 	drop(): IQuery<{}>;
+	batch: (queries: IQuery<{}>[], opts?: IBatchOptions) => IQuery<{}>;
 }
 
 type NonEmpty<Type> = [Type, ...Type[]];
@@ -238,6 +244,38 @@ export const Table =
 			},
 			drop: () => ({
 				cql: CQL.dropTable(table)
-			})
+			}),
+			batch: (quries, opts) => {
+				const illegalStatements = ['SELECT ', 'DROP ', 'CREATE '];
+
+				for (const illegalStatement of illegalStatements) {
+					if (quries.some(query => query.cql.indexOf(illegalStatement) > -1)) {
+						throw new Error(`Queries contains an illegal ${illegalStatement.trim()} statement`);
+					}
+				}
+
+				let logged = '';
+
+				if (opts) {
+					if (opts.logged === true) {
+						logged = 'LOGGED';
+					} else if (opts.logged === false) {
+						logged = 'UNLOGGED';
+					}
+				}
+
+				const timestamp = opts && opts.usingTimestamp;
+
+				const cql = `
+					BEGIN ${logged} BATCH ${timestamp ? `USING TIMESTAMP ${timestamp}` : ''}
+						${quries.map(query => query.cql).join('\n')}
+					APPLY BATCH;
+				`;
+
+				return {
+					cql,
+					values: quries.reduce((values: unknown[], query) => values.concat(query.values), [])
+				}
+			}
 		};
 	};

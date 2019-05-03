@@ -16,6 +16,17 @@ const testTableSchema = TableSchema({
 	col_boolean: { type: ColumnType.Boolean, nullable: false },
 });
 
+const obj1: ITestTableDBResult = {
+	col_id: CTypes.TimeUuid.fromDate(new Date(), 1),
+	col_boolean: false,
+	col_string: 'teststring1'
+};
+const obj2: ITestTableDBResult = {
+	col_id: CTypes.TimeUuid.fromDate(new Date(), 2),
+	col_boolean: true,
+	col_string: 'teststring2'
+};
+
 interface ITestTableDBResult extends TableRecord<typeof testTableSchema> { }
 
 const setupTestEnv = async () => {
@@ -59,17 +70,6 @@ describe('insert', () => {
 });
 
 describe('update', () => {
-	const obj1: ITestTableDBResult = {
-		col_id: CTypes.TimeUuid.fromDate(new Date(), 1),
-		col_boolean: false,
-		col_string: 'teststring1'
-	};
-	const obj2: ITestTableDBResult = {
-		col_id: CTypes.TimeUuid.fromDate(new Date(), 2),
-		col_boolean: true,
-		col_string: 'teststring2'
-	};
-
 	test('update where', async () => {
 		const { database, testTable } = await setupTestEnv();
 		await database.query(testTable.insertFromObj(obj1));
@@ -176,5 +176,68 @@ describe('drop', () => {
 		const { database, testTable } = await setupTestEnv();
 
 		await expect(database.query(testTable.drop())).resolves.toBe(undefined);
+	});
+});
+
+describe('batch', () => {
+	test('valid insert batch', async () => {
+		const { database, testTable } = await setupTestEnv();
+		const queries = [
+			testTable.insert(['col_id', 'col_string', 'col_boolean'])([CQLFunc(NativeFunction.Now), 'teststring1', true]),
+			testTable.insert(['col_id', 'col_string', 'col_boolean'])([CQLFunc(NativeFunction.Now), 'teststring2', true]),
+			testTable.insert(['col_id', 'col_string', 'col_boolean'])([CQLFunc(NativeFunction.Now), 'teststring3', false]),
+		];
+
+		await database.query(testTable.batch(queries));
+	});
+
+	test('valid update batch', async () => {
+		const { database, testTable } = await setupTestEnv();
+		await database.query(testTable.insertFromObj(obj1));
+		await database.query(testTable.insertFromObj(obj2));
+
+		const queries = [
+			testTable.update(['col_boolean', 'col_string'], ['col_id'])([true, 'newstring1'], [obj1.col_id]),
+			testTable.update(['col_boolean', 'col_string'], ['col_id'])([false, 'newstring2'], [obj2.col_id]),
+		];
+
+		await database.query(testTable.batch(queries));
+
+		const dbResult = await database.query(testTable.selectAll('*'));
+
+		expect(dbResult.sort((lhs, rhs) => sortByTimeUUIDAsc(lhs.col_id, rhs.col_id))).toEqual([
+			{ ...obj1, col_boolean: true, col_string: 'newstring1' },
+			{ ...obj2, col_boolean: false, col_string: 'newstring2' },
+		]);
+	});
+
+	test('illegal select batch', async () => {
+		const testTable = Table({ test_table: testTableSchema }, 'test_table');
+		const queries = [
+			testTable.insert(['col_boolean'])([true]),
+			testTable.select('*', ['col_boolean'])([true])
+		];
+
+		expect(() => testTable.batch(queries)).toThrowError('Queries contains an illegal SELECT statement');
+	});
+
+	test('illegal drop batch', async () => {
+		const testTable = Table({ test_table: testTableSchema }, 'test_table');
+		const queries = [
+			testTable.insert(['col_boolean'])([true]),
+			testTable.drop()
+		];
+
+		expect(() => testTable.batch(queries)).toThrowError('Queries contains an illegal DROP statement');
+	});
+
+	test('illegal create batch', async () => {
+		const testTable = Table({ test_table: testTableSchema }, 'test_table');
+		const queries = [
+			testTable.insert(['col_boolean'])([true]),
+			testTable.create()
+		];
+
+		expect(() => testTable.batch(queries)).toThrowError('Queries contains an illegal CREATE statement');
 	});
 });
