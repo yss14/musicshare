@@ -135,6 +135,10 @@ export const CQLFunc = (cqlFunction: NativeFunction | string): CQLFunction => ({
 
 const isCQLFunction = (value: any): value is CQLFunction => typeof value.func === 'string';
 
+export interface IUpdateOptions {
+	ifExists?: boolean;
+}
+
 interface IBatchOptions {
 	logged?: boolean;
 	usingTimestamp?: number;
@@ -145,7 +149,7 @@ export interface ITable<C extends Columns> {
 	create(): IQuery<{}>;
 	insert<Subset extends Keys<C>>(subset: Subset): (values: ColumnValues<C, Subset>) => IQuery<{}>;
 	insertFromObj<Subset extends TableRecord<C>>(obj: Subset): IQuery<{}>;
-	update<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset, where: Where):
+	update<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset, where: Where, opts?: IUpdateOptions):
 		(subsetValues: ColumnValues<C, Subset>, whereValues: ColumnValues<C, Where>) => IQuery<{}>;
 	selectAll<Subset extends Keys<C>>(subset: Subset | "*"):
 		IQuery<Pick<C, Extract<Subset[number], string>>>;
@@ -213,8 +217,8 @@ export const Table =
 					values
 				};
 			},
-			update: (subset, where) => (subsetValues, whereValues) => ({
-				cql: CQL.update(table, subset.filter(isString), where.filter(isString)),
+			update: (subset, where, opts) => (subsetValues, whereValues) => ({
+				cql: CQL.update(table, subset.filter(isString), where.filter(isString), opts),
 				values: subsetValues.concat(whereValues)
 			}),
 			selectAll: (subset) => {
