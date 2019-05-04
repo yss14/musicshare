@@ -1,7 +1,7 @@
 import { ISongService } from '../services/SongService';
-import { Resolver, Query, Arg, FieldResolver, Root, Authorized } from "type-graphql";
+import { Resolver, Query, Arg, FieldResolver, Root, Authorized, Args } from "type-graphql";
 import { Share } from "../models/ShareModel";
-import { Song } from "../models/SongModel";
+import { ShareSong } from "../models/SongModel";
 import { IShareService } from "../services/ShareService";
 import { ISongTypeService } from '../services/SongTypeService';
 import { SongType } from '../models/SongType';
@@ -9,6 +9,9 @@ import { Genre } from '../models/GenreModel';
 import { IGenreService } from '../services/GenreService';
 import { IArtistService } from '../services/ArtistService';
 import { Artist } from '../models/ArtistModel';
+import { Playlist } from '../models/PlaylistModel';
+import { IPlaylistService } from '../services/PlaylistService';
+import { PlaylistIDArg } from '../args/playlist-args';
 
 @Resolver(of => Share)
 export class ShareResolver {
@@ -18,6 +21,7 @@ export class ShareResolver {
 		private readonly songTypeService: ISongTypeService,
 		private readonly genreService: IGenreService,
 		private readonly artistService: IArtistService,
+		private readonly playlistService: IPlaylistService,
 	) { }
 
 	@Authorized()
@@ -32,7 +36,7 @@ export class ShareResolver {
 		@Root() share: Share,
 		@Arg('from', { nullable: true }) from?: number,
 		@Arg('take', { nullable: true }) take?: number
-	): Promise<Song[]> {
+	): Promise<ShareSong[]> {
 		const songs = await this.songService.getByShare(share.id);
 
 		const startIdx = (from || 1) - 1;
@@ -42,14 +46,12 @@ export class ShareResolver {
 	}
 
 	@Authorized()
-	@FieldResolver(() => [Song])
+	@FieldResolver(() => [ShareSong])
 	public async songsDirty(
 		@Root() share: Share,
 		@Arg('lastTimestamp') lastTimestamp: number,
-	): Promise<Song[]> {
-		const songs = await this.songService.getByShareDirty(share.id, lastTimestamp);
-
-		return songs;
+	): Promise<ShareSong[]> {
+		return this.songService.getByShareDirty(share.id, lastTimestamp);
 	}
 
 	@Authorized()
@@ -57,7 +59,7 @@ export class ShareResolver {
 	public song(
 		@Root() share: Share,
 		@Arg('id') id: string
-	): Promise<Song | null> {
+	): Promise<ShareSong | null> {
 		return this.songService.getByID(share.id, id);
 	}
 
@@ -66,9 +68,7 @@ export class ShareResolver {
 	public async songTypes(
 		@Root() share: Share
 	): Promise<SongType[]> {
-		const songTypes = await this.songTypeService.getSongTypesForShare(share.id);
-
-		return songTypes;
+		return this.songTypeService.getSongTypesForShare(share.id);
 	}
 
 	@Authorized()
@@ -76,9 +76,7 @@ export class ShareResolver {
 	public async genres(
 		@Root() share: Share
 	): Promise<Genre[]> {
-		const genres = await this.genreService.getGenresForShare(share.id);
-
-		return genres;
+		return this.genreService.getGenresForShare(share.id);
 	}
 
 	@Authorized()
@@ -86,8 +84,23 @@ export class ShareResolver {
 	public async artists(
 		@Root() share: Share
 	): Promise<Artist[]> {
-		const artists = await this.artistService.getArtistsForShare(share.id);
+		return this.artistService.getArtistsForShare(share.id);
+	}
 
-		return artists;
+	@Authorized()
+	@FieldResolver(() => [Playlist])
+	public async playlists(
+		@Root() share: Share,
+	): Promise<Playlist[]> {
+		return this.playlistService.getPlaylistsForShare(share.id);
+	}
+
+	@Authorized()
+	@FieldResolver(() => Playlist)
+	public async playlist(
+		@Root() share: Share,
+		@Args() { playlistID }: PlaylistIDArg,
+	): Promise<Playlist> {
+		return this.playlistService.getByID(share.id, playlistID);
 	}
 }

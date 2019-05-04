@@ -1,4 +1,4 @@
-import { Columns, ColumnType, Collection, ClusteringOrder, ClusteringOrderIndexed, ClusteringOrderSorting } from './table';
+import { Columns, ColumnType, Collection, ClusteringOrder, ClusteringOrderIndexed, ClusteringOrderSorting, IUpdateOptions } from './table';
 
 export namespace CQLErrors {
 	export class InvalidTableSchema extends Error {
@@ -119,10 +119,12 @@ export namespace CQL {
 		return cql;
 	}
 
-	export const update = (tableName: string, subset: string[], where: string[]) => {
+	export const update = (tableName: string, subset: string[], where: string[], opts?: IUpdateOptions) => {
+		const { ifExists } = opts || <IUpdateOptions>{ ifExists: true };
+
 		const cql = `UPDATE ${tableName} `
 			+ `SET ${subset.map(col => `${col} = ?`).join(', ')} `
-			+ `WHERE ${where.map(col => `${col} = ?`).join(' AND ')};`
+			+ `WHERE ${where.map(col => `${col} = ?`).join(' AND ')} ${ifExists === true ? ' IF EXISTS' : ''};`
 
 		return cql;
 	}

@@ -32,6 +32,8 @@ import { PasswordLoginService } from "./auth/PasswordLoginService";
 import { AuthenticationService } from "./auth/AuthenticationService";
 import { v4 as uuid } from 'uuid';
 import { MP3SongDuration } from "./utils/song-meta/song-meta-formats/id3/MP3SongDuration";
+import { PlaylistService } from "./services/PlaylistService";
+import { PlaylistResolver } from "./resolvers/PlaylistResolver";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -97,17 +99,20 @@ if (!isProductionEnvironment()) {
 	const songProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
 	const authService = new AuthenticationService(process.env[CustomEnv.JWT_SECRET] || uuid());
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
+	const playlistService = PlaylistService({ database, songService });
 
-	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService);
+	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService);
 	const songResolver = new SongResolver(fileService, songService);
 	const userResolver = new UserResolver(userService, shareService, passwordLoginService);
+	const playlistResolver = new PlaylistResolver(playlistService);
 
 	Container.set(ShareResolver, shareResolver);
 	Container.set(SongResolver, songResolver);
 	Container.set(UserResolver, userResolver);
+	Container.set(PlaylistResolver, playlistResolver);
 
 	if (__DEV__) {
-		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService });
+		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService, playlistService });
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	} else if (__PROD__) {
 		await makeDatabaseSchema(database, { keySpace: databaseKeyspace });

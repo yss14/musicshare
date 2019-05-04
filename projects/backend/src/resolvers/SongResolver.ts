@@ -1,13 +1,13 @@
-import { Song } from '../models/SongModel';
+import { ShareSong, Song } from '../models/SongModel';
 import { Resolver, FieldResolver, Root, ResolverInterface, Mutation, Arg, Authorized } from "type-graphql";
 import { File } from '../models/FileModel';
 import { FileService } from '../file-service/FileService';
 import moment = require('moment');
-import { SongInput } from '../inputs/SongInput';
+import { SongUpdateInput } from '../inputs/SongInput';
 import { ISongService } from '../services/SongService';
 
 @Resolver(of => Song)
-export class SongResolver implements ResolverInterface<Song>{
+export class SongResolver implements ResolverInterface<ShareSong>{
 	constructor(
 		private readonly fileService: FileService,
 		private readonly songService: ISongService,
@@ -15,13 +15,13 @@ export class SongResolver implements ResolverInterface<Song>{
 
 	@Authorized()
 	@FieldResolver()
-	public file(@Root() song: Song): File {
+	public file(@Root() song: ShareSong): File {
 		return song.file;
 	}
 
 	@Authorized()
-	@FieldResolver()
-	public accessUrl(@Root() song: Song): Promise<string> {
+	@FieldResolver(() => String)
+	public accessUrl(@Root() song: ShareSong): Promise<string> {
 		/* istanbul ignore else */
 		if (song.file) {
 			return this.fileService.getLinkToFile({
@@ -34,12 +34,12 @@ export class SongResolver implements ResolverInterface<Song>{
 	}
 
 	@Authorized()
-	@Mutation(() => Song, { nullable: true })
+	@Mutation(() => ShareSong, { nullable: true })
 	public async updateSong(
 		@Arg('songID') songID: string,
 		@Arg('shareID') shareID: string,
-		@Arg('song') song: SongInput
-	): Promise<Song | null> {
+		@Arg('song') song: SongUpdateInput
+	): Promise<ShareSong | null> {
 		if (song.isValid()) {
 			await this.songService.update(shareID, songID, song);
 

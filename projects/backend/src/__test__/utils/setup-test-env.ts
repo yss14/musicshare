@@ -21,6 +21,8 @@ import { makeMockedDatabase } from "../mocks/mock-database";
 import { AuthenticationService } from "../../auth/AuthenticationService";
 import { PasswordLoginService } from "../../auth/PasswordLoginService";
 import uuid = require("uuid");
+import { PlaylistResolver } from "../../resolvers/PlaylistResolver";
+import { PlaylistService } from "../../services/PlaylistService";
 
 interface SetupTestEnvArgs {
 	mockDatabase?: boolean;
@@ -53,17 +55,20 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 	const songUploadProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeService);
 	const authService = new AuthenticationService('dev_secret');
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
+	const playlistService = PlaylistService({ database, songService });
 
-	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService);
+	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService);
 	const songResolver = new SongResolver(fileService, songService);
 	const userResolver = new UserResolver(userService, shareService, passwordLoginService);
+	const playlistResolver = new PlaylistResolver(playlistService);
 
 	Container.of(testID).set(ShareResolver, shareResolver);
 	Container.of(testID).set(SongResolver, songResolver);
 	Container.of(testID).set(UserResolver, userResolver);
+	Container.of(testID).set(PlaylistResolver, playlistResolver);
 
 	const seed = async (songService: SongService) => {
-		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService });
+		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService, playlistService });
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	}
 
@@ -89,5 +94,6 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 		artistService,
 		authService,
 		passwordLoginService,
+		playlistService,
 	};
 }

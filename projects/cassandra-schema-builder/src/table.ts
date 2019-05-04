@@ -135,12 +135,21 @@ export const CQLFunc = (cqlFunction: NativeFunction | string): CQLFunction => ({
 
 const isCQLFunction = (value: any): value is CQLFunction => typeof value.func === 'string';
 
+export interface IUpdateOptions {
+	ifExists?: boolean;
+}
+
+interface IBatchOptions {
+	logged?: boolean;
+	usingTimestamp?: number;
+}
+
 export interface ITable<C extends Columns> {
 	readonly name: string;
 	create(): IQuery<{}>;
 	insert<Subset extends Keys<C>>(subset: Subset): (values: ColumnValues<C, Subset>) => IQuery<{}>;
 	insertFromObj<Subset extends TableRecord<C>>(obj: Subset): IQuery<{}>;
-	update<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset, where: Where):
+	update<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset, where: Where, opts?: IUpdateOptions):
 		(subsetValues: ColumnValues<C, Subset>, whereValues: ColumnValues<C, Where>) => IQuery<{}>;
 	selectAll<Subset extends Keys<C>>(subset: Subset | "*"):
 		IQuery<Pick<C, Extract<Subset[number], string>>>;
@@ -148,6 +157,7 @@ export interface ITable<C extends Columns> {
 		(conditions: ColumnValues<C, Where>) => IQuery<Pick<C, Extract<Subset[number], string>>>;
 	selectWhere(where: string): (values: unknown[]) => IQuery<C>;
 	drop(): IQuery<{}>;
+	batch: (queries: IQuery<{}>[], opts?: IBatchOptions) => IQuery<{}>;
 }
 
 type NonEmpty<Type> = [Type, ...Type[]];
@@ -207,8 +217,8 @@ export const Table =
 					values
 				};
 			},
-			update: (subset, where) => (subsetValues, whereValues) => ({
-				cql: CQL.update(table, subset.filter(isString), where.filter(isString)),
+			update: (subset, where, opts) => (subsetValues, whereValues) => ({
+				cql: CQL.update(table, subset.filter(isString), where.filter(isString), opts),
 				values: subsetValues.concat(whereValues)
 			}),
 			selectAll: (subset) => {
@@ -238,6 +248,41 @@ export const Table =
 			},
 			drop: () => ({
 				cql: CQL.dropTable(table)
-			})
+			}),
+			batch: (quries, opts) => {
+				const illegalStatements = ['SELECT ', 'DROP ', 'CREATE '];
+
+				for (const illegalStatement of illegalStatements) {
+					if (quries.some(query => query.cql.indexOf(illegalStatement) > -1)) {
+						throw new Error(`Queries contains an illegal ${illegalStatement.trim()} statement`);
+					}
+				}
+
+				let logged = '';
+
+				// istanbul ignore next
+				if (opts) {
+					if (opts.logged === true) {
+						logged = 'LOGGED';
+					} else if (opts.logged === false) {
+						logged = 'UNLOGGED';
+					}
+				}
+
+				// istanbul ignore next
+				const timestamp = opts && opts.usingTimestamp;
+
+				// istanbul ignore next
+				const cql = `
+					BEGIN ${logged} BATCH ${timestamp ? `USING TIMESTAMP ${timestamp}` : ''}
+						${quries.map(query => query.cql).join('\n')}
+					APPLY BATCH;
+				`;
+
+				return {
+					cql,
+					values: quries.reduce((values: unknown[], query) => values.concat(query.values), [])
+				}
+			}
 		};
 	};

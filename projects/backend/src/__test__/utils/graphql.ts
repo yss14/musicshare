@@ -20,7 +20,7 @@ export const executeGraphQLQuery = async (server: ApolloServer, query: string, e
 }
 
 interface IGraphQLResponse<T> {
-	data: T;
+	data?: T;
 	errors?: any[];
 }
 
@@ -38,3 +38,7 @@ export const makeGraphQLResponse = <T>(expectedData: T, expectedErrors?: any[]) 
 
 	return response;
 };
+
+export const argumentValidationError = (): IGraphQLResponse<never> => ({
+	errors: [{ message: 'Argument Validation Error' }]
+})

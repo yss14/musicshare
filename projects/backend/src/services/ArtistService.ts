@@ -1,6 +1,6 @@
 import { Artist } from "../models/ArtistModel";
 import { ISongService } from "./SongService";
-import { Song } from "../models/SongModel";
+import { ShareSong } from "../models/SongModel";
 import { flatten } from "lodash";
 
 export interface IArtistService {
@@ -25,7 +25,7 @@ export class ArtistService implements IArtistService {
 		return this.fromSongArray(flatten(shareSongs));
 	}
 
-	private fromSongArray(songs: Song[]): Artist[] {
+	private fromSongArray(songs: ShareSong[]): Artist[] {
 		const uniqueArtists = songs
 			.reduce((artistsSet: Set<string>, song) => {
 				song.artists.forEach(artist => artistsSet.add(artist));
