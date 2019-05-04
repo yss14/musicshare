@@ -20,6 +20,7 @@ export interface IPlaylistService {
 	delete(shareID: string, playlistID: string): Promise<void>;
 	rename(shareID: string, playlistID: string, newName: string): Promise<void>;
 	addSongs(shareID: string, playlistID: string, songIDs: string[]): Promise<void>;
+	removeSongs(playlistID: string, songIDs: string[]): Promise<void>;
 	getSongs(id: string): Promise<PlaylistSong[]>;
 	updateOrder(id: string, orderUpdates: OrderUpdate[]): Promise<void>;
 	getPlaylistsForShare(shareID: string): Promise<Playlist[]>;
@@ -90,6 +91,25 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		await Promise.all(songObjects.map(songObj => database.query(SongsByPlaylistTable.insertFromObj(songObj))));
 	};
 
+	const removeSongs = async (playlistID: string, songIDs: string[]) => {
+		const updateDateRemovedQuery = SongsByPlaylistTable.update(['date_removed'], ['playlist_id', 'id']);
+		const queries = songIDs.map(songID =>
+			updateDateRemovedQuery([new Date()], [TimeUUID(playlistID), TimeUUID(songID)]));
+
+		await database.query(SongsByPlaylistTable.batch(queries));
+		await normalizeOrder(playlistID);
+	}
+
+	const normalizeOrder = async (playlistID: string) => {
+		const songs = await getSongs(playlistID);
+
+		const orderUpdates = songs
+			.sort((lhs, rhs) => lhs.position - rhs.position)
+			.map((song, idx): OrderUpdate => [song.id.toString(), idx]);
+
+		await executeOrderUpdates(playlistID, orderUpdates);
+	}
+
 	const getSongs = async (id: string): Promise<PlaylistSong[]> => {
 		const songs = await database.query(SongsByPlaylistTable.select('*', ['playlist_id'])([TimeUUID(id)]));
 
@@ -109,6 +129,10 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 			throw new Error(`Some songs are not part of this playlist`)
 		}
 
+		await executeOrderUpdates(playlistID, orderUpdates);
+	}
+
+	const executeOrderUpdates = async (playlistID: string, orderUpdates: OrderUpdate[]) => {
 		const updateOrderQuery = SongsByPlaylistTable.update(['position'], ['playlist_id', 'id']);
 		const queries = orderUpdates
 			.map(orderUpdate => updateOrderQuery([orderUpdate[1]], [TimeUUID(playlistID), TimeUUID(orderUpdate[0])]));
@@ -130,6 +154,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		delete: del,
 		rename,
 		addSongs,
+		removeSongs,
 		getSongs,
 		updateOrder,
 		getPlaylistsForShare,

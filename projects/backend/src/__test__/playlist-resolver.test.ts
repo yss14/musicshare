@@ -201,8 +201,52 @@ describe('add songs to playlist', () => {
 			date_removed: null,
 		}));
 
-		expect(expectedSongs).toBeArrayOfSize(songs.length);
+		expect(body.data.addSongsToPlaylist).toBeArrayOfSize(songs.length);
 		expectedSongs.forEach(expectedSong => includesSong(body.data.addSongsToPlaylist, expectedSong));
+	});
+});
+
+describe('remove songs from playlist', () => {
+	const makeRemoveSongsQuery = (playlistID: string, songIDs: string[]) => `
+		removeSongsFromPlaylist(playlistID: "${playlistID}", songIDs: [${songIDs.map(songID => `"${songID}"`).join(',')}]){
+			${playlistSongKeys}
+		}
+	`;
+
+	test('existing songs', async () => {
+		const { graphQLServer } = await setupTest();
+		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
+		const songs = [testData.playlists.playlist1_library_user1.songs[1]];
+		const query = makeMutation(makeRemoveSongsQuery(playlistID, songs.map(song => song.id.toString())));
+
+		const { body } = await executeGraphQLQuery(graphQLServer, query);
+
+		const expectedSongs = [testData.playlists.playlist1_library_user1.songs[0], testData.playlists.playlist1_library_user1.songs[2]]
+			.map((song, idx) => ({
+				id: song.id.toString(),
+				position: idx
+			}));
+
+		expect(body.data.removeSongsFromPlaylist).toBeArrayOfSize(2);
+		expect(sortBy(body.data.removeSongsFromPlaylist, 'position')).toMatchObject(expectedSongs);
+	});
+
+	test('not existing songs', async () => {
+		const { graphQLServer } = await setupTest();
+		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
+		const songIDs = [TimeUUID().toString(), TimeUUID().toString()];
+
+		const query = makeMutation(makeRemoveSongsQuery(playlistID, songIDs));
+
+		const { body } = await executeGraphQLQuery(graphQLServer, query);
+
+		const expectedSongs = testData.playlists.playlist1_library_user1.songs.map((song, idx) => ({
+			id: song.id.toString(),
+			position: idx
+		}));
+
+		expect(body.data.removeSongsFromPlaylist).toBeArrayOfSize(testData.playlists.playlist1_library_user1.songs.length);
+		expect(sortBy(body.data.removeSongsFromPlaylist, 'position')).toMatchObject(expectedSongs);
 	});
 });
 
