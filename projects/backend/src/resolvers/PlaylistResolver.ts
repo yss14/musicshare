@@ -68,6 +68,17 @@ export class PlaylistResolver {
 
 	@Authorized()
 	@Mutation(() => [PlaylistSong])
+	public async removeSongsFromPlaylist(
+		@Args() { playlistID }: PlaylistIDArg,
+		@Args() { songIDs }: SongIDsArg,
+	): Promise<PlaylistSong[]> {
+		await this.playlistService.removeSongs(playlistID, songIDs);
+
+		return this.playlistService.getSongs(playlistID);
+	}
+
+	@Authorized()
+	@Mutation(() => [PlaylistSong])
 	public async updateOrderOfPlaylist(
 		@Args() { playlistID }: PlaylistIDArg,
 		@Arg('orderUpdates', () => [OrderUpdateScalar]) orderUpdates: OrderUpdate[],
