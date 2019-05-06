@@ -23,6 +23,7 @@ import { PasswordLoginService } from "../../auth/PasswordLoginService";
 import uuid = require("uuid");
 import { PlaylistResolver } from "../../resolvers/PlaylistResolver";
 import { PlaylistService } from "../../services/PlaylistService";
+import { makeGraphQLContextProvider } from "../../types/context";
 
 interface SetupTestEnvArgs {
 	mockDatabase?: boolean;
@@ -78,7 +79,12 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 
 	const authChecker = () => true;
 
-	const graphQLServer = await makeGraphQLServer(Container.of(testID), authChecker, UserResolver, ShareResolver, SongResolver);
+	const graphQLServer = await makeGraphQLServer(
+		Container.of(testID),
+		makeGraphQLContextProvider({ playlistService }),
+		authChecker,
+		UserResolver, ShareResolver, SongResolver
+	);
 
 	return {
 		graphQLServer,

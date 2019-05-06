@@ -10,6 +10,7 @@ import supertest = require('supertest');
 import { Resolver, Authorized, Query, ObjectType, Field, Arg } from 'type-graphql';
 import { makeGraphQLServer } from '../server/GraphQLServer';
 import { makeGraphQLResponse } from './utils/graphql';
+import { makeGraphQLContextProvider } from "../types/context";
 
 const routePathProtected = '/some/protected/route';
 const routePathPublic = '/some/public/route';
@@ -53,7 +54,12 @@ const setupGraphQLTestEnv = async () => {
 		}
 	}
 
-	const graphQLServer = await makeGraphQLServer(null as any, graphQLAuthChecker, TestResolver);
+	const graphQLServer = await makeGraphQLServer(
+		null as any,
+		makeGraphQLContextProvider({ playlistService: null as any }),
+		graphQLAuthChecker,
+		TestResolver
+	);
 	graphQLServer.applyMiddleware({ app: expressApp });
 
 	return { expressApp, graphQLServer, authService };

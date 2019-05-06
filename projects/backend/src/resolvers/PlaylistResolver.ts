@@ -7,6 +7,7 @@ import { PlaylistNameArg, PlaylistIDArg, PlaylistNewNameArg } from "../args/play
 import { ShareIDArg } from "../args/share-args";
 import { SongIDsArg } from "../args/song-args";
 import { sortBy } from 'lodash';
+import { PlaylistAuth } from "../auth/auth-middleware";
 
 @Resolver(of => Playlist)
 export class PlaylistResolver {
@@ -15,6 +16,7 @@ export class PlaylistResolver {
 	) { }
 
 	@Authorized()
+	@PlaylistAuth()
 	@FieldResolver(() => [PlaylistSong])
 	public async songs(
 		@Root() playlist: Playlist,
@@ -23,6 +25,7 @@ export class PlaylistResolver {
 	}
 
 	@Authorized()
+	@PlaylistAuth(['create'])
 	@Mutation(() => Playlist, { nullable: true })
 	public async createPlaylist(
 		@Args() { shareID }: ShareIDArg,
@@ -32,6 +35,7 @@ export class PlaylistResolver {
 	}
 
 	@Authorized()
+	@PlaylistAuth(['modify'])
 	@Mutation(() => Boolean, { description: 'Deletes an existing playlists. Does not check if playlist exists.' })
 	public async deletePlaylist(
 		@Args() { shareID }: ShareIDArg,
@@ -43,6 +47,7 @@ export class PlaylistResolver {
 	}
 
 	@Authorized()
+	@PlaylistAuth(['modify'])
 	@Mutation(() => Boolean, { description: 'Renames an existing playlists. Does not check if playlist exists.' })
 	public async renamePlaylist(
 		@Args() { shareID }: ShareIDArg,
@@ -55,6 +60,7 @@ export class PlaylistResolver {
 	}
 
 	@Authorized()
+	@PlaylistAuth(['mutate_songs'])
 	@Mutation(() => [PlaylistSong])
 	public async addSongsToPlaylist(
 		@Args() { shareID }: ShareIDArg,
@@ -67,6 +73,7 @@ export class PlaylistResolver {
 	}
 
 	@Authorized()
+	@PlaylistAuth(['mutate_songs'])
 	@Mutation(() => [PlaylistSong])
 	public async removeSongsFromPlaylist(
 		@Args() { playlistID }: PlaylistIDArg,
@@ -78,6 +85,7 @@ export class PlaylistResolver {
 	}
 
 	@Authorized()
+	@PlaylistAuth(['mutate_songs'])
 	@Mutation(() => [PlaylistSong])
 	public async updateOrderOfPlaylist(
 		@Args() { playlistID }: PlaylistIDArg,
