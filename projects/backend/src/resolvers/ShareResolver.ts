@@ -26,7 +26,9 @@ export class ShareResolver {
 
 	@Authorized()
 	@Query(() => Share, { nullable: true })
-	public share(@Arg("id") id: string): Promise<Share | null> {
+	public share(
+		@Arg("id") id: string
+	): Promise<Share | null> {
 		return this.shareService.getShareByID(id);
 	}
 

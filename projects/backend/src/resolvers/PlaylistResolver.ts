@@ -7,7 +7,7 @@ import { PlaylistNameArg, PlaylistIDArg, PlaylistNewNameArg } from "../args/play
 import { ShareIDArg } from "../args/share-args";
 import { SongIDsArg } from "../args/song-args";
 import { sortBy } from 'lodash';
-import { PlaylistAuth } from "../auth/auth-middleware";
+import { PlaylistAuth } from "../auth/middleware/playlist-auth";
 
 @Resolver(of => Playlist)
 export class PlaylistResolver {

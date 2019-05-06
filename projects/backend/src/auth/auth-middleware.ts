@@ -1,11 +1,7 @@
 import { HTTPStatusCodes } from '../types/http-status-codes';
 import { IAuthenticationService } from './AuthenticationService';
-import { CustomRequestHandler, Scopes, IGraphQLContext } from '../types/context';
-import { AuthChecker, UseMiddleware, ArgsDictionary } from 'type-graphql';
-import { Permissions } from './permissions';
-import { Share } from '../models/ShareModel';
-import { Playlist } from '../models/PlaylistModel';
-import { Middleware } from 'type-graphql/dist/interfaces/Middleware';
+import { CustomRequestHandler, IGraphQLContext } from '../types/context';
+import { AuthChecker } from 'type-graphql';
 
 export const makeAuthExtractor = (authService: IAuthenticationService): CustomRequestHandler => async (req, res, next) => {
 	req.context = { userID: null, scopes: [] };
@@ -58,71 +54,3 @@ export const graphQLAuthChecker: AuthChecker<IGraphQLContext> = ({ context: { us
 
 	return true;
 };
-
-const hasAllPermissions = (requiredPermissions: string[], currentPermissions: string[]) => {
-	return !requiredPermissions.some(requiredPermission => !currentPermissions.includes(requiredPermission));
-}
-
-const getRequiredPermissionsForShare = (shareID: string, scopes: Scopes) => {
-	const shareScopes = scopes.find(scope => scope.shareID === shareID);
-
-	if (!shareScopes) {
-		throw new Error(`No scopes provided for share ${shareID}`);
-	}
-
-	return shareScopes.permissions;
-}
-
-const getShareIDFromRequest = ({ args, root }: { args: ArgsDictionary, root: any }) => {
-	if (root instanceof Share) {
-		return root.id;
-	}
-
-	if (typeof args.shareID === 'string') {
-		return args.shareID;
-	}
-
-	return null;
-}
-
-const getPlaylistIDFromRequest = ({ args, root }: { args: ArgsDictionary, root: any }) => {
-	if (root instanceof Playlist) {
-		return root.id;
-	}
-
-	if (typeof args.playlistID === 'string') {
-		return args.playlistID;
-	}
-
-	return null;
-}
-
-const makePlaylistAuthMiddleware = (permissions?: Permissions.Playlist[]): Middleware<IGraphQLContext> => async ({ args, root, context }, next) => {
-	const { services: { playlistService }, scopes } = context;
-	const playlistID = getPlaylistIDFromRequest({ root, args });
-	const shareID = getShareIDFromRequest({ root, args });
-
-	if (!playlistID) {
-		throw new Error('Playlist reference not found');
-	}
-	if (!shareID) {
-		throw new Error('Share reference not found');
-	}
-
-	await playlistService.getByID(shareID, playlistID);
-
-	if (permissions) {
-		const isPermitted = hasAllPermissions(
-			getRequiredPermissionsForShare(shareID, scopes),
-			permissions
-		);
-
-		if (!isPermitted) {
-			throw new Error(`User has insufficient permissions to perform this action!`);
-		}
-	}
-
-	return next();
-};
-
-export const PlaylistAuth = (permissions?: Permissions.Playlist[]) => UseMiddleware(makePlaylistAuthMiddleware(permissions));
