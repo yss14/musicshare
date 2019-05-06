@@ -2,6 +2,7 @@ import { Scopes } from "../../types/context";
 import { ArgsDictionary } from "type-graphql";
 import { Share } from "../../models/ShareModel";
 import { Playlist } from "../../models/PlaylistModel";
+import { Song } from "../../models/SongModel";
 
 export const hasAllPermissions = (requiredPermissions: string[], currentPermissions: string[]) => {
 	return !requiredPermissions.some(requiredPermission => !currentPermissions.includes(requiredPermission));
@@ -36,6 +37,18 @@ export const getPlaylistIDFromRequest = ({ args, root }: { args: ArgsDictionary,
 
 	if (typeof args.playlistID === 'string') {
 		return args.playlistID;
+	}
+
+	return null;
+}
+
+export const getSongIDFromRequest = ({ args, root }: { args: ArgsDictionary, root: any }) => {
+	if (root instanceof Song) {
+		return root.id;
+	}
+
+	if (typeof args.songID === 'string') {
+		return args.songID;
 	}
 
 	return null;

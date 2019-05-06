@@ -56,7 +56,7 @@ const setupGraphQLTestEnv = async () => {
 
 	const graphQLServer = await makeGraphQLServer(
 		null as any,
-		makeGraphQLContextProvider({ playlistService: null as any }),
+		makeGraphQLContextProvider({ playlistService: null as any, songService: null as any }),
 		graphQLAuthChecker,
 		TestResolver
 	);

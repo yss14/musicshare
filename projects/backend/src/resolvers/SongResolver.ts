@@ -5,6 +5,7 @@ import { FileService } from '../file-service/FileService';
 import moment = require('moment');
 import { SongUpdateInput } from '../inputs/SongInput';
 import { ISongService } from '../services/SongService';
+import { SongAuth } from '../auth/middleware/song-auth';
 
 @Resolver(of => Song)
 export class SongResolver implements ResolverInterface<ShareSong>{
@@ -34,6 +35,7 @@ export class SongResolver implements ResolverInterface<ShareSong>{
 	}
 
 	@Authorized()
+	@SongAuth(['modify'])
 	@Mutation(() => ShareSong, { nullable: true })
 	public async updateSong(
 		@Arg('songID') songID: string,
