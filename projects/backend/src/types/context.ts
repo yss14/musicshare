@@ -12,7 +12,6 @@ export interface IBaseContext {
 }
 
 export interface IGraphQLContext extends IBaseContext {
-	userID: string;
 	services: {
 		playlistService: IPlaylistService;
 		songService: ISongService;
@@ -38,13 +37,8 @@ interface IGraphQLContextProviderArgs {
 
 export const makeGraphQLContextProvider = ({ playlistService, songService, shareService }: IGraphQLContextProviderArgs): ContextFunction<ExpressContext, IGraphQLContext> =>
 	({ req }: { req: ContextRequest }): IGraphQLContext => {
-		if (req.context.userID === null) {
-			throw new Error('Cannot create graphql context: userID is null');
-		}
-
 		return {
 			...req.context,
-			userID: req.context.userID,
 			services: {
 				playlistService,
 				songService,

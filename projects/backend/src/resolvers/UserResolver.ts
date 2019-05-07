@@ -21,7 +21,7 @@ export class UserResolver {
 	public user(
 		@Ctx() ctx: IGraphQLContext,
 	): Promise<User | null> {
-		return this.userService.getUserByID(ctx.userID);
+		return this.userService.getUserByID(ctx.userID!);
 	}
 
 	@Authorized()

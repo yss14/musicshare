@@ -33,7 +33,7 @@ export class ShareResolver {
 		@Arg("shareID") shareID: string,
 		@Ctx() ctx: IGraphQLContext,
 	): Promise<Share> {
-		return this.shareService.getShareByID(shareID, ctx.userID);
+		return this.shareService.getShareByID(shareID, ctx.userID!);
 	}
 
 	@Authorized()
