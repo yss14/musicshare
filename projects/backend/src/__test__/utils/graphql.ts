@@ -60,4 +60,8 @@ export const makeGraphQLResponse = <T>(expectedData: T, expectedErrors?: any[]) 
 
 export const argumentValidationError = (): IGraphQLResponse<never> => ({
 	errors: [{ message: 'Argument Validation Error' }]
+});
+
+export const insufficientPermissionsError = (): IGraphQLResponse<never> => ({
+	errors: [{ message: 'User has insufficient permissions to perform this action!' }]
 })

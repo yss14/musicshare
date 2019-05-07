@@ -1,6 +1,6 @@
-import { setupTestEnv } from "./utils/setup-test-env";
+import { setupTestEnv, SetupTestEnvArgs } from "./utils/setup-test-env";
 import { testData } from "../database/seed";
-import { executeGraphQLQuery, argumentValidationError, makeGraphQLResponse } from "./utils/graphql";
+import { executeGraphQLQuery, argumentValidationError, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql";
 import moment = require("moment");
 import { TimeUUID } from "../types/TimeUUID";
 import { playlistSongKeys } from "./fixtures/song-query";
@@ -8,12 +8,21 @@ import { playlistSongFromDBResult } from "../models/SongModel";
 import { includesSong } from "./utils/compare-songs";
 import { OrderUpdate } from "../services/PlaylistService";
 import { sortBy } from 'lodash';
+import { makeMockedDatabase } from "./mocks/mock-database";
+import { Scopes } from "../types/context";
 
-const setupTest = async () => {
-	const { graphQLServer, cleanUp, ...testEnv } = await setupTestEnv({});
+const setupTest = async (args?: SetupTestEnvArgs) => {
+	const { graphQLServer, cleanUp, ...testEnv } = await setupTestEnv(args || {});
 	cleanupHooks.push(cleanUp);
 
 	return { graphQLServer, ...testEnv };
+}
+
+const makeMockDatabase = () => {
+	const mockDatabase = makeMockedDatabase();
+	(<jest.Mock>mockDatabase.query).mockReturnValue([testData.playlists.playlist1_library_user1]);
+
+	return mockDatabase;
 }
 
 const makeMutation = (mutation: string) => `mutation{${mutation}}`;
@@ -28,10 +37,10 @@ describe('create playlist', () => {
 	const makeCreatePlaylistMutation = (shareID: string, name: string) => `
 		createPlaylist(shareID: "${shareID}", name: "${name}"){id, name, shareID, dateAdded}
 	`;
+	const shareID = testData.shares.library_user1.id.toString();
 
 	test('valid playlist name', async () => {
 		const { graphQLServer } = await setupTest();
-		const shareID = testData.shares.library_user1.id.toString();
 		const name = 'A new playlist';
 		const dateBeforeInsert = moment();
 		const query = makeMutation(makeCreatePlaylistMutation(shareID, name));
@@ -46,7 +55,6 @@ describe('create playlist', () => {
 
 	test('invalid playlist name', async () => {
 		const { graphQLServer } = await setupTest();
-		const shareID = testData.shares.library_user1.id.toString();
 		const query = makeMutation(makeCreatePlaylistMutation(shareID, 'S'));
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -56,7 +64,6 @@ describe('create playlist', () => {
 
 	test('playlist already existing name', async () => {
 		const { graphQLServer } = await setupTest();
-		const shareID = testData.shares.library_user1.id.toString();
 		const name = testData.playlists.playlist1_library_user1.name;
 		const dateBeforeInsert = moment();
 		const query = makeMutation(makeCreatePlaylistMutation(shareID, name));
@@ -68,16 +75,26 @@ describe('create playlist', () => {
 		expect(moment(mutationResult.dateAdded).isAfter(dateBeforeInsert)).toBeTrue();
 		expect(mutationResult.id).toBeTimeUUID();
 	});
+
+	test('insufficient permissions', async () => {
+		const { graphQLServer } = await setupTest({ mockDatabase: makeMockDatabase() });
+		const query = makeMutation(makeCreatePlaylistMutation(shareID, 'Some playlist'));
+		const scopes: Scopes = [{ shareID, permissions: ['playlist:modify', 'playlist:mutate_songs'] }];
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes });
+
+		expect(body).toMatchObject(insufficientPermissionsError());
+	});
 });
 
 describe('delete playlist', () => {
 	const makeDeletePlaylistMutation = (shareID: string, playlistID: string) => `
 		deletePlaylist(shareID: "${shareID}", playlistID: "${playlistID}")
 	`;
+	const shareID = testData.shares.library_user1.id.toString();
 
 	test('existing playlist', async () => {
 		const { graphQLServer } = await setupTest();
-		const shareID = testData.shares.library_user1.id.toString();
 		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
 		const query = makeMutation(makeDeletePlaylistMutation(shareID, playlistID));
 
@@ -88,7 +105,6 @@ describe('delete playlist', () => {
 
 	test('not existing playlist', async () => {
 		const { graphQLServer } = await setupTest();
-		const shareID = testData.shares.library_user1.id.toString();
 		const playlistID = TimeUUID().toString();
 		const query = makeMutation(makeDeletePlaylistMutation(shareID, playlistID));
 
@@ -96,16 +112,27 @@ describe('delete playlist', () => {
 
 		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: `Playlist with id ${playlistID} not found` }]));
 	});
+
+	test('insufficient permissions', async () => {
+		const { graphQLServer } = await setupTest({ mockDatabase: makeMockDatabase() });
+		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
+		const query = makeMutation(makeDeletePlaylistMutation(shareID, playlistID));
+		const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:mutate_songs'] }];
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes });
+
+		expect(body).toMatchObject(insufficientPermissionsError());
+	});
 });
 
 describe('rename playlist', () => {
 	const makeRenamePlaylistQuery = (shareID: string, playlistID: string, newName: string) => `
 		renamePlaylist(shareID: "${shareID}", playlistID: "${playlistID}", newName: "${newName}")
 	`;
+	const shareID = testData.shares.library_user1.id.toString();
 
 	test('existing playlist', async () => {
 		const { graphQLServer, playlistService } = await setupTest();
-		const shareID = testData.shares.library_user1.id.toString();
 		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
 		const newName = 'Some new playlist name';
 		const query = makeMutation(makeRenamePlaylistQuery(shareID, playlistID, newName));
@@ -120,7 +147,6 @@ describe('rename playlist', () => {
 
 	test('not existing playlist', async () => {
 		const { graphQLServer, playlistService } = await setupTest();
-		const shareID = testData.shares.library_user1.id.toString();
 		const playlistID = TimeUUID().toString();
 		const newName = 'Some new playlist name';
 		const query = makeMutation(makeRenamePlaylistQuery(shareID, playlistID, newName));
@@ -135,13 +161,23 @@ describe('rename playlist', () => {
 
 	test('invalid new name', async () => {
 		const { graphQLServer } = await setupTest();
-		const shareID = testData.shares.library_user1.id.toString();
 		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
 		const query = makeMutation(makeRenamePlaylistQuery(shareID, playlistID, 'S'));
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(argumentValidationError());
+	});
+
+	test('insufficient permissions', async () => {
+		const { graphQLServer } = await setupTest({ mockDatabase: makeMockDatabase() });
+		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
+		const query = makeMutation(makeRenamePlaylistQuery(shareID, playlistID, 'Some new name'));
+		const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:mutate_songs'] }];
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes });
+
+		expect(body).toMatchObject(insufficientPermissionsError());
 	});
 });
 
@@ -151,10 +187,10 @@ describe('add songs to playlist', () => {
 			${playlistSongKeys}
 		}
 	`;
+	const shareID = testData.shares.library_user1.id.toString();
 
 	test('existing songs', async () => {
 		const { graphQLServer, playlistService } = await setupTest();
-		const shareID = testData.shares.library_user1.id.toString();
 		const { id: playlistID } = await playlistService.create(shareID, 'Some new playlist');
 		const songs = [testData.songs.song1_library_user1, testData.songs.song2_library_user1, testData.songs.song3_library_user1];
 		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, songs.map(song => song.id.toString())));
@@ -175,7 +211,6 @@ describe('add songs to playlist', () => {
 
 	test('not existing songs', async () => {
 		const { graphQLServer, playlistService } = await setupTest();
-		const shareID = testData.shares.library_user1.id.toString();
 		const { id: playlistID } = await playlistService.create(shareID, 'Some other new playlist');
 		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, [TimeUUID().toString()]));
 
@@ -186,7 +221,6 @@ describe('add songs to playlist', () => {
 
 	test('duplicates', async () => {
 		const { graphQLServer } = await setupTest();
-		const shareID = testData.shares.library_user1.id.toString();
 		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
 		const songs = [testData.songs.song1_library_user1, testData.songs.song2_library_user1, testData.songs.song3_library_user1];
 		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, songs.map(song => song.id.toString())));
@@ -203,6 +237,17 @@ describe('add songs to playlist', () => {
 
 		expect(body.data.addSongsToPlaylist).toBeArrayOfSize(songs.length);
 		expectedSongs.forEach(expectedSong => includesSong(body.data.addSongsToPlaylist, expectedSong));
+	});
+
+	test('insufficient permissions', async () => {
+		const { graphQLServer } = await setupTest({ mockDatabase: makeMockDatabase() });
+		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
+		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, []));
+		const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:modify'] }];
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes });
+
+		expect(body).toMatchObject(insufficientPermissionsError());
 	});
 });
 
@@ -249,6 +294,17 @@ describe('remove songs from playlist', () => {
 
 		expect(body.data.removeSongsFromPlaylist).toBeArrayOfSize(testData.playlists.playlist1_library_user1.songs.length);
 		expect(sortBy(body.data.removeSongsFromPlaylist, 'position')).toMatchObject(expectedSongs);
+	});
+
+	test('insufficient permissions', async () => {
+		const { graphQLServer } = await setupTest({ mockDatabase: makeMockDatabase() });
+		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
+		const query = makeMutation(makeRemoveSongsQuery(shareID, playlistID, []));
+		const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:modify'] }];
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes });
+
+		expect(body).toMatchObject(insufficientPermissionsError());
 	});
 });
 
@@ -298,5 +354,16 @@ describe('update order', () => {
 			null,
 			[{ message: `Some songs are not part of this playlist` }]
 		));
+	});
+
+	test('insufficient permissions', async () => {
+		const { graphQLServer } = await setupTest({ mockDatabase: makeMockDatabase() });
+		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
+		const query = makeMutation(makeUpdateOrderMutation(shareID, playlistID, []));
+		const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:modify'] }];
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes });
+
+		expect(body).toMatchObject(insufficientPermissionsError());
 	});
 })

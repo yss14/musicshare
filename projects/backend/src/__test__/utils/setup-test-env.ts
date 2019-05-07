@@ -25,7 +25,7 @@ import { PlaylistService } from "../../services/PlaylistService";
 import { makeGraphQLContextProvider, Scopes } from "../../types/context";
 import { Permission } from "../../auth/permissions";
 
-interface SetupTestEnvArgs {
+export interface SetupTestEnvArgs {
 	mockDatabase?: IDatabaseClient;
 	seedDatabase?: boolean;
 }
