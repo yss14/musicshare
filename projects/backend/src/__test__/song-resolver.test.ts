@@ -41,7 +41,7 @@ describe('update song mutation', () => {
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 		const timestampBeforeUpdate = Date.now();
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		const { updateSong } = body.data;
 
@@ -57,7 +57,7 @@ describe('update song mutation', () => {
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
@@ -73,7 +73,7 @@ describe('update song mutation', () => {
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
@@ -89,7 +89,7 @@ describe('update song mutation', () => {
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
@@ -105,7 +105,7 @@ describe('update song mutation', () => {
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
@@ -121,7 +121,7 @@ describe('update song mutation', () => {
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
@@ -137,7 +137,7 @@ describe('update song mutation', () => {
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		await executeGraphQLQuery(graphQLServer, query, HTTPStatusCodes.BAD_REQUEST);
+		await executeGraphQLQuery({ graphQLServer, query, expectedHTTPCode: HTTPStatusCodes.BAD_REQUEST });
 	});
 
 	test('null type', async () => {
@@ -148,7 +148,7 @@ describe('update song mutation', () => {
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
@@ -164,7 +164,7 @@ describe('update song mutation', () => {
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },

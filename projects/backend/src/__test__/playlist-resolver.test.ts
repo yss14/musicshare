@@ -36,7 +36,7 @@ describe('create playlist', () => {
 		const dateBeforeInsert = moment();
 		const query = makeMutation(makeCreatePlaylistMutation(shareID, name));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		const mutationResult = body.data.createPlaylist;
 		expect(mutationResult).toMatchObject({ name, shareID });
@@ -49,7 +49,7 @@ describe('create playlist', () => {
 		const shareID = testData.shares.library_user1.id.toString();
 		const query = makeMutation(makeCreatePlaylistMutation(shareID, 'S'));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(argumentValidationError());
 	});
@@ -61,7 +61,7 @@ describe('create playlist', () => {
 		const dateBeforeInsert = moment();
 		const query = makeMutation(makeCreatePlaylistMutation(shareID, name));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		const mutationResult = body.data.createPlaylist;
 		expect(mutationResult).toMatchObject({ name, shareID });
@@ -81,7 +81,7 @@ describe('delete playlist', () => {
 		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
 		const query = makeMutation(makeDeletePlaylistMutation(shareID, playlistID));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toEqual(makeGraphQLResponse({ deletePlaylist: true }));
 	});
@@ -92,7 +92,7 @@ describe('delete playlist', () => {
 		const playlistID = TimeUUID().toString();
 		const query = makeMutation(makeDeletePlaylistMutation(shareID, playlistID));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toEqual(makeGraphQLResponse({ deletePlaylist: true }));
 	});
@@ -110,7 +110,7 @@ describe('rename playlist', () => {
 		const newName = 'Some new playlist name';
 		const query = makeMutation(makeRenamePlaylistQuery(shareID, playlistID, newName));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toEqual(makeGraphQLResponse({ renamePlaylist: true }));
 
@@ -125,7 +125,7 @@ describe('rename playlist', () => {
 		const newName = 'Some new playlist name';
 		const query = makeMutation(makeRenamePlaylistQuery(shareID, playlistID, newName));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toEqual(makeGraphQLResponse({ renamePlaylist: true }));
 
@@ -139,7 +139,7 @@ describe('rename playlist', () => {
 		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
 		const query = makeMutation(makeRenamePlaylistQuery(shareID, playlistID, 'S'));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(argumentValidationError());
 	});
@@ -159,7 +159,7 @@ describe('add songs to playlist', () => {
 		const songs = [testData.songs.song1_library_user1, testData.songs.song2_library_user1, testData.songs.song3_library_user1];
 		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, songs.map(song => song.id.toString())));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		const expectedSongs = songs.map((song, idx) => playlistSongFromDBResult({
 			...song,
@@ -179,7 +179,7 @@ describe('add songs to playlist', () => {
 		const { id: playlistID } = await playlistService.create(shareID, 'Some other new playlist');
 		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, [TimeUUID().toString()]));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.addSongsToPlaylist).toBeArrayOfSize(0);
 	});
@@ -191,7 +191,7 @@ describe('add songs to playlist', () => {
 		const songs = [testData.songs.song1_library_user1, testData.songs.song2_library_user1, testData.songs.song3_library_user1];
 		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, songs.map(song => song.id.toString())));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		const expectedSongs = songs.map((song, idx) => playlistSongFromDBResult({
 			...song,
@@ -219,7 +219,7 @@ describe('remove songs from playlist', () => {
 		const songs = [testData.playlists.playlist1_library_user1.songs[1]];
 		const query = makeMutation(makeRemoveSongsQuery(playlistID, songs.map(song => song.id.toString())));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		const expectedSongs = [testData.playlists.playlist1_library_user1.songs[0], testData.playlists.playlist1_library_user1.songs[2]]
 			.map((song, idx) => ({
@@ -238,7 +238,7 @@ describe('remove songs from playlist', () => {
 
 		const query = makeMutation(makeRemoveSongsQuery(playlistID, songIDs));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		const expectedSongs = testData.playlists.playlist1_library_user1.songs.map((song, idx) => ({
 			id: song.id.toString(),
@@ -268,7 +268,7 @@ describe('update order', () => {
 
 		const query = makeMutation(makeUpdateOrderMutation(playlistID, orderUpdates));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.updateOrderOfPlaylist).toMatchObject(sortBy(orderUpdates.map(orderUpdate => ({
 			id: orderUpdate[0],
@@ -288,7 +288,7 @@ describe('update order', () => {
 
 		const query = makeMutation(makeUpdateOrderMutation(playlistID, orderUpdates));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			null,

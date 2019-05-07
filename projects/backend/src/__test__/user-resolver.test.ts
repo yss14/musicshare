@@ -45,7 +45,7 @@ describe('get user by id', () => {
 		const { users } = testData;
 		const query = makeUserQuery(users.user1.id.toString());
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 		expect(body).toEqual(makeGraphQLResponse({ user: users.user1 }));
 	});
 
@@ -56,7 +56,7 @@ describe('get user by id', () => {
 		const userID = TimeUUID('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
 		const query = makeUserQuery(userID.toString());
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ user: null },
@@ -73,7 +73,7 @@ describe('get users shares', () => {
 		const testUser = testData.users.user1;
 		const query = makeUserQuery(testUser.id.toString(), true, true);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toEqual(makeGraphQLResponse({
 			user: {
@@ -90,7 +90,7 @@ describe('get users shares', () => {
 		const testUser = testData.users.user1;
 		const query = makeUserQuery(testUser.id.toString(), true, false);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toEqual(makeGraphQLResponse({
 			user: {
@@ -109,7 +109,7 @@ describe('login', () => {
 		const testUser = testData.users.user1;
 		const query = makeLoginMutation(testUser.email, testPassword);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.login).toBeString();
 		await expect(authService.verifyToken(body.data.login)).resolves.toBeObject();
@@ -122,7 +122,7 @@ describe('login', () => {
 		const testUser = testData.users.user1;
 		const query = makeLoginMutation(testUser.email, testPassword + 'wrong');
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			null,
@@ -137,7 +137,7 @@ describe('login', () => {
 		const testUser = testData.users.user1;
 		const query = makeLoginMutation(testUser.email, await argon2.hash(testPassword));
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			null,
@@ -152,7 +152,7 @@ describe('login', () => {
 		const testUser = testData.users.user1;
 		const query = makeLoginMutation(testUser.email + 'a', testPassword);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			null,
@@ -169,7 +169,7 @@ describe('login', () => {
 
 		await database.close(); // force unexpected error
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.errors[0].message.indexOf('An internal server error occured')).toBeGreaterThan(-1);
 	});

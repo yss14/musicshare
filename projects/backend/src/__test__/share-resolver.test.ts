@@ -105,7 +105,7 @@ describe('get share by id', () => {
 		const share = testData.shares.library_user1;
 		const query = makeShareQuery(share.id.toString());
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toEqual(makeGraphQLResponse({ share: Share.fromDBResult(share) }));
 	});
@@ -117,7 +117,7 @@ describe('get share by id', () => {
 		const shareID = TimeUUID('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
 		const query = makeShareQuery(shareID.toString());
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ share: null },
@@ -134,7 +134,7 @@ describe('get share songs', () => {
 		const share = testData.shares.library_user1;
 		const query = makeShareQuery(share.id.toString(), [makeShareSongsQuery()]);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 		const expectedSongs = [
 			testData.songs.song1_library_user1,
 			testData.songs.song2_library_user1,
@@ -151,7 +151,7 @@ describe('get share songs', () => {
 		const share = testData.shares.library_user1;
 		const query = makeShareQuery(share.id.toString(), [makeShareSongsQuery([1, 2])]);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		const expectedSongs = [
 			testData.songs.song1_library_user1,
@@ -169,7 +169,7 @@ describe('get share songs', () => {
 		const lastTimestamp = moment().subtract(150, 'minutes').valueOf();
 		const query = makeShareQuery(share.id.toString(), [makeShareSongsDirtyQuery(lastTimestamp)]);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		const expectedSongs = [
 			testData.songs.song2_library_user1,
@@ -191,7 +191,7 @@ describe('get share song', () => {
 		const song = testData.songs.song2_library_user1;
 		const query = makeShareQuery(share.id.toString(), [makeShareSongQuery(song.id.toString())]);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		compareSongs(shareSongFromDBResult(song), body.data.share.song);
 	});
@@ -204,7 +204,7 @@ describe('get share song', () => {
 		const songID = TimeUUID(new Date());
 		const query = makeShareQuery(shareID, [makeShareSongQuery(songID.toString())]);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.share.song).toBe(null);
 		expect(body.errors).toMatchObject([{ message: `Song with id ${songID} not found in share ${shareID}` }])
@@ -218,7 +218,7 @@ describe('get share song', () => {
 		const song = testData.songs.song2_library_user1;
 		const query = makeShareQuery(share.id.toString(), [makeShareSongQuery(song.id.toString(), ['accessUrl'])]);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.share.song).toBeDefined();
 		expect(body.data.share.song.accessUrl).toBeString();
@@ -233,7 +233,7 @@ describe('get share related data', () => {
 		const shareID = testData.shares.library_user1.id.toString();
 		const query = makeShareQuery(shareID, [makeShareSongTypesQuery()]);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.share.songTypes).toBeArrayOfSize(defaultSongTypes.length);
 	});
@@ -245,7 +245,7 @@ describe('get share related data', () => {
 		const shareID = testData.shares.library_user1.id.toString();
 		const query = makeShareQuery(shareID, [makeShareGenresQuery()]);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.share.genres).toBeArrayOfSize(defaultGenres.length);
 	});
@@ -257,7 +257,7 @@ describe('get share related data', () => {
 		const shareID = testData.shares.library_user1.id.toString();
 		const query = makeShareQuery(shareID, [makeShareArtistsQuery()]);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.share.artists).toIncludeAllMembers([
 			'Oliver Smith',
@@ -278,7 +278,7 @@ describe('get share playlists', () => {
 		const shareID = testData.shares.library_user1.id.toString();
 		const query = makeShareQuery(shareID, [makeSharePlaylistsQuery()]);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		const receivedPlaylists = sortBy(body.data.share.playlists, 'name');
 		const expectedPlaylists = sortBy(
@@ -298,7 +298,7 @@ describe('get share playlists', () => {
 		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
 		const query = makeShareQuery(shareID, [makeSharePlaylistQuery(playlistID)]);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.share.playlist)
 			.toEqual(JSON.parse(JSON.stringify(Playlist.fromDBResult(testData.playlists.playlist1_library_user1))))
