@@ -1,5 +1,5 @@
 import { ISongService } from '../services/SongService';
-import { Resolver, Query, Arg, FieldResolver, Root, Authorized, Args } from "type-graphql";
+import { Resolver, Query, Arg, FieldResolver, Root, Authorized, Args, Ctx } from "type-graphql";
 import { Share } from "../models/ShareModel";
 import { ShareSong } from "../models/SongModel";
 import { IShareService } from "../services/ShareService";
@@ -12,6 +12,8 @@ import { Artist } from '../models/ArtistModel';
 import { Playlist } from '../models/PlaylistModel';
 import { IPlaylistService } from '../services/PlaylistService';
 import { PlaylistIDArg } from '../args/playlist-args';
+import { ShareAuth } from '../auth/middleware/share-auth';
+import { IGraphQLContext } from '../types/context';
 
 @Resolver(of => Share)
 export class ShareResolver {
@@ -25,11 +27,13 @@ export class ShareResolver {
 	) { }
 
 	@Authorized()
-	@Query(() => Share, { nullable: true })
+	@ShareAuth({ checkRef: true })
+	@Query(() => Share)
 	public share(
-		@Arg("id") id: string
-	): Promise<Share | null> {
-		return this.shareService.getShareByID(id);
+		@Arg("shareID") shareID: string,
+		@Ctx() ctx: IGraphQLContext,
+	): Promise<Share> {
+		return this.shareService.getShareByID(shareID, ctx.userID);
 	}
 
 	@Authorized()

@@ -12,7 +12,7 @@ export class ShareNotFoundError extends Error {
 
 export interface IShareService {
 	getSharesByUser(user: User): Promise<Share[]>;
-	getShareByID(shareID: string): Promise<Share>;
+	getShareByID(shareID: string, userID: string): Promise<Share>;
 }
 
 export class ShareService implements IShareService {
@@ -28,9 +28,9 @@ export class ShareService implements IShareService {
 		return dbResults.map(Share.fromDBResult);
 	}
 
-	public async getShareByID(shareID: string): Promise<Share> {
+	public async getShareByID(shareID: string, userID: string): Promise<Share> {
 		const dbResults = await this.database.query(
-			SharesByUserTable.select('*', ['id'], true)([TimeUUID(shareID)])
+			SharesByUserTable.select('*', ['id', 'user_id'])([TimeUUID(shareID), TimeUUID(userID)])
 		);
 
 		if (dbResults.length === 0) {

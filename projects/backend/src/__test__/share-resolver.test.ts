@@ -15,7 +15,7 @@ import { sortBy } from 'lodash';
 const makeShareQuery = (id: string, additionalQueries: string[] = []) => {
 	return `
 		query{
-			share(id: "${id}"){
+			share(shareID: "${id}"){
 				id,
 				name,
 				userID,
@@ -120,7 +120,22 @@ describe('get share by id', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
-			{ share: null },
+			null,
+			[{ message: `Share with id ${shareID} not found` }]
+		));
+	});
+
+	test('get share by id not part of', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
+		cleanupHooks.push(cleanUp);
+
+		const shareID = testData.shares.library_user2.id.toString();
+		const query = makeShareQuery(shareID.toString());
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
 			[{ message: `Share with id ${shareID} not found` }]
 		));
 	});

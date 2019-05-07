@@ -5,6 +5,7 @@ import { ApolloServer } from "apollo-server-express";
 import * as express from 'express';
 import { Scopes, ContextRequest } from "../../types/context";
 import { makeAllScopes } from "./setup-test-env";
+import { testData } from "../../database/seed";
 
 interface IExecuteGraphQLQueryArgs {
 	graphQLServer: ApolloServer;
@@ -17,7 +18,7 @@ export const executeGraphQLQuery = async ({ graphQLServer: server, query, expect
 	const expressApp = express();
 	expressApp.use((req, _, next) => {
 		(<ContextRequest>req).context = {
-			userID: null,
+			userID: testData.users.user1.id.toString(),
 			scopes: scopes || makeAllScopes(),
 		};
 
