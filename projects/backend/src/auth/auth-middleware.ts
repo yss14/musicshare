@@ -43,7 +43,7 @@ export const auth: CustomRequestHandler = (req, res, next) => {
 	next();
 }
 
-export const graphQLAuthChecker: AuthChecker<IGraphQLContext> = ({ context: { userID, scopes }, root, args }, permissions) => {
+export const graphQLAuthChecker: AuthChecker<IGraphQLContext> = ({ context: { userID, scopes }, root, args }, permissions = []) => {
 	if (permissions.length === 0) {
 		return userID !== null && userID !== undefined;
 	}

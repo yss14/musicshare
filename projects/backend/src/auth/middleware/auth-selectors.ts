@@ -8,7 +8,7 @@ export const hasAllPermissions = (requiredPermissions: string[], currentPermissi
 	return !requiredPermissions.some(requiredPermission => !currentPermissions.includes(requiredPermission));
 }
 
-export const getRequiredPermissionsForShare = (shareID: string, scopes: Scopes) => {
+export const getCurrentPermissionsForShare = (shareID: string, scopes: Scopes) => {
 	const shareScopes = scopes.find(scope => scope.shareID === shareID);
 
 	if (!shareScopes) {

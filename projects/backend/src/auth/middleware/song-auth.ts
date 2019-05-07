@@ -1,7 +1,7 @@
 import { Permissions } from "../permissions";
 import { Middleware } from "type-graphql/dist/interfaces/Middleware";
 import { IGraphQLContext } from "../../types/context";
-import { getShareIDFromRequest, hasAllPermissions, getRequiredPermissionsForShare, getSongIDFromRequest } from "./auth-selectors";
+import { getShareIDFromRequest, hasAllPermissions, getCurrentPermissionsForShare, getSongIDFromRequest } from "./auth-selectors";
 import { UseMiddleware } from "type-graphql";
 
 const makeSongAuthMiddleware = (permissions?: Permissions.Song[]): Middleware<IGraphQLContext> => async ({ args, root, context }, next) => {
@@ -20,8 +20,8 @@ const makeSongAuthMiddleware = (permissions?: Permissions.Song[]): Middleware<IG
 
 	if (permissions) {
 		const isPermitted = hasAllPermissions(
-			getRequiredPermissionsForShare(shareID, scopes),
-			permissions
+			permissions,
+			getCurrentPermissionsForShare(shareID, scopes),
 		);
 
 		if (!isPermitted) {

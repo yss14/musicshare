@@ -11,33 +11,32 @@ import { UserResolver } from "../../resolvers/UserResolver";
 import { FileServiceMock } from "../mocks/FileServiceMock";
 import { ISongMetaDataService } from "../../utils/song-meta/SongMetaDataService";
 import { SongUploadProcessingQueue } from "../../job-queues/SongUploadProcessingQueue";
-import { makeTestDatabase } from "cassandra-schema-builder";
-import { makeDatabaseSeed } from "../../database/seed";
+import { makeTestDatabase, IDatabaseClient } from "cassandra-schema-builder";
+import { makeDatabaseSeed, testData } from "../../database/seed";
 import { makeDatabaseSchemaWithSeed } from "../../database/schema/make-database-schema";
 import { SongTypeService } from "../../services/SongTypeService";
 import { GenreService } from "../../services/GenreService";
 import { ArtistService } from "../../services/ArtistService";
-import { makeMockedDatabase } from "../mocks/mock-database";
 import { AuthenticationService } from "../../auth/AuthenticationService";
 import { PasswordLoginService } from "../../auth/PasswordLoginService";
 import uuid = require("uuid");
 import { PlaylistResolver } from "../../resolvers/PlaylistResolver";
 import { PlaylistService } from "../../services/PlaylistService";
-import { makeGraphQLContextProvider } from "../../types/context";
+import { makeGraphQLContextProvider, Scopes } from "../../types/context";
+import { Permission } from "../../auth/permissions";
 
 interface SetupTestEnvArgs {
-	mockDatabase?: boolean;
+	mockDatabase?: IDatabaseClient;
 	seedDatabase?: boolean;
 }
 
 // tslint:disable:no-parameter-reassignment
 export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvArgs) => {
 	seedDatabase = seedDatabase || true;
-	mockDatabase = mockDatabase || false;
 
 	const testID = uuid();
 
-	let database = makeMockedDatabase();
+	let database: IDatabaseClient = mockDatabase!;
 	let databaseKeyspace = '';
 	let cleanUp = async (): Promise<void> => undefined;
 
@@ -86,6 +85,8 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 		UserResolver, ShareResolver, SongResolver
 	);
 
+	const allScopes = makeAllScopes();
+
 	return {
 		graphQLServer,
 		database,
@@ -101,5 +102,15 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 		authService,
 		passwordLoginService,
 		playlistService,
+		allScopes,
 	};
+}
+
+export const makeAllScopes = (): Scopes => {
+	const allPermissions: Permission[] = ['playlist:create', 'playlist:modify', 'playlist:mutate_songs', 'song:modify', 'song:upload'];
+
+	return [
+		{ shareID: testData.shares.library_user1.id.toString(), permissions: allPermissions },
+		{ shareID: testData.shares.some_shared_library.id.toString(), permissions: allPermissions },
+	]
 }

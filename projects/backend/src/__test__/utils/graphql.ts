@@ -4,6 +4,7 @@ import { jsonParsedObject } from "./json-parsed-object";
 import { ApolloServer } from "apollo-server-express";
 import * as express from 'express';
 import { Scopes, ContextRequest } from "../../types/context";
+import { makeAllScopes } from "./setup-test-env";
 
 interface IExecuteGraphQLQueryArgs {
 	graphQLServer: ApolloServer;
@@ -17,7 +18,7 @@ export const executeGraphQLQuery = async ({ graphQLServer: server, query, expect
 	expressApp.use((req, _, next) => {
 		(<ContextRequest>req).context = {
 			userID: null,
-			scopes: scopes || [],
+			scopes: scopes || makeAllScopes(),
 		};
 
 		next();

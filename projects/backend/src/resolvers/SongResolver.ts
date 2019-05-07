@@ -35,7 +35,7 @@ export class SongResolver implements ResolverInterface<ShareSong>{
 	}
 
 	@Authorized()
-	@SongAuth(['modify'])
+	@SongAuth(['song:modify'])
 	@Mutation(() => ShareSong, { nullable: true })
 	public async updateSong(
 		@Arg('songID') songID: string,

@@ -33,5 +33,6 @@
 		"lcov"
 	],
 	"preset": "ts-jest",
-	"testMatch": null
+	"testMatch": null,
+	"runner": "jest-runner-concurrent"
 }

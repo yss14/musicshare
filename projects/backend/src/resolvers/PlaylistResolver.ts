@@ -25,7 +25,7 @@ export class PlaylistResolver {
 	}
 
 	@Authorized()
-	@PlaylistAuth(['create'])
+	@PlaylistAuth({ permissions: ['playlist:create'], checkRef: false })
 	@Mutation(() => Playlist, { nullable: true })
 	public async createPlaylist(
 		@Args() { shareID }: ShareIDArg,
@@ -35,7 +35,7 @@ export class PlaylistResolver {
 	}
 
 	@Authorized()
-	@PlaylistAuth(['modify'])
+	@PlaylistAuth(['playlist:modify'])
 	@Mutation(() => Boolean, { description: 'Deletes an existing playlists. Does not check if playlist exists.' })
 	public async deletePlaylist(
 		@Args() { shareID }: ShareIDArg,
@@ -47,7 +47,7 @@ export class PlaylistResolver {
 	}
 
 	@Authorized()
-	@PlaylistAuth(['modify'])
+	@PlaylistAuth(['playlist:modify'])
 	@Mutation(() => Boolean, { description: 'Renames an existing playlists. Does not check if playlist exists.' })
 	public async renamePlaylist(
 		@Args() { shareID }: ShareIDArg,
@@ -60,7 +60,7 @@ export class PlaylistResolver {
 	}
 
 	@Authorized()
-	@PlaylistAuth(['mutate_songs'])
+	@PlaylistAuth(['playlist:mutate_songs'])
 	@Mutation(() => [PlaylistSong])
 	public async addSongsToPlaylist(
 		@Args() { shareID }: ShareIDArg,
@@ -73,9 +73,10 @@ export class PlaylistResolver {
 	}
 
 	@Authorized()
-	@PlaylistAuth(['mutate_songs'])
+	@PlaylistAuth(['playlist:mutate_songs'])
 	@Mutation(() => [PlaylistSong])
 	public async removeSongsFromPlaylist(
+		@Args() { shareID }: ShareIDArg,
 		@Args() { playlistID }: PlaylistIDArg,
 		@Args() { songIDs }: SongIDsArg,
 	): Promise<PlaylistSong[]> {
@@ -85,9 +86,10 @@ export class PlaylistResolver {
 	}
 
 	@Authorized()
-	@PlaylistAuth(['mutate_songs'])
+	@PlaylistAuth(['playlist:mutate_songs'])
 	@Mutation(() => [PlaylistSong])
 	public async updateOrderOfPlaylist(
+		@Args() { shareID }: ShareIDArg,
 		@Args() { playlistID }: PlaylistIDArg,
 		@Arg('orderUpdates', () => [OrderUpdateScalar]) orderUpdates: OrderUpdate[],
 	): Promise<PlaylistSong[]> {
