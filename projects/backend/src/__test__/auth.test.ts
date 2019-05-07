@@ -11,6 +11,9 @@ import { Resolver, Authorized, Query, ObjectType, Field, Arg } from 'type-graphq
 import { makeGraphQLServer } from '../server/GraphQLServer';
 import { makeGraphQLResponse } from './utils/graphql';
 import { makeGraphQLContextProvider } from "../types/context";
+import { Permission } from "../auth/permissions";
+import { makeAllScopes } from "./utils/setup-test-env";
+import { hasAllPermissions } from "../auth/middleware/auth-selectors";
 
 const routePathProtected = '/some/protected/route';
 const routePathPublic = '/some/public/route';
@@ -169,5 +172,42 @@ describe('graphql middleware', () => {
 		const { expressApp } = await setupGraphQLTestEnv();
 
 		await executeTestRequests(expressApp, undefined, false);
+	});
+});
+
+describe('permissions', () => {
+	test('has a single permission', () => {
+		const requiredPermissions: Permission[] = ['playlist:create'];
+		const currentPermissions: Permission[] = makeAllScopes()[0].permissions;
+
+		expect(hasAllPermissions(requiredPermissions, currentPermissions)).toBe(true);
+	});
+
+	test('has multiple permission', () => {
+		const requiredPermissions: Permission[] = ['playlist:create', 'playlist:modify', 'playlist:mutate_songs'];
+		const currentPermissions: Permission[] = makeAllScopes()[0].permissions;
+
+		expect(hasAllPermissions(requiredPermissions, currentPermissions)).toBe(true);
+	});
+
+	test('has insufficient permissions empty', () => {
+		const requiredPermissions: Permission[] = ['playlist:create'];
+		const currentPermissions: Permission[] = [];
+
+		expect(hasAllPermissions(requiredPermissions, currentPermissions)).toBe(false);
+	});
+
+	test('has insufficient permissions no intersection', () => {
+		const requiredPermissions: Permission[] = ['playlist:create'];
+		const currentPermissions: Permission[] = ['playlist:modify', 'playlist:mutate_songs'];
+
+		expect(hasAllPermissions(requiredPermissions, currentPermissions)).toBe(false);
+	});
+
+	test('has insufficient permissions one missing', () => {
+		const requiredPermissions: Permission[] = ['playlist:create', 'playlist:mutate_songs'];
+		const currentPermissions: Permission[] = ['playlist:modify', 'playlist:mutate_songs'];
+
+		expect(hasAllPermissions(requiredPermissions, currentPermissions)).toBe(false);
 	});
 });
