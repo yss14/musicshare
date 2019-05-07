@@ -12,13 +12,14 @@ interface IExecuteGraphQLQueryArgs {
 	query: string;
 	expectedHTTPCode?: HTTPStatusCodes;
 	scopes?: Scopes;
+	userID?: string;
 }
 
-export const executeGraphQLQuery = async ({ graphQLServer: server, query, expectedHTTPCode, scopes }: IExecuteGraphQLQueryArgs) => {
+export const executeGraphQLQuery = async ({ graphQLServer: server, query, expectedHTTPCode, scopes, userID }: IExecuteGraphQLQueryArgs) => {
 	const expressApp = express();
 	expressApp.use((req, _, next) => {
 		(<ContextRequest>req).context = {
-			userID: testData.users.user1.id.toString(),
+			userID: userID || testData.users.user1.id.toString(),
 			scopes: scopes || makeAllScopes(),
 		};
 

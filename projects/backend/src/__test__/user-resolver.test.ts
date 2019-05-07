@@ -7,10 +7,10 @@ import { setupTestEnv } from "./utils/setup-test-env";
 import { TimeUUID } from "../types/TimeUUID";
 import * as argon2 from 'argon2';
 
-const makeUserQuery = (id: string, withShares: boolean = false, libOnly: boolean = true) => {
+const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => {
 	return `
 		query{
-			user(id: "${id}"){
+			user{
 				id,
 				name,
 				email,
@@ -43,9 +43,9 @@ describe('get user by id', () => {
 		cleanupHooks.push(cleanUp);
 
 		const { users } = testData;
-		const query = makeUserQuery(users.user1.id.toString());
+		const query = makeUserQuery();
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: users.user1.id.toString() });
 		expect(body).toEqual(makeGraphQLResponse({ user: users.user1 }));
 	});
 
@@ -53,10 +53,10 @@ describe('get user by id', () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
-		const userID = TimeUUID('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
-		const query = makeUserQuery(userID.toString());
+		const userID = TimeUUID('a0d8e1f0-aeb1-11e8-a117-43673ffd376a').toString();
+		const query = makeUserQuery();
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ user: null },
@@ -71,9 +71,9 @@ describe('get users shares', () => {
 		cleanupHooks.push(cleanUp);
 
 		const testUser = testData.users.user1;
-		const query = makeUserQuery(testUser.id.toString(), true, true);
+		const query = makeUserQuery(true, true);
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: testUser.id.toString() });
 
 		expect(body).toEqual(makeGraphQLResponse({
 			user: {
@@ -88,9 +88,9 @@ describe('get users shares', () => {
 		cleanupHooks.push(cleanUp);
 
 		const testUser = testData.users.user1;
-		const query = makeUserQuery(testUser.id.toString(), true, false);
+		const query = makeUserQuery(true, false);
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: testUser.id.toString() });
 
 		expect(body).toEqual(makeGraphQLResponse({
 			user: {

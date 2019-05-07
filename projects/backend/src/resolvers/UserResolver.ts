@@ -1,10 +1,11 @@
 import { IShareService } from '../services/ShareService';
 import { User } from '../models/UserModel';
-import { Resolver, Arg, Query, FieldResolver, Root, Mutation, Authorized } from "type-graphql";
+import { Resolver, Arg, Query, FieldResolver, Root, Mutation, Authorized, Ctx } from "type-graphql";
 import { Share } from '../models/ShareModel';
 import { IUserService } from '../services/UserService';
 import { IPasswordLoginService, LoginNotFound, LoginCredentialsInvalid } from '../auth/PasswordLoginService';
 import { InternalServerError } from '../types/internal-server-error';
+import { IGraphQLContext } from '../types/context';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -17,8 +18,10 @@ export class UserResolver {
 
 	@Authorized()
 	@Query(returns => User, { nullable: true })
-	public user(@Arg("id") id: string): Promise<User | null> {
-		return this.userService.getUserByID(id);
+	public user(
+		@Ctx() ctx: IGraphQLContext,
+	): Promise<User | null> {
+		return this.userService.getUserByID(ctx.userID);
 	}
 
 	@Authorized()
