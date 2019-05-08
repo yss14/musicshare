@@ -27,7 +27,7 @@ import { SongTypeService } from "./services/SongTypeService";
 import { GenreService } from "./services/GenreService";
 import { ArtistService } from "./services/ArtistService";
 import { graphQLAuthChecker, makeAuthExtractor } from "./auth/auth-middleware";
-import { IContext } from "./types/context";
+import { IGraphQLContext, makeGraphQLContextProvider } from "./types/context";
 import { PasswordLoginService } from "./auth/PasswordLoginService";
 import { AuthenticationService } from "./auth/AuthenticationService";
 import { v4 as uuid } from 'uuid';
@@ -118,7 +118,12 @@ if (!isProductionEnvironment()) {
 		await makeDatabaseSchema(database, { keySpace: databaseKeyspace });
 	}
 
-	const graphQLServer = await makeGraphQLServer<IContext>(Container, graphQLAuthChecker, UserResolver, ShareResolver, SongResolver);
+	const graphQLServer = await makeGraphQLServer<IGraphQLContext>(
+		Container,
+		makeGraphQLContextProvider({ playlistService, songService, shareService }),
+		graphQLAuthChecker,
+		UserResolver, ShareResolver, SongResolver
+	);
 
 	const server = HTTPServer({ graphQLServer, fileService, uploadProcessingQueue: songProcessingQueue, authExtractor: makeAuthExtractor(authService) });
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);

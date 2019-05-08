@@ -1,6 +1,6 @@
 import { HTTPStatusCodes } from '../types/http-status-codes';
 import { IAuthenticationService } from './AuthenticationService';
-import { IContext, CustomRequestHandler } from '../types/context';
+import { CustomRequestHandler, IGraphQLContext } from '../types/context';
 import { AuthChecker } from 'type-graphql';
 
 export const makeAuthExtractor = (authService: IAuthenticationService): CustomRequestHandler => async (req, res, next) => {
@@ -43,16 +43,14 @@ export const auth: CustomRequestHandler = (req, res, next) => {
 	next();
 }
 
-export const graphQLAuthChecker: AuthChecker<IContext> = ({ context: { userID } }, roles) => {
-	if (roles.length === 0) {
+export const graphQLAuthChecker: AuthChecker<IGraphQLContext> = ({ context: { userID, scopes }, root, args }, permissions = []) => {
+	if (permissions.length === 0) {
 		return userID !== null && userID !== undefined;
 	}
 
 	if (!userID) {
 		return false;
 	}
-
-	// TODO check scopes when implemented
 
 	return true;
 };

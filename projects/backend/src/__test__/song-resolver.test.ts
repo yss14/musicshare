@@ -4,6 +4,7 @@ import { setupTestEnv } from "./utils/setup-test-env";
 import { testData } from "../database/seed";
 import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
 import { HTTPStatusCodes } from "../types/http-status-codes";
+import { makeMockedDatabase } from "./mocks/mock-database";
 
 const inputToString = (input: SongUpdateInput): string => {
 	return '{' + Object.entries(input).map(entry => `${entry[0]}:${JSON.stringify(entry[1])}`).join(',') + '}';
@@ -27,6 +28,9 @@ describe('update song mutation', () => {
 	const share = testData.shares.library_user1;
 	const song = testData.songs.song1_library_user1;
 
+	const mockDatabase = makeMockedDatabase();
+	(<jest.Mock>mockDatabase.query).mockReturnValue([song]);
+
 	test('valid input', async () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
@@ -41,7 +45,7 @@ describe('update song mutation', () => {
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 		const timestampBeforeUpdate = Date.now();
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		const { updateSong } = body.data;
 
@@ -50,14 +54,14 @@ describe('update song mutation', () => {
 	});
 
 	test('title null', async () => {
-		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
+		const { graphQLServer } = await setupTestEnv({ mockDatabase });
 
 		const input: any = <SongUpdateInput>{
 			title: null as any,
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
@@ -66,14 +70,14 @@ describe('update song mutation', () => {
 	});
 
 	test('title empty', async () => {
-		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
+		const { graphQLServer } = await setupTestEnv({ mockDatabase });
 
 		const input: any = <SongUpdateInput>{
 			title: '',
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
@@ -82,14 +86,14 @@ describe('update song mutation', () => {
 	});
 
 	test('invalid year', async () => {
-		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
+		const { graphQLServer } = await setupTestEnv({ mockDatabase });
 
 		const input: any = <SongUpdateInput>{
 			year: 195,
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
@@ -98,14 +102,14 @@ describe('update song mutation', () => {
 	});
 
 	test('empty artist item', async () => {
-		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
+		const { graphQLServer } = await setupTestEnv({ mockDatabase });
 
 		const input: any = <SongUpdateInput>{
 			artists: ['some valid', ''],
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
@@ -114,14 +118,14 @@ describe('update song mutation', () => {
 	});
 
 	test('null artist', async () => {
-		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
+		const { graphQLServer } = await setupTestEnv({ mockDatabase });
 
 		const input: any = <SongUpdateInput>{
 			artists: null as any,
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
@@ -130,25 +134,25 @@ describe('update song mutation', () => {
 	});
 
 	test('null artist item', async () => {
-		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
+		const { graphQLServer } = await setupTestEnv({ mockDatabase });
 
 		const input: any = <SongUpdateInput>{
 			artists: ['some valid', null],
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		await executeGraphQLQuery(graphQLServer, query, HTTPStatusCodes.BAD_REQUEST);
+		await executeGraphQLQuery({ graphQLServer, query, expectedHTTPCode: HTTPStatusCodes.BAD_REQUEST });
 	});
 
 	test('null type', async () => {
-		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
+		const { graphQLServer } = await setupTestEnv({ mockDatabase });
 
 		const input: any = <SongUpdateInput>{
 			type: null as any,
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
@@ -157,18 +161,34 @@ describe('update song mutation', () => {
 	});
 
 	test('empty type', async () => {
-		const { graphQLServer } = await setupTestEnv({ mockDatabase: true });
+		const { graphQLServer } = await setupTestEnv({ mockDatabase });
 
 		const input: any = <SongUpdateInput>{
 			type: '',
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
 
-		const { body } = await executeGraphQLQuery(graphQLServer, query);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
 			[{ message: `Argument Validation Error` }]
+		));
+	});
+
+	test('insufficient permissions', async () => {
+		const { graphQLServer } = await setupTestEnv({ mockDatabase });
+		const input: any = <SongUpdateInput>{
+			type: '',
+		}
+		const shareID = share.id.toString();
+		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes: [{ shareID, permissions: ['playlist:create', 'song:upload'] }] });
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			{ updateSong: null },
+			[{ message: `User has insufficient permissions to perform this action!` }]
 		));
 	});
 });

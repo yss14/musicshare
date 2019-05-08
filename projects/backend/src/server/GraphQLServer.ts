@@ -1,8 +1,14 @@
 import { buildSchema, ContainerType, AuthChecker } from 'type-graphql';
 import { ApolloServer } from "apollo-server-express";
-import { ContextRequest } from '../types/context';
+import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
+import { ContextFunction } from 'apollo-server-core';
 
-export const makeGraphQLServer = async <C = unknown>(container: ContainerType, authChecker: AuthChecker<C>, ...resolvers: Function[]) => {
+export const makeGraphQLServer = async <C = unknown>(
+	container: ContainerType,
+	contextProvider: ContextFunction<ExpressContext, C>,
+	authChecker: AuthChecker<C>,
+	...resolvers: Function[]
+) => {
 	const schema = await buildSchema({
 		resolvers,
 		container,
@@ -11,9 +17,7 @@ export const makeGraphQLServer = async <C = unknown>(container: ContainerType, a
 
 	const graphQLServer = new ApolloServer({
 		schema,
-		context: ({ req }: { req: ContextRequest }) => {
-			return req.context;
-		}
+		context: contextProvider,
 	});
 
 	return graphQLServer;

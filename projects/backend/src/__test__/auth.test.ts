@@ -10,6 +10,19 @@ import supertest = require('supertest');
 import { Resolver, Authorized, Query, ObjectType, Field, Arg } from 'type-graphql';
 import { makeGraphQLServer } from '../server/GraphQLServer';
 import { makeGraphQLResponse } from './utils/graphql';
+import { makeGraphQLContextProvider, Scopes, IGraphQLContext } from "../types/context";
+import { Permission } from "../auth/permissions";
+import { makeAllScopes } from "./utils/setup-test-env";
+import { hasAllPermissions, getShareIDFromRequest, getPlaylistIDFromRequest, getSongIDFromRequest, getCurrentPermissionsForShare } from "../auth/middleware/auth-selectors";
+import { Share } from "../models/ShareModel";
+import { TimeUUID } from "../types/TimeUUID";
+import { Playlist } from "../models/PlaylistModel";
+import { shareSongFromDBResult } from "../models/SongModel";
+import { makeShareAuthMiddleware } from "../auth/middleware/share-auth";
+import { ShareNotFoundError, ShareService } from "../services/ShareService";
+import { makeMockedDatabase } from "./mocks/mock-database";
+import { makePlaylistAuthMiddleware } from "../auth/middleware/playlist-auth";
+import { makeSongAuthMiddleware } from "../auth/middleware/song-auth";
 
 const routePathProtected = '/some/protected/route';
 const routePathPublic = '/some/public/route';
@@ -53,7 +66,12 @@ const setupGraphQLTestEnv = async () => {
 		}
 	}
 
-	const graphQLServer = await makeGraphQLServer(null as any, graphQLAuthChecker, TestResolver);
+	const graphQLServer = await makeGraphQLServer(
+		null as any,
+		makeGraphQLContextProvider({ playlistService: null as any, songService: null as any, shareService: null as any }),
+		graphQLAuthChecker,
+		TestResolver
+	);
 	graphQLServer.applyMiddleware({ app: expressApp });
 
 	return { expressApp, graphQLServer, authService };
@@ -112,7 +130,7 @@ describe('express middleware', () => {
 	});
 });
 
-describe('graphql middleware', () => {
+describe('native type-graphql auth middleware', () => {
 	const executeTestRequests = async (expressApp: express.Application, authToken: string | undefined, protectedSuccess?: boolean) => {
 		const publicQuery = `
 			query{
@@ -163,5 +181,216 @@ describe('graphql middleware', () => {
 		const { expressApp } = await setupGraphQLTestEnv();
 
 		await executeTestRequests(expressApp, undefined, false);
+	});
+});
+
+describe('permissions', () => {
+	test('has a single permission', () => {
+		const requiredPermissions: Permission[] = ['playlist:create'];
+		const currentPermissions: Permission[] = makeAllScopes()[0].permissions;
+
+		expect(hasAllPermissions(requiredPermissions, currentPermissions)).toBe(true);
+	});
+
+	test('has multiple permission', () => {
+		const requiredPermissions: Permission[] = ['playlist:create', 'playlist:modify', 'playlist:mutate_songs'];
+		const currentPermissions: Permission[] = makeAllScopes()[0].permissions;
+
+		expect(hasAllPermissions(requiredPermissions, currentPermissions)).toBe(true);
+	});
+
+	test('has insufficient permissions empty', () => {
+		const requiredPermissions: Permission[] = ['playlist:create'];
+		const currentPermissions: Permission[] = [];
+
+		expect(hasAllPermissions(requiredPermissions, currentPermissions)).toBe(false);
+	});
+
+	test('has insufficient permissions no intersection', () => {
+		const requiredPermissions: Permission[] = ['playlist:create'];
+		const currentPermissions: Permission[] = ['playlist:modify', 'playlist:mutate_songs'];
+
+		expect(hasAllPermissions(requiredPermissions, currentPermissions)).toBe(false);
+	});
+
+	test('has insufficient permissions one missing', () => {
+		const requiredPermissions: Permission[] = ['playlist:create', 'playlist:mutate_songs'];
+		const currentPermissions: Permission[] = ['playlist:modify', 'playlist:mutate_songs'];
+
+		expect(hasAllPermissions(requiredPermissions, currentPermissions)).toBe(false);
+	});
+});
+
+describe('auth selectors', () => {
+	describe('share', () => {
+		const share = testData.shares.library_user1;
+
+		test('root', () => {
+			const req = { args: {}, root: Share.fromDBResult(share) };
+			const shareID = getShareIDFromRequest(req);
+
+			expect(shareID).toBe(share.id.toString());
+		});
+
+		test('args', () => {
+			const req = { args: { shareID: share.id.toString() }, root: undefined };
+			const shareID = getShareIDFromRequest(req);
+
+			expect(shareID).toBe(share.id.toString());
+		});
+
+		test('not found', () => {
+			const req = { args: { otherID: TimeUUID().toString() }, root: User.fromDBResult(testData.users.user1) };
+			const shareID = getShareIDFromRequest(req);
+
+			expect(shareID).toBeNull();
+		});
+	});
+
+	describe('playlist', () => {
+		const playlist = testData.playlists.playlist1_library_user1;
+
+		test('root', () => {
+			const req = { args: {}, root: Playlist.fromDBResult(playlist) };
+			const playlistID = getPlaylistIDFromRequest(req);
+
+			expect(playlistID).toBe(playlist.id.toString());
+		});
+
+		test('args', () => {
+			const req = { args: { playlistID: playlist.id.toString() }, root: undefined };
+			const playlistID = getPlaylistIDFromRequest(req);
+
+			expect(playlistID).toBe(playlist.id.toString());
+		});
+
+		test('not found', () => {
+			const req = { args: { otherID: TimeUUID().toString() }, root: User.fromDBResult(testData.users.user1) };
+			const playlistID = getPlaylistIDFromRequest(req);
+
+			expect(playlistID).toBeNull();
+		});
+	});
+
+	describe('song', () => {
+		const song = testData.songs.song1_library_user1;
+
+		test('root', () => {
+			const req = { args: {}, root: shareSongFromDBResult(song) };
+			const songID = getSongIDFromRequest(req);
+
+			expect(songID).toBe(song.id.toString());
+		});
+
+		test('args', () => {
+			const req = { args: { songID: song.id.toString() }, root: undefined };
+			const songID = getSongIDFromRequest(req);
+
+			expect(songID).toBe(song.id.toString());
+		});
+
+		test('not found', () => {
+			const req = { args: { otherID: TimeUUID().toString() }, root: User.fromDBResult(testData.users.user1) };
+			const songID = getSongIDFromRequest(req);
+
+			expect(songID).toBeNull();
+		});
+	});
+});
+
+describe('auth middleware', () => {
+	const makeContext = (context?: Partial<IGraphQLContext>): IGraphQLContext => ({
+		scopes: [],
+		services: { playlistService: null as any, shareService: null as any, songService: null as any },
+		userID: null,
+		...(context || {}),
+	});
+
+	describe('share', () => {
+		test('reference not found', async () => {
+			const middleware = makeShareAuthMiddleware({}) as Function;
+			const req = { args: {}, root: undefined, context: makeContext() };
+
+			await expect(middleware(req)).rejects.toThrowError('Share reference not found');
+		});
+
+		test('insufficient permissions', async () => {
+			const shareID = testData.shares.library_user1.id.toString();
+			const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:modify'] }];
+			const middleware = makeShareAuthMiddleware({ checkRef: false, permissions: ['share:member'] }) as Function;
+			const req = { args: { shareID }, root: undefined, context: makeContext({ scopes }) };
+
+			await expect(middleware(req)).rejects.toThrowError('User has insufficient permissions to perform this action!');
+		});
+
+		test('check ref defaults to true', async () => {
+			const database = makeMockedDatabase();
+			(database.query as jest.Mock).mockReturnValue([]);
+			const shareService = new ShareService(database);
+
+			const shareID = TimeUUID().toString();
+			const middleware = makeShareAuthMiddleware({}) as Function;
+			const context = makeContext({});
+			const req = { args: { shareID }, root: undefined, context: { ...context, services: { ...context.services, shareService } } };
+
+			await expect(middleware(req)).rejects.toThrowError(ShareNotFoundError);
+		});
+	});
+
+	describe('playlist', () => {
+		const shareID = testData.shares.library_user1.id.toString();
+
+		test('share reference not found', async () => {
+			const middleware = makePlaylistAuthMiddleware({}) as Function;
+			const req = { args: {}, root: undefined, context: makeContext() };
+
+			await expect(middleware(req)).rejects.toThrowError('Share reference not found');
+		});
+
+		test('playlist reference not found', async () => {
+			const middleware = makePlaylistAuthMiddleware({}) as Function;
+			const req = { args: { shareID }, root: undefined, context: makeContext() };
+
+			await expect(middleware(req)).rejects.toThrowError('Playlist reference not found');
+		});
+	});
+
+	describe('song', () => {
+		const songID = testData.songs.song1_library_user1.id.toString();
+
+		test('song reference not found', async () => {
+			const middleware = makeSongAuthMiddleware([]) as Function;
+			const req = { args: {}, root: undefined, context: makeContext() };
+
+			await expect(middleware(req)).rejects.toThrowError('Song reference not found');
+		});
+
+		test('share reference not found', async () => {
+			const middleware = makeSongAuthMiddleware([]) as Function;
+			const req = { args: { songID }, root: undefined, context: makeContext() };
+
+			await expect(middleware(req)).rejects.toThrowError('Share reference not found');
+		});
+	});
+});
+
+describe('get permission from scope', () => {
+	const shareID1 = testData.shares.library_user1.id.toString();
+	const shareID2 = testData.shares.some_shared_library.id.toString();
+	const shareID3 = testData.shares.library_user2.id.toString();
+	const scopes: Scopes = [
+		{ shareID: shareID1, permissions: ['playlist:create', 'playlist:modify', 'song:modify'] },
+		{ shareID: shareID3, permissions: ['playlist:modify', 'song:upload', 'song:modify'] },
+	];
+
+	test('share exists', () => {
+		const permissions = getCurrentPermissionsForShare(shareID1, scopes);
+
+		expect(permissions).toEqual(scopes[0].permissions);
+	});
+
+	test('share does not exist', () => {
+		expect(() => getCurrentPermissionsForShare(shareID2, scopes))
+			.toThrowError(`No scopes provided for share ${shareID2}`);
 	});
 });
