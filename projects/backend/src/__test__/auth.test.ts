@@ -10,10 +10,14 @@ import supertest = require('supertest');
 import { Resolver, Authorized, Query, ObjectType, Field, Arg } from 'type-graphql';
 import { makeGraphQLServer } from '../server/GraphQLServer';
 import { makeGraphQLResponse } from './utils/graphql';
-import { makeGraphQLContextProvider } from "../types/context";
+import { makeGraphQLContextProvider, Scopes } from "../types/context";
 import { Permission } from "../auth/permissions";
 import { makeAllScopes } from "./utils/setup-test-env";
-import { hasAllPermissions } from "../auth/middleware/auth-selectors";
+import { hasAllPermissions, getShareIDFromRequest, getPlaylistIDFromRequest, getSongIDFromRequest, getCurrentPermissionsForShare } from "../auth/middleware/auth-selectors";
+import { Share } from "../models/ShareModel";
+import { TimeUUID } from "../types/TimeUUID";
+import { Playlist } from "../models/PlaylistModel";
+import { shareSongFromDBResult } from "../models/SongModel";
 
 const routePathProtected = '/some/protected/route';
 const routePathPublic = '/some/public/route';
@@ -209,5 +213,103 @@ describe('permissions', () => {
 		const currentPermissions: Permission[] = ['playlist:modify', 'playlist:mutate_songs'];
 
 		expect(hasAllPermissions(requiredPermissions, currentPermissions)).toBe(false);
+	});
+});
+
+describe('auth selectors', () => {
+	describe('share', () => {
+		const share = testData.shares.library_user1;
+
+		test('root', () => {
+			const req = { args: {}, root: Share.fromDBResult(share) };
+			const shareID = getShareIDFromRequest(req);
+
+			expect(shareID).toBe(share.id.toString());
+		});
+
+		test('args', () => {
+			const req = { args: { shareID: share.id.toString() }, root: undefined };
+			const shareID = getShareIDFromRequest(req);
+
+			expect(shareID).toBe(share.id.toString());
+		});
+
+		test('not found', () => {
+			const req = { args: { otherID: TimeUUID().toString() }, root: User.fromDBResult(testData.users.user1) };
+			const shareID = getShareIDFromRequest(req);
+
+			expect(shareID).toBeNull();
+		});
+	});
+
+	describe('playlist', () => {
+		const playlist = testData.playlists.playlist1_library_user1;
+
+		test('root', () => {
+			const req = { args: {}, root: Playlist.fromDBResult(playlist) };
+			const playlistID = getPlaylistIDFromRequest(req);
+
+			expect(playlistID).toBe(playlist.id.toString());
+		});
+
+		test('args', () => {
+			const req = { args: { playlistID: playlist.id.toString() }, root: undefined };
+			const playlistID = getPlaylistIDFromRequest(req);
+
+			expect(playlistID).toBe(playlist.id.toString());
+		});
+
+		test('not found', () => {
+			const req = { args: { otherID: TimeUUID().toString() }, root: User.fromDBResult(testData.users.user1) };
+			const playlistID = getPlaylistIDFromRequest(req);
+
+			expect(playlistID).toBeNull();
+		});
+	});
+
+	describe('song', () => {
+		const song = testData.songs.song1_library_user1;
+
+		test('root', () => {
+			const req = { args: {}, root: shareSongFromDBResult(song) };
+			const songID = getSongIDFromRequest(req);
+
+			expect(songID).toBe(song.id.toString());
+		});
+
+		test('args', () => {
+			const req = { args: { songID: song.id.toString() }, root: undefined };
+			const songID = getSongIDFromRequest(req);
+
+			expect(songID).toBe(song.id.toString());
+		});
+
+		test('not found', () => {
+			const req = { args: { otherID: TimeUUID().toString() }, root: User.fromDBResult(testData.users.user1) };
+			const songID = getSongIDFromRequest(req);
+
+			expect(songID).toBeNull();
+		});
+	});
+});
+
+describe('get permission from scope', () => {
+	const shareID1 = testData.shares.library_user1.id.toString();
+	const shareID2 = testData.shares.some_shared_library.id.toString();
+	const shareID3 = testData.shares.library_user2.id.toString();
+	const scopes: Scopes = [
+		{ shareID: shareID1, permissions: ['playlist:create', 'playlist:modify', 'song:modify'] },
+		{ shareID: shareID3, permissions: ['playlist:modify', 'song:upload', 'song:modify'] },
+	];
+
+	test('share exists', () => {
+		const permissions = getCurrentPermissionsForShare(shareID1, scopes);
+
+		expect(permissions).toEqual(scopes[0].permissions);
+	});
+
+	test('share does not exist', () => {
+		expect(() => getCurrentPermissionsForShare(shareID2, scopes))
+			.toThrowError(`No scopes provided for share ${shareID2}`);
 	});
 });
