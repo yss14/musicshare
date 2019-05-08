@@ -9,6 +9,10 @@ import { IShareService } from '../services/ShareService';
 export interface IBaseContext {
 	userID: string | null;
 	scopes: Scopes;
+	error?: {
+		statusCode: number;
+		message: string;
+	};
 }
 
 export interface IGraphQLContext extends IBaseContext {

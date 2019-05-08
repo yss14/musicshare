@@ -34,6 +34,7 @@ import { v4 as uuid } from 'uuid';
 import { MP3SongDuration } from "./utils/song-meta/song-meta-formats/id3/MP3SongDuration";
 import { PlaylistService } from "./services/PlaylistService";
 import { PlaylistResolver } from "./resolvers/PlaylistResolver";
+import { AuthTokenStore } from "./auth/AuthTokenStore";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -100,6 +101,7 @@ if (!isProductionEnvironment()) {
 	const authService = new AuthenticationService(process.env[CustomEnv.JWT_SECRET] || uuid());
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
 	const playlistService = PlaylistService({ database, songService });
+	const authTokenStore = AuthTokenStore({ database, tokenDescription: 'authtoken' });
 
 	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService);
 	const songResolver = new SongResolver(fileService, songService);
@@ -125,7 +127,12 @@ if (!isProductionEnvironment()) {
 		UserResolver, ShareResolver, SongResolver
 	);
 
-	const server = HTTPServer({ graphQLServer, fileService, uploadProcessingQueue: songProcessingQueue, authExtractor: makeAuthExtractor(authService) });
+	const server = HTTPServer({
+		graphQLServer,
+		fileService,
+		uploadProcessingQueue: songProcessingQueue,
+		authExtractor: makeAuthExtractor(authService, authTokenStore)
+	});
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);
 	await server.start('/graphql', serverPort);
 

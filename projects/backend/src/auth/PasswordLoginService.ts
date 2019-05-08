@@ -4,6 +4,7 @@ import { IDatabaseClient } from 'cassandra-schema-builder';
 import { TimeUUID } from '../types/TimeUUID';
 import { IAuthenticationService } from './AuthenticationService';
 import { IUserService } from '../services/UserService';
+import { AuthTokenBundle } from '../models/AuthTokenBundleModel';
 
 interface IRegsiterArgs {
 	email: string;
@@ -19,7 +20,7 @@ interface IPasswordLoginServiceArgs {
 
 export interface IPasswordLoginService {
 	register(args: IRegsiterArgs): Promise<void>;
-	login(email: string, password: string): Promise<string>;
+	login(email: string, password: string): Promise<AuthTokenBundle>;
 }
 
 export class LoginNotFound extends Error {
@@ -59,9 +60,10 @@ export const PasswordLoginService = ({ authService, database, userService }: IPa
 
 		const user = await userService.getUserByEMail(email);
 
-		const authToken = await authService.issueToken(user, []); // TODO add scopes
+		const refreshToken = await authService.issueRefreshToken(user);
+		const authToken = await authService.issueAuthToken(user, [], refreshToken); // TODO add scopes
 
-		return authToken;
+		return AuthTokenBundle.create(refreshToken, authToken);
 	}
 
 	const hashPassword = (password: string) => argon2.hash(password);

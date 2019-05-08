@@ -6,6 +6,7 @@ import { IUserService } from '../services/UserService';
 import { IPasswordLoginService, LoginNotFound, LoginCredentialsInvalid } from '../auth/PasswordLoginService';
 import { InternalServerError } from '../types/internal-server-error';
 import { IGraphQLContext } from '../types/context';
+import { AuthTokenBundle } from '../models/AuthTokenBundleModel';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -38,15 +39,15 @@ export class UserResolver {
 		}
 	}
 
-	@Mutation(() => String)
+	@Mutation(() => AuthTokenBundle)
 	public async login(
 		@Arg('email') email: string,
 		@Arg('password', { description: 'Plain text, hashing takes place at server side' }) password: string,
-	): Promise<string> {
+	): Promise<AuthTokenBundle> {
 		try {
-			const authToken = await this.passwordLoginService.login(email, password);
+			const authTokenBundle = await this.passwordLoginService.login(email, password);
 
-			return authToken;
+			return authTokenBundle;
 		} catch (err) {
 			if (err instanceof LoginNotFound || err instanceof LoginCredentialsInvalid) {
 				throw new LoginCredentialsInvalid();
