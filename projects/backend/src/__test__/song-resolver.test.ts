@@ -175,4 +175,20 @@ describe('update song mutation', () => {
 			[{ message: `Argument Validation Error` }]
 		));
 	});
+
+	test('insufficient permissions', async () => {
+		const { graphQLServer } = await setupTestEnv({ mockDatabase });
+		const input: any = <SongUpdateInput>{
+			type: '',
+		}
+		const shareID = share.id.toString();
+		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes: [{ shareID, permissions: ['playlist:create', 'song:upload'] }] });
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			{ updateSong: null },
+			[{ message: `User has insufficient permissions to perform this action!` }]
+		));
+	});
 });

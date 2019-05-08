@@ -10,7 +10,7 @@ interface IPlaylistAuthArgs {
 	checkRef?: boolean;
 }
 
-const makePlaylistAuthMiddleware = ({ permissions, checkRef }: IPlaylistAuthArgs): Middleware<IGraphQLContext> =>
+export const makePlaylistAuthMiddleware = ({ permissions, checkRef }: IPlaylistAuthArgs): Middleware<IGraphQLContext> =>
 	async ({ args, root, context }, next) => {
 		const { services: { playlistService }, scopes } = context;
 		const playlistID = getPlaylistIDFromRequest({ root, args });

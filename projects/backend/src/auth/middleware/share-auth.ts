@@ -10,7 +10,7 @@ interface IShareAuthArgs {
 	checkRef?: boolean;
 }
 
-const makeShareAuthMiddleware = ({ permissions, checkRef }: IShareAuthArgs): Middleware<IGraphQLContext> =>
+export const makeShareAuthMiddleware = ({ permissions, checkRef }: IShareAuthArgs): Middleware<IGraphQLContext> =>
 	async ({ args, root, context }, next) => {
 		const { services: { shareService }, scopes, userID } = context;
 		const shareID = getShareIDFromRequest({ root, args });
@@ -43,6 +43,7 @@ type ShareAuth = {
 	(permissions?: Permissions.Share[]): MethodAndPropDecorator;
 }
 
+// istanbul ignore next
 export const ShareAuth: ShareAuth = (args?: IShareAuthArgs | Permissions.Share[]) => {
 	if (args instanceof Array) {
 		return UseMiddleware(makeShareAuthMiddleware({ permissions: args }));

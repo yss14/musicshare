@@ -4,7 +4,7 @@ import { IGraphQLContext } from "../../types/context";
 import { getShareIDFromRequest, hasAllPermissions, getCurrentPermissionsForShare, getSongIDFromRequest } from "./auth-selectors";
 import { UseMiddleware } from "type-graphql";
 
-const makeSongAuthMiddleware = (permissions?: Permissions.Song[]): Middleware<IGraphQLContext> => async ({ args, root, context }, next) => {
+export const makeSongAuthMiddleware = (permissions?: Permissions.Song[]): Middleware<IGraphQLContext> => async ({ args, root, context }, next) => {
 	const { services: { songService }, scopes } = context;
 	const songID = getSongIDFromRequest({ root, args });
 	const shareID = getShareIDFromRequest({ root, args });
