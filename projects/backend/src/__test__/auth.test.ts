@@ -23,6 +23,7 @@ import { ShareNotFoundError, ShareService } from "../services/ShareService";
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { makePlaylistAuthMiddleware } from "../auth/middleware/playlist-auth";
 import { makeSongAuthMiddleware } from "../auth/middleware/song-auth";
+import { AuthTokenStore } from "../auth/AuthTokenStore";
 
 const routePathProtected = '/some/protected/route';
 const routePathPublic = '/some/public/route';
@@ -36,17 +37,19 @@ class TestRouteReturnValue {
 const testRouteReturnValue: TestRouteReturnValue = { message: 'Hello test case!' };
 
 const setupExpressTestEnv = async () => {
+	const database = makeMockedDatabase();
 	const authService = new AuthenticationService('topsecret');
+	const authTokenStore = AuthTokenStore({ database, tokenDescription: 'authtoken' });
 	const expressApp = express();
-	expressApp.use(makeAuthExtractor(authService) as any);
+	expressApp.use(makeAuthExtractor(authService, authTokenStore) as any);
 	expressApp.post(routePathProtected, auth as any, (req, res) => res.status(HTTPStatusCodes.OK).json(testRouteReturnValue));
 	expressApp.post(routePathPublic, (req, res) => res.status(HTTPStatusCodes.OK).json(testRouteReturnValue));
 
-	return { expressApp, authService };
+	return { expressApp, authService, authTokenStore };
 }
 
 const setupGraphQLTestEnv = async () => {
-	const { expressApp, authService } = await setupExpressTestEnv();
+	const { expressApp, ...expressTestEnv } = await setupExpressTestEnv();
 
 	@Resolver(of => TestRouteReturnValue)
 	class TestResolver {
@@ -74,7 +77,7 @@ const setupGraphQLTestEnv = async () => {
 	);
 	graphQLServer.applyMiddleware({ app: expressApp });
 
-	return { expressApp, graphQLServer, authService };
+	return { expressApp, graphQLServer, ...expressTestEnv };
 }
 
 const setupSupertest = (expressApp: express.Application, authToken: string | undefined, route: string) => {
@@ -110,14 +113,23 @@ describe('express middleware', () => {
 
 	test('valid token', async () => {
 		const { authService, expressApp } = await setupExpressTestEnv();
-		const authToken = await authService.issueToken(user, []);
+		const authToken = await authService.issueAuthToken(user, [], 'some_refresh_token');
 
 		await executeTestRequests(expressApp, authToken, HTTPStatusCodes.OK, HTTPStatusCodes.OK);
 	});
 
 	test('invalid token', async () => {
 		const { authService, expressApp } = await setupExpressTestEnv();
-		const authToken = (await authService.issueToken(user, [])) + 'a';
+		const authToken = (await authService.issueAuthToken(user, [], 'some_refresh_token')) + 'a';
+
+		await executeTestRequests(expressApp, authToken, HTTPStatusCodes.UNAUTHORIZED, HTTPStatusCodes.OK);
+	});
+
+	test('invalidated token', async () => {
+		const { authService, expressApp, authTokenStore } = await setupExpressTestEnv();
+		const authToken = await authService.issueAuthToken(user, [], 'some_refresh_token');
+		const authTokenDecoded = await authService.verifyToken(authToken);
+		authTokenStore.invalidate(authTokenDecoded.tokenID);
 
 		await executeTestRequests(expressApp, authToken, HTTPStatusCodes.UNAUTHORIZED, HTTPStatusCodes.OK);
 	});
@@ -165,14 +177,23 @@ describe('native type-graphql auth middleware', () => {
 
 	test('valid token', async () => {
 		const { expressApp, authService } = await setupGraphQLTestEnv();
-		const authToken = await authService.issueToken(user, []);
+		const authToken = await authService.issueAuthToken(user, [], 'some_refresh_token');
 
 		await executeTestRequests(expressApp, authToken, true);
 	});
 
 	test('invalid token', async () => {
 		const { expressApp, authService } = await setupGraphQLTestEnv();
-		const authToken = (await authService.issueToken(user, [])) + 'a';
+		const authToken = (await authService.issueAuthToken(user, [], 'some_refresh_token')) + 'a';
+
+		await executeTestRequests(expressApp, authToken, false);
+	});
+
+	test('invalidated token', async () => {
+		const { expressApp, authService, authTokenStore } = await setupGraphQLTestEnv();
+		const authToken = await authService.issueAuthToken(user, [], 'some_refresh_token');
+		const authTokenDecoded = await authService.verifyToken(authToken);
+		authTokenStore.invalidate(authTokenDecoded.tokenID);
 
 		await executeTestRequests(expressApp, authToken, false);
 	});

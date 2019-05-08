@@ -27,7 +27,10 @@ const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => 
 
 const makeLoginMutation = (email: string, password: string) => `
 	mutation{
-		login(email: "${email}", password: "${password}")
+		login(email: "${email}", password: "${password}"){
+			authToken,
+			refreshToken
+		}
 	}
 `;
 
@@ -101,7 +104,7 @@ describe('get users shares', () => {
 	});
 });
 
-describe('login', () => {
+describe.only('login', () => {
 	test('successful', async () => {
 		const { graphQLServer, cleanUp, authService } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
@@ -110,9 +113,12 @@ describe('login', () => {
 		const query = makeLoginMutation(testUser.email, testPassword);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { authToken, refreshToken } = body.data.login;
 
-		expect(body.data.login).toBeString();
-		await expect(authService.verifyToken(body.data.login)).resolves.toBeObject();
+		expect(authToken).toBeString();
+		expect(refreshToken).toBeString();
+		await expect(authService.verifyToken(authToken)).resolves.toBeObject();
+		await expect(authService.verifyToken(refreshToken)).resolves.toBeObject();
 	});
 
 	test('wrong password', async () => {
