@@ -4,7 +4,7 @@ import { CustomRequestHandler, IGraphQLContext } from '../types/context';
 import { AuthChecker } from 'type-graphql';
 import { IAuthTokenStore } from './AuthTokenStore';
 
-export const makeAuthExtractor = (authService: IAuthenticationService, authTokenStore: IAuthTokenStore): CustomRequestHandler =>
+export const makeAuthExtractor = (authService: IAuthenticationService, invalidAuthTokenStore: IAuthTokenStore): CustomRequestHandler =>
 	async (req, res, next) => {
 		req.context = { userID: null, scopes: [] };
 
@@ -23,7 +23,7 @@ export const makeAuthExtractor = (authService: IAuthenticationService, authToken
 				return next();
 			}
 
-			if (authTokenStore.isInvalid(tokenDecoded.tokenID)) {
+			if (invalidAuthTokenStore.isInvalid(tokenDecoded.tokenID)) {
 				req.context.error = { statusCode: HTTPStatusCodes.UNAUTHORIZED, message: 'AuthToken invalid' };
 
 				return next();

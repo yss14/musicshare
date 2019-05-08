@@ -101,7 +101,7 @@ if (!isProductionEnvironment()) {
 	const authService = new AuthenticationService(process.env[CustomEnv.JWT_SECRET] || uuid());
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
 	const playlistService = PlaylistService({ database, songService });
-	const authTokenStore = AuthTokenStore({ database, tokenDescription: 'authtoken' });
+	const invalidAuthTokenStore = AuthTokenStore({ database, tokenDescription: 'authtoken' });
 
 	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService);
 	const songResolver = new SongResolver(fileService, songService);
@@ -131,7 +131,7 @@ if (!isProductionEnvironment()) {
 		graphQLServer,
 		fileService,
 		uploadProcessingQueue: songProcessingQueue,
-		authExtractor: makeAuthExtractor(authService, authTokenStore)
+		authExtractor: makeAuthExtractor(authService, invalidAuthTokenStore)
 	});
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);
 	await server.start('/graphql', serverPort);

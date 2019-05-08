@@ -104,7 +104,7 @@ describe('get users shares', () => {
 	});
 });
 
-describe.only('login', () => {
+describe('login', () => {
 	test('successful', async () => {
 		const { graphQLServer, cleanUp, authService } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);

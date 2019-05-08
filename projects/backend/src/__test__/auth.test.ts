@@ -39,13 +39,13 @@ const testRouteReturnValue: TestRouteReturnValue = { message: 'Hello test case!'
 const setupExpressTestEnv = async () => {
 	const database = makeMockedDatabase();
 	const authService = new AuthenticationService('topsecret');
-	const authTokenStore = AuthTokenStore({ database, tokenDescription: 'authtoken' });
+	const invalidAuthTokenStore = AuthTokenStore({ database, tokenDescription: 'authtoken' });
 	const expressApp = express();
-	expressApp.use(makeAuthExtractor(authService, authTokenStore) as any);
+	expressApp.use(makeAuthExtractor(authService, invalidAuthTokenStore) as any);
 	expressApp.post(routePathProtected, auth as any, (req, res) => res.status(HTTPStatusCodes.OK).json(testRouteReturnValue));
 	expressApp.post(routePathPublic, (req, res) => res.status(HTTPStatusCodes.OK).json(testRouteReturnValue));
 
-	return { expressApp, authService, authTokenStore };
+	return { expressApp, authService, invalidAuthTokenStore };
 }
 
 const setupGraphQLTestEnv = async () => {
@@ -126,10 +126,10 @@ describe('express middleware', () => {
 	});
 
 	test('invalidated token', async () => {
-		const { authService, expressApp, authTokenStore } = await setupExpressTestEnv();
+		const { authService, expressApp, invalidAuthTokenStore } = await setupExpressTestEnv();
 		const authToken = await authService.issueAuthToken(user, [], 'some_refresh_token');
 		const authTokenDecoded = await authService.verifyToken(authToken);
-		authTokenStore.invalidate(authTokenDecoded.tokenID);
+		invalidAuthTokenStore.invalidate(authTokenDecoded.tokenID);
 
 		await executeTestRequests(expressApp, authToken, HTTPStatusCodes.UNAUTHORIZED, HTTPStatusCodes.OK);
 	});
@@ -190,10 +190,10 @@ describe('native type-graphql auth middleware', () => {
 	});
 
 	test('invalidated token', async () => {
-		const { expressApp, authService, authTokenStore } = await setupGraphQLTestEnv();
+		const { expressApp, authService, invalidAuthTokenStore } = await setupGraphQLTestEnv();
 		const authToken = await authService.issueAuthToken(user, [], 'some_refresh_token');
 		const authTokenDecoded = await authService.verifyToken(authToken);
-		authTokenStore.invalidate(authTokenDecoded.tokenID);
+		invalidAuthTokenStore.invalidate(authTokenDecoded.tokenID);
 
 		await executeTestRequests(expressApp, authToken, false);
 	});
