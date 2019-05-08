@@ -101,7 +101,7 @@ if (!isProductionEnvironment()) {
 	const authService = new AuthenticationService(process.env[CustomEnv.JWT_SECRET] || uuid());
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
 	const playlistService = PlaylistService({ database, songService });
-	const invalidAuthTokenStore = AuthTokenStore({ database, tokenDescription: 'authtoken' });
+	const invalidAuthTokenStore = AuthTokenStore({ database, tokenGroup: 'authtoken' });
 
 	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService);
 	const songResolver = new SongResolver(fileService, songService);

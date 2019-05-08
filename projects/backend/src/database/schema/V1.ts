@@ -82,4 +82,9 @@ export namespace DatabaseV1 {
 		position: { type: ColumnType.Int, nullable: false },
 		date_added: { type: ColumnType.Timestamp, nullable: false },
 	});
+
+	export const tokens_by_share = TableSchema({
+		token_value: { type: ColumnType.Varchar, clusteringKey: true },
+		group: { type: ColumnType.Varchar, partitionKey: true },
+	});
 }

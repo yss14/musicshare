@@ -39,7 +39,7 @@ const testRouteReturnValue: TestRouteReturnValue = { message: 'Hello test case!'
 const setupExpressTestEnv = async () => {
 	const database = makeMockedDatabase();
 	const authService = new AuthenticationService('topsecret');
-	const invalidAuthTokenStore = AuthTokenStore({ database, tokenDescription: 'authtoken' });
+	const invalidAuthTokenStore = AuthTokenStore({ database, tokenGroup: 'authtoken' });
 	const expressApp = express();
 	expressApp.use(makeAuthExtractor(authService, invalidAuthTokenStore) as any);
 	expressApp.post(routePathProtected, auth as any, (req, res) => res.status(HTTPStatusCodes.OK).json(testRouteReturnValue));

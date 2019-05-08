@@ -12,6 +12,7 @@ export interface IGenreByShareDBResult extends TableRecord<typeof CoreTables.gen
 export interface IUserLoginCredentialDBResult extends TableRecord<typeof CoreTables.user_login_credentials> { }
 export interface IPlaylistByShareDBResult extends TableRecord<typeof CoreTables.playlists_by_share> { }
 export interface ISongByPlaylistDBResult extends TableRecord<typeof CoreTables.songs_by_playlist> { }
+export interface ITokenByShareDBResult extends TableRecord<typeof CoreTables.tokens_by_share> { }
 
 export const UsersTable = Table(CoreTables, 'users');
 export const SharesByUserTable = Table(CoreTables, 'shares_by_user');
@@ -21,3 +22,4 @@ export const GenresByShareTable = Table(CoreTables, 'genres_by_share');
 export const UserLoginCredentialsTable = Table(CoreTables, 'user_login_credentials');
 export const PlaylistsByShareTable = Table(CoreTables, 'playlists_by_share');
 export const SongsByPlaylistTable = Table(CoreTables, 'songs_by_playlist');
+export const TokensByShareTable = Table(CoreTables, 'tokens_by_share');
