@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'uuid';
+import { __TEST__ } from '../utils/env/env-constants';
 
 // istanbul ignore next
 export class InternalServerError extends Error {
@@ -7,6 +8,9 @@ export class InternalServerError extends Error {
 
 		super(`An internal server error occured (tracingID: ${tracingID})`);
 
-		console.error(`[${tracingID}]`, err);
+		if (!__TEST__) {
+			// istanbul ignore next
+			console.error(`[${tracingID}]`, err);
+		}
 	}
 }

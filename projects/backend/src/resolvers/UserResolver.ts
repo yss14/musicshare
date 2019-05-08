@@ -2,11 +2,13 @@ import { IShareService } from '../services/ShareService';
 import { User } from '../models/UserModel';
 import { Resolver, Arg, Query, FieldResolver, Root, Mutation, Authorized, Ctx } from "type-graphql";
 import { Share } from '../models/ShareModel';
-import { IUserService } from '../services/UserService';
+import { IUserService, UserNotFoundError } from '../services/UserService';
 import { IPasswordLoginService, LoginNotFound, LoginCredentialsInvalid } from '../auth/PasswordLoginService';
 import { InternalServerError } from '../types/internal-server-error';
 import { IGraphQLContext } from '../types/context';
 import { AuthTokenBundle } from '../models/AuthTokenBundleModel';
+import { IAuthenticationService } from '../auth/AuthenticationService';
+import { JsonWebTokenError } from 'jsonwebtoken';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -15,6 +17,7 @@ export class UserResolver {
 		private readonly userService: IUserService,
 		private readonly shareService: IShareService,
 		private readonly passwordLoginService: IPasswordLoginService,
+		private readonly authService: IAuthenticationService,
 	) { }
 
 	@Authorized()
@@ -51,6 +54,28 @@ export class UserResolver {
 		} catch (err) {
 			if (err instanceof LoginNotFound || err instanceof LoginCredentialsInvalid) {
 				throw new LoginCredentialsInvalid();
+			} else {
+				throw new InternalServerError(err);
+			}
+		}
+	}
+
+	@Mutation(() => String, { description: 'Issue a new authToken after the old one was invalidated' })
+	public async issueAuthToken(
+		@Arg('refreshToken') refreshToken: string,
+	): Promise<string> {
+		try {
+			const refreshTokenDecoded = await this.authService.verifyToken(refreshToken);
+			const user = await this.userService.getUserByID(refreshTokenDecoded.userID);
+
+			const authToken = await this.authService.issueAuthToken(user, [], refreshTokenDecoded.tokenID); // TODO add scopes
+
+			return authToken;
+		} catch (err) {
+			if (err instanceof JsonWebTokenError) {
+				throw new Error('Invalid AuthToken');
+			} else if (err instanceof UserNotFoundError) {
+				throw err;
 			} else {
 				throw new InternalServerError(err);
 			}

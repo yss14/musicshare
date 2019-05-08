@@ -105,7 +105,7 @@ if (!isProductionEnvironment()) {
 
 	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService);
 	const songResolver = new SongResolver(fileService, songService);
-	const userResolver = new UserResolver(userService, shareService, passwordLoginService);
+	const userResolver = new UserResolver(userService, shareService, passwordLoginService, authService);
 	const playlistResolver = new PlaylistResolver(playlistService);
 
 	Container.set(ShareResolver, shareResolver);

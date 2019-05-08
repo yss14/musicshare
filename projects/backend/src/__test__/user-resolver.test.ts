@@ -6,6 +6,9 @@ import { Share } from "../models/ShareModel";
 import { setupTestEnv } from "./utils/setup-test-env";
 import { TimeUUID } from "../types/TimeUUID";
 import * as argon2 from 'argon2';
+import { makeMockedDatabase } from "./mocks/mock-database";
+import { User } from "../models/UserModel";
+import { plainToClass } from "class-transformer";
 
 const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => {
 	return `
@@ -167,13 +170,77 @@ describe('login', () => {
 	});
 
 	test('unexpected internal error', async () => {
-		const { graphQLServer, cleanUp, database } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const database = makeMockedDatabase();
+		database.query = () => { throw new Error('Unexpected error'); }
+		const { graphQLServer } = await setupTestEnv({ mockDatabase: database });
 
 		const testUser = testData.users.user1;
 		const query = makeLoginMutation(testUser.email, testPassword);
 
-		await database.close(); // force unexpected error
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.errors[0].message.indexOf('An internal server error occured')).toBeGreaterThan(-1);
+	});
+});
+
+describe('issue new auth token', () => {
+	const makeIssueAuthTokenQuery = (refreshToken: string) => `mutation{issueAuthToken(refreshToken: "${refreshToken}")}`;
+	const mockDatabase = makeMockedDatabase();
+	(<jest.Mock>mockDatabase.query).mockReturnValue([]);
+	const testUser = User.fromDBResult(testData.users.user1);
+
+	test('valid refresh token', async () => {
+		const { graphQLServer, cleanUp, authService } = await setupTestEnv({});
+		cleanupHooks.push(cleanUp);
+
+		const refreshToken = await authService.issueRefreshToken(testUser);
+		const query = makeIssueAuthTokenQuery(refreshToken);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const authToken = body.data.issueAuthToken;
+
+		expect(authToken).toBeString();
+		await expect(authService.verifyToken(authToken)).resolves.toBeObject();
+	});
+
+	test('invalid refresh token', async () => {
+		const { graphQLServer } = await setupTestEnv({ mockDatabase });
+		const refreshToken = 'abcd';
+		const query = makeIssueAuthTokenQuery(refreshToken);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: 'Invalid AuthToken' }]));
+	});
+
+	test('expired refresh token', async () => {
+		const { graphQLServer, authService } = await setupTestEnv({ mockDatabase });
+		const refreshToken = await authService.issueRefreshToken(testUser, '-1 day');
+		const query = makeIssueAuthTokenQuery(refreshToken);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: 'Invalid AuthToken' }]));
+	});
+
+	test('user not found', async () => {
+		const { graphQLServer, authService } = await setupTestEnv({ mockDatabase });
+		const testUser = plainToClass(User, { id: TimeUUID().toString() });
+		const refreshToken = await authService.issueRefreshToken(testUser);
+		const query = makeIssueAuthTokenQuery(refreshToken);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: `User with id ${testUser.id} not found` }]));
+	});
+
+	test('unexpected internal error', async () => {
+		const database = makeMockedDatabase();
+		database.query = () => { throw new Error('Unexpected error'); }
+		const { graphQLServer, authService } = await setupTestEnv({ mockDatabase: database });
+
+		const refreshToken = await authService.issueRefreshToken(testUser);
+		const query = makeIssueAuthTokenQuery(refreshToken);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
