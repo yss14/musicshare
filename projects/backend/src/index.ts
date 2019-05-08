@@ -120,6 +120,11 @@ if (!isProductionEnvironment()) {
 		await makeDatabaseSchema(database, { keySpace: databaseKeyspace });
 	}
 
+	await invalidAuthTokenStore.load();
+	setTimeout(async () => {
+		await invalidAuthTokenStore.persist();
+	}, 10000);
+
 	const graphQLServer = await makeGraphQLServer<IGraphQLContext>(
 		Container,
 		makeGraphQLContextProvider({ playlistService, songService, shareService }),
