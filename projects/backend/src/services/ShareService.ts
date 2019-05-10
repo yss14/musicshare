@@ -33,7 +33,7 @@ export class ShareService implements IShareService {
 			SharesByUserTable.select('*', ['id', 'user_id'])([TimeUUID(shareID), TimeUUID(userID)])
 		);
 
-		if (dbResults.length === 0) {
+		if (!dbResults || dbResults.length === 0) {
 			throw new ShareNotFoundError(shareID);
 		}
 

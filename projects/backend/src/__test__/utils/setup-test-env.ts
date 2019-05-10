@@ -24,6 +24,7 @@ import { PlaylistResolver } from "../../resolvers/PlaylistResolver";
 import { PlaylistService } from "../../services/PlaylistService";
 import { makeGraphQLContextProvider, Scopes } from "../../types/context";
 import { Permission } from "../../auth/permissions";
+import { PermissionService } from "../../services/PermissionsService";
 
 export interface SetupTestEnvArgs {
 	mockDatabase?: IDatabaseClient;
@@ -56,8 +57,9 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 	const authService = new AuthenticationService('dev_secret');
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
 	const playlistService = PlaylistService({ database, songService });
+	const permissionService = PermissionService({ database });
 
-	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService);
+	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService, permissionService);
 	const songResolver = new SongResolver(fileService, songService);
 	const userResolver = new UserResolver(userService, shareService, passwordLoginService, authService);
 	const playlistResolver = new PlaylistResolver(playlistService);

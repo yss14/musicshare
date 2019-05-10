@@ -6,6 +6,7 @@ import { TimeUUID } from "../types/TimeUUID";
 export interface IPermissionService {
 	getPermissionsForUser(userID: string): Promise<Permission[]>;
 	addPermissionsForUser(userID: string, permissions: Permission[]): Promise<void>;
+	getAvailablePermissions(): Promise<Permission[]>;
 }
 
 interface IPermissionServiceArgs {
@@ -31,8 +32,13 @@ export const PermissionService = ({ database }: IPermissionServiceArgs): IPermis
 		await database.query(PermissionsByUserTable.batch(insertQueries));
 	}
 
+	const getAvailablePermissions = async () => {
+		return Permissions.ALL;
+	}
+
 	return {
 		getPermissionsForUser,
 		addPermissionsForUser,
+		getAvailablePermissions,
 	}
 }

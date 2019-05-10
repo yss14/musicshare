@@ -35,6 +35,7 @@ import { MP3SongDuration } from "./utils/song-meta/song-meta-formats/id3/MP3Song
 import { PlaylistService } from "./services/PlaylistService";
 import { PlaylistResolver } from "./resolvers/PlaylistResolver";
 import { AuthTokenStore } from "./auth/AuthTokenStore";
+import { PermissionService } from "./services/PermissionsService";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -102,8 +103,9 @@ if (!isProductionEnvironment()) {
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
 	const playlistService = PlaylistService({ database, songService });
 	const invalidAuthTokenStore = AuthTokenStore({ database, tokenGroup: 'authtoken' });
+	const permissionService = PermissionService({ database });
 
-	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService);
+	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService, permissionService);
 	const songResolver = new SongResolver(fileService, songService);
 	const userResolver = new UserResolver(userService, shareService, passwordLoginService, authService);
 	const playlistResolver = new PlaylistResolver(playlistService);
