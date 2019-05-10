@@ -316,3 +316,20 @@ describe('get share playlists', () => {
 			.toEqual(JSON.parse(JSON.stringify(Playlist.fromDBResult(testData.playlists.playlist1_library_user1))))
 	});
 });
+
+describe('get user permissions', () => {
+	const makeGetUserPermissionsQuery = () => `userPermissions`;
+
+	test('get user permissions', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
+		cleanupHooks.push(cleanUp);
+
+		const shareID = testData.shares.library_user1.id.toString();
+		const query = makeShareQuery(shareID, [makeGetUserPermissionsQuery()]);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.share.userPermissions).toBeArrayOfSize(Permissions.ALL.length);
+		expect(body.data.share.userPermissions).toContainAllValues(Permissions.ALL);
+	});
+});
