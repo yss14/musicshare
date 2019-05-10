@@ -6,7 +6,7 @@ export namespace Permissions {
 	const playlistPermissions = ['playlist:create', 'playlist:modify', 'playlist:mutate_songs'] as const;
 	export type Playlist = (typeof playlistPermissions)[number];
 
-	const sharePermissions = ['share:member'] as const;
+	const sharePermissions = ['share:members'] as const;
 	export type Share = (typeof sharePermissions)[number];
 
 	export const ALL = [...songPermissions, ...playlistPermissions, ...sharePermissions];

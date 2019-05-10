@@ -1,14 +1,13 @@
 import { IShareService, ShareNotFoundError } from "../../services/ShareService";
 import { Share } from "../../models/ShareModel";
-import { User } from "../../models/UserModel";
 
 export class ShareServiceMock implements IShareService {
 	constructor(
 		private readonly shares: Share[]
 	) { }
 
-	public async getSharesByUser(user: User): Promise<Share[]> {
-		return this.shares.filter(share => share.userID === user.id);
+	public async getSharesByUser(userID: string): Promise<Share[]> {
+		return this.shares.filter(share => share.userID === userID);
 	}
 
 	public async getShareByID(id: string): Promise<Share> {

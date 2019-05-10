@@ -12,6 +12,7 @@ import { JsonWebTokenError } from 'jsonwebtoken';
 import { UserIDArg, PermissionsArg } from '../args/user-args';
 import { ShareIDArg } from '../args/share-args';
 import { IPermissionService } from '../services/PermissionsService';
+import { ShareAuth } from '../auth/middleware/share-auth';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -39,10 +40,10 @@ export class UserResolver {
 		@Arg('libOnly', { nullable: true }) libOnly?: boolean
 	): Promise<Share[]> {
 		if (libOnly) {
-			return this.shareService.getSharesByUser(user)
+			return this.shareService.getSharesByUser(user.id)
 				.then(shares => shares.filter(share => share.isLibrary));
 		} else {
-			return this.shareService.getSharesByUser(user);
+			return this.shareService.getSharesByUser(user.id);
 		}
 	}
 
@@ -86,6 +87,8 @@ export class UserResolver {
 		}
 	}
 
+	@Authorized()
+	@ShareAuth({ permissions: ['share:members'] })
 	@Mutation(() => [String], { description: 'Adds permissions to a user and returns the updated permission list' })
 	public async updateUserPermissions(
 		@Args() { userID }: UserIDArg,

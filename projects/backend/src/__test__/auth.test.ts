@@ -338,7 +338,7 @@ describe('auth middleware', () => {
 		test('insufficient permissions', async () => {
 			const shareID = testData.shares.library_user1.id.toString();
 			const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:modify'] }];
-			const middleware = makeShareAuthMiddleware({ checkRef: false, permissions: ['share:member'] }) as Function;
+			const middleware = makeShareAuthMiddleware({ checkRef: false, permissions: ['share:members'] }) as Function;
 			const req = { args: { shareID }, root: undefined, context: makeContext({ scopes }) };
 
 			await expect(middleware(req)).rejects.toThrowError('User has insufficient permissions to perform this action!');
