@@ -1,6 +1,6 @@
 // tslint:disable-next-line:no-import-side-effect
 import "reflect-metadata";
-import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
+import { executeGraphQLQuery, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql";
 import { testData, testPassword } from "../database/seed";
 import { Share } from "../models/ShareModel";
 import { setupTestEnv } from "./utils/setup-test-env";
@@ -9,6 +9,8 @@ import * as argon2 from 'argon2';
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { User } from "../models/UserModel";
 import { plainToClass } from "class-transformer";
+import { Permission } from "../auth/permissions";
+import { Scopes } from "../types/context";
 
 const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => {
 	return `
@@ -245,5 +247,53 @@ describe('issue new auth token', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.errors[0].message.indexOf('An internal server error occured')).toBeGreaterThan(-1);
+	});
+});
+
+describe('update user permissions', () => {
+	const makeUpdateUserPermissionsMutation = (shareID: string, userID: string, permissions: Permission[]) => `
+		mutation{updateUserPermissions(shareID: "${shareID}", userID: "${userID}", permissions: [${permissions.map(permission => `"${permission}"`).join(',')}])}
+	`;
+	const shareID = testData.shares.library_user1.id.toString();
+	const userID = testData.users.user1.id.toString();
+
+	const database = makeMockedDatabase();
+	(<jest.Mock>database.query).mockReturnValue([testData.shares.library_user1]);
+
+	test('valid permission list', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
+		cleanupHooks.push(cleanUp);
+
+		const permissions: Permission[] = ['playlist:create', 'share:members'];
+		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.updateUserPermissions.sort()).toEqual(permissions);
+	});
+
+	test('invalid permission list', async () => {
+		const { graphQLServer } = await setupTestEnv({ mockDatabase: database });
+		const permissions: any[] = ['playlist:createe', 'share:members'];
+
+		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: `Argument Validation Error` }]
+		));
+	});
+
+	test('insufficient permissions', async () => {
+		const { graphQLServer } = await setupTestEnv({ mockDatabase: database });
+		const permissions: Permission[] = ['playlist:create', 'share:members'];
+		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions);
+		const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:modify'] }];
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes });
+
+		expect(body).toMatchObject(insufficientPermissionsError());
 	});
 });

@@ -23,7 +23,7 @@ import uuid = require("uuid");
 import { PlaylistResolver } from "../../resolvers/PlaylistResolver";
 import { PlaylistService } from "../../services/PlaylistService";
 import { makeGraphQLContextProvider, Scopes } from "../../types/context";
-import { Permission } from "../../auth/permissions";
+import { Permissions } from "../../auth/permissions";
 import { PermissionService } from "../../services/PermissionsService";
 
 export interface SetupTestEnvArgs {
@@ -108,11 +108,7 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 	};
 }
 
-export const makeAllScopes = (): Scopes => {
-	const allPermissions: Permission[] = ['playlist:create', 'playlist:modify', 'playlist:mutate_songs', 'song:modify', 'song:upload'];
-
-	return [
-		{ shareID: testData.shares.library_user1.id.toString(), permissions: allPermissions },
-		{ shareID: testData.shares.some_shared_library.id.toString(), permissions: allPermissions },
-	]
-}
+export const makeAllScopes = (): Scopes => [
+	{ shareID: testData.shares.library_user1.id.toString(), permissions: Permissions.ALL },
+	{ shareID: testData.shares.some_shared_library.id.toString(), permissions: Permissions.ALL },
+];

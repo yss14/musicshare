@@ -23,12 +23,9 @@ export const PermissionService = ({ database }: IPermissionServiceArgs): IPermis
 	}
 
 	const addPermissionsForUser = async (shareID: string, userID: string, permissions: Permission[]) => {
-		const currentPermissions = await getPermissionsForUser(shareID, userID);
-		const permissionsToAdd = currentPermissions.concat(permissions);
-
 		await database.query(
 			SharesByUserTable.update(['permissions'], ['user_id', 'id'])
-				([permissionsToAdd], [TimeUUID(userID), TimeUUID(shareID)])
+				([permissions], [TimeUUID(userID), TimeUUID(shareID)])
 		);
 	}
 

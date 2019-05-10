@@ -110,7 +110,7 @@ export class UserResolver {
 
 	@Authorized()
 	@ShareAuth({ permissions: ['share:members'] })
-	@Mutation(() => [String], { description: 'Adds permissions to a user and returns the updated permission list' })
+	@Mutation(() => [String], { description: 'Updates permissions of a user and returns the updated permission list' })
 	public async updateUserPermissions(
 		@Args() { userID }: UserIDArg,
 		@Args() { shareID }: ShareIDArg,
