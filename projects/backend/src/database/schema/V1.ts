@@ -87,4 +87,9 @@ export namespace DatabaseV1 {
 		token_value: { type: ColumnType.Varchar, clusteringKey: true },
 		group: { type: ColumnType.Varchar, partitionKey: true },
 	});
+
+	export const permissions_by_user = TableSchema({
+		user_id: { type: ColumnType.TimeUUID, partitionKey: true },
+		permission: { type: ColumnType.ASCII, partitionKey: true },
+	});
 }

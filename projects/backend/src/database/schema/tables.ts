@@ -13,6 +13,7 @@ export interface IUserLoginCredentialDBResult extends TableRecord<typeof CoreTab
 export interface IPlaylistByShareDBResult extends TableRecord<typeof CoreTables.playlists_by_share> { }
 export interface ISongByPlaylistDBResult extends TableRecord<typeof CoreTables.songs_by_playlist> { }
 export interface ITokenByShareDBResult extends TableRecord<typeof CoreTables.tokens_by_share> { }
+export interface IPermissionByUserDBResult extends TableRecord<typeof CoreTables.permissions_by_user> { }
 
 export const UsersTable = Table(CoreTables, 'users');
 export const SharesByUserTable = Table(CoreTables, 'shares_by_user');
@@ -23,3 +24,4 @@ export const UserLoginCredentialsTable = Table(CoreTables, 'user_login_credentia
 export const PlaylistsByShareTable = Table(CoreTables, 'playlists_by_share');
 export const SongsByPlaylistTable = Table(CoreTables, 'songs_by_playlist');
 export const TokensByShareTable = Table(CoreTables, 'tokens_by_share');
+export const PermissionsByUserTable = Table(CoreTables, 'permissions_by_user');
