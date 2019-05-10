@@ -9,10 +9,9 @@ import { IGraphQLContext } from '../types/context';
 import { AuthTokenBundle } from '../models/AuthTokenBundleModel';
 import { IAuthenticationService } from '../auth/AuthenticationService';
 import { JsonWebTokenError } from 'jsonwebtoken';
-import { UserIDArg } from '../args/user-args';
+import { UserIDArg, PermissionsArg } from '../args/user-args';
 import { ShareIDArg } from '../args/share-args';
 import { IPermissionService } from '../services/PermissionsService';
-import { Permissions } from '../auth/permissions';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -91,9 +90,9 @@ export class UserResolver {
 	public async updateUserPermissions(
 		@Args() { userID }: UserIDArg,
 		@Args() { shareID }: ShareIDArg,
-		@Arg('permissions', () => [String]) permissions: string[],
+		@Args() { permissions }: PermissionsArg,
 	): Promise<string[]> {
-		await this.permissionService.addPermissionsForUser(shareID, userID, permissions.filter(Permissions.isPermission));
+		await this.permissionService.addPermissionsForUser(shareID, userID, permissions);
 
 		return this.permissionService.getPermissionsForUser(shareID, userID);
 	}
