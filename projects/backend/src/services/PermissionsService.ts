@@ -17,7 +17,7 @@ export const PermissionService = ({ database }: IPermissionServiceArgs): IPermis
 	const getPermissionsForUser = async (shareID: string, userID: string): Promise<Permission[]> => {
 		const dbResults = await database.query(
 			SharesByUserTable.select(['permissions'], ['user_id', 'id'])([TimeUUID(userID), TimeUUID(shareID)]));
-		console.log(dbResults)
+
 		return dbResults[0].permissions
 			.filter(Permissions.isPermission);
 	}

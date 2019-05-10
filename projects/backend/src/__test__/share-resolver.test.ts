@@ -277,7 +277,6 @@ describe('get share related data', () => {
 		const query = makeShareQuery(shareID, [makeSharePermissionsQuery()]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
-		console.log(body)
 
 		expect(body.data.share.permissions).toEqual(Permissions.ALL);
 	});
