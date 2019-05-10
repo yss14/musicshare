@@ -17,12 +17,6 @@ export const makeAuthExtractor = (authService: IAuthenticationService, invalidAu
 
 			const tokenDecoded = await authService.verifyToken(authHeader);
 
-			if (!tokenDecoded) {
-				req.context.error = { statusCode: HTTPStatusCodes.UNAUTHORIZED, message: 'AuthToken invalid' };
-
-				return next();
-			}
-
 			if (invalidAuthTokenStore.isInvalid(tokenDecoded.tokenID)) {
 				req.context.error = { statusCode: HTTPStatusCodes.UNAUTHORIZED, message: 'AuthToken invalid' };
 
@@ -35,6 +29,7 @@ export const makeAuthExtractor = (authService: IAuthenticationService, invalidAu
 
 			next();
 		} catch (err) {
+			// istanbul ignore next
 			if (err.name !== 'JsonWebTokenError') {
 				console.error(err);
 
