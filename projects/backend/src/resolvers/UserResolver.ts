@@ -5,7 +5,7 @@ import { Share } from '../models/ShareModel';
 import { IUserService, UserNotFoundError } from '../services/UserService';
 import { IPasswordLoginService, LoginNotFound, LoginCredentialsInvalid } from '../auth/PasswordLoginService';
 import { InternalServerError } from '../types/internal-server-error';
-import { IGraphQLContext } from '../types/context';
+import { IGraphQLContext, IShareScope } from '../types/context';
 import { AuthTokenBundle } from '../models/AuthTokenBundleModel';
 import { IAuthenticationService } from '../auth/AuthenticationService';
 import { JsonWebTokenError } from 'jsonwebtoken';
@@ -53,9 +53,14 @@ export class UserResolver {
 		@Arg('password', { description: 'Plain text, hashing takes place at server side' }) password: string,
 	): Promise<AuthTokenBundle> {
 		try {
-			const authTokenBundle = await this.passwordLoginService.login(email, password);
+			const refreshToken = await this.passwordLoginService.login(email, password);
+			const refreshTokenDecoded = await this.authService.verifyToken(refreshToken);
+			const user = await this.userService.getUserByEMail(email);
 
-			return authTokenBundle;
+			const shareScopes = await this.getUserShareScopes(user.id);
+			const authToken = await this.authService.issueAuthToken(user, shareScopes, refreshTokenDecoded.tokenID);
+
+			return AuthTokenBundle.create(refreshToken, authToken);
 		} catch (err) {
 			if (err instanceof LoginNotFound || err instanceof LoginCredentialsInvalid) {
 				throw new LoginCredentialsInvalid();
@@ -73,7 +78,8 @@ export class UserResolver {
 			const refreshTokenDecoded = await this.authService.verifyToken(refreshToken);
 			const user = await this.userService.getUserByID(refreshTokenDecoded.userID);
 
-			const authToken = await this.authService.issueAuthToken(user, [], refreshTokenDecoded.tokenID); // TODO add scopes
+			const shareScopes = await this.getUserShareScopes(user.id);
+			const authToken = await this.authService.issueAuthToken(user, shareScopes, refreshTokenDecoded.tokenID);
 
 			return authToken;
 		} catch (err) {
@@ -85,6 +91,21 @@ export class UserResolver {
 				throw new InternalServerError(err);
 			}
 		}
+	}
+
+	private async getUserShareScopes(userID: string): Promise<IShareScope[]> {
+		const shares = await this.shareService.getSharesByUser(userID);
+
+		const userSharePermissions = await Promise.all(
+			shares.map(share => this.permissionService.getPermissionsForUser(share.id, userID))
+		);
+		const shareScopes = userSharePermissions.map((permissions, idx): IShareScope => {
+			const share = shares[idx];
+
+			return { shareID: share.id, permissions };
+		});
+
+		return shareScopes;
 	}
 
 	@Authorized()
