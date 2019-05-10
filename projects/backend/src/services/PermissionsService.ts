@@ -17,15 +17,14 @@ export const PermissionService = ({ database }: IPermissionServiceArgs): IPermis
 	const getPermissionsForUser = async (shareID: string, userID: string): Promise<Permission[]> => {
 		const dbResults = await database.query(
 			SharesByUserTable.select(['permissions'], ['user_id', 'id'])([TimeUUID(userID), TimeUUID(shareID)]));
-
-		return dbResults
-			.map(dbResult => dbResult.permission)
+		console.log(dbResults)
+		return dbResults[0].permissions
 			.filter(Permissions.isPermission);
 	}
 
 	const addPermissionsForUser = async (shareID: string, userID: string, permissions: Permission[]) => {
 		const currentPermissions = await getPermissionsForUser(shareID, userID);
-		const permissionsToAdd = permissions.filter(permission => !currentPermissions.includes(permission));
+		const permissionsToAdd = currentPermissions.concat(permissions);
 
 		await database.query(
 			SharesByUserTable.update(['permissions'], ['user_id', 'id'])
