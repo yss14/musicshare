@@ -6,7 +6,7 @@
 	"private": true,
 	"scripts": {
 		"start": "npm run build && cross-env NODE_ENV=development node build/index.js",
-		"start:watch": "tsc-watch --project tsconfig.json --compiler ../../../projects/backend/node_modules/typescript/bin/tsc --preserveWatchOutput --onSuccess \"cross-env NODE_ENV=development node build/index.js\"",
+		"start:watch": "tsc-watch --project tsconfig.json --preserveWatchOutput --onSuccess \"cross-env NODE_ENV=development node build/index.js\"",
 		"build": "tsc --project tsconfig.json",
 		"dev": "concurrently \"npm run azurite\" \"npm run start:watch\"",
 		"azurite": "azurite-blob -l azurite",
@@ -40,8 +40,7 @@
 		"azurite": "^2.7.0",
 		"cross-env": "^5.2.0",
 		"dotenv": "^7.0.0",
-		"find-free-port": "^2.0.0",
-		"typescript": "^3.4.5"
+		"find-free-port": "^2.0.0"
 	},
 	"dependencies": {
 		"@types/graphql": "^14.2.0",
