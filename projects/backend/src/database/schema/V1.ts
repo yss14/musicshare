@@ -35,7 +35,8 @@ export namespace DatabaseV1 {
 		id: { type: ColumnType.TimeUUID, clusteringKey: true },
 		name: { type: ColumnType.Varchar, nullable: false },
 		user_id: { type: ColumnType.TimeUUID, partitionKey: true },
-		is_library: { type: ColumnType.Boolean, nullable: false }
+		is_library: { type: ColumnType.Boolean, nullable: false },
+		permissions: { type: CSet(ColumnType.ASCII), nullable: false },
 	});
 
 	export const songs_by_shares = TableSchema({
@@ -86,10 +87,5 @@ export namespace DatabaseV1 {
 	export const tokens_by_share = TableSchema({
 		token_value: { type: ColumnType.Varchar, clusteringKey: true },
 		group: { type: ColumnType.Varchar, partitionKey: true },
-	});
-
-	export const permissions_by_user = TableSchema({
-		user_id: { type: ColumnType.TimeUUID, partitionKey: true },
-		permission: { type: ColumnType.ASCII, partitionKey: true },
 	});
 }
