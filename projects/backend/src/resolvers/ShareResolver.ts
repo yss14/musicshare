@@ -117,7 +117,15 @@ export class ShareResolver {
 	public async permissions(
 		@Root() share: Share
 	): Promise<string[]> {
-		console.log('query')
 		return this.permissionService.getAvailablePermissions();
+	}
+
+	@Authorized()
+	@FieldResolver(() => [String])
+	public async userPermissions(
+		@Root() share: Share,
+		@Ctx() ctx: IGraphQLContext,
+	): Promise<string[]> {
+		return this.permissionService.getPermissionsForUser(share.id.toString(), ctx.userID!);
 	}
 }
