@@ -61,7 +61,7 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 
 	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService, permissionService);
 	const songResolver = new SongResolver(fileService, songService);
-	const userResolver = new UserResolver(userService, shareService, passwordLoginService, authService);
+	const userResolver = new UserResolver(userService, shareService, passwordLoginService, authService, permissionService);
 	const playlistResolver = new PlaylistResolver(playlistService);
 
 	Container.of(testID).set(ShareResolver, shareResolver);
@@ -70,7 +70,7 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 	Container.of(testID).set(PlaylistResolver, playlistResolver);
 
 	const seed = async (songService: SongService) => {
-		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService, playlistService });
+		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService, playlistService, permissionService });
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	}
 

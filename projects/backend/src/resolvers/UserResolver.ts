@@ -1,6 +1,6 @@
 import { IShareService } from '../services/ShareService';
 import { User } from '../models/UserModel';
-import { Resolver, Arg, Query, FieldResolver, Root, Mutation, Authorized, Ctx } from "type-graphql";
+import { Resolver, Arg, Query, FieldResolver, Root, Mutation, Authorized, Ctx, Args } from "type-graphql";
 import { Share } from '../models/ShareModel';
 import { IUserService, UserNotFoundError } from '../services/UserService';
 import { IPasswordLoginService, LoginNotFound, LoginCredentialsInvalid } from '../auth/PasswordLoginService';
@@ -9,6 +9,10 @@ import { IGraphQLContext } from '../types/context';
 import { AuthTokenBundle } from '../models/AuthTokenBundleModel';
 import { IAuthenticationService } from '../auth/AuthenticationService';
 import { JsonWebTokenError } from 'jsonwebtoken';
+import { UserIDArg } from '../args/user-args';
+import { ShareIDArg } from '../args/share-args';
+import { IPermissionService } from '../services/PermissionsService';
+import { Permissions } from '../auth/permissions';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -18,6 +22,7 @@ export class UserResolver {
 		private readonly shareService: IShareService,
 		private readonly passwordLoginService: IPasswordLoginService,
 		private readonly authService: IAuthenticationService,
+		private readonly permissionService: IPermissionService,
 	) { }
 
 	@Authorized()
@@ -80,5 +85,16 @@ export class UserResolver {
 				throw new InternalServerError(err);
 			}
 		}
+	}
+
+	@Mutation(() => [String], { description: 'Adds permissions to a user and returns the updated permission list' })
+	public async updateUserPermissions(
+		@Args() { userID }: UserIDArg,
+		@Args() { shareID }: ShareIDArg,
+		@Arg('permissions', () => [String]) permissions: string[],
+	): Promise<string[]> {
+		await this.permissionService.addPermissionsForUser(shareID, userID, permissions.filter(Permissions.isPermission));
+
+		return this.permissionService.getPermissionsForUser(shareID, userID);
 	}
 }

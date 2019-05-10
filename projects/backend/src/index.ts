@@ -107,7 +107,7 @@ if (!isProductionEnvironment()) {
 
 	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService, permissionService);
 	const songResolver = new SongResolver(fileService, songService);
-	const userResolver = new UserResolver(userService, shareService, passwordLoginService, authService);
+	const userResolver = new UserResolver(userService, shareService, passwordLoginService, authService, permissionService);
 	const playlistResolver = new PlaylistResolver(playlistService);
 
 	Container.set(ShareResolver, shareResolver);
@@ -116,7 +116,7 @@ if (!isProductionEnvironment()) {
 	Container.set(PlaylistResolver, playlistResolver);
 
 	if (__DEV__) {
-		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService, playlistService });
+		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService, playlistService, permissionService });
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	} else if (__PROD__) {
 		await makeDatabaseSchema(database, { keySpace: databaseKeyspace });

@@ -15,6 +15,8 @@ import { IGenreService } from '../services/GenreService';
 import { Genre } from '../models/GenreModel';
 import { IPasswordLoginService } from '../auth/PasswordLoginService';
 import { IPlaylistService } from '../services/PlaylistService';
+import { IPermissionService } from '../services/PermissionsService';
+import { Permissions } from '../auth/permissions';
 
 type Users = 'user1' | 'user2';
 type Shares = 'library_user1' | 'library_user2' | 'some_shared_library';
@@ -111,19 +113,22 @@ export const testData: ITestDataSchema = {
 			id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			name: 'Share Yss',
 			user_id: TimeUUID('f0d8e1f0-aeb1-11e8-a117-43673ffd376b'),
-			is_library: true
+			is_library: true,
+			permissions: Permissions.ALL,
 		},
 		library_user2: {
 			id: TimeUUID('f0d659e0-aeb1-11e8-a117-43673ffd376b'),
 			name: 'Share Simon',
 			user_id: TimeUUID('f0d8e1f1-aeb1-11e8-a117-43673ffd376b'),
-			is_library: true
+			is_library: true,
+			permissions: Permissions.ALL,
 		},
 		some_shared_library: {
 			id: TimeUUID('f0d359e0-aeb1-11e8-a117-43673ffd376b'),
 			name: 'Some Shared Library',
 			user_id: TimeUUID('f0d8e1f0-aeb1-11e8-a117-43673ffd376b'),
-			is_library: false
+			is_library: false,
+			permissions: Permissions.ALL,
 		}
 	},
 	songs: {
@@ -171,9 +176,10 @@ interface IMakeDatabaseSeedArgs {
 	genreService: IGenreService;
 	passwordLoginService: IPasswordLoginService;
 	playlistService: IPlaylistService;
+	permissionService: IPermissionService;
 }
 
-export const makeDatabaseSeed = ({ database, songService, songTypeService, genreService, passwordLoginService, playlistService }: IMakeDatabaseSeedArgs): DatabaseSeed =>
+export const makeDatabaseSeed = ({ database, songService, songTypeService, genreService, passwordLoginService, playlistService, permissionService }: IMakeDatabaseSeedArgs): DatabaseSeed =>
 	async (): Promise<void> => {
 
 		if (!__PROD__) {
