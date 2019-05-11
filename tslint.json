@@ -33,7 +33,7 @@
 			true,
 			"check-accessor"
 		],
-		"no-empty-interface": true,
+		"no-empty-interface": false,
 		"no-import-side-effect": true,
 		"no-parameter-reassignment": true,
 		"only-arrow-functions": [

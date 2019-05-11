@@ -11,6 +11,8 @@ import { songKeys } from "./fixtures/song-query";
 import moment = require("moment");
 import { Playlist } from "../models/PlaylistModel";
 import { sortBy } from 'lodash';
+import { makeMockedDatabase } from "./mocks/mock-database";
+import { Permissions } from "../auth/permissions";
 
 const makeShareQuery = (id: string, additionalQueries: string[] = []) => {
 	return `
@@ -50,28 +52,6 @@ const makeShareSongQuery = (id: string, props: string[] = []) => {
 		}
 	`;
 }
-
-const makeShareSongTypesQuery = () => `
-	songTypes{
-		name,
-		group,
-		hasArtists,
-		alternativeNames
-	}
-`;
-
-const makeShareGenresQuery = () => `
-	genres{
-		name,
-		group
-	}
-`;
-
-const makeShareArtistsQuery = () => `
-	artists{
-		name
-	}
-`;
 
 const makeSharePlaylistsQuery = () => `
 	playlists{
@@ -241,6 +221,11 @@ describe('get share song', () => {
 });
 
 describe('get share related data', () => {
+	const makeShareSongTypesQuery = () => `songTypes{name,group,hasArtists,alternativeNames}`;
+	const makeShareGenresQuery = () => `genres{name,group}`;
+	const makeShareArtistsQuery = () => `artists{name}`;
+	const makeSharePermissionsQuery = () => `permissions`;
+
 	test('get share song types', async () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
@@ -283,6 +268,18 @@ describe('get share related data', () => {
 			'Alastor'
 		].map(Artist.fromString));
 	});
+
+	test('get share permissions', async () => {
+		const database = makeMockedDatabase();
+		(<jest.Mock>database.query).mockReturnValue([testData.shares.library_user1])
+		const { graphQLServer } = await setupTestEnv({ mockDatabase: database });
+		const shareID = testData.shares.library_user1.id.toString();
+		const query = makeShareQuery(shareID, [makeSharePermissionsQuery()]);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.share.permissions).toEqual(Permissions.ALL);
+	});
 });
 
 describe('get share playlists', () => {
@@ -317,5 +314,22 @@ describe('get share playlists', () => {
 
 		expect(body.data.share.playlist)
 			.toEqual(JSON.parse(JSON.stringify(Playlist.fromDBResult(testData.playlists.playlist1_library_user1))))
+	});
+});
+
+describe('get user permissions', () => {
+	const makeGetUserPermissionsQuery = () => `userPermissions`;
+
+	test('get user permissions', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
+		cleanupHooks.push(cleanUp);
+
+		const shareID = testData.shares.library_user1.id.toString();
+		const query = makeShareQuery(shareID, [makeGetUserPermissionsQuery()]);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.share.userPermissions).toBeArrayOfSize(Permissions.ALL.length);
+		expect(body.data.share.userPermissions).toContainAllValues(Permissions.ALL);
 	});
 });

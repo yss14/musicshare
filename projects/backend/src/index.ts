@@ -34,6 +34,8 @@ import { v4 as uuid } from 'uuid';
 import { MP3SongDuration } from "./utils/song-meta/song-meta-formats/id3/MP3SongDuration";
 import { PlaylistService } from "./services/PlaylistService";
 import { PlaylistResolver } from "./resolvers/PlaylistResolver";
+import { AuthTokenStore } from "./auth/AuthTokenStore";
+import { PermissionService } from "./services/PermissionsService";
 
 // enable source map support for error stacks
 require('source-map-support').install();
@@ -100,10 +102,12 @@ if (!isProductionEnvironment()) {
 	const authService = new AuthenticationService(process.env[CustomEnv.JWT_SECRET] || uuid());
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
 	const playlistService = PlaylistService({ database, songService });
+	const invalidAuthTokenStore = AuthTokenStore({ database, tokenGroup: 'authtoken' });
+	const permissionService = PermissionService({ database });
 
-	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService);
+	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService, permissionService);
 	const songResolver = new SongResolver(fileService, songService);
-	const userResolver = new UserResolver(userService, shareService, passwordLoginService);
+	const userResolver = new UserResolver(userService, shareService, passwordLoginService, authService, permissionService);
 	const playlistResolver = new PlaylistResolver(playlistService);
 
 	Container.set(ShareResolver, shareResolver);
@@ -112,11 +116,16 @@ if (!isProductionEnvironment()) {
 	Container.set(PlaylistResolver, playlistResolver);
 
 	if (__DEV__) {
-		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService, playlistService });
+		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService, playlistService, permissionService });
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
 	} else if (__PROD__) {
 		await makeDatabaseSchema(database, { keySpace: databaseKeyspace });
 	}
+
+	await invalidAuthTokenStore.load();
+	setTimeout(async () => {
+		await invalidAuthTokenStore.persist();
+	}, 10000);
 
 	const graphQLServer = await makeGraphQLServer<IGraphQLContext>(
 		Container,
@@ -125,7 +134,12 @@ if (!isProductionEnvironment()) {
 		UserResolver, ShareResolver, SongResolver
 	);
 
-	const server = HTTPServer({ graphQLServer, fileService, uploadProcessingQueue: songProcessingQueue, authExtractor: makeAuthExtractor(authService) });
+	const server = HTTPServer({
+		graphQLServer,
+		fileService,
+		uploadProcessingQueue: songProcessingQueue,
+		authExtractor: makeAuthExtractor(authService, invalidAuthTokenStore)
+	});
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000);
 	await server.start('/graphql', serverPort);
 

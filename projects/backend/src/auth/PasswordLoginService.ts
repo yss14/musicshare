@@ -59,9 +59,9 @@ export const PasswordLoginService = ({ authService, database, userService }: IPa
 
 		const user = await userService.getUserByEMail(email);
 
-		const authToken = await authService.issueToken(user, []); // TODO add scopes
+		const refreshToken = await authService.issueRefreshToken(user);
 
-		return authToken;
+		return refreshToken;
 	}
 
 	const hashPassword = (password: string) => argon2.hash(password);

@@ -14,6 +14,7 @@ import { IPlaylistService } from '../services/PlaylistService';
 import { PlaylistIDArg } from '../args/playlist-args';
 import { ShareAuth } from '../auth/middleware/share-auth';
 import { IGraphQLContext } from '../types/context';
+import { IPermissionService } from '../services/PermissionsService';
 
 @Resolver(of => Share)
 export class ShareResolver {
@@ -24,6 +25,7 @@ export class ShareResolver {
 		private readonly genreService: IGenreService,
 		private readonly artistService: IArtistService,
 		private readonly playlistService: IPlaylistService,
+		private readonly permissionService: IPermissionService,
 	) { }
 
 	@Authorized()
@@ -108,5 +110,22 @@ export class ShareResolver {
 		@Args() { playlistID }: PlaylistIDArg,
 	): Promise<Playlist> {
 		return this.playlistService.getByID(share.id, playlistID);
+	}
+
+	@Authorized()
+	@FieldResolver(() => [String])
+	public async permissions(
+		@Root() share: Share
+	): Promise<string[]> {
+		return this.permissionService.getAvailablePermissions();
+	}
+
+	@Authorized()
+	@FieldResolver(() => [String])
+	public async userPermissions(
+		@Root() share: Share,
+		@Ctx() ctx: IGraphQLContext,
+	): Promise<string[]> {
+		return this.permissionService.getPermissionsForUser(share.id.toString(), ctx.userID!);
 	}
 }

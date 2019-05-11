@@ -1,4 +1,3 @@
-import { User } from '../models/UserModel';
 import { Share } from '../models/ShareModel';
 import { SharesByUserTable } from '../database/schema/tables';
 import { TimeUUID } from '../types/TimeUUID';
@@ -11,7 +10,7 @@ export class ShareNotFoundError extends Error {
 }
 
 export interface IShareService {
-	getSharesByUser(user: User): Promise<Share[]>;
+	getSharesByUser(userID: string): Promise<Share[]>;
 	getShareByID(shareID: string, userID: string): Promise<Share>;
 }
 
@@ -20,9 +19,9 @@ export class ShareService implements IShareService {
 		private readonly database: IDatabaseClient,
 	) { }
 
-	public async getSharesByUser(user: User): Promise<Share[]> {
+	public async getSharesByUser(userID: string): Promise<Share[]> {
 		const dbResults = await this.database.query(
-			SharesByUserTable.select('*', ['user_id'])([TimeUUID(user.id)])
+			SharesByUserTable.select('*', ['user_id'])([TimeUUID(userID)])
 		);
 
 		return dbResults.map(Share.fromDBResult);
@@ -33,7 +32,7 @@ export class ShareService implements IShareService {
 			SharesByUserTable.select('*', ['id', 'user_id'])([TimeUUID(shareID), TimeUUID(userID)])
 		);
 
-		if (dbResults.length === 0) {
+		if (!dbResults || dbResults.length === 0) {
 			throw new ShareNotFoundError(shareID);
 		}
 
