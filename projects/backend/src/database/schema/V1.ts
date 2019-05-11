@@ -78,7 +78,7 @@ export namespace DatabaseV1 {
 	export const songs_by_playlist = TableSchema({
 		...baseSchema,
 		...song_base_schema,
-		share_id: { type: ColumnType.TimeUUID, nullable: false }, // not required to be partitionKey for our queries
+		share_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		playlist_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		position: { type: ColumnType.Int, nullable: false },
 		date_added: { type: ColumnType.Timestamp, nullable: false },

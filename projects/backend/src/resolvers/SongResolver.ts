@@ -6,12 +6,14 @@ import moment = require('moment');
 import { SongUpdateInput } from '../inputs/SongInput';
 import { ISongService } from '../services/SongService';
 import { SongAuth } from '../auth/middleware/song-auth';
+import { IPlaylistService } from '../services/PlaylistService';
 
 @Resolver(of => Song)
 export class SongResolver implements ResolverInterface<ShareSong>{
 	constructor(
 		private readonly fileService: FileService,
 		private readonly songService: ISongService,
+		private readonly playlistService: IPlaylistService,
 	) { }
 
 	@Authorized()
@@ -44,6 +46,7 @@ export class SongResolver implements ResolverInterface<ShareSong>{
 	): Promise<ShareSong | null> {
 		if (song.isValid()) {
 			await this.songService.update(shareID, songID, song);
+			await this.playlistService.updateSong(shareID, songID, song);
 
 			return this.songService.getByID(shareID, songID);
 		}

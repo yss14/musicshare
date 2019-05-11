@@ -21,7 +21,7 @@ export class PlaylistResolver {
 	public async songs(
 		@Root() playlist: Playlist,
 	): Promise<PlaylistSong[]> {
-		return this.playlistService.getSongs(playlist.id);
+		return this.playlistService.getSongs(playlist.shareID, playlist.id);
 	}
 
 	@Authorized()
@@ -69,7 +69,7 @@ export class PlaylistResolver {
 	): Promise<PlaylistSong[]> {
 		await this.playlistService.addSongs(shareID, playlistID, songIDs);
 
-		return this.playlistService.getSongs(playlistID);
+		return this.playlistService.getSongs(shareID, playlistID);
 	}
 
 	@Authorized()
@@ -80,9 +80,9 @@ export class PlaylistResolver {
 		@Args() { playlistID }: PlaylistIDArg,
 		@Args() { songIDs }: SongIDsArg,
 	): Promise<PlaylistSong[]> {
-		await this.playlistService.removeSongs(playlistID, songIDs);
+		await this.playlistService.removeSongs(shareID, playlistID, songIDs);
 
-		return this.playlistService.getSongs(playlistID);
+		return this.playlistService.getSongs(shareID, playlistID);
 	}
 
 	@Authorized()
@@ -93,9 +93,9 @@ export class PlaylistResolver {
 		@Args() { playlistID }: PlaylistIDArg,
 		@Arg('orderUpdates', () => [OrderUpdateScalar]) orderUpdates: OrderUpdate[],
 	): Promise<PlaylistSong[]> {
-		await this.playlistService.updateOrder(playlistID, orderUpdates);
+		await this.playlistService.updateOrder(shareID, playlistID, orderUpdates);
 
-		const playlistSongs = await this.playlistService.getSongs(playlistID);
+		const playlistSongs = await this.playlistService.getSongs(shareID, playlistID);
 
 		return sortBy(playlistSongs, 'position');
 	}

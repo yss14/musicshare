@@ -31,7 +31,7 @@ describe('update song mutation', () => {
 	const mockDatabase = makeMockedDatabase();
 	(<jest.Mock>mockDatabase.query).mockReturnValue([song]);
 
-	test('valid input', async () => {
+	test.only('valid input', async () => {
 		const { graphQLServer, cleanUp } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
@@ -46,6 +46,7 @@ describe('update song mutation', () => {
 		const timestampBeforeUpdate = Date.now();
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		console.log(body)
 
 		const { updateSong } = body.data;
 
