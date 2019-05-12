@@ -34,7 +34,6 @@ export interface SetupTestEnvArgs {
 
 // tslint:disable:no-parameter-reassignment
 export const setupTestEnv = async ({ seedDatabase, database }: SetupTestEnvArgs) => {
-	//const startTimeOverall = Date.now();
 	seedDatabase = seedDatabase || true;
 
 	if (isMockedDatabase(database)) {
@@ -83,7 +82,6 @@ export const setupTestEnv = async ({ seedDatabase, database }: SetupTestEnvArgs)
 	);
 
 	const allScopes = makeAllScopes();
-	//console.log(`Overall ${Date.now() - startTimeOverall}ms`);
 
 	return {
 		graphQLServer,
