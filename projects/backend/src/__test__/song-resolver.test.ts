@@ -31,8 +31,8 @@ describe('update song mutation', () => {
 	const mockDatabase = makeMockedDatabase();
 	(<jest.Mock>mockDatabase.query).mockReturnValue([song]);
 
-	test.only('valid input', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
+	test('valid input', async () => {
+		const { graphQLServer, cleanUp, playlistService } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const input: any = <SongUpdateInput>{
@@ -46,12 +46,22 @@ describe('update song mutation', () => {
 		const timestampBeforeUpdate = Date.now();
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
-		console.log(body)
 
 		const { updateSong } = body.data;
 
 		expect(updateSong).toMatchObject(input);
 		expect(updateSong.dateLastEdit).toBeGreaterThan(timestampBeforeUpdate);
+
+		const playlist1 = testData.playlists.playlist1_library_user1;
+		const playlist2 = testData.playlists.playlist2_library_user1;
+		const songsPlaylist1 = await playlistService.getSongs(share.id.toString(), playlist1.id.toString());
+		const songsPlaylist2 = await playlistService.getSongs(share.id.toString(), playlist2.id.toString());
+
+		expect(songsPlaylist1).toBeArrayOfSize(playlist1.songs.length);
+		expect(songsPlaylist2).toBeArrayOfSize(playlist1.songs.length); // playlist1.songs.length due to duplicates
+
+		expect(songsPlaylist1.find(playlistSong => playlistSong.id === song.id.toString())).toMatchObject(input);
+		expect(songsPlaylist2.find(playlistSong => playlistSong.id === song.id.toString())).toMatchObject(input);
 	});
 
 	test('title null', async () => {

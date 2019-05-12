@@ -45,10 +45,16 @@ export class SongResolver implements ResolverInterface<ShareSong>{
 		@Arg('song') song: SongUpdateInput
 	): Promise<ShareSong | null> {
 		if (song.isValid()) {
-			await this.songService.update(shareID, songID, song);
-			await this.playlistService.updateSong(shareID, songID, song);
+			try {
+				await this.songService.update(shareID, songID, song);
+				await this.playlistService.updateSong(shareID, songID, song);
 
-			return this.songService.getByID(shareID, songID);
+				return this.songService.getByID(shareID, songID);
+			} catch (err) {
+				console.error(err);
+
+				return null;
+			}
 		}
 
 		// istanbul ignore next
