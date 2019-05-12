@@ -60,7 +60,7 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 	const permissionService = PermissionService({ database });
 
 	const shareResolver = new ShareResolver(shareService, songService, songTypeService, genreService, artistService, playlistService, permissionService);
-	const songResolver = new SongResolver(fileService, songService);
+	const songResolver = new SongResolver(fileService, songService, playlistService);
 	const userResolver = new UserResolver(userService, shareService, passwordLoginService, authService, permissionService);
 	const playlistResolver = new PlaylistResolver(playlistService);
 

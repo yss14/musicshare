@@ -161,7 +161,7 @@ export interface ITable<C extends Columns> {
 }
 
 type NonEmpty<Type> = [Type, ...Type[]];
-type Keys<C extends Columns> = (keyof C)[] & (NonEmpty<keyof C> | []);
+export type Keys<C extends Columns> = (keyof C)[] & (NonEmpty<keyof C> | []);
 
 export const Table =
 	<Tables extends { [key: string]: Columns }, Table extends Extract<keyof Tables, string>>

@@ -33,7 +33,7 @@ interface ITestDataSchema {
 export const testPassword = 'test1234';
 
 const songZeroOliverSmith: ISongByShareDBResult = {
-	id: TimeUUID(moment().subtract(3, 'hours').toDate()),
+	song_id: TimeUUID(moment().subtract(3, 'hours').toDate()),
 	title: 'Zero',
 	suffix: null,
 	year: 2018,
@@ -54,7 +54,7 @@ const songZeroOliverSmith: ISongByShareDBResult = {
 }
 
 const songPerthDusky: ISongByShareDBResult = {
-	id: TimeUUID(moment().subtract(2, 'hours').toDate()),
+	song_id: TimeUUID(moment().subtract(2, 'hours').toDate()),
 	title: 'Perth',
 	suffix: null,
 	year: 2018,
@@ -75,7 +75,7 @@ const songPerthDusky: ISongByShareDBResult = {
 }
 
 const songContactAlastor: ISongByShareDBResult = {
-	id: TimeUUID(moment().subtract(1, 'hour').toDate()),
+	song_id: TimeUUID(moment().subtract(1, 'hour').toDate()),
 	title: 'Contact',
 	suffix: null,
 	year: 2019,
@@ -144,21 +144,21 @@ export const testData: ITestDataSchema = {
 	},
 	playlists: {
 		playlist1_library_user1: {
-			id: TimeUUID(moment().subtract(1, 'hours').toDate()),
+			playlist_id: TimeUUID(moment().subtract(1, 'hours').toDate()),
 			name: 'Playlist 1',
 			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			date_removed: null,
 			songs: [songZeroOliverSmith, songPerthDusky, songContactAlastor],
 		},
 		playlist2_library_user1: {
-			id: TimeUUID(moment().subtract(1, 'day').toDate()),
+			playlist_id: TimeUUID(moment().subtract(1, 'day').toDate()),
 			name: 'Playlist 2',
 			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			date_removed: null,
 			songs: [songZeroOliverSmith, songPerthDusky, songContactAlastor, songZeroOliverSmith, songPerthDusky, songContactAlastor],
 		},
 		playlist_some_shared_library: {
-			id: TimeUUID(moment().subtract(1, 'hours').toDate()),
+			playlist_id: TimeUUID(moment().subtract(1, 'hours').toDate()),
 			name: 'Some Shared Playlist 1',
 			share_id: TimeUUID('f0d359e0-aeb1-11e8-a117-43673ffd376b'),
 			date_removed: null,
@@ -204,12 +204,12 @@ export const makeDatabaseSeed = ({ database, songService, songTypeService, genre
 			}
 
 			for (const playlist of Object.values(testData.playlists)) {
-				await playlistService.create(playlist.share_id.toString(), playlist.name, playlist.id.toString());
+				await playlistService.create(playlist.share_id.toString(), playlist.name, playlist.playlist_id.toString());
 
 				await playlistService.addSongs(
 					playlist.share_id.toString(),
-					playlist.id.toString(),
-					playlist.songs.map(song => song.id.toString())
+					playlist.playlist_id.toString(),
+					playlist.songs.map(song => song.song_id.toString())
 				);
 			}
 		}
@@ -218,7 +218,7 @@ export const makeDatabaseSeed = ({ database, songService, songTypeService, genre
 			const prefilledArray = createPrefilledArray(100, {});
 			const songInserts = prefilledArray
 				.map((_, idx): Required<ISongByShareDBResult> => ({
-					id: TimeUUID(),
+					song_id: TimeUUID(),
 					title: faker.name.findName(),
 					suffix: null,
 					year: null,

@@ -71,7 +71,7 @@ export class ShareSong extends Song implements Nullable<ISong>{
 
 // istanbul ignore next
 const songMapper = (row: ISongBaseDBResult) => ({
-	id: row.id.toString(),
+	id: row.song_id.toString(),
 	title: row.title,
 	suffix: row.suffix,
 	year: row.year,

@@ -23,6 +23,10 @@ export const getShareIDFromRequest = ({ args, root }: { args: ArgsDictionary, ro
 		return root.id;
 	}
 
+	if (root instanceof Playlist) {
+		return root.shareID;
+	}
+
 	if (typeof args.shareID === 'string') {
 		return args.shareID;
 	}

@@ -32,7 +32,7 @@ describe('update song mutation', () => {
 	(<jest.Mock>mockDatabase.query).mockReturnValue([song]);
 
 	test('valid input', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
+		const { graphQLServer, cleanUp, playlistService } = await setupTestEnv({});
 		cleanupHooks.push(cleanUp);
 
 		const input: any = <SongUpdateInput>{
@@ -42,7 +42,7 @@ describe('update song mutation', () => {
 			label: null,
 			artists: ['Some new artist'],
 		}
-		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
+		const query = makeUpdateSongMutation(share.id.toString(), song.song_id.toString(), input);
 		const timestampBeforeUpdate = Date.now();
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -51,6 +51,17 @@ describe('update song mutation', () => {
 
 		expect(updateSong).toMatchObject(input);
 		expect(updateSong.dateLastEdit).toBeGreaterThan(timestampBeforeUpdate);
+
+		const playlist1 = testData.playlists.playlist1_library_user1;
+		const playlist2 = testData.playlists.playlist2_library_user1;
+		const songsPlaylist1 = await playlistService.getSongs(share.id.toString(), playlist1.playlist_id.toString());
+		const songsPlaylist2 = await playlistService.getSongs(share.id.toString(), playlist2.playlist_id.toString());
+
+		expect(songsPlaylist1).toBeArrayOfSize(playlist1.songs.length);
+		expect(songsPlaylist2).toBeArrayOfSize(playlist1.songs.length); // playlist1.songs.length due to duplicates
+
+		expect(songsPlaylist1.find(playlistSong => playlistSong.id === song.song_id.toString())).toMatchObject(input);
+		expect(songsPlaylist2.find(playlistSong => playlistSong.id === song.song_id.toString())).toMatchObject(input);
 	});
 
 	test('title null', async () => {
@@ -59,7 +70,7 @@ describe('update song mutation', () => {
 		const input: any = <SongUpdateInput>{
 			title: null as any,
 		}
-		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
+		const query = makeUpdateSongMutation(share.id.toString(), song.song_id.toString(), input);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -75,7 +86,7 @@ describe('update song mutation', () => {
 		const input: any = <SongUpdateInput>{
 			title: '',
 		}
-		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
+		const query = makeUpdateSongMutation(share.id.toString(), song.song_id.toString(), input);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -91,7 +102,7 @@ describe('update song mutation', () => {
 		const input: any = <SongUpdateInput>{
 			year: 195,
 		}
-		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
+		const query = makeUpdateSongMutation(share.id.toString(), song.song_id.toString(), input);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -107,7 +118,7 @@ describe('update song mutation', () => {
 		const input: any = <SongUpdateInput>{
 			artists: ['some valid', ''],
 		}
-		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
+		const query = makeUpdateSongMutation(share.id.toString(), song.song_id.toString(), input);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -123,7 +134,7 @@ describe('update song mutation', () => {
 		const input: any = <SongUpdateInput>{
 			artists: null as any,
 		}
-		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
+		const query = makeUpdateSongMutation(share.id.toString(), song.song_id.toString(), input);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -139,7 +150,7 @@ describe('update song mutation', () => {
 		const input: any = <SongUpdateInput>{
 			artists: ['some valid', null],
 		}
-		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
+		const query = makeUpdateSongMutation(share.id.toString(), song.song_id.toString(), input);
 
 		await executeGraphQLQuery({ graphQLServer, query, expectedHTTPCode: HTTPStatusCodes.BAD_REQUEST });
 	});
@@ -150,7 +161,7 @@ describe('update song mutation', () => {
 		const input: any = <SongUpdateInput>{
 			type: null as any,
 		}
-		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
+		const query = makeUpdateSongMutation(share.id.toString(), song.song_id.toString(), input);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -166,7 +177,7 @@ describe('update song mutation', () => {
 		const input: any = <SongUpdateInput>{
 			type: '',
 		}
-		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
+		const query = makeUpdateSongMutation(share.id.toString(), song.song_id.toString(), input);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -182,7 +193,7 @@ describe('update song mutation', () => {
 			type: '',
 		}
 		const shareID = share.id.toString();
-		const query = makeUpdateSongMutation(share.id.toString(), song.id.toString(), input);
+		const query = makeUpdateSongMutation(share.id.toString(), song.song_id.toString(), input);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes: [{ shareID, permissions: ['playlist:create', 'song:upload'] }] });
 

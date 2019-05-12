@@ -2,7 +2,7 @@ import { ShareSong, shareSongFromDBResult } from '../models/SongModel';
 import { sortByTimeUUIDAsc } from '../utils/sort/sort-timeuuid';
 import { TimeUUID } from '../types/TimeUUID';
 import { IDatabaseClient } from 'cassandra-schema-builder';
-import { ISongByShareDBResult, SongsByShareTable } from '../database/schema/tables';
+import { ISongByShareDBResult, SongsByShareTable, ISongBaseDBResult } from '../database/schema/tables';
 import { SongUpdateInput } from '../inputs/SongInput';
 import * as snakeCaseObjKeys from 'snakecase-keys';
 
@@ -27,7 +27,7 @@ export class SongService implements ISongService {
 
 	public async getByID(shareID: string, songID: string): Promise<ShareSong> {
 		const dbResults = await this.database.query(
-			SongsByShareTable.select('*', ['share_id', 'id'])
+			SongsByShareTable.select('*', ['share_id', 'song_id'])
 				([TimeUUID(shareID), TimeUUID(songID)])
 		)
 
@@ -57,7 +57,7 @@ export class SongService implements ISongService {
 
 	public async create(song: ISongByShareDBResult): Promise<string> {
 		// istanbul ignore next
-		let id = song.id || TimeUUID();
+		let id = song.song_id || TimeUUID();
 
 		await this.database.query(
 			SongsByShareTable.insertFromObj(song)
@@ -67,14 +67,18 @@ export class SongService implements ISongService {
 	}
 
 	public async update(shareID: string, songID: string, song: SongUpdateInput): Promise<void> {
-		const inputSnakeCased: Partial<ISongByShareDBResult> = {
+		const baseSong: Partial<ISongBaseDBResult> = {
 			...snakeCaseObjKeys(song),
 			date_last_edit: new Date(),
 		}
 
+		await this.updateShareSong(shareID, songID, baseSong);
+	}
+
+	private async updateShareSong(shareID: string, songID: string, baseSong: Partial<ISongBaseDBResult>) {
 		await this.database.query(
-			SongsByShareTable.update(Object.keys(inputSnakeCased) as any, ['id', 'share_id'])
-				(Object.values(inputSnakeCased), [TimeUUID(songID), TimeUUID(shareID)])
+			SongsByShareTable.update(Object.keys(baseSong) as any, ['song_id', 'share_id'])
+				(Object.values(baseSong), [TimeUUID(songID), TimeUUID(shareID)])
 		);
 	}
 }
