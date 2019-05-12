@@ -82,8 +82,9 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		const shareSongs = await songService.getByShare(shareID);
 		const songObjects: ISongByPlaylistDBResult[] = shareSongs
 			.filter(song => songShouldBeAdded(song.id) && songNotInPlaylist(song.id))
-			.map(({ requiresUserAction, ...song }, idx) => ({
+			.map(({ requiresUserAction, id, ...song }, idx) => ({
 				...(snakeCaseObjKeys(song) as ISongByShareDBResult),
+				song_id: TimeUUID(id),
 				playlist_id: TimeUUID(playlistID),
 				position: currentSongs.length + idx,
 				date_added: new Date(),
@@ -96,9 +97,9 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 	};
 
 	const removeSongs = async (shareID: string, playlistID: string, songIDs: string[]) => {
-		const updateDateRemovedQuery = SongsByPlaylistTable.update(['date_removed'], ['playlist_id', 'id']);
+		const updateDateRemovedQuery = SongsByPlaylistTable.update(['date_removed'], ['playlist_id', 'song_id', 'share_id']);
 		const queries = songIDs.map(songID =>
-			updateDateRemovedQuery([new Date()], [TimeUUID(playlistID), TimeUUID(songID)]));
+			updateDateRemovedQuery([new Date()], [TimeUUID(playlistID), TimeUUID(songID), TimeUUID(shareID)]));
 
 		await database.query(SongsByPlaylistTable.batch(queries));
 		await normalizeOrder(shareID, playlistID);
@@ -111,7 +112,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 			.sort((lhs, rhs) => lhs.position - rhs.position)
 			.map((song, idx): OrderUpdate => [song.id.toString(), idx]);
 
-		await executeOrderUpdates(playlistID, orderUpdates);
+		await executeOrderUpdates(shareID, playlistID, orderUpdates);
 	}
 
 	const getSongs = async (shareID: string, playlistID: string): Promise<PlaylistSong[]> => {
@@ -136,13 +137,13 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 			throw new Error(`Some songs are not part of this playlist`)
 		}
 
-		await executeOrderUpdates(playlistID, orderUpdates);
+		await executeOrderUpdates(shareID, playlistID, orderUpdates);
 	}
 
-	const executeOrderUpdates = async (playlistID: string, orderUpdates: OrderUpdate[]) => {
-		const updateOrderQuery = SongsByPlaylistTable.update(['position'], ['playlist_id', 'id']);
+	const executeOrderUpdates = async (shareID: string, playlistID: string, orderUpdates: OrderUpdate[]) => {
+		const updateOrderQuery = SongsByPlaylistTable.update(['position'], ['playlist_id', 'song_id', 'share_id']);
 		const queries = orderUpdates
-			.map(orderUpdate => updateOrderQuery([orderUpdate[1]], [TimeUUID(playlistID), TimeUUID(orderUpdate[0])]));
+			.map(orderUpdate => updateOrderQuery([orderUpdate[1]], [TimeUUID(playlistID), TimeUUID(orderUpdate[0]), TimeUUID(shareID)]));
 
 		await database.query(SongsByPlaylistTable.batch(queries));
 	}
