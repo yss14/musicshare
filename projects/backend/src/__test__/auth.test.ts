@@ -300,14 +300,14 @@ describe('auth selectors', () => {
 			const req = { args: {}, root: shareSongFromDBResult(song) };
 			const songID = getSongIDFromRequest(req);
 
-			expect(songID).toBe(song.id.toString());
+			expect(songID).toBe(song.song_id.toString());
 		});
 
 		test('args', () => {
-			const req = { args: { songID: song.id.toString() }, root: undefined };
+			const req = { args: { songID: song.song_id.toString() }, root: undefined };
 			const songID = getSongIDFromRequest(req);
 
-			expect(songID).toBe(song.id.toString());
+			expect(songID).toBe(song.song_id.toString());
 		});
 
 		test('not found', () => {
@@ -377,7 +377,7 @@ describe('auth middleware', () => {
 	});
 
 	describe('song', () => {
-		const songID = testData.songs.song1_library_user1.id.toString();
+		const songID = testData.songs.song1_library_user1.song_id.toString();
 
 		test('song reference not found', async () => {
 			const middleware = makeSongAuthMiddleware([]) as Function;

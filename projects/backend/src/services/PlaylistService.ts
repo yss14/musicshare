@@ -168,7 +168,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 			UPDATE ${SongsByPlaylistTable.name}
 			SET ${Object.keys(baseSong).map(key => `${key} = ?`).join(', ')}
 			WHERE playlist_id IN (${sharePlaylists.map(playlist => playlist.id).join(', ')})
-				AND id = ${songID} AND share_id = ${shareID};
+				AND song_id = ${songID} AND share_id = ${shareID};
 		`;
 
 		const updateQuery: IQuery<{}> = {

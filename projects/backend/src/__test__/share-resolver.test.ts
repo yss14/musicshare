@@ -184,7 +184,7 @@ describe('get share song', () => {
 
 		const share = testData.shares.library_user1;
 		const song = testData.songs.song2_library_user1;
-		const query = makeShareQuery(share.id.toString(), [makeShareSongQuery(song.id.toString())]);
+		const query = makeShareQuery(share.id.toString(), [makeShareSongQuery(song.song_id.toString())]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -211,7 +211,7 @@ describe('get share song', () => {
 
 		const share = testData.shares.library_user1;
 		const song = testData.songs.song2_library_user1;
-		const query = makeShareQuery(share.id.toString(), [makeShareSongQuery(song.id.toString(), ['accessUrl'])]);
+		const query = makeShareQuery(share.id.toString(), [makeShareSongQuery(song.song_id.toString(), ['accessUrl'])]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 

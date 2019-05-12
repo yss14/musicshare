@@ -6,7 +6,7 @@ export namespace DatabaseV1 {
 	});
 
 	export const song_base_schema = TableSchema({
-		id: { type: ColumnType.TimeUUID, clusteringKey: true },
+		song_id: { type: ColumnType.TimeUUID, clusteringKey: true },
 		title: { type: ColumnType.Varchar },
 		suffix: { type: ColumnType.Varchar },
 		year: { type: ColumnType.Int },

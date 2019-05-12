@@ -33,7 +33,7 @@ interface ITestDataSchema {
 export const testPassword = 'test1234';
 
 const songZeroOliverSmith: ISongByShareDBResult = {
-	id: TimeUUID(moment().subtract(3, 'hours').toDate()),
+	song_id: TimeUUID(moment().subtract(3, 'hours').toDate()),
 	title: 'Zero',
 	suffix: null,
 	year: 2018,
@@ -54,7 +54,7 @@ const songZeroOliverSmith: ISongByShareDBResult = {
 }
 
 const songPerthDusky: ISongByShareDBResult = {
-	id: TimeUUID(moment().subtract(2, 'hours').toDate()),
+	song_id: TimeUUID(moment().subtract(2, 'hours').toDate()),
 	title: 'Perth',
 	suffix: null,
 	year: 2018,
@@ -75,7 +75,7 @@ const songPerthDusky: ISongByShareDBResult = {
 }
 
 const songContactAlastor: ISongByShareDBResult = {
-	id: TimeUUID(moment().subtract(1, 'hour').toDate()),
+	song_id: TimeUUID(moment().subtract(1, 'hour').toDate()),
 	title: 'Contact',
 	suffix: null,
 	year: 2019,
@@ -209,7 +209,7 @@ export const makeDatabaseSeed = ({ database, songService, songTypeService, genre
 				await playlistService.addSongs(
 					playlist.share_id.toString(),
 					playlist.id.toString(),
-					playlist.songs.map(song => song.id.toString())
+					playlist.songs.map(song => song.song_id.toString())
 				);
 			}
 		}
@@ -218,7 +218,7 @@ export const makeDatabaseSeed = ({ database, songService, songTypeService, genre
 			const prefilledArray = createPrefilledArray(100, {});
 			const songInserts = prefilledArray
 				.map((_, idx): Required<ISongByShareDBResult> => ({
-					id: TimeUUID(),
+					song_id: TimeUUID(),
 					title: faker.name.findName(),
 					suffix: null,
 					year: null,

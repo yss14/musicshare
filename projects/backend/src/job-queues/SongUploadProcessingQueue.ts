@@ -64,7 +64,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 			const songMeta = await this.songMetaDataService.analyse(uploadMeta.file, audioBuffer, songTypes);
 
 			const song = await this.songService.create({
-				id: TimeUUID(),
+				song_id: TimeUUID(),
 				title: songMeta.title || uploadMeta.file.originalFilename,
 				suffix: songMeta.suffix || null,
 				year: songMeta.year,
