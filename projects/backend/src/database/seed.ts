@@ -144,21 +144,21 @@ export const testData: ITestDataSchema = {
 	},
 	playlists: {
 		playlist1_library_user1: {
-			id: TimeUUID(moment().subtract(1, 'hours').toDate()),
+			playlist_id: TimeUUID(moment().subtract(1, 'hours').toDate()),
 			name: 'Playlist 1',
 			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			date_removed: null,
 			songs: [songZeroOliverSmith, songPerthDusky, songContactAlastor],
 		},
 		playlist2_library_user1: {
-			id: TimeUUID(moment().subtract(1, 'day').toDate()),
+			playlist_id: TimeUUID(moment().subtract(1, 'day').toDate()),
 			name: 'Playlist 2',
 			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			date_removed: null,
 			songs: [songZeroOliverSmith, songPerthDusky, songContactAlastor, songZeroOliverSmith, songPerthDusky, songContactAlastor],
 		},
 		playlist_some_shared_library: {
-			id: TimeUUID(moment().subtract(1, 'hours').toDate()),
+			playlist_id: TimeUUID(moment().subtract(1, 'hours').toDate()),
 			name: 'Some Shared Playlist 1',
 			share_id: TimeUUID('f0d359e0-aeb1-11e8-a117-43673ffd376b'),
 			date_removed: null,
@@ -204,11 +204,11 @@ export const makeDatabaseSeed = ({ database, songService, songTypeService, genre
 			}
 
 			for (const playlist of Object.values(testData.playlists)) {
-				await playlistService.create(playlist.share_id.toString(), playlist.name, playlist.id.toString());
+				await playlistService.create(playlist.share_id.toString(), playlist.name, playlist.playlist_id.toString());
 
 				await playlistService.addSongs(
 					playlist.share_id.toString(),
-					playlist.id.toString(),
+					playlist.playlist_id.toString(),
 					playlist.songs.map(song => song.song_id.toString())
 				);
 			}

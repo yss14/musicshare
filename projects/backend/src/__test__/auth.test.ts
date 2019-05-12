@@ -275,14 +275,14 @@ describe('auth selectors', () => {
 			const req = { args: {}, root: Playlist.fromDBResult(playlist) };
 			const playlistID = getPlaylistIDFromRequest(req);
 
-			expect(playlistID).toBe(playlist.id.toString());
+			expect(playlistID).toBe(playlist.playlist_id.toString());
 		});
 
 		test('args', () => {
-			const req = { args: { playlistID: playlist.id.toString() }, root: undefined };
+			const req = { args: { playlistID: playlist.playlist_id.toString() }, root: undefined };
 			const playlistID = getPlaylistIDFromRequest(req);
 
-			expect(playlistID).toBe(playlist.id.toString());
+			expect(playlistID).toBe(playlist.playlist_id.toString());
 		});
 
 		test('not found', () => {

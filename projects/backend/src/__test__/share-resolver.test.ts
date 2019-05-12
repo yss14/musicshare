@@ -307,7 +307,7 @@ describe('get share playlists', () => {
 		cleanupHooks.push(cleanUp);
 
 		const shareID = testData.shares.library_user1.id.toString();
-		const playlistID = testData.playlists.playlist1_library_user1.id.toString();
+		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const query = makeShareQuery(shareID, [makeSharePlaylistQuery(playlistID)]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });

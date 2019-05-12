@@ -54,8 +54,8 @@ describe('update song mutation', () => {
 
 		const playlist1 = testData.playlists.playlist1_library_user1;
 		const playlist2 = testData.playlists.playlist2_library_user1;
-		const songsPlaylist1 = await playlistService.getSongs(share.id.toString(), playlist1.id.toString());
-		const songsPlaylist2 = await playlistService.getSongs(share.id.toString(), playlist2.id.toString());
+		const songsPlaylist1 = await playlistService.getSongs(share.id.toString(), playlist1.playlist_id.toString());
+		const songsPlaylist2 = await playlistService.getSongs(share.id.toString(), playlist2.playlist_id.toString());
 
 		expect(songsPlaylist1).toBeArrayOfSize(playlist1.songs.length);
 		expect(songsPlaylist2).toBeArrayOfSize(playlist1.songs.length); // playlist1.songs.length due to duplicates

@@ -20,10 +20,10 @@ export class Playlist {
 		return plainToClass(
 			Playlist,
 			{
-				id: dbResult.id.toString(),
+				id: dbResult.playlist_id.toString(),
 				name: dbResult.name,
 				shareID: dbResult.share_id.toString(),
-				dateAdded: dbResult.id.getDate(),
+				dateAdded: dbResult.playlist_id.getDate(),
 			}
 		);
 	}

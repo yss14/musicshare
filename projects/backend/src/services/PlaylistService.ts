@@ -49,7 +49,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 
 	const create = async (shareID: string, name: string, id?: string) => {
 		const playlistObj: IPlaylistByShareDBResult = {
-			id: TimeUUID(id || new Date()),
+			playlist_id: TimeUUID(id || new Date()),
 			name,
 			share_id: TimeUUID(shareID),
 			date_removed: null
@@ -62,14 +62,14 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 
 	const del = async (shareID: string, playlistID: string) => {
 		await database.query(
-			PlaylistsByShareTable.update(['date_removed'], ['share_id', 'id'])
+			PlaylistsByShareTable.update(['date_removed'], ['share_id', 'playlist_id'])
 				([new Date()], [TimeUUID(shareID), TimeUUID(playlistID)])
 		);
 	};
 
 	const rename = async (shareID: string, playlistID: string, newName: string) => {
 		await database.query(
-			PlaylistsByShareTable.update(['name'], ['share_id', 'id'])
+			PlaylistsByShareTable.update(['name'], ['share_id', 'playlist_id'])
 				([newName], [TimeUUID(shareID), TimeUUID(playlistID)])
 		);
 	};

@@ -70,7 +70,7 @@ export namespace DatabaseV1 {
 
 	export const playlists_by_share = TableSchema({
 		...baseSchema,
-		id: { type: ColumnType.TimeUUID, clusteringKey: true },
+		playlist_id: { type: ColumnType.TimeUUID, clusteringKey: true },
 		share_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		name: { type: ColumnType.Varchar, nullable: false },
 	});
