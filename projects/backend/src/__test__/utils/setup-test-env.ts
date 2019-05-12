@@ -109,7 +109,6 @@ export const setupTestSuite = () => {
 
 	const getDatabase = async () => {
 		if (!database) {
-			console.log('makeTestDatabase')
 			const testDatabaseEnv = await makeTestDatabase();
 
 			database = testDatabaseEnv.database;
