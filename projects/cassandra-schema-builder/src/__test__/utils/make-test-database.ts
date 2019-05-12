@@ -9,9 +9,10 @@ export type DatabaseSeed = (database: IDatabaseClient) => Promise<void>;
 
 export interface IMakeTestDatabaseArgs {
 	seed?: DatabaseSeed;
+	clientOpts?: Partial<ClientOptions>;
 }
 
-export const makeTestDatabase = async ({ seed }: IMakeTestDatabaseArgs = {}) => {
+export const makeTestDatabase = async ({ seed, clientOpts }: IMakeTestDatabaseArgs = {}) => {
 	const databaseHost = process.env['CASSANDRA_HOST'] || '127.0.0.1';
 	const databaseKeyspace = 'test_' + uuid().split('-').join('');
 	const databasePassword = process.env['CASSANDRA_PASSWORD'];
@@ -23,6 +24,7 @@ export const makeTestDatabase = async ({ seed }: IMakeTestDatabaseArgs = {}) => 
 	}
 
 	const databaseWithoutScope = new DatabaseClient(makeCassandraClient({
+		...(clientOpts || {}),
 		contactPoints: [databaseHost],
 		localDataCenter: 'datacenter1',
 		authProvider: authProvider || undefined,

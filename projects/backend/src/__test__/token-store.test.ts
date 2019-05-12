@@ -1,11 +1,28 @@
 import { PeristentTokenStore } from "../auth/TokenStore";
 import { makeMockedDatabase } from "./mocks/mock-database";
-import { setupTestEnv } from "./utils/setup-test-env";
+import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env";
+import { IDatabaseClient } from "cassandra-schema-builder";
+import { clearTables } from "../database/schema/make-database-schema";
 
-const cleanupHooks: (() => Promise<void>)[] = [];
+const { cleanUp, getDatabase } = setupTestSuite();
+let database: IDatabaseClient;
+
+const setupTest = async (args: Partial<SetupTestEnvArgs>) => {
+	if (!args.database) {
+		await clearTables(database);
+	}
+
+	const testEnv = await setupTestEnv({ ...args, database: args.database || database });
+
+	return testEnv;
+}
+
+beforeAll(async () => {
+	database = await getDatabase();
+});
 
 afterAll(async () => {
-	await Promise.all(cleanupHooks.map(hook => hook()));
+	await cleanUp();
 });
 
 describe('persistent store', () => {
@@ -21,8 +38,7 @@ describe('persistent store', () => {
 	});
 
 	test('persist', async () => {
-		const { database, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { database } = await setupTest({});
 
 		const store = PeristentTokenStore({ database, tokenGroup: 'group1' });
 		const tokensFirstRun = ['token1', 'token2', 'token3'];
@@ -47,8 +63,7 @@ describe('persistent store', () => {
 	});
 
 	test('no group collisions', async () => {
-		const { database, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { database } = await setupTest({});
 
 		const storeGroup1 = PeristentTokenStore({ database, tokenGroup: 'group1' });
 		const storeGroup2 = PeristentTokenStore({ database, tokenGroup: 'group2' });
