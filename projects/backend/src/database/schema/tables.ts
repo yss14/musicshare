@@ -1,7 +1,7 @@
 import { TableRecord, Table } from "cassandra-schema-builder";
 import { DatabaseV1 } from "./V1";
 
-const CoreTables = DatabaseV1;
+export const CoreTables = DatabaseV1;
 
 export interface ISongBaseDBResult extends TableRecord<typeof CoreTables.song_base_schema> { }
 export interface IUsersDBResult extends TableRecord<typeof CoreTables.users> { }

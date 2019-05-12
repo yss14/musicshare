@@ -1,4 +1,4 @@
-import { setupTestEnv, SetupTestEnvArgs } from "./utils/setup-test-env";
+import { setupTestEnv, SetupTestEnvArgs, setupTestSuite } from "./utils/setup-test-env";
 import { testData } from "../database/seed";
 import { executeGraphQLQuery, argumentValidationError, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql";
 import moment = require("moment");
@@ -10,13 +10,29 @@ import { OrderUpdate } from "../services/PlaylistService";
 import { sortBy } from 'lodash';
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { Scopes } from "../types/context";
+import { IDatabaseClient } from "cassandra-schema-builder";
+import { clearTables } from "../database/schema/make-database-schema";
 
-const setupTest = async (args?: SetupTestEnvArgs) => {
-	const { graphQLServer, cleanUp, ...testEnv } = await setupTestEnv(args || {});
-	cleanupHooks.push(cleanUp);
+const { cleanUp, getDatabase } = setupTestSuite();
+let database: IDatabaseClient;
 
-	return { graphQLServer, ...testEnv };
+const setupTest = async (args: Partial<SetupTestEnvArgs>) => {
+	if (!args.database) {
+		await clearTables(database);
+	}
+
+	const testEnv = await setupTestEnv({ ...args, database: args.database || database });
+
+	return testEnv;
 }
+
+beforeAll(async () => {
+	database = await getDatabase();
+});
+
+afterAll(async () => {
+	await cleanUp();
+});
 
 const makeMockDatabase = () => {
 	const mockDatabase = makeMockedDatabase();
@@ -27,12 +43,6 @@ const makeMockDatabase = () => {
 
 const makeMutation = (mutation: string) => `mutation{${mutation}}`;
 
-const cleanupHooks: (() => Promise<void>)[] = [];
-
-afterAll(async () => {
-	await Promise.all(cleanupHooks.map(hook => hook()));
-});
-
 describe('create playlist', () => {
 	const makeCreatePlaylistMutation = (shareID: string, name: string) => `
 		createPlaylist(shareID: "${shareID}", name: "${name}"){id, name, shareID, dateAdded}
@@ -40,7 +50,7 @@ describe('create playlist', () => {
 	const shareID = testData.shares.library_user1.id.toString();
 
 	test('valid playlist name', async () => {
-		const { graphQLServer } = await setupTest();
+		const { graphQLServer } = await setupTest({});
 		const name = 'A new playlist';
 		const dateBeforeInsert = moment();
 		const query = makeMutation(makeCreatePlaylistMutation(shareID, name));
@@ -54,7 +64,7 @@ describe('create playlist', () => {
 	});
 
 	test('invalid playlist name', async () => {
-		const { graphQLServer } = await setupTest();
+		const { graphQLServer } = await setupTest({});
 		const query = makeMutation(makeCreatePlaylistMutation(shareID, 'S'));
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -63,7 +73,7 @@ describe('create playlist', () => {
 	});
 
 	test('playlist already existing name', async () => {
-		const { graphQLServer } = await setupTest();
+		const { graphQLServer } = await setupTest({});
 		const name = testData.playlists.playlist1_library_user1.name;
 		const dateBeforeInsert = moment();
 		const query = makeMutation(makeCreatePlaylistMutation(shareID, name));
@@ -77,7 +87,7 @@ describe('create playlist', () => {
 	});
 
 	test('insufficient permissions', async () => {
-		const { graphQLServer } = await setupTest({ mockDatabase: makeMockDatabase() });
+		const { graphQLServer } = await setupTest({ database: makeMockDatabase() });
 		const query = makeMutation(makeCreatePlaylistMutation(shareID, 'Some playlist'));
 		const scopes: Scopes = [{ shareID, permissions: ['playlist:modify', 'playlist:mutate_songs'] }];
 
@@ -94,7 +104,7 @@ describe('delete playlist', () => {
 	const shareID = testData.shares.library_user1.id.toString();
 
 	test('existing playlist', async () => {
-		const { graphQLServer } = await setupTest();
+		const { graphQLServer } = await setupTest({});
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const query = makeMutation(makeDeletePlaylistMutation(shareID, playlistID));
 
@@ -104,7 +114,7 @@ describe('delete playlist', () => {
 	});
 
 	test('not existing playlist', async () => {
-		const { graphQLServer } = await setupTest();
+		const { graphQLServer } = await setupTest({});
 		const playlistID = TimeUUID().toString();
 		const query = makeMutation(makeDeletePlaylistMutation(shareID, playlistID));
 
@@ -114,7 +124,7 @@ describe('delete playlist', () => {
 	});
 
 	test('insufficient permissions', async () => {
-		const { graphQLServer } = await setupTest({ mockDatabase: makeMockDatabase() });
+		const { graphQLServer } = await setupTest({ database: makeMockDatabase() });
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const query = makeMutation(makeDeletePlaylistMutation(shareID, playlistID));
 		const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:mutate_songs'] }];
@@ -132,7 +142,7 @@ describe('rename playlist', () => {
 	const shareID = testData.shares.library_user1.id.toString();
 
 	test('existing playlist', async () => {
-		const { graphQLServer, playlistService } = await setupTest();
+		const { graphQLServer, playlistService } = await setupTest({});
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const newName = 'Some new playlist name';
 		const query = makeMutation(makeRenamePlaylistQuery(shareID, playlistID, newName));
@@ -146,7 +156,7 @@ describe('rename playlist', () => {
 	});
 
 	test('not existing playlist', async () => {
-		const { graphQLServer, playlistService } = await setupTest();
+		const { graphQLServer, playlistService } = await setupTest({});
 		const playlistID = TimeUUID().toString();
 		const newName = 'Some new playlist name';
 		const query = makeMutation(makeRenamePlaylistQuery(shareID, playlistID, newName));
@@ -160,7 +170,7 @@ describe('rename playlist', () => {
 	});
 
 	test('invalid new name', async () => {
-		const { graphQLServer } = await setupTest();
+		const { graphQLServer } = await setupTest({});
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const query = makeMutation(makeRenamePlaylistQuery(shareID, playlistID, 'S'));
 
@@ -170,7 +180,7 @@ describe('rename playlist', () => {
 	});
 
 	test('insufficient permissions', async () => {
-		const { graphQLServer } = await setupTest({ mockDatabase: makeMockDatabase() });
+		const { graphQLServer } = await setupTest({ database: makeMockDatabase() });
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const query = makeMutation(makeRenamePlaylistQuery(shareID, playlistID, 'Some new name'));
 		const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:mutate_songs'] }];
@@ -190,7 +200,7 @@ describe('add songs to playlist', () => {
 	const shareID = testData.shares.library_user1.id.toString();
 
 	test('existing songs', async () => {
-		const { graphQLServer, playlistService } = await setupTest();
+		const { graphQLServer, playlistService } = await setupTest({});
 		const { id: playlistID } = await playlistService.create(shareID, 'Some new playlist');
 		const songs = [testData.songs.song1_library_user1, testData.songs.song2_library_user1, testData.songs.song3_library_user1];
 		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, songs.map(song => song.song_id.toString())));
@@ -210,7 +220,7 @@ describe('add songs to playlist', () => {
 	});
 
 	test('not existing songs', async () => {
-		const { graphQLServer, playlistService } = await setupTest();
+		const { graphQLServer, playlistService } = await setupTest({});
 		const { id: playlistID } = await playlistService.create(shareID, 'Some other new playlist');
 		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, [TimeUUID().toString()]));
 
@@ -220,7 +230,7 @@ describe('add songs to playlist', () => {
 	});
 
 	test('duplicates', async () => {
-		const { graphQLServer } = await setupTest();
+		const { graphQLServer } = await setupTest({});
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const songs = [testData.songs.song1_library_user1, testData.songs.song2_library_user1, testData.songs.song3_library_user1];
 		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, songs.map(song => song.song_id.toString())));
@@ -240,7 +250,7 @@ describe('add songs to playlist', () => {
 	});
 
 	test('insufficient permissions', async () => {
-		const { graphQLServer } = await setupTest({ mockDatabase: makeMockDatabase() });
+		const { graphQLServer } = await setupTest({ database: makeMockDatabase() });
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, []));
 		const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:modify'] }];
@@ -261,7 +271,7 @@ describe('remove songs from playlist', () => {
 	const shareID = testData.shares.library_user1.id.toString();
 
 	test('existing songs', async () => {
-		const { graphQLServer } = await setupTest();
+		const { graphQLServer } = await setupTest({});
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const songs = [testData.playlists.playlist1_library_user1.songs[1]];
 		const query = makeMutation(makeRemoveSongsQuery(shareID, playlistID, songs.map(song => song.song_id.toString())));
@@ -279,7 +289,7 @@ describe('remove songs from playlist', () => {
 	});
 
 	test('not existing songs', async () => {
-		const { graphQLServer } = await setupTest();
+		const { graphQLServer } = await setupTest({});
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const songIDs = [TimeUUID().toString(), TimeUUID().toString()];
 
@@ -297,7 +307,7 @@ describe('remove songs from playlist', () => {
 	});
 
 	test('insufficient permissions', async () => {
-		const { graphQLServer } = await setupTest({ mockDatabase: makeMockDatabase() });
+		const { graphQLServer } = await setupTest({ database: makeMockDatabase() });
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const query = makeMutation(makeRemoveSongsQuery(shareID, playlistID, []));
 		const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:modify'] }];
@@ -318,7 +328,7 @@ describe('update order', () => {
 	const shareID = testData.shares.library_user1.id.toString();
 
 	test('valid order', async () => {
-		const { graphQLServer } = await setupTest();
+		const { graphQLServer } = await setupTest({});
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const orderUpdates: OrderUpdate[] = [
 			[testData.playlists.playlist1_library_user1.songs[0].song_id.toString(), 2],
@@ -337,7 +347,7 @@ describe('update order', () => {
 	});
 
 	test('not existing songs', async () => {
-		const { graphQLServer } = await setupTest();
+		const { graphQLServer } = await setupTest({});
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const songIDNotPart = TimeUUID().toString();
 		const orderUpdates: OrderUpdate[] = [
@@ -357,7 +367,7 @@ describe('update order', () => {
 	});
 
 	test('insufficient permissions', async () => {
-		const { graphQLServer } = await setupTest({ mockDatabase: makeMockDatabase() });
+		const { graphQLServer } = await setupTest({ database: makeMockDatabase() });
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const query = makeMutation(makeUpdateOrderMutation(shareID, playlistID, []));
 		const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:modify'] }];

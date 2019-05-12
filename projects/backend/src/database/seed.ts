@@ -181,7 +181,6 @@ interface IMakeDatabaseSeedArgs {
 
 export const makeDatabaseSeed = ({ database, songService, songTypeService, genreService, passwordLoginService, playlistService, permissionService }: IMakeDatabaseSeedArgs): DatabaseSeed =>
 	async (): Promise<void> => {
-
 		if (!__PROD__) {
 			for (const user of Object.values(testData.users)) {
 				await database.query(UsersTable.insertFromObj(user));

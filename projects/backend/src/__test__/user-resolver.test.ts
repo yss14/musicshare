@@ -3,7 +3,7 @@ import "reflect-metadata";
 import { executeGraphQLQuery, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql";
 import { testData, testPassword } from "../database/seed";
 import { Share } from "../models/ShareModel";
-import { setupTestEnv } from "./utils/setup-test-env";
+import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env";
 import { TimeUUID } from "../types/TimeUUID";
 import * as argon2 from 'argon2';
 import { makeMockedDatabase } from "./mocks/mock-database";
@@ -11,6 +11,29 @@ import { User } from "../models/UserModel";
 import { plainToClass } from "class-transformer";
 import { Permission } from "../auth/permissions";
 import { Scopes } from "../types/context";
+import { IDatabaseClient } from "cassandra-schema-builder";
+import { clearTables } from "../database/schema/make-database-schema";
+
+const { cleanUp, getDatabase } = setupTestSuite();
+let database: IDatabaseClient;
+
+const setupTest = async (args: Partial<SetupTestEnvArgs>) => {
+	if (!args.database) {
+		await clearTables(database);
+	}
+
+	const testEnv = await setupTestEnv({ ...args, database: args.database || database });
+
+	return testEnv;
+}
+
+beforeAll(async () => {
+	database = await getDatabase();
+});
+
+afterAll(async () => {
+	await cleanUp();
+});
 
 const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => {
 	return `
@@ -39,16 +62,9 @@ const makeLoginMutation = (email: string, password: string) => `
 	}
 `;
 
-const cleanupHooks: (() => Promise<void>)[] = [];
-
-afterAll(async () => {
-	await Promise.all(cleanupHooks.map(hook => hook()));
-});
-
 describe('get user by id', () => {
 	test('get user by id', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const { users } = testData;
 		const query = makeUserQuery();
@@ -58,8 +74,7 @@ describe('get user by id', () => {
 	});
 
 	test('get user by id not existing', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const userID = TimeUUID('a0d8e1f0-aeb1-11e8-a117-43673ffd376a').toString();
 		const query = makeUserQuery();
@@ -75,8 +90,7 @@ describe('get user by id', () => {
 
 describe('get users shares', () => {
 	test('get users shares only lib', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const testUser = testData.users.user1;
 		const query = makeUserQuery(true, true);
@@ -92,8 +106,7 @@ describe('get users shares', () => {
 	});
 
 	test('get users shares all', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const testUser = testData.users.user1;
 		const query = makeUserQuery(true, false);
@@ -111,8 +124,7 @@ describe('get users shares', () => {
 
 describe('login', () => {
 	test('successful', async () => {
-		const { graphQLServer, cleanUp, authService } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer, authService } = await setupTest({});
 
 		const testUser = testData.users.user1;
 		const query = makeLoginMutation(testUser.email, testPassword);
@@ -127,8 +139,7 @@ describe('login', () => {
 	});
 
 	test('wrong password', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const testUser = testData.users.user1;
 		const query = makeLoginMutation(testUser.email, testPassword + 'wrong');
@@ -142,8 +153,7 @@ describe('login', () => {
 	});
 
 	test('already hashed password', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const testUser = testData.users.user1;
 		const query = makeLoginMutation(testUser.email, await argon2.hash(testPassword));
@@ -157,8 +167,7 @@ describe('login', () => {
 	});
 
 	test('not existing email', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const testUser = testData.users.user1;
 		const query = makeLoginMutation(testUser.email + 'a', testPassword);
@@ -174,7 +183,7 @@ describe('login', () => {
 	test('unexpected internal error', async () => {
 		const database = makeMockedDatabase();
 		database.query = () => { throw new Error('Unexpected error'); }
-		const { graphQLServer } = await setupTestEnv({ mockDatabase: database });
+		const { graphQLServer } = await setupTest({ database });
 
 		const testUser = testData.users.user1;
 		const query = makeLoginMutation(testUser.email, testPassword);
@@ -192,8 +201,7 @@ describe('issue new auth token', () => {
 	const testUser = User.fromDBResult(testData.users.user1);
 
 	test('valid refresh token', async () => {
-		const { graphQLServer, cleanUp, authService } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer, authService } = await setupTest({});
 
 		const refreshToken = await authService.issueRefreshToken(testUser);
 		const query = makeIssueAuthTokenQuery(refreshToken);
@@ -206,7 +214,7 @@ describe('issue new auth token', () => {
 	});
 
 	test('invalid refresh token', async () => {
-		const { graphQLServer } = await setupTestEnv({ mockDatabase });
+		const { graphQLServer } = await setupTest({ database: mockDatabase });
 		const refreshToken = 'abcd';
 		const query = makeIssueAuthTokenQuery(refreshToken);
 
@@ -216,7 +224,7 @@ describe('issue new auth token', () => {
 	});
 
 	test('expired refresh token', async () => {
-		const { graphQLServer, authService } = await setupTestEnv({ mockDatabase });
+		const { graphQLServer, authService } = await setupTest({ database: mockDatabase });
 		const refreshToken = await authService.issueRefreshToken(testUser, '-1 day');
 		const query = makeIssueAuthTokenQuery(refreshToken);
 
@@ -226,7 +234,7 @@ describe('issue new auth token', () => {
 	});
 
 	test('user not found', async () => {
-		const { graphQLServer, authService } = await setupTestEnv({ mockDatabase });
+		const { graphQLServer, authService } = await setupTest({ database: mockDatabase });
 		const testUser = plainToClass(User, { id: TimeUUID().toString() });
 		const refreshToken = await authService.issueRefreshToken(testUser);
 		const query = makeIssueAuthTokenQuery(refreshToken);
@@ -239,7 +247,7 @@ describe('issue new auth token', () => {
 	test('unexpected internal error', async () => {
 		const database = makeMockedDatabase();
 		database.query = () => { throw new Error('Unexpected error'); }
-		const { graphQLServer, authService } = await setupTestEnv({ mockDatabase: database });
+		const { graphQLServer, authService } = await setupTest({ database: database });
 
 		const refreshToken = await authService.issueRefreshToken(testUser);
 		const query = makeIssueAuthTokenQuery(refreshToken);
@@ -261,8 +269,7 @@ describe('update user permissions', () => {
 	(<jest.Mock>database.query).mockReturnValue([testData.shares.library_user1]);
 
 	test('valid permission list', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const permissions: Permission[] = ['playlist:create', 'share:members'];
 		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions);
@@ -273,7 +280,7 @@ describe('update user permissions', () => {
 	});
 
 	test('invalid permission list', async () => {
-		const { graphQLServer } = await setupTestEnv({ mockDatabase: database });
+		const { graphQLServer } = await setupTest({ database: database });
 		const permissions: any[] = ['playlist:createe', 'share:members'];
 
 		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions);
@@ -287,7 +294,7 @@ describe('update user permissions', () => {
 	});
 
 	test('insufficient permissions', async () => {
-		const { graphQLServer } = await setupTestEnv({ mockDatabase: database });
+		const { graphQLServer } = await setupTest({ database: database });
 		const permissions: Permission[] = ['playlist:create', 'share:members'];
 		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions);
 		const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:modify'] }];

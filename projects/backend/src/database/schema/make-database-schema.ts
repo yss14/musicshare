@@ -1,6 +1,6 @@
 import { DatabaseSeed } from "../seed";
-import { UsersTable, SharesByUserTable, SongsByShareTable, SongTypesByShareTable, GenresByShareTable, UserLoginCredentialsTable, PlaylistsByShareTable, SongsByPlaylistTable, TokensByShareTable } from "./tables";
-import { IDatabaseClient, CQL } from "cassandra-schema-builder";
+import { /*UsersTable, SharesByUserTable, SongsByShareTable, SongTypesByShareTable, GenresByShareTable, UserLoginCredentialsTable, PlaylistsByShareTable, SongsByPlaylistTable, TokensByShareTable,*/ CoreTables } from "./tables";
+import { IDatabaseClient, CQL, Table } from "cassandra-schema-builder";
 import { Tables } from "./system-tables";
 
 export const makeDatabaseSchemaWithSeed = async (database: IDatabaseClient, seed: DatabaseSeed, opts: ICreateSchemaOpts) => {
@@ -13,22 +13,26 @@ interface ICreateSchemaOpts {
 	clear?: boolean;
 }
 
+const keys = <O>(o: O) => {
+	return Object.keys(o) as (keyof O)[];
+}
+
+const getAllTables = () => keys(CoreTables).map(name => Table(CoreTables, name));
+
 export const makeDatabaseSchema = async (database: IDatabaseClient, { keySpace, clear = false }: ICreateSchemaOpts) => {
 	if (clear) {
 		await clearKeySpace(database, keySpace);
 	}
 
-	await Promise.all([
-		database.execute(UsersTable.create().cql),
-		database.execute(SharesByUserTable.create().cql),
-		database.execute(SongsByShareTable.create().cql),
-		database.execute(SongTypesByShareTable.create().cql),
-		database.execute(GenresByShareTable.create().cql),
-		database.execute(UserLoginCredentialsTable.create().cql),
-		database.execute(PlaylistsByShareTable.create().cql),
-		database.execute(SongsByPlaylistTable.create().cql),
-		database.execute(TokensByShareTable.create().cql),
-	]);
+	await Promise.all(getAllTables().map(table => database.query(table.create())));
+}
+
+export const clearTables = async (database: IDatabaseClient) => {
+	const allTables = getAllTables();
+
+	const truncateQueries = allTables.map(table => database.execute(`TRUNCATE TABLE ${table.name};`));
+
+	await Promise.all(truncateQueries);
 }
 
 export const clearKeySpace = async (database: IDatabaseClient, keySpace: string): Promise<void> => {

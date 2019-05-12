@@ -73,8 +73,5 @@
 		"type-graphql": "^0.17.0",
 		"typedi": "^0.8.0",
 		"url-regex": "^5.0.0"
-	},
-	"jest-runner-concurrent": {
-		"maxConcurrentTests": 8
 	}
 }

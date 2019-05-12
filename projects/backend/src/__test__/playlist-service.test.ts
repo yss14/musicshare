@@ -1,24 +1,34 @@
-import { setupTestEnv } from "./utils/setup-test-env";
+import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env";
 import { TimeUUID } from "../types/TimeUUID";
 import { PlaylistNotFoundError } from "../services/PlaylistService";
 import { testData } from "../database/seed";
+import { IDatabaseClient } from "cassandra-schema-builder";
+import { clearTables } from "../database/schema/make-database-schema";
 
-const setupTest = async () => {
-	const { graphQLServer, cleanUp, ...testEnv } = await setupTestEnv({});
-	cleanupHooks.push(cleanUp);
+const { cleanUp, getDatabase } = setupTestSuite();
+let database: IDatabaseClient;
 
-	return { graphQLServer, ...testEnv };
+const setupTest = async (args: Partial<SetupTestEnvArgs>) => {
+	if (!args.database) {
+		await clearTables(database);
+	}
+
+	const testEnv = await setupTestEnv({ ...args, database: args.database || database });
+
+	return testEnv;
 }
 
-const cleanupHooks: (() => Promise<void>)[] = [];
+beforeAll(async () => {
+	database = await getDatabase();
+});
 
 afterAll(async () => {
-	await Promise.all(cleanupHooks.map(hook => hook()));
+	await cleanUp();
 });
 
 describe('get playlist by id', () => {
 	test('not found', async () => {
-		const { playlistService } = await setupTest();
+		const { playlistService } = await setupTest({});
 		const shareID = testData.shares.library_user1.id.toString();
 
 		await expect(playlistService.getByID(shareID, TimeUUID().toString()))

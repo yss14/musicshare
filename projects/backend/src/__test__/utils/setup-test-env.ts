@@ -13,7 +13,7 @@ import { ISongMetaDataService } from "../../utils/song-meta/SongMetaDataService"
 import { SongUploadProcessingQueue } from "../../job-queues/SongUploadProcessingQueue";
 import { makeTestDatabase, IDatabaseClient } from "cassandra-schema-builder";
 import { makeDatabaseSeed, testData } from "../../database/seed";
-import { makeDatabaseSchemaWithSeed } from "../../database/schema/make-database-schema";
+import { makeDatabaseSchema } from "../../database/schema/make-database-schema";
 import { SongTypeService } from "../../services/SongTypeService";
 import { GenreService } from "../../services/GenreService";
 import { ArtistService } from "../../services/ArtistService";
@@ -25,25 +25,22 @@ import { PlaylistService } from "../../services/PlaylistService";
 import { makeGraphQLContextProvider, Scopes } from "../../types/context";
 import { Permissions } from "../../auth/permissions";
 import { PermissionService } from "../../services/PermissionsService";
+import { isMockedDatabase } from "../mocks/mock-database";
 
 export interface SetupTestEnvArgs {
-	mockDatabase?: IDatabaseClient;
+	database: IDatabaseClient;
 	seedDatabase?: boolean;
 }
 
 // tslint:disable:no-parameter-reassignment
-export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvArgs) => {
+export const setupTestEnv = async ({ seedDatabase, database }: SetupTestEnvArgs) => {
 	seedDatabase = seedDatabase || true;
 
-	const testID = uuid();
-
-	let database: IDatabaseClient = mockDatabase!;
-	let databaseKeyspace = '';
-	let cleanUp = async (): Promise<void> => undefined;
-
-	if (!mockDatabase) {
-		({ database, cleanUp, databaseKeyspace } = await makeTestDatabase());
+	if (isMockedDatabase(database)) {
+		seedDatabase = false;
 	}
+
+	const testID = uuid();
 
 	const songService = new SongService(database);
 	const userService = new UserService(database);
@@ -69,13 +66,10 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 	Container.of(testID).set(UserResolver, userResolver);
 	Container.of(testID).set(PlaylistResolver, playlistResolver);
 
-	const seed = async (songService: SongService) => {
-		const seed = await makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService, playlistService, permissionService });
-		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: databaseKeyspace, clear: true });
-	}
+	const seed = makeDatabaseSeed({ database, songService, songTypeService, genreService, passwordLoginService, playlistService, permissionService });
 
-	if (!mockDatabase && seedDatabase === true) {
-		await seed(songService);
+	if (seedDatabase) {
+		await seed();
 	}
 
 	const authChecker = () => true;
@@ -92,7 +86,6 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 	return {
 		graphQLServer,
 		database,
-		cleanUp,
 		fileService,
 		shareService,
 		userService,
@@ -106,6 +99,30 @@ export const setupTestEnv = async ({ seedDatabase, mockDatabase }: SetupTestEnvA
 		playlistService,
 		allScopes,
 	};
+}
+
+export const setupTestSuite = () => {
+	let database: IDatabaseClient | null = null;
+	let databaseCleanUp: () => Promise<void> = () => Promise.resolve();
+
+	const getDatabase = async () => {
+		if (!database) {
+			const testDatabaseEnv = await makeTestDatabase();
+
+			database = testDatabaseEnv.database;
+			databaseCleanUp = testDatabaseEnv.cleanUp;
+
+			await makeDatabaseSchema(database, { keySpace: testDatabaseEnv.databaseKeyspace });
+		}
+
+		return database;
+	}
+
+	const cleanUp = async () => {
+		return databaseCleanUp();
+	}
+
+	return { getDatabase, cleanUp };
 }
 
 export const makeAllScopes = (): Scopes => [
