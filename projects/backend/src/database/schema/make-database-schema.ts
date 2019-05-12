@@ -4,12 +4,8 @@ import { IDatabaseClient, CQL, Table } from "cassandra-schema-builder";
 import { Tables } from "./system-tables";
 
 export const makeDatabaseSchemaWithSeed = async (database: IDatabaseClient, seed: DatabaseSeed, opts: ICreateSchemaOpts) => {
-	const startTimeCreate = Date.now();
 	await makeDatabaseSchema(database, opts);
-	console.log(`Create ${Date.now() - startTimeCreate}ms`);
-	const startTimeSeed = Date.now();
 	await seed();
-	console.log(`Seed ${Date.now() - startTimeSeed}ms`);
 }
 
 interface ICreateSchemaOpts {
@@ -21,14 +17,22 @@ const keys = <O>(o: O) => {
 	return Object.keys(o) as (keyof O)[];
 }
 
+const getAllTables = () => keys(CoreTables).map(name => Table(CoreTables, name));
+
 export const makeDatabaseSchema = async (database: IDatabaseClient, { keySpace, clear = false }: ICreateSchemaOpts) => {
 	if (clear) {
 		await clearKeySpace(database, keySpace);
 	}
 
-	const allTables = keys(CoreTables).map(name => Table(CoreTables, name));
+	await Promise.all(getAllTables().map(table => database.query(table.create())));
+}
 
-	await Promise.all(allTables.map(table => database.query(table.create())));
+export const clearTables = async (database: IDatabaseClient) => {
+	const allTables = getAllTables();
+
+	const truncateQueries = allTables.map(table => database.execute(`TRUNCATE TABLE ${table.name};`));
+
+	await Promise.all(truncateQueries);
 }
 
 export const clearKeySpace = async (database: IDatabaseClient, keySpace: string): Promise<void> => {

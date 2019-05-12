@@ -1,4 +1,4 @@
-import { setupTestEnv } from "./utils/setup-test-env";
+import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env";
 import { testData } from "../database/seed";
 import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
 import { Share } from "../models/ShareModel";
@@ -13,6 +13,29 @@ import { Playlist } from "../models/PlaylistModel";
 import { sortBy } from 'lodash';
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { Permissions } from "../auth/permissions";
+import { IDatabaseClient } from "cassandra-schema-builder";
+import { clearTables } from "../database/schema/make-database-schema";
+
+const { cleanUp, getDatabase } = setupTestSuite();
+let database: IDatabaseClient;
+
+const setupTest = async (args: Partial<SetupTestEnvArgs>) => {
+	if (!args.database) {
+		await clearTables(database);
+	}
+
+	const testEnv = await setupTestEnv({ ...args, database: args.database || database });
+
+	return testEnv;
+}
+
+beforeAll(async () => {
+	database = await getDatabase();
+});
+
+afterAll(async () => {
+	await cleanUp();
+});
 
 const makeShareQuery = (id: string, additionalQueries: string[] = []) => {
 	return `
@@ -72,16 +95,9 @@ const makeSharePlaylistQuery = (playlistID: string, fields: string[] = []) => `
 	}
 `;
 
-const cleanupHooks: (() => Promise<void>)[] = [];
-
-afterAll(async () => {
-	await Promise.all(cleanupHooks.map(hook => hook()));
-});
-
 describe('get share by id', () => {
 	test('get share by id', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const share = testData.shares.library_user1;
 		const query = makeShareQuery(share.id.toString());
@@ -92,8 +108,7 @@ describe('get share by id', () => {
 	});
 
 	test('get share by id not existing', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const shareID = TimeUUID('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
 		const query = makeShareQuery(shareID.toString());
@@ -107,8 +122,7 @@ describe('get share by id', () => {
 	});
 
 	test('get share by id not part of', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const shareID = testData.shares.library_user2.id.toString();
 		const query = makeShareQuery(shareID.toString());
@@ -124,8 +138,7 @@ describe('get share by id', () => {
 
 describe('get share songs', () => {
 	test('get all songs of share', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const share = testData.shares.library_user1;
 		const query = makeShareQuery(share.id.toString(), [makeShareSongsQuery()]);
@@ -141,8 +154,7 @@ describe('get share songs', () => {
 	});
 
 	test('get all songs of share with range query', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const share = testData.shares.library_user1;
 		const query = makeShareQuery(share.id.toString(), [makeShareSongsQuery([1, 2])]);
@@ -158,8 +170,7 @@ describe('get share songs', () => {
 	});
 
 	test('get all dirty songs', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const share = testData.shares.library_user1;
 		const lastTimestamp = moment().subtract(150, 'minutes').valueOf();
@@ -180,8 +191,7 @@ describe('get share songs', () => {
 
 describe('get share song', () => {
 	test('get share song by id', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const share = testData.shares.library_user1;
 		const song = testData.songs.song2_library_user1;
@@ -193,8 +203,7 @@ describe('get share song', () => {
 	});
 
 	test('get share song by id not existing', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const shareID = testData.shares.library_user1.id.toString();
 		const songID = TimeUUID(new Date());
@@ -207,8 +216,7 @@ describe('get share song', () => {
 	});
 
 	test('get share song by id with access url', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const share = testData.shares.library_user1;
 		const song = testData.songs.song2_library_user1;
@@ -228,8 +236,7 @@ describe('get share related data', () => {
 	const makeSharePermissionsQuery = () => `permissions`;
 
 	test('get share song types', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const shareID = testData.shares.library_user1.id.toString();
 		const query = makeShareQuery(shareID, [makeShareSongTypesQuery()]);
@@ -240,8 +247,7 @@ describe('get share related data', () => {
 	});
 
 	test('get share genres', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const shareID = testData.shares.library_user1.id.toString();
 		const query = makeShareQuery(shareID, [makeShareGenresQuery()]);
@@ -252,8 +258,7 @@ describe('get share related data', () => {
 	});
 
 	test('get share artists', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const shareID = testData.shares.library_user1.id.toString();
 		const query = makeShareQuery(shareID, [makeShareArtistsQuery()]);
@@ -273,7 +278,7 @@ describe('get share related data', () => {
 	test('get share permissions', async () => {
 		const database = makeMockedDatabase();
 		(<jest.Mock>database.query).mockReturnValue([testData.shares.library_user1])
-		const { graphQLServer } = await setupTestEnv({ mockDatabase: database });
+		const { graphQLServer } = await setupTest({ database: database });
 		const shareID = testData.shares.library_user1.id.toString();
 		const query = makeShareQuery(shareID, [makeSharePermissionsQuery()]);
 
@@ -285,8 +290,7 @@ describe('get share related data', () => {
 
 describe('get share playlists', () => {
 	test('all playlists', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const shareID = testData.shares.library_user1.id.toString();
 		const query = makeShareQuery(shareID, [makeSharePlaylistsQuery()]);
@@ -304,8 +308,7 @@ describe('get share playlists', () => {
 	});
 
 	test('get by id', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const shareID = testData.shares.library_user1.id.toString();
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
@@ -318,8 +321,7 @@ describe('get share playlists', () => {
 	});
 
 	test('get playlist songs', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const shareID = testData.shares.library_user1.id.toString();
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
@@ -344,8 +346,7 @@ describe('get user permissions', () => {
 	const makeGetUserPermissionsQuery = () => `userPermissions`;
 
 	test('get user permissions', async () => {
-		const { graphQLServer, cleanUp } = await setupTestEnv({});
-		cleanupHooks.push(cleanUp);
+		const { graphQLServer } = await setupTest({});
 
 		const shareID = testData.shares.library_user1.id.toString();
 		const query = makeShareQuery(shareID, [makeGetUserPermissionsQuery()]);
