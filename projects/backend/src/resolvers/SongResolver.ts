@@ -50,7 +50,7 @@ export class SongResolver implements ResolverInterface<ShareSong>{
 				await this.playlistService.updateSong(shareID, songID, song);
 
 				return this.songService.getByID(shareID, songID);
-			} catch (err) {
+			} catch (err) /* istanbul ignore next */ {
 				console.error(err);
 
 				return null;

@@ -2,12 +2,12 @@ import { setupTestEnv } from "./utils/setup-test-env";
 import { testData } from "../database/seed";
 import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
 import { Share } from "../models/ShareModel";
-import { shareSongFromDBResult } from "../models/SongModel";
+import { shareSongFromDBResult, playlistSongFromDBResult } from "../models/SongModel";
 import { includesSong, compareSongs } from "./utils/compare-songs";
 import { TimeUUID } from "../types/TimeUUID";
 import { defaultSongTypes, defaultGenres } from "../database/fixtures";
 import { Artist } from "../models/ArtistModel";
-import { songKeys } from "./fixtures/song-query";
+import { songKeys, playlistSongKeys } from "./fixtures/song-query";
 import moment = require("moment");
 import { Playlist } from "../models/PlaylistModel";
 import { sortBy } from 'lodash';
@@ -62,12 +62,13 @@ const makeSharePlaylistsQuery = () => `
 	}
 `;
 
-const makeSharePlaylistQuery = (playlistID: string) => `
+const makeSharePlaylistQuery = (playlistID: string, fields: string[] = []) => `
 	playlist(playlistID: "${playlistID}"){
 		id,
 		name,
 		shareID,
 		dateAdded,
+		${fields.join(',\n')}
 	}
 `;
 
@@ -314,6 +315,28 @@ describe('get share playlists', () => {
 
 		expect(body.data.share.playlist)
 			.toEqual(JSON.parse(JSON.stringify(Playlist.fromDBResult(testData.playlists.playlist1_library_user1))))
+	});
+
+	test('get playlist songs', async () => {
+		const { graphQLServer, cleanUp } = await setupTestEnv({});
+		cleanupHooks.push(cleanUp);
+
+		const shareID = testData.shares.library_user1.id.toString();
+		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
+		const query = makeShareQuery(shareID, [makeSharePlaylistQuery(playlistID, [`songs{${playlistSongKeys}}`])]);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const receivedSongs = body.data.share.playlist.songs;
+		const expectedSongs = testData.playlists.playlist1_library_user1.songs.map((song, idx) => playlistSongFromDBResult({
+			...song,
+			playlist_id: TimeUUID(playlistID),
+			position: idx,
+			date_added: new Date(),
+			date_removed: null,
+		}));
+
+		expect(receivedSongs).toBeArrayOfSize(testData.playlists.playlist1_library_user1.songs.length);
+		expectedSongs.forEach(expectedSong => includesSong(receivedSongs, expectedSong));
 	});
 });
 
