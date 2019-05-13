@@ -39,31 +39,22 @@ afterAll(async () => {
 describe('instance creation', () => {
 	test('single instance', async () => {
 		const container = 'single-instance';
-		await AzureFileService.makeService(container);
+		const fileService = new AzureFileService(container);
+		await fileService.createContainerIfNotExists();
 	});
 
 	test('two instances same container', async () => {
 		const container = 'two-instances-same-container';
-		await AzureFileService.makeService(container);
-		await AzureFileService.makeService(container);
+		const fileService = new AzureFileService(container);
+		await fileService.createContainerIfNotExists();
+		await fileService.createContainerIfNotExists();
 	});
 
 	test('invalid container name', async () => {
 		const container = 'invalid_container%-name';
+		const fileService = new AzureFileService(container);
 
-		await expect(AzureFileService.makeService(container)).rejects.toThrow(SyntaxError);
-	});
-
-	test('container creation throws error', async () => {
-		const blobService = azBlob.createBlobService();
-		blobService.createContainerIfNotExists = <any>jest.fn(
-			(container: string, callback: (err: Error) => void) => {
-				callback(new Error('Cannot create container'));
-			}
-		);
-
-		await expect(AzureFileService.makeService('somecontainer', blobService))
-			.rejects.toThrowError('Cannot create container');
+		await expect(fileService.createContainerIfNotExists()).rejects.toThrow(SyntaxError);
 	});
 });
 
@@ -72,9 +63,10 @@ describe('file upload', () => {
 	const container = 'testupload';
 
 	test('upload mp3 file', async () => {
-		const azureFileService = await AzureFileService.makeService(container);
+		const fileService = new AzureFileService(container);
+		await fileService.createContainerIfNotExists();
 
-		await azureFileService.uploadFile({
+		await fileService.uploadFile({
 			filenameRemote: 'SampleAudio.mp3',
 			contentType: 'audio/mp3',
 			source: fs.createReadStream(mp3FilePath)
@@ -82,15 +74,16 @@ describe('file upload', () => {
 	}, TIMEOUT);
 
 	test('upload already existing file', async () => {
-		const azureFileService = await AzureFileService.makeService(container);
+		const fileService = new AzureFileService(container);
+		await fileService.createContainerIfNotExists();
 
-		await azureFileService.uploadFile({
+		await fileService.uploadFile({
 			filenameRemote: 'AlreadyExisting.mp3',
 			contentType: 'audio/mp3',
 			source: fs.createReadStream(mp3FilePath)
 		});
 
-		await azureFileService.uploadFile({
+		await fileService.uploadFile({
 			filenameRemote: 'AlreadyExisting.mp3',
 			contentType: 'audio/mp3',
 			source: fs.createReadStream(mp3FilePath)
@@ -105,9 +98,10 @@ describe('file upload', () => {
 				callback(new Error('Cannot create write stream to block blob'));
 			}
 		);
-		const azureFileService = await AzureFileService.makeService(container, blobService);
+		const fileService = new AzureFileService(container, blobService);
+		await fileService.createContainerIfNotExists();
 
-		await expect(azureFileService.uploadFile({
+		await expect(fileService.uploadFile({
 			filenameRemote: 'AlreadyExisting.mp3',
 			contentType: 'audio/mp3',
 			source: fs.createReadStream(mp3FilePath)
@@ -123,16 +117,17 @@ if (process.env.IS_CI) {
 		const container = 'testupload';
 
 		test('get url to uploaded file', async () => {
-			const azureFileService = await AzureFileService.makeService(container);
+			const fileService = new AzureFileService(container);
+			await fileService.createContainerIfNotExists();
 			const filenameRemote = 'SomeFile.mp3';
 
-			await azureFileService.uploadFile({
+			await fileService.uploadFile({
 				filenameRemote: filenameRemote,
 				contentType: 'audio/mp3',
 				source: fs.createReadStream(mp3FilePath)
 			});
 
-			const urlToFile = await azureFileService.getLinkToFile({ filenameRemote, expireDate: moment().add(20, 'seconds') });
+			const urlToFile = await fileService.getLinkToFile({ filenameRemote, expireDate: moment().add(20, 'seconds') });
 
 			const urlToFileIsReachable = await urlIsReachable(urlToFile);
 
@@ -140,16 +135,17 @@ if (process.env.IS_CI) {
 		});
 
 		test('get url to uploaded file expired', async () => {
-			const azureFileService = await AzureFileService.makeService(container);
+			const fileService = new AzureFileService(container);
+			await fileService.createContainerIfNotExists();
 			const filenameRemote = 'SomeFile.mp3';
 
-			await azureFileService.uploadFile({
+			await fileService.uploadFile({
 				filenameRemote: filenameRemote,
 				contentType: 'audio/mp3',
 				source: fs.createReadStream(mp3FilePath)
 			});
 
-			const urlToFile = await azureFileService.getLinkToFile({ filenameRemote, expireDate: moment().add(-20, 'seconds') });
+			const urlToFile = await fileService.getLinkToFile({ filenameRemote, expireDate: moment().add(-20, 'seconds') });
 
 			const urlToFileIsReachable = await urlIsReachable(urlToFile);
 
@@ -157,16 +153,17 @@ if (process.env.IS_CI) {
 		});
 
 		test('get url to uploaded file no end date specified', async () => {
-			const azureFileService = await AzureFileService.makeService(container);
+			const fileService = new AzureFileService(container);
+			await fileService.createContainerIfNotExists();
 			const filenameRemote = 'SomeFile.mp3';
 
-			await azureFileService.uploadFile({
+			await fileService.uploadFile({
 				filenameRemote: filenameRemote,
 				contentType: 'audio/mp3',
 				source: fs.createReadStream(mp3FilePath)
 			});
 
-			const urlToFile = await azureFileService.getLinkToFile({ filenameRemote });
+			const urlToFile = await fileService.getLinkToFile({ filenameRemote });
 
 			await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
 
@@ -182,25 +179,27 @@ describe('get file as buffer', () => {
 	const container = 'testupload';
 
 	test('get existing file as buffer', async () => {
-		const azureFileService = await AzureFileService.makeService(container);
+		const fileService = new AzureFileService(container);
+		await fileService.createContainerIfNotExists();
 
 		const filenameRemote = 'file-' + uuid().split('-').join('') + '.mp3';
 
-		await azureFileService.uploadFile({
+		await fileService.uploadFile({
 			filenameRemote: filenameRemote,
 			contentType: 'audio/mp3',
 			source: fs.createReadStream(mp3FilePath)
 		});
 
 		const readBuffer = await fsPromises.readFile(mp3FilePath);
-		const receivedBuffer = await azureFileService.getFileAsBuffer(filenameRemote);
+		const receivedBuffer = await fileService.getFileAsBuffer(filenameRemote);
 
 		expect(receivedBuffer.equals(readBuffer)).toBe(true);
 	}, TIMEOUT);
 
 	test('get not-existing file as buffer', async () => {
-		const azureFileService = await AzureFileService.makeService(container);
+		const fileService = new AzureFileService(container);
+		await fileService.createContainerIfNotExists();
 
-		await expect(azureFileService.getFileAsBuffer('some-not-existing-file.mp3')).rejects.toThrow();
+		await expect(fileService.getFileAsBuffer('some-not-existing-file.mp3')).rejects.toThrow();
 	}, TIMEOUT);
 });

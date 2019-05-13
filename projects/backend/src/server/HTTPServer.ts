@@ -5,7 +5,7 @@ import * as Morgan from 'morgan';
 import { fileUploadRouter } from './routes/file-upload-route';
 import { __DEV__, __PROD__ } from '../utils/env/env-constants';
 import { FileService } from '../file-service/FileService';
-import { SongUploadProcessingQueue } from '../job-queues/SongUploadProcessingQueue';
+import { ISongUploadProcessingQueue } from '../job-queues/SongUploadProcessingQueue';
 import { Server } from 'net';
 import { ApolloServer } from 'apollo-server-express';
 import { auth } from '../auth/auth-middleware';
@@ -15,8 +15,8 @@ const ONE_HUNDRED_MEGABYTE = 100 * 1024 * 1024;
 
 export interface IHTTPServerArgs {
 	graphQLServer: ApolloServer;
-	fileService: FileService;
-	uploadProcessingQueue: SongUploadProcessingQueue;
+	songFileService: FileService;
+	uploadProcessingQueue: ISongUploadProcessingQueue;
 	authExtractor: CustomRequestHandler;
 }
 
@@ -25,7 +25,7 @@ export interface IHTTPServer {
 	stop(): Promise<void>;
 }
 
-export const HTTPServer = ({ fileService, graphQLServer, uploadProcessingQueue, authExtractor }: IHTTPServerArgs): IHTTPServer => {
+export const HTTPServer = ({ songFileService, graphQLServer, uploadProcessingQueue, authExtractor }: IHTTPServerArgs): IHTTPServer => {
 	let httpServer: Server;
 	const expressApp = express();
 
@@ -42,7 +42,7 @@ export const HTTPServer = ({ fileService, graphQLServer, uploadProcessingQueue, 
 		httpServer = await expressApp.listen({ port });
 
 		const fileUploadRoutes = fileUploadRouter({
-			fileService: fileService,
+			songFileService,
 			uploadProcessingQueue: uploadProcessingQueue,
 			maxFileSize: ONE_HUNDRED_MEGABYTE,
 			auth

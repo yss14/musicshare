@@ -134,7 +134,7 @@ const fileUploadRoute = (fileService: FileService, uploadProcessingQueue: ISongU
 );
 
 interface IFileUploadRouterArgs {
-	fileService: FileService;
+	songFileService: FileService;
 	uploadProcessingQueue: ISongUploadProcessingQueue;
 	maxFileSize: number;
 	allowedMimeTypes?: string[];
@@ -142,9 +142,9 @@ interface IFileUploadRouterArgs {
 	auth: CustomRequestHandler;
 }
 
-export const fileUploadRouter = ({ fileService, uploadProcessingQueue, maxFileSize, allowedMimeTypes, bodyParser, auth }: IFileUploadRouterArgs) => {
+export const fileUploadRouter = ({ songFileService, uploadProcessingQueue, maxFileSize, allowedMimeTypes, bodyParser, auth }: IFileUploadRouterArgs) => {
 	const finalAllowedMimeTypes = allowedMimeTypes || ['*/*'];
-	const restRoute = fileUploadRoute(fileService, uploadProcessingQueue);
+	const restRoute = fileUploadRoute(songFileService, uploadProcessingQueue);
 
 	return express.Router()
 		.use(bodyParser || makeRawBodyParser(maxFileSize, finalAllowedMimeTypes))

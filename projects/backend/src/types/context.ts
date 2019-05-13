@@ -5,6 +5,7 @@ import { ContextFunction } from 'apollo-server-core';
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
 import { ISongService } from '../services/SongService';
 import { IShareService } from '../services/ShareService';
+import { IServices } from '../services/services';
 
 export interface IBaseContext {
 	userID: string | null;
@@ -33,13 +34,7 @@ export type Scopes = IShareScope[];
 export type ContextRequest = Express.Request & { context: IBaseContext };
 export type CustomRequestHandler = (req: ContextRequest, res: Express.Response, next: Express.NextFunction) => any;
 
-interface IGraphQLContextProviderArgs {
-	playlistService: IPlaylistService;
-	songService: ISongService;
-	shareService: IShareService;
-}
-
-export const makeGraphQLContextProvider = ({ playlistService, songService, shareService }: IGraphQLContextProviderArgs): ContextFunction<ExpressContext, IGraphQLContext> =>
+export const makeGraphQLContextProvider = ({ playlistService, songService, shareService }: IServices): ContextFunction<ExpressContext, IGraphQLContext> =>
 	({ req }: { req: ContextRequest }): IGraphQLContext => {
 		return {
 			...req.context,

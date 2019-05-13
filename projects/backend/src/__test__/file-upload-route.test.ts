@@ -22,7 +22,7 @@ const passingFileService = new FileServiceMock(
 const songUploadProcessingQueue = new SongUploadProcessingQueueMock();
 const mockedAuth: CustomRequestHandler = (req, res, next) => next();
 const defaultRestRouter = fileUploadRouter({
-	fileService: passingFileService,
+	songFileService: passingFileService,
 	uploadProcessingQueue: songUploadProcessingQueue,
 	maxFileSize: 10 * 1024 * 1024,
 	allowedMimeTypes: acceptedContentTypes,
@@ -139,7 +139,7 @@ test('invalid request passing invalid shareID', async () => {
 test('invalid request passing no content-type', async (done) => {
 	const customBodyParser: NextHandleFunction = (req, res, next) => next();
 	const customRouter = fileUploadRouter({
-		fileService: passingFileService,
+		songFileService: passingFileService,
 		uploadProcessingQueue: songUploadProcessingQueue,
 		maxFileSize: 10 * 1024 * 1024,
 		allowedMimeTypes: acceptedContentTypes,
@@ -167,7 +167,7 @@ test('valid request, but file upload fails', async (done) => {
 		() => ''
 	);
 	const restRouter = fileUploadRouter({
-		fileService: failingFileService,
+		songFileService: failingFileService,
 		uploadProcessingQueue: songUploadProcessingQueue,
 		maxFileSize: 10 * 1024 * 1024,
 		allowedMimeTypes: acceptedContentTypes,

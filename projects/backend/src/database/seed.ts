@@ -1,4 +1,3 @@
-import { SongService } from '../services/SongService';
 import * as faker from 'faker';
 import { createPrefilledArray } from '../utils/array/create-prefilled-array';
 import { __PROD__, __DEV__ } from '../utils/env/env-constants';
@@ -9,14 +8,10 @@ import { types as CTypes } from 'cassandra-driver';
 import { IUsersDBResult, IShareByUserDBResult, ISongByShareDBResult, UsersTable, SharesByUserTable, IPlaylistByShareDBResult } from './schema/tables';
 import { IDatabaseClient } from 'cassandra-schema-builder';
 import { defaultSongTypes, defaultGenres } from './fixtures';
-import { ISongTypeService } from '../services/SongTypeService';
 import { SongType } from '../models/SongType';
-import { IGenreService } from '../services/GenreService';
 import { Genre } from '../models/GenreModel';
-import { IPasswordLoginService } from '../auth/PasswordLoginService';
-import { IPlaylistService } from '../services/PlaylistService';
-import { IPermissionService } from '../services/PermissionsService';
 import { Permissions } from '../auth/permissions';
+import { IServices } from '../services/services';
 
 type Users = 'user1' | 'user2';
 type Shares = 'library_user1' | 'library_user2' | 'some_shared_library';
@@ -171,16 +166,13 @@ export type DatabaseSeed = () => Promise<void>;
 
 interface IMakeDatabaseSeedArgs {
 	database: IDatabaseClient;
-	songService: SongService;
-	songTypeService: ISongTypeService;
-	genreService: IGenreService;
-	passwordLoginService: IPasswordLoginService;
-	playlistService: IPlaylistService;
-	permissionService: IPermissionService;
+	services: IServices;
 }
 
-export const makeDatabaseSeed = ({ database, songService, songTypeService, genreService, passwordLoginService, playlistService, permissionService }: IMakeDatabaseSeedArgs): DatabaseSeed =>
+export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs): DatabaseSeed =>
 	async (): Promise<void> => {
+		const { songService, songTypeService, genreService, passwordLoginService, playlistService } = services;
+
 		if (!__PROD__) {
 			for (const user of Object.values(testData.users)) {
 				await database.query(UsersTable.insertFromObj(user));
