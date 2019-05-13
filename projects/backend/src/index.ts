@@ -20,10 +20,8 @@ import { configFromEnv } from "./types/config";
 import { connectAndSetupDatabase } from "./database/core-database";
 import { initServices } from "./services/services";
 
-// enable source map support for error stacks
 require('source-map-support').install();
 
-// load environment variables
 const nodeEnv = process.env.NODE_ENV;
 
 if (!isValidNodeEnvironment(nodeEnv)) {
