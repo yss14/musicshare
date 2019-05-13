@@ -63,6 +63,7 @@ describe('update song mutation', () => {
 			title: 'Some new title',
 			label: null,
 			artists: ['Some new artist'],
+			tags: ['sometag'],
 		}
 		const query = makeUpdateSongMutation(share.id.toString(), song.song_id.toString(), input);
 		const timestampBeforeUpdate = Date.now();

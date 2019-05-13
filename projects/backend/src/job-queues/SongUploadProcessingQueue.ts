@@ -82,6 +82,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 				requires_user_action: !songMeta.title || songMeta.title.trim().length === 0 || !songMeta.artists || songMeta.artists.length === 0,
 				file: JSON.stringify(uploadMeta.file),
 				duration: songMeta.duration || 0,
+				tags: [],
 			});
 
 			return callback(undefined, song);

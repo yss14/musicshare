@@ -14,7 +14,8 @@ const baseSongKeys = `
 	genres,
 	label,
 	file{container, blob, fileExtension,originalFilename},
-	duration
+	duration,
+	tags
 `;
 
 export const songKeys = `
