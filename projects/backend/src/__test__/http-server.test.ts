@@ -29,9 +29,9 @@ afterAll(async () => {
 const mockedAuthExtractor: CustomRequestHandler = (req, res, next) => next();
 
 test('start http server', async () => {
-	const { graphQLServer, fileService, songUploadProcessingQueue } = await setupTest({ seedDatabase: false });
+	const { graphQLServer, songFileService, songProcessingQueue } = await setupTest({ seedDatabase: false });
 
-	const httpServer = HTTPServer({ graphQLServer, fileService, uploadProcessingQueue: songUploadProcessingQueue, authExtractor: mockedAuthExtractor });
+	const httpServer = HTTPServer({ graphQLServer, songFileService, uploadProcessingQueue: songProcessingQueue, authExtractor: mockedAuthExtractor });
 	const port = await findFreePort();
 
 	await expect(httpServer.start('graphqltest', port)).toResolve();
@@ -40,9 +40,9 @@ test('start http server', async () => {
 });
 
 test('start http server with graphql playground', async () => {
-	const { graphQLServer, fileService, songUploadProcessingQueue } = await setupTest({ seedDatabase: false });
+	const { graphQLServer, songFileService, songProcessingQueue } = await setupTest({ seedDatabase: false });
 
-	const httpServer = HTTPServer({ graphQLServer, fileService, uploadProcessingQueue: songUploadProcessingQueue, authExtractor: mockedAuthExtractor });
+	const httpServer = HTTPServer({ graphQLServer, songFileService, uploadProcessingQueue: songProcessingQueue, authExtractor: mockedAuthExtractor });
 	const port = await findFreePort();
 
 	await expect(httpServer.start('graphqltest', port)).toResolve();

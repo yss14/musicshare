@@ -1,28 +1,22 @@
-import { IShareService } from '../services/ShareService';
 import { User } from '../models/UserModel';
 import { Resolver, Arg, Query, FieldResolver, Root, Mutation, Authorized, Ctx, Args } from "type-graphql";
 import { Share } from '../models/ShareModel';
-import { IUserService, UserNotFoundError } from '../services/UserService';
-import { IPasswordLoginService, LoginNotFound, LoginCredentialsInvalid } from '../auth/PasswordLoginService';
+import { UserNotFoundError } from '../services/UserService';
+import { LoginNotFound, LoginCredentialsInvalid } from '../auth/PasswordLoginService';
 import { InternalServerError } from '../types/internal-server-error';
 import { IGraphQLContext, IShareScope } from '../types/context';
 import { AuthTokenBundle } from '../models/AuthTokenBundleModel';
-import { IAuthenticationService } from '../auth/AuthenticationService';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { UserIDArg, PermissionsArg } from '../args/user-args';
 import { ShareIDArg } from '../args/share-args';
-import { IPermissionService } from '../services/PermissionsService';
 import { ShareAuth } from '../auth/middleware/share-auth';
+import { IServices } from '../services/services';
 
 @Resolver(of => User)
 export class UserResolver {
 
 	constructor(
-		private readonly userService: IUserService,
-		private readonly shareService: IShareService,
-		private readonly passwordLoginService: IPasswordLoginService,
-		private readonly authService: IAuthenticationService,
-		private readonly permissionService: IPermissionService,
+		private readonly services: IServices,
 	) { }
 
 	@Authorized()
@@ -30,7 +24,7 @@ export class UserResolver {
 	public user(
 		@Ctx() ctx: IGraphQLContext,
 	): Promise<User | null> {
-		return this.userService.getUserByID(ctx.userID!);
+		return this.services.userService.getUserByID(ctx.userID!);
 	}
 
 	@Authorized()
@@ -40,10 +34,10 @@ export class UserResolver {
 		@Arg('libOnly', { nullable: true }) libOnly?: boolean
 	): Promise<Share[]> {
 		if (libOnly) {
-			return this.shareService.getSharesByUser(user.id)
+			return this.services.shareService.getSharesByUser(user.id)
 				.then(shares => shares.filter(share => share.isLibrary));
 		} else {
-			return this.shareService.getSharesByUser(user.id);
+			return this.services.shareService.getSharesByUser(user.id);
 		}
 	}
 
@@ -52,13 +46,15 @@ export class UserResolver {
 		@Arg('email') email: string,
 		@Arg('password', { description: 'Plain text, hashing takes place at server side' }) password: string,
 	): Promise<AuthTokenBundle> {
+		const { passwordLoginService, authService, userService } = this.services;
+
 		try {
-			const refreshToken = await this.passwordLoginService.login(email, password);
-			const refreshTokenDecoded = await this.authService.verifyToken(refreshToken);
-			const user = await this.userService.getUserByEMail(email);
+			const refreshToken = await passwordLoginService.login(email, password);
+			const refreshTokenDecoded = await authService.verifyToken(refreshToken);
+			const user = await userService.getUserByEMail(email);
 
 			const shareScopes = await this.getUserShareScopes(user.id);
-			const authToken = await this.authService.issueAuthToken(user, shareScopes, refreshTokenDecoded.tokenID);
+			const authToken = await authService.issueAuthToken(user, shareScopes, refreshTokenDecoded.tokenID);
 
 			return AuthTokenBundle.create(refreshToken, authToken);
 		} catch (err) {
@@ -74,12 +70,14 @@ export class UserResolver {
 	public async issueAuthToken(
 		@Arg('refreshToken') refreshToken: string,
 	): Promise<string> {
+		const { authService, userService } = this.services;
+
 		try {
-			const refreshTokenDecoded = await this.authService.verifyToken(refreshToken);
-			const user = await this.userService.getUserByID(refreshTokenDecoded.userID);
+			const refreshTokenDecoded = await authService.verifyToken(refreshToken);
+			const user = await userService.getUserByID(refreshTokenDecoded.userID);
 
 			const shareScopes = await this.getUserShareScopes(user.id);
-			const authToken = await this.authService.issueAuthToken(user, shareScopes, refreshTokenDecoded.tokenID);
+			const authToken = await authService.issueAuthToken(user, shareScopes, refreshTokenDecoded.tokenID);
 
 			return authToken;
 		} catch (err) {
@@ -94,10 +92,12 @@ export class UserResolver {
 	}
 
 	private async getUserShareScopes(userID: string): Promise<IShareScope[]> {
-		const shares = await this.shareService.getSharesByUser(userID);
+		const { shareService, permissionService } = this.services;
+
+		const shares = await shareService.getSharesByUser(userID);
 
 		const userSharePermissions = await Promise.all(
-			shares.map(share => this.permissionService.getPermissionsForUser(share.id, userID))
+			shares.map(share => permissionService.getPermissionsForUser(share.id, userID))
 		);
 		const shareScopes = userSharePermissions.map((permissions, idx): IShareScope => {
 			const share = shares[idx];
@@ -116,8 +116,8 @@ export class UserResolver {
 		@Args() { shareID }: ShareIDArg,
 		@Args() { permissions }: PermissionsArg,
 	): Promise<string[]> {
-		await this.permissionService.addPermissionsForUser(shareID, userID, permissions);
+		await this.services.permissionService.addPermissionsForUser(shareID, userID, permissions);
 
-		return this.permissionService.getPermissionsForUser(shareID, userID);
+		return this.services.permissionService.getPermissionsForUser(shareID, userID);
 	}
 }

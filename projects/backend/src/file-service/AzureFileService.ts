@@ -18,7 +18,7 @@ export class AzureFileService implements FileService {
 	private readonly blobStorage: azBlob.BlobService;
 	public readonly container: string;
 
-	private constructor(container: string, blobStorage?: azBlob.BlobService) {
+	constructor(container: string, blobStorage?: azBlob.BlobService) {
 		this.container = container;
 
 		if (blobStorage) {
@@ -28,17 +28,7 @@ export class AzureFileService implements FileService {
 		}
 	}
 
-	public static async makeService(container: string): Promise<AzureFileService>;
-	public static async makeService(container: string, blobStorage: azBlob.BlobService): Promise<AzureFileService>;
-	public static async makeService(container: string, blobStorage?: azBlob.BlobService): Promise<AzureFileService> {
-		const fileService = new AzureFileService(container, blobStorage);
-
-		await fileService.createContainerIfNotExists();
-
-		return fileService;
-	}
-
-	private createContainerIfNotExists() {
+	public createContainerIfNotExists() {
 		return new Promise<void>((resolve, reject) => {
 			this.blobStorage.createContainerIfNotExists(this.container, (err) => {
 				if (err) {
