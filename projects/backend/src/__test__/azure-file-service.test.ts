@@ -98,7 +98,7 @@ describe('file upload', () => {
 				callback(new Error('Cannot create write stream to block blob'));
 			}
 		);
-		const fileService = new AzureFileService(container);
+		const fileService = new AzureFileService(container, blobService);
 		await fileService.createContainerIfNotExists();
 
 		await expect(fileService.uploadFile({
