@@ -53,6 +53,7 @@ if (!isProductionEnvironment()) {
 	Container.set(PlaylistResolver, playlistResolver);
 
 	await services.songFileService.createContainerIfNotExists();
+	console.info('FileStorage connected');
 
 	if (__DEV__) {
 		const seed = await makeDatabaseSeed({ database, services });
