@@ -54,6 +54,10 @@ export class SongUpdateInput implements Partial<ShareSong>{
 	@Field(type => String, { nullable: true })
 	public readonly label?: string | null;
 
+	@Field(type => [String], { nullable: true })
+	@MinLength(1, { each: true })
+	public readonly tags?: string[];
+
 	public isValid() {
 		const nonNullableAttributes: (keyof SongUpdateInput)[] = ['title', 'artists', 'type', 'isRip'];
 
