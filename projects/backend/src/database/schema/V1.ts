@@ -23,6 +23,7 @@ export namespace DatabaseV1 {
 		share_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		file: { type: ColumnType.Varchar },
 		duration: { type: ColumnType.Int, nullable: false },
+		tags: { type: CSet(ColumnType.Varchar) },
 	});
 
 	export const users = TableSchema({

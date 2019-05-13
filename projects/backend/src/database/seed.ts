@@ -46,6 +46,7 @@ const songZeroOliverSmith: ISongByShareDBResult = {
 	requires_user_action: false,
 	file: JSON.stringify(makeFileObject('songs', 'zero', 'zero_somesuffic', 'mp3')),
 	duration: 401,
+	tags: ['Anjuna', 'Progressive'],
 }
 
 const songPerthDusky: ISongByShareDBResult = {
@@ -67,6 +68,7 @@ const songPerthDusky: ISongByShareDBResult = {
 	requires_user_action: false,
 	file: JSON.stringify(makeFileObject('songs', 'perth', 'perth_abgtrip', 'mp3')),
 	duration: 370,
+	tags: ['Anjuna', 'Deep', 'Funky'],
 }
 
 const songContactAlastor: ISongByShareDBResult = {
@@ -88,6 +90,7 @@ const songContactAlastor: ISongByShareDBResult = {
 	requires_user_action: false,
 	file: JSON.stringify(makeFileObject('songs', 'contact', 'contact_rue_alastor', 'mp3')),
 	duration: 248,
+	tags: ['Dark', 'Party Chill'],
 }
 
 export const testData: ITestDataSchema = {
@@ -227,6 +230,7 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 					requires_user_action: false,
 					file: JSON.stringify(makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3')),
 					duration: 120 + Math.floor(Math.random() * 400),
+					tags: [],
 				}));
 
 			await Promise.all(songInserts.map(s => songService.create(s)));
