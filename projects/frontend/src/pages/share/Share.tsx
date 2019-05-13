@@ -6,39 +6,39 @@ import { Table } from "antd";
 import { buildSongName } from "../../utils/songname-builder";
 import { ISong } from "../../schemas/shares.schema";
 import {
-  ILocalShareVariables,
-  ILocalShareData
+	ILocalShareVariables,
+	ILocalShareData
 } from "../../resolvers/types.local";
 
 interface IData {
-  share: {
-    songs: {
-      id: string;
-      title: string;
-      suffix: string;
-      year: number;
-      bpm: number;
-      dateLastEdit: string;
-      releaseDate: string;
-      isRip: boolean;
-      artists: string[];
-      remixer: string[];
-      featurings: string[];
-      type: string;
-      genres: string[];
-      label: string;
-      requiresUserAction: boolean;
-    }[];
-  };
+	share: {
+		songs: {
+			id: string;
+			title: string;
+			suffix: string;
+			year: number;
+			bpm: number;
+			dateLastEdit: string;
+			releaseDate: string;
+			isRip: boolean;
+			artists: string[];
+			remixer: string[];
+			featurings: string[];
+			type: string;
+			genres: string[];
+			label: string;
+			requiresUserAction: boolean;
+		}[];
+	};
 }
 
 interface IVariables {
-  id: string;
+	id: string;
 }
 
 const GET_SHARE = gql`
   query share($id: String!) {
-    share(id: $id) {
+    share(shareID: $id) {
       id
       name
       songs {
@@ -56,48 +56,49 @@ const GET_SHARE = gql`
         type
         genres
         label
-        requiresUserAction
+		requiresUserAction,
+		tags
       }
     }
   }
 `;
 
 const columns = [
-  {
-    title: "Title",
-    dataIndex: "titleStats",
-    width: 200,
-    key: "title",
-    render: (song: ISong) => <a href="#">{buildSongName(song)}</a>
-  },
-  {
-    title: "Artists",
-    dataIndex: "artists",
-    width: 150,
-    key: "artists",
-    render: (artists: string[]) =>
-      artists.reduce((prev, curr) => prev + ", " + curr)
-  },
-  {
-    title: "Release date",
-    dataIndex: "releaseDate",
-    width: 100,
-    key: "duration",
-    render: (releaseDate: string) => releaseDate
-  },
-  {
-    title: "Genres",
-    dataIndex: "genres",
-    width: 150,
-    key: "genres",
-    render: (genres: string[]) =>
-      genres.reduce((prev, curr) => prev + ", " + curr)
-  }
+	{
+		title: "Title",
+		dataIndex: "titleStats",
+		width: 200,
+		key: "title",
+		render: (song: ISong) => <a href="#">{buildSongName(song)}</a>
+	},
+	{
+		title: "Artists",
+		dataIndex: "artists",
+		width: 150,
+		key: "artists",
+		render: (artists: string[]) =>
+			artists.reduce((prev, curr) => prev + ", " + curr)
+	},
+	{
+		title: "Release date",
+		dataIndex: "releaseDate",
+		width: 100,
+		key: "duration",
+		render: (releaseDate: string) => releaseDate
+	},
+	{
+		title: "Genres",
+		dataIndex: "genres",
+		width: 150,
+		key: "genres",
+		render: (genres: string[]) =>
+			genres.reduce((prev, curr) => prev + ", " + curr)
+	}
 ];
 
 interface IShareProps {
-  id: string;
-  updateShareId: MutationFn<ILocalShareData, ILocalShareVariables>;
+	id: string;
+	updateShareId: MutationFn<ILocalShareData, ILocalShareVariables>;
 }
 
 const UPDATE_SHARE_ID = gql`
@@ -107,50 +108,50 @@ const UPDATE_SHARE_ID = gql`
 `;
 
 const MutationWrapper = ({ match }: RouteComponentProps<{ id: string }>) => {
-  const { id } = match.params;
-  return (
-    <Mutation<ILocalShareData, ILocalShareVariables>
-      mutation={UPDATE_SHARE_ID}
-      variables={{ shareId: id }}
-    >
-      {updateShareId => {
-        return <Share id={id} updateShareId={updateShareId} />;
-      }}
-    </Mutation>
-  );
+	const { id } = match.params;
+	return (
+		<Mutation<ILocalShareData, ILocalShareVariables>
+			mutation={UPDATE_SHARE_ID}
+			variables={{ shareId: id }}
+		>
+			{updateShareId => {
+				return <Share id={id} updateShareId={updateShareId} />;
+			}}
+		</Mutation>
+	);
 };
 
 const Share = ({ updateShareId, id }: IShareProps) => {
-  useEffect(() => {
-    updateShareId();
-    console.log("update", id);
-  }, [id]);
+	useEffect(() => {
+		updateShareId();
+		console.log("update", id);
+	}, [id]);
 
-  return (
-    <Query<IData, IVariables> query={GET_SHARE} variables={{ id }}>
-      {({ loading, error, data }) => {
-        if (loading) {
-          return <div>Loading ...</div>;
-        }
-        if (error) return `Error!: ${error}`;
-        if (data) {
-          const songs = data.share.songs.map(song => ({
-            ...song,
-            titleStats: song
-          }));
-          return (
-            <Table
-              size="middle"
-              columns={columns}
-              dataSource={songs}
-              pagination={false}
-              scroll={{ y: 1242 }}
-            />
-          );
-        }
-      }}
-    </Query>
-  );
+	return (
+		<Query<IData, IVariables> query={GET_SHARE} variables={{ id }}>
+			{({ loading, error, data }) => {
+				if (loading) {
+					return <div>Loading ...</div>;
+				}
+				if (error) return `Error!: ${error}`;
+				if (data) {
+					const songs = data.share.songs.map(song => ({
+						...song,
+						titleStats: song
+					}));
+					return (
+						<Table
+							size="middle"
+							columns={columns}
+							dataSource={songs}
+							pagination={false}
+							scroll={{ y: 1242 }}
+						/>
+					);
+				}
+			}}
+		</Query>
+	);
 };
 
 export default withRouter(MutationWrapper);
