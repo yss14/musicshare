@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import gql from "graphql-tag";
 import { Query, Mutation, MutationFn } from "react-apollo";
 import { RouteComponentProps, withRouter } from "react-router-dom";
@@ -9,6 +9,7 @@ import {
 	ILocalShareVariables,
 	ILocalShareData
 } from "../../resolvers/types.local";
+import { SongModal } from "../../components/modals/song-modal/SongModal";
 
 interface IData {
 	share: {
@@ -97,7 +98,7 @@ const columns = [
 ];
 
 interface IShareProps {
-	id: string;
+	shareID: string;
 	updateShareId: MutationFn<ILocalShareData, ILocalShareVariables>;
 }
 
@@ -115,42 +116,52 @@ const MutationWrapper = ({ match }: RouteComponentProps<{ id: string }>) => {
 			variables={{ shareId: id }}
 		>
 			{updateShareId => {
-				return <Share id={id} updateShareId={updateShareId} />;
+				return <Share shareID={id} updateShareId={updateShareId} />;
 			}}
 		</Mutation>
 	);
 };
 
-const Share = ({ updateShareId, id }: IShareProps) => {
+const Share = ({ updateShareId, shareID }: IShareProps) => {
+	const [editSongID, setEditSongID] = useState<string | null>(null);
+
 	useEffect(() => {
 		updateShareId();
-		console.log("update", id);
-	}, [id]);
+		console.log("update", shareID);
+	}, [shareID]);
+
+	const onRowClick = (song: any) => {
+		setEditSongID(song.id);
+	}
 
 	return (
-		<Query<IData, IVariables> query={GET_SHARE} variables={{ id }}>
-			{({ loading, error, data }) => {
-				if (loading) {
-					return <div>Loading ...</div>;
-				}
-				if (error) return `Error!: ${error}`;
-				if (data) {
-					const songs = data.share.songs.map(song => ({
-						...song,
-						titleStats: song
-					}));
-					return (
-						<Table
-							size="middle"
-							columns={columns}
-							dataSource={songs}
-							pagination={false}
-							scroll={{ y: 1242 }}
-						/>
-					);
-				}
-			}}
-		</Query>
+		<>
+			<Query<IData, IVariables> query={GET_SHARE} variables={{ id: shareID }}>
+				{({ loading, error, data }) => {
+					if (loading) {
+						return <div>Loading ...</div>;
+					}
+					if (error) return `Error!: ${error}`;
+					if (data) {
+						const songs = data.share.songs.map(song => ({
+							...song,
+							titleStats: song
+						}));
+						return (
+							<Table
+								size="middle"
+								columns={columns}
+								dataSource={songs}
+								pagination={false}
+								scroll={{ y: 1242 }}
+								onRowClick={onRowClick}
+							/>
+						);
+					}
+				}}
+			</Query>
+			{editSongID ? <SongModal songID={editSongID} shareID={shareID} onCancel={() => setEditSongID(null)} /> : null}
+		</>
 	);
 };
 
