@@ -9,25 +9,11 @@ import { resolvers } from "./resolvers";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import { makeConfigFromEnv } from "./config";
-import gql from "graphql-tag";
 import AppWrapper from "./AppWrapper";
 import { ThemeProvider } from "styled-components";
 import { ConfigContext } from "./context/configContext";
 
 const config = makeConfigFromEnv();
-
-//Client side schema - only "needed" for testing with Apollo DevTools chrome Extension
-const typeDefs = gql`
-  extend type Query {
-    todos: [any]!
-    visibilityFilter: string!
-  }
-
-  extend type Mutation {
-    toggleTodo(id: ID!): any
-    updateVisibilityFilter(visibilityFilter: string!): any
-  }
-`;
 
 const cache = new InMemoryCache();
 const client = new ApolloClient({
@@ -49,7 +35,6 @@ const client = new ApolloClient({
 		})
 	]),
 	cache,
-	typeDefs,
 	resolvers
 });
 

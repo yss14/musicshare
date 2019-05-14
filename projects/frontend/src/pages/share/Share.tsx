@@ -103,7 +103,7 @@ interface IShareProps {
 }
 
 const UPDATE_SHARE_ID = gql`
-  mutation updateShareId($shareId: string!) {
+  mutation updateShareId($shareId: String!) {
     updateShareId(shareId: $shareId) @client
   }
 `;

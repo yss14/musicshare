@@ -1,37 +1,66 @@
 export interface ITodoVariables {
-  id: string;
+	id: string;
 }
 
 export interface IEmailVariables {
-  id: string;
-  email: string;
+	id: string;
+	email: string;
 }
 
 export interface IVisibilityVariables {
-  visibilityFilter: string;
+	visibilityFilter: string;
 }
 
 export interface IShareVariables {
-  shareId: string;
+	shareId: string;
 }
 
 export interface IShareData {
-  shareId: string;
+	shareId: string;
 }
 
 export interface IUserData {
-  user: {
-    shares: {
-      id: string;
-      name: string;
-      userID: string;
-    }[];
-    id: string;
-    name: string;
-    emails: string[];
-  };
+	user: {
+		shares: {
+			id: string;
+			name: string;
+			userID: string;
+		}[];
+		id: string;
+		name: string;
+		emails: string[];
+	};
 }
 
 export interface IUserVariables {
-  id: string;
+	id: string;
+}
+
+export interface IShareSong {
+	id: string;
+	title: string;
+	suffix: string | null;
+	year: number | null;
+	bpm: number | null;
+	dateLastEdit: number;
+	releaseDate: string | null;
+	isRip: boolean;
+	artists: string[];
+	remixer: string[];
+	featurings: string[];
+	type: string | null;
+	genres: string[];
+	label: string;
+	duration: number;
+	requiresUserAction: boolean;
+}
+
+export interface IGenre {
+	name: string;
+	group: string;
+}
+
+export interface ISongType extends IGenre {
+	hasArtists: boolean;
+	alternativeNames: string[];
 }
