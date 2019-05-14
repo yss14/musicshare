@@ -99,7 +99,8 @@ const Dropzone = ({ userId, shareId, children }: IDropzoneProps) => {
 		[shareId, userId]
 	);
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
-		onDrop
+		onDrop,
+		noClick: true,
 	});
 
 	return (
