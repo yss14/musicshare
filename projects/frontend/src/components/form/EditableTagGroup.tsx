@@ -1,11 +1,16 @@
-import React from 'react';
-import { Tag, Input, Tooltip, Icon } from 'antd';
+import React, { ChangeEvent } from 'react';
+import { Tag, Input, Tooltip, Icon, AutoComplete } from 'antd';
 import { useState, useRef } from 'react';
+import { SelectValue } from 'antd/lib/select';
+
+const isChangeEvent = (obj: any): obj is ChangeEvent<HTMLInputElement> =>
+	obj.target !== undefined && obj.target.value !== undefined;
 
 interface IEditableTagGroupProps {
 	values: string[];
 	onValuesChange: (newValues: string[]) => void;
 	placeholder?: string;
+	datasource?: string[];
 }
 
 interface IEditableTagGroupState {
@@ -13,7 +18,7 @@ interface IEditableTagGroupState {
 	inputValue: string;
 }
 
-export const EditableTagGroup = ({ values, onValuesChange: onValueChange, placeholder }: IEditableTagGroupProps) => {
+export const EditableTagGroup = ({ values, onValuesChange: onValueChange, placeholder, datasource }: IEditableTagGroupProps) => {
 	const [state, setState] = useState<IEditableTagGroupState>({
 		inputVisible: false,
 		inputValue: '',
@@ -34,23 +39,39 @@ export const EditableTagGroup = ({ values, onValuesChange: onValueChange, placeh
 		}
 	};
 
-	const handleInputChange = (e: any) => {
-		setState({ ...state, inputValue: e.target.value });
+	const handleInputChange = (e: SelectValue | ChangeEvent) => {
+		if (typeof e === 'string') {
+			setState({ ...state, inputValue: e });
+		} else if (isChangeEvent(e)) {
+			setState({ ...state, inputValue: e.target.value });
+		}
 	};
 
-	const handleInputConfirm = () => {
+	const handleInputSelect = (e: SelectValue) => {
+		if (typeof e === 'string') {
+			handleInputConfirm(e);
+		}
+	}
+
+	const handleInputConfirm = (value?: SelectValue) => {
 		const { inputValue } = state;
 		let newValues = [...values];
 
-		if (inputValue && values.indexOf(inputValue) === -1) {
-			newValues.push(inputValue);
+		let finalInputValue = inputValue;
+
+		if (typeof value === 'string') {
+			finalInputValue = value;
 		}
 
-		setState({
+		if (finalInputValue && values.indexOf(finalInputValue) === -1) {
+			newValues.push(finalInputValue);
+		}
+
+		setTimeout(() => setState({
 			...state,
 			inputVisible: false,
 			inputValue: '',
-		});
+		}), 100);
 
 		onValueChange(newValues);
 	};
@@ -75,19 +96,31 @@ export const EditableTagGroup = ({ values, onValuesChange: onValueChange, placeh
 					);
 			})}
 			{inputVisible && (
-				<Input
-					ref={inputRef}
-					type="text"
-					size="small"
-					style={{ width: 100 }}
-					value={inputValue}
+				<AutoComplete
+					dataSource={(datasource || []).filter(data => data.toLowerCase().indexOf(inputValue.toLowerCase()) > -1)}
+					style={{ width: 200 }}
+					onSelect={handleInputSelect}
 					onChange={handleInputChange}
 					onBlur={handleInputConfirm}
-					onPressEnter={handleInputConfirm}
-				/>
+					placeholder={placeholder}
+					value={inputValue}
+					size="small"
+					autoFocus
+				>
+					<Input
+						ref={inputRef}
+						type="text"
+						size="small"
+						style={{ width: 100 }}
+						value={inputValue}
+						onChange={handleInputChange}
+						onBlur={() => handleInputConfirm()}
+						onPressEnter={() => handleInputConfirm()}
+					/>
+				</AutoComplete>
 			)}
 			{!inputVisible && (
-				<Tag onClick={showInput} style={{ background: '#fff', borderStyle: 'dashed' }}>
+				<Tag onClick={showInput} style={{ background: '#fff', borderStyle: 'dashed', cursor: 'pointer' }}>
 					<Icon type="plus" />
 					{placeholder || 'New Tag'}
 				</Tag>
