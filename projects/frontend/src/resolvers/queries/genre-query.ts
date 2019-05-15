@@ -1,6 +1,7 @@
 import { IGenre } from "../types";
 import gql from "graphql-tag";
-import { Query } from "react-apollo";
+import { Query, QueryResult } from "react-apollo";
+import { useQuery } from "@apollo/react-hooks";
 
 export interface IGetGenreData {
 	share: {
@@ -25,3 +26,5 @@ export const GET_GENRES = gql`
 `;
 
 export class GenresQuery extends Query<IGetGenreData, IGetGenreVariables>{ }
+
+export const useGenres = ({ variables }: { variables: IGetGenreVariables }): QueryResult<IGetGenreData, IGetGenreVariables> => useQuery(GET_GENRES);

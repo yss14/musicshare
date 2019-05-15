@@ -64,3 +64,7 @@ export interface ISongType extends IGenre {
 	hasArtists: boolean;
 	alternativeNames: string[];
 }
+
+export interface IArtist {
+	name: string;
+}

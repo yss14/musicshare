@@ -1,6 +1,8 @@
+import React from "react";
 import { IShareSong } from "../types";
-import { Query } from "react-apollo";
+import { Query, QueryResult } from "react-apollo";
 import gql from "graphql-tag";
+import { useQuery } from "@apollo/react-hooks";
 
 export interface ISongData {
 	share: {
@@ -40,3 +42,5 @@ export const GET_SONG = gql`
 `;
 
 export class SongQuery extends Query<ISongData, ISongVariables>{ }
+
+export const useSong = ({ variables }: { variables: ISongVariables }): QueryResult<ISongData, ISongVariables> => useQuery(GET_SONG);
