@@ -234,6 +234,7 @@ describe('get share related data', () => {
 	const makeShareGenresQuery = () => `genres{name,group}`;
 	const makeShareArtistsQuery = () => `artists{name}`;
 	const makeSharePermissionsQuery = () => `permissions`;
+	const makeShareTagsQuery = () => 'tags';
 
 	test('get share song types', async () => {
 		const { graphQLServer } = await setupTest({});
@@ -278,13 +279,24 @@ describe('get share related data', () => {
 	test('get share permissions', async () => {
 		const database = makeMockedDatabase();
 		(<jest.Mock>database.query).mockReturnValue([testData.shares.library_user1])
-		const { graphQLServer } = await setupTest({ database: database });
+		const { graphQLServer } = await setupTest({ database });
 		const shareID = testData.shares.library_user1.id.toString();
 		const query = makeShareQuery(shareID, [makeSharePermissionsQuery()]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.share.permissions).toEqual(Permissions.ALL);
+	});
+
+	test('get share tags', async () => {
+		const { graphQLServer } = await setupTest({});
+		const shareID = testData.shares.library_user1.id.toString();
+		const query = makeShareQuery(shareID, [makeShareTagsQuery()]);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const expectedTags = ["Anjuna", "Progressive", "Deep", "Funky", "Dark", "Party Chill"].sort();
+
+		expect(body.data.share.tags.sort()).toEqual(expectedTags);
 	});
 });
 
