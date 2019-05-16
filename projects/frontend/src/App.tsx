@@ -1,5 +1,6 @@
 import React from "react";
 import { ApolloProvider } from "react-apollo";
+import { ApolloProvider as ApolloProviderHooks } from '@apollo/react-hooks';
 import { ApolloClient } from "apollo-client";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { HttpLink } from "apollo-link-http";
@@ -14,6 +15,24 @@ import { ThemeProvider } from "styled-components";
 import { ConfigContext } from "./context/configContext";
 
 const config = makeConfigFromEnv();
+
+const typeDefs = `
+	type SongUpdateInput {
+		title: String
+		suffix: String
+		year: Float
+		bpm: Float
+		releaseDate: String
+		isRip: Boolean
+		artists: [String!]
+		remixer: [String!]
+		featurings: [String!]
+		type: String
+		genres: [String!]
+		label: String
+		tags: [String!]
+	}
+`;
 
 const cache = new InMemoryCache();
 const client = new ApolloClient({
@@ -35,7 +54,8 @@ const client = new ApolloClient({
 		})
 	]),
 	cache,
-	resolvers
+	resolvers,
+	typeDefs,
 });
 
 //initial cache data
@@ -66,13 +86,15 @@ const theme = {
 const App = () => {
 	return (
 		<ApolloProvider client={client}>
-			<ThemeProvider theme={theme}>
-				<ConfigContext.Provider value={config}>
-					<Router>
-						<AppWrapper />
-					</Router>
-				</ConfigContext.Provider>
-			</ThemeProvider>
+			<ApolloProviderHooks client={client}>
+				<ThemeProvider theme={theme}>
+					<ConfigContext.Provider value={config}>
+						<Router>
+							<AppWrapper />
+						</Router>
+					</ConfigContext.Provider>
+				</ThemeProvider>
+			</ApolloProviderHooks>
 		</ApolloProvider>
 	);
 };

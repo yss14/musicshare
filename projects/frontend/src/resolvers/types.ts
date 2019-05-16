@@ -53,7 +53,27 @@ export interface IShareSong {
 	label: string;
 	duration: number;
 	requiresUserAction: boolean;
+	tags: string[];
 }
+
+export const shareSongKeys = `
+	id
+	title
+	suffix
+	year
+	bpm
+	dateLastEdit
+	releaseDate
+	isRip
+	artists
+	remixer
+	featurings
+	type
+	genres
+	label
+	requiresUserAction,
+	tags
+`;
 
 export interface IGenre {
 	name: string;

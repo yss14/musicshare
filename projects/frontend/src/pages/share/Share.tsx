@@ -160,7 +160,7 @@ const Share = ({ updateShareId, shareID }: IShareProps) => {
 					}
 				}}
 			</Query>
-			{editSongID ? <SongModal songID={editSongID} shareID={shareID} onCancel={() => setEditSongID(null)} /> : null}
+			{editSongID ? <SongModal songID={editSongID} shareID={shareID} closeForm={() => setEditSongID(null)} /> : null}
 		</>
 	);
 };

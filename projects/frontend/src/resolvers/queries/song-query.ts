@@ -1,5 +1,5 @@
 import React from "react";
-import { IShareSong } from "../types";
+import { IShareSong, shareSongKeys } from "../types";
 import { Query, QueryResult } from "react-apollo";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
@@ -20,22 +20,7 @@ export const GET_SONG = gql`
 		share(shareID: $shareID) {
 			id,
       		song(id: $songID){
-				id
-				title
-				suffix
-				year
-				bpm
-				dateLastEdit
-				releaseDate
-				isRip
-				artists
-				remixer
-				featurings
-				type
-				genres
-				label
-				requiresUserAction,
-				tags
+				${shareSongKeys}
 			}
     	}
   	}

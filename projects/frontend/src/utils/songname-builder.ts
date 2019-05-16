@@ -1,6 +1,7 @@
+import { IShareSong } from '../resolvers/types';
 import { ISong } from '../schemas/shares.schema';
 
-export const buildSongName = (song: ISong): string => {
+export const buildSongName = (song: IShareSong | ISong): string => {
 	let name = song.title;
 
 	if (song.remixer && song.remixer.length > 0) {
