@@ -7,6 +7,7 @@ import { HTTPStatusCodes } from "../types/http-status-codes";
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { IDatabaseClient } from "cassandra-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
+import moment = require("moment");
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -73,7 +74,7 @@ describe('update song mutation', () => {
 		const { updateSong } = body.data;
 
 		expect(updateSong).toMatchObject(input);
-		expect(updateSong.dateLastEdit).toBeGreaterThan(timestampBeforeUpdate);
+		expect(moment(updateSong.dateLastEdit).valueOf()).toBeGreaterThan(timestampBeforeUpdate);
 
 		const playlist1 = testData.playlists.playlist1_library_user1;
 		const playlist2 = testData.playlists.playlist2_library_user1;

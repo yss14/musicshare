@@ -23,8 +23,8 @@ export class Song implements Nullable<ISong>{
 	@Field(type => Number, { nullable: true })
 	public readonly bpm!: number | null;
 
-	@Field(type => Number)
-	public readonly dateLastEdit!: number;
+	@Field(type => String)
+	public readonly dateLastEdit!: string;
 
 	@Field(type => String, { nullable: true })
 	public readonly releaseDate!: string | null;
@@ -79,7 +79,7 @@ const songMapper = (row: ISongBaseDBResult) => ({
 	suffix: row.suffix,
 	year: row.year,
 	bpm: row.bpm,
-	dateLastEdit: row.date_last_edit.getTime(),
+	dateLastEdit: row.date_last_edit.toISOString(),
 	releaseDate: row.release_date ? row.release_date.toString() : null,
 	isRip: row.is_rip,
 	artists: row.artists || [],
