@@ -5,11 +5,11 @@ import {
 	UPLOAD_REMOVE,
 	UPLOAD_STARTED
 } from "./constants";
-import { UploadItemStatus, UploadItemType } from "../../schemas/upload.schema";
 import { blobToArrayBuffer } from "./blob-to-arraybuffer";
 import * as crypto from "js-sha256";
 import { upload } from "./upload";
 import { IConfig } from "../../config";
+import { UploadItemType, UploadItemStatus } from "../../graphql/rest-types";
 
 interface IAxiosProgress {
 	total?: number;

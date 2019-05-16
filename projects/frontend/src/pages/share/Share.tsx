@@ -4,65 +4,13 @@ import { Query, Mutation, MutationFn } from "react-apollo";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Table } from "antd";
 import { buildSongName } from "../../utils/songname-builder";
-import { ISong } from "../../schemas/shares.schema";
 import {
 	ILocalShareVariables,
 	ILocalShareData
 } from "../../graphql/types.local";
 import { SongModal } from "../../components/modals/song-modal/SongModal";
-
-interface IData {
-	share: {
-		songs: {
-			id: string;
-			title: string;
-			suffix: string;
-			year: number;
-			bpm: number;
-			dateLastEdit: string;
-			releaseDate: string;
-			isRip: boolean;
-			artists: string[];
-			remixer: string[];
-			featurings: string[];
-			type: string;
-			genres: string[];
-			label: string;
-			requiresUserAction: boolean;
-		}[];
-	};
-}
-
-interface IVariables {
-	id: string;
-}
-
-const GET_SHARE = gql`
-  query share($id: String!) {
-    share(shareID: $id) {
-      id
-      name
-      songs {
-        id
-        title
-        suffix
-        year
-        bpm
-        dateLastEdit
-        releaseDate
-        isRip
-        artists
-        remixer
-        featurings
-        type
-        genres
-        label
-		requiresUserAction,
-		tags
-      }
-    }
-  }
-`;
+import { IShareSong } from "../../graphql/types";
+import { ShareWithSongs, GET_SHARE_WITH_SONGS } from "../../graphql/queries/share-with-songs-query";
 
 const columns = [
 	{
@@ -70,7 +18,7 @@ const columns = [
 		dataIndex: "titleStats",
 		width: 200,
 		key: "title",
-		render: (song: ISong) => <a href="#">{buildSongName(song)}</a>
+		render: (song: IShareSong) => <a href="#">{buildSongName(song)}</a>
 	},
 	{
 		title: "Artists",
@@ -136,7 +84,7 @@ const Share = ({ updateShareId, shareID }: IShareProps) => {
 
 	return (
 		<>
-			<Query<IData, IVariables> query={GET_SHARE} variables={{ id: shareID }}>
+			<ShareWithSongs query={GET_SHARE_WITH_SONGS} variables={{ shareID }}>
 				{({ loading, error, data }) => {
 					if (loading) {
 						return <div>Loading ...</div>;
@@ -159,7 +107,7 @@ const Share = ({ updateShareId, shareID }: IShareProps) => {
 						);
 					}
 				}}
-			</Query>
+			</ShareWithSongs>
 			{editSongID ? <SongModal songID={editSongID} shareID={shareID} closeForm={() => setEditSongID(null)} /> : null}
 		</>
 	);

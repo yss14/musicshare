@@ -1,44 +1,6 @@
 import React from "react";
-import gql from "graphql-tag";
-import { Query, Mutation } from "react-apollo";
 import { Link } from "react-router-dom";
-
-interface IData {
-	user: {
-		shares: {
-			id: string;
-			name: string;
-			userID: string;
-		}[];
-	};
-}
-
-interface IVisibilityData {
-	visibilityFilter: string;
-}
-
-interface IVisibilityVariables {
-	visibilityFilter: string;
-}
-
-interface IVariables {
-	id: string;
-}
-
-const GET_SHARES = gql`
-  query user {
-    user {
-      shares {
-        id
-        name
-        userID
-        isLibrary
-      }
-    }
-  }
-`;
-
-class ShareQuery extends Query<IData, IVariables> { }
+import { ShareQuery, GET_SHARES } from "../../graphql/queries/shares-query";
 
 const Shares = () => (
 	<div>

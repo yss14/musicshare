@@ -19,13 +19,15 @@ export interface IShareData {
 	shareId: string;
 }
 
+export interface IShare {
+	id: string;
+	name: string;
+	userID: string;
+}
+
 export interface IUserData {
 	user: {
-		shares: {
-			id: string;
-			name: string;
-			userID: string;
-		}[];
+		shares: IShare[];
 		id: string;
 		name: string;
 		emails: string[];
@@ -36,7 +38,7 @@ export interface IUserVariables {
 	id: string;
 }
 
-export interface IShareSong {
+export interface IBaseSong {
 	id: string;
 	title: string;
 	suffix: string | null;
@@ -52,8 +54,11 @@ export interface IShareSong {
 	genres: string[];
 	label: string;
 	duration: number;
-	requiresUserAction: boolean;
 	tags: string[];
+}
+
+export interface IShareSong extends IBaseSong {
+	requiresUserAction: boolean;
 }
 
 export const shareSongKeys = `
@@ -74,6 +79,13 @@ export const shareSongKeys = `
 	requiresUserAction,
 	tags
 `;
+
+export interface IFile {
+	readonly container: string;
+	readonly blob: string;
+	readonly fileExtension: string;
+	readonly originalFilename: string;
+}
 
 export interface IGenre {
 	name: string;
