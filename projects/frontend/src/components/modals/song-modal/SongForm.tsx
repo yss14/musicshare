@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import './song-modal.css';
-import { IShareSong, IGenre, ISongType, IArtist } from '../../../resolvers/types';
+import { IShareSong, IGenre, ISongType, IArtist } from '../../../graphql/types';
 import { Formik } from 'formik';
 import { Form, Input, Row, Col, DatePicker, Switch, Modal } from 'antd';
 import { EditableTagGroup } from '../../form/EditableTagGroup';
 import moment from 'moment';
 import { Dropdown } from '../../form/Dropdown';
-import { UpdateSongMutation, UPDATE_SONG, ISongUpdateInput } from '../../../resolvers/mutations/update-song';
+import { UpdateSongMutation, UPDATE_SONG, ISongUpdateInput } from '../../../graphql/mutations/update-song';
 import { Nullable } from '../../../types/Nullable';
 import { buildSongName } from '../../../utils/songname-builder';
 

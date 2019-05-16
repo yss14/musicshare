@@ -7,7 +7,7 @@ import gql from "graphql-tag";
 import { Link, withRouter } from "react-router-dom";
 import { Typography } from "antd";
 
-import { IUserData, IUserVariables } from "../resolvers/types";
+import { IUserData, IUserVariables } from "../graphql/types";
 
 const { Title } = Typography;
 const { SubMenu, ItemGroup, Item } = Menu;

@@ -6,7 +6,7 @@ import { InMemoryCache } from "apollo-cache-inmemory";
 import { HttpLink } from "apollo-link-http";
 import { onError } from "apollo-link-error";
 import { ApolloLink } from "apollo-link";
-import { resolvers } from "./resolvers";
+import { resolvers } from "./graphql";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import { makeConfigFromEnv } from "./config";

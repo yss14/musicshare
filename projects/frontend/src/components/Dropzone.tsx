@@ -11,7 +11,7 @@ import {
 	ILocalShareVariables,
 	ILocalShareData,
 	ILocalUserData
-} from "../resolvers/types.local";
+} from "../graphql/types.local";
 import gql from "graphql-tag";
 import { useConfig } from "../hooks/use-config";
 

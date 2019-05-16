@@ -1,4 +1,3 @@
-import React from "react";
 import { IShareSong, shareSongKeys } from "../types";
 import { Query, QueryResult } from "react-apollo";
 import gql from "graphql-tag";

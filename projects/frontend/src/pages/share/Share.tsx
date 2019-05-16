@@ -8,7 +8,7 @@ import { ISong } from "../../schemas/shares.schema";
 import {
 	ILocalShareVariables,
 	ILocalShareData
-} from "../../resolvers/types.local";
+} from "../../graphql/types.local";
 import { SongModal } from "../../components/modals/song-modal/SongModal";
 
 interface IData {

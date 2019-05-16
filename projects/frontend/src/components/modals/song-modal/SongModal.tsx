@@ -1,8 +1,8 @@
 import React from 'react';
-import { SongQuery, GET_SONG } from '../../../resolvers/queries/song-query';
-import { GenresQuery, GET_GENRES } from '../../../resolvers/queries/genre-query';
-import { SongTypesQuery, GET_SONGTYPES } from '../../../resolvers/queries/song-types';
-import { ArtistsQuery, GET_ARTISTS } from '../../../resolvers/queries/artists-query';
+import { SongQuery, GET_SONG } from '../../../graphql/queries/song-query';
+import { GenresQuery, GET_GENRES } from '../../../graphql/queries/genre-query';
+import { SongTypesQuery, GET_SONGTYPES } from '../../../graphql/queries/song-types';
+import { ArtistsQuery, GET_ARTISTS } from '../../../graphql/queries/artists-query';
 import { SongForm } from './SongForm';
 
 interface ISongModalProps {

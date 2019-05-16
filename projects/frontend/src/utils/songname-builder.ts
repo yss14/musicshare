@@ -1,4 +1,4 @@
-import { IShareSong } from '../resolvers/types';
+import { IShareSong } from '../graphql/types';
 import { ISong } from '../schemas/shares.schema';
 
 export const buildSongName = (song: IShareSong | ISong): string => {
