@@ -17,6 +17,7 @@ import { IPermissionService, PermissionService } from "./PermissionsService";
 import { ID3MetaData } from "../utils/song-meta/song-meta-formats/id3/ID3MetaData";
 import { MP3SongDuration } from "../utils/song-meta/song-meta-formats/id3/MP3SongDuration";
 import { IConfig } from "../types/config";
+import { ITagService, TagService } from "./TagService";
 
 export interface IServices {
 	songFileService: AzureFileService;
@@ -34,6 +35,7 @@ export interface IServices {
 	playlistService: IPlaylistService;
 	invalidAuthTokenStore: IAuthTokenStore;
 	permissionService: IPermissionService;
+	tagService: ITagService;
 }
 
 export const initServices = (config: IConfig, database: IDatabaseClient): IServices => {
@@ -55,6 +57,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	const playlistService = PlaylistService({ database, songService });
 	const invalidAuthTokenStore = AuthTokenStore({ database, tokenGroup: 'authtoken' });
 	const permissionService = PermissionService({ database });
+	const tagService = TagService({ songService });
 
 	return {
 		songFileService,
@@ -72,5 +75,6 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 		playlistService,
 		invalidAuthTokenStore,
 		permissionService,
+		tagService,
 	};
 }

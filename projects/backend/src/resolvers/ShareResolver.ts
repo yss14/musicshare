@@ -84,6 +84,14 @@ export class ShareResolver {
 	}
 
 	@Authorized()
+	@FieldResolver(() => [String])
+	public async tags(
+		@Root() share: Share
+	): Promise<string[]> {
+		return this.services.tagService.getTagsForShare(share.id);
+	}
+
+	@Authorized()
 	@FieldResolver(() => [Playlist])
 	public async playlists(
 		@Root() share: Share,

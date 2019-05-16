@@ -10,6 +10,6 @@ export interface ISong {
 	featurings: string[];
 	type: string;
 	genres: string[];
-	label: string;
+	labels: string[];
 	duration: number;
 }

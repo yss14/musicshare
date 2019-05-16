@@ -52,7 +52,7 @@ export class SongUpdateInput implements Partial<ShareSong>{
 	public readonly genres?: string[];
 
 	@Field(type => String, { nullable: true })
-	public readonly label?: string | null;
+	public readonly labels?: string[];
 
 	@Field(type => [String], { nullable: true })
 	@MinLength(1, { each: true })

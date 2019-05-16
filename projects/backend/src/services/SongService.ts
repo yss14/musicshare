@@ -5,6 +5,7 @@ import { IDatabaseClient } from 'cassandra-schema-builder';
 import { ISongByShareDBResult, SongsByShareTable, ISongBaseDBResult } from '../database/schema/tables';
 import { SongUpdateInput } from '../inputs/SongInput';
 import * as snakeCaseObjKeys from 'snakecase-keys';
+import moment = require('moment');
 
 export class SongNotFoundError extends Error {
 	constructor(shareID: string, songID: string) {
@@ -52,7 +53,7 @@ export class SongService implements ISongService {
 	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<ShareSong[]> {
 		const songs = await this.getByShare(shareID);
 
-		return songs.filter(song => song.dateLastEdit > lastTimestamp);
+		return songs.filter(song => moment(song.dateLastEdit).valueOf() > lastTimestamp);
 	}
 
 	public async create(song: ISongByShareDBResult): Promise<string> {
