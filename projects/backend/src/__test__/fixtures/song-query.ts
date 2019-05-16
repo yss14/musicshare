@@ -12,7 +12,7 @@ const baseSongKeys = `
 	featurings,
 	type,
 	genres,
-	label,
+	labels,
 	file{container, blob, fileExtension,originalFilename},
 	duration,
 	tags

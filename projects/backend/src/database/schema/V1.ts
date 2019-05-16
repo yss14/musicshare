@@ -19,7 +19,7 @@ export namespace DatabaseV1 {
 		featurings: { type: CSet(ColumnType.Varchar) },
 		type: { type: ColumnType.Varchar },
 		genres: { type: CSet(ColumnType.Varchar) },
-		label: { type: ColumnType.Varchar },
+		labels: { type: CSet(ColumnType.Varchar) },
 		share_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		file: { type: ColumnType.Varchar },
 		duration: { type: ColumnType.Int, nullable: false },

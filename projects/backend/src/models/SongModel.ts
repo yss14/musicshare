@@ -47,8 +47,8 @@ export class Song implements Nullable<ISong>{
 	@Field(type => [String])
 	public readonly genres!: string[];
 
-	@Field(type => String, { nullable: true })
-	public readonly label!: string | null;
+	@Field(type => String)
+	public readonly labels!: string[];
 
 	@Field(() => Share)
 	public readonly share!: Share;
@@ -87,7 +87,7 @@ const songMapper = (row: ISongBaseDBResult) => ({
 	featurings: row.featurings || [],
 	type: row.type,
 	genres: row.genres || [],
-	label: row.label,
+	labels: row.labels || [],
 	file: row.file ? JSON.parse(row.file) : {},
 	duration: row.duration,
 	tags: row.tags || [],

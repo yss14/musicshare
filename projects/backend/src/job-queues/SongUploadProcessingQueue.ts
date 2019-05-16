@@ -77,7 +77,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 				featurings: [...(songMeta.featurings || [])],
 				type: songMeta.type || null,
 				genres: [...(songMeta.genres || [])],
-				label: songMeta.label || null,
+				labels: songMeta.labels || [],
 				share_id: TimeUUID(uploadMeta.shareID.toString()),
 				requires_user_action: !songMeta.title || songMeta.title.trim().length === 0 || !songMeta.artists || songMeta.artists.length === 0,
 				file: JSON.stringify(uploadMeta.file),

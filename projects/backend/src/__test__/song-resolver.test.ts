@@ -57,11 +57,11 @@ describe('update song mutation', () => {
 	test('valid input', async () => {
 		const { graphQLServer, playlistService } = await setupTest({});
 
-		const input: any = <SongUpdateInput>{
+		const input: any = {
 			bpm: 140,
 			isRip: false,
 			title: 'Some new title',
-			label: null,
+			labels: ['Label A', 'Label B'],
 			artists: ['Some new artist'],
 			tags: ['sometag'],
 		}

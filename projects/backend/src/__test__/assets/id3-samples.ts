@@ -53,7 +53,7 @@ export const id3Samples: IID3SampleTest[] = [
 			type: 'Original Mix',
 			artists: ['Farius'],
 			bpm: 128,
-			label: 'Zerothree',
+			labels: ['Zerothree'],
 		}
 	},
 	{

@@ -211,7 +211,7 @@ export class ID3MetaData implements ISongMetaDataSource {
 					const cleanedLabel = this.removeUrlClutter(id3Tags.publisher);
 
 					if (cleanedLabel.length > 0) {
-						extractedMetaData.label = cleanedLabel;
+						extractedMetaData.labels = [cleanedLabel];
 					}
 				}
 			}
