@@ -16,10 +16,11 @@ interface ISongFormProps {
 	genres: IGenre[];
 	songTypes: ISongType[];
 	artists: IArtist[];
+	tags: string[];
 	closeForm: () => void;
 }
 
-export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm }: ISongFormProps) => {
+export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm, tags }: ISongFormProps) => {
 
 	const artistsDataSource = useMemo(() => artists.map(artist => artist.name), [artists]);
 	const genresDataSource = useMemo(() => genres.map(genre => genre.name), [genres]);
@@ -193,6 +194,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm 
 														values={values.tags}
 														onValuesChange={newValues => setFieldValue('tags', newValues)}
 														placeholder="Add tag"
+														datasource={tags}
 													/>
 												</Form.Item>
 											</Col>
