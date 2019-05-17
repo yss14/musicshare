@@ -1,17 +1,9 @@
 import { InMemoryCache } from "apollo-cache-inmemory";
 import {
-	ITodoVariables,
 	IEmailVariables,
 	IVisibilityVariables,
 	IShareVariables
 } from "./types";
-
-// CLIENT RESOLVERS FOR LOCAL STATE
-
-// These are just sample implementations of resolvers that should be split up into seperate files later.
-interface ITodo {
-	completed: boolean;
-}
 
 export const resolvers = {
 	Mutation: {

@@ -1,4 +1,4 @@
-import { IGenre, IArtist } from "../types";
+import { IArtist } from "../types";
 import gql from "graphql-tag";
 import { Query, QueryResult } from "react-apollo";
 import { useQuery } from "@apollo/react-hooks";

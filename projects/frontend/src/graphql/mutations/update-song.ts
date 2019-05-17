@@ -1,6 +1,5 @@
 import gql from "graphql-tag";
 import { Mutation } from "react-apollo";
-import { ISongData } from "../queries/song-query";
 import { Nullable } from "../../types/Nullable";
 import { IShareSong, shareSongKeys } from "../types";
 

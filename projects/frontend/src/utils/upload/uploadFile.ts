@@ -18,10 +18,6 @@ interface IAxiosProgress {
 
 let currentUploads: number = 0;
 
-interface IUploadProps {
-	children: (state: any, dispatch: any) => React.ReactNode;
-}
-
 export const uploadFile = (
 	userID: string,
 	shareID: string,

@@ -2,14 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { Menu, Icon } from "antd";
 import { ClickParam } from "antd/lib/menu";
 import styled from "styled-components";
-import { Query, Mutation } from "react-apollo";
+import { Query } from "react-apollo";
 import gql from "graphql-tag";
 import { Link, withRouter } from "react-router-dom";
-import { Typography } from "antd";
 
 import { IUserData, IUserVariables } from "../graphql/types";
 
-const { Title } = Typography;
 const { SubMenu, ItemGroup, Item } = Menu;
 
 const GET_SHARES = gql`

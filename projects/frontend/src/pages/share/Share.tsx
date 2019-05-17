@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import gql from "graphql-tag";
-import { Query, Mutation, MutationFn } from "react-apollo";
+import { Mutation, MutationFn } from "react-apollo";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Table } from "antd";
 import { buildSongName } from "../../utils/songname-builder";
