@@ -44,7 +44,7 @@ export interface IBaseSong {
 	suffix: string | null;
 	year: number | null;
 	bpm: number | null;
-	dateLastEdit: number;
+	dateLastEdit: string;
 	releaseDate: string | null;
 	isRip: boolean;
 	artists: string[];
@@ -52,7 +52,7 @@ export interface IBaseSong {
 	featurings: string[];
 	type: string | null;
 	genres: string[];
-	label: string;
+	labels: string[];
 	duration: number;
 	tags: string[];
 }
@@ -75,7 +75,7 @@ export const shareSongKeys = `
 	featurings
 	type
 	genres
-	label
+	labels
 	requiresUserAction,
 	tags
 `;

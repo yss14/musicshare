@@ -186,13 +186,26 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm 
 												</Form.Item>
 											</Col>
 										</Row>
-										<Form.Item label="Tags">
-											<EditableTagGroup
-												values={values.tags}
-												onValuesChange={newValues => setFieldValue('tags', newValues)}
-												placeholder="Add tag"
-											/>
-										</Form.Item>
+										<Row>
+											<Col span={12} style={{ paddingRight: 20 }}>
+												<Form.Item label="Tags">
+													<EditableTagGroup
+														values={values.tags}
+														onValuesChange={newValues => setFieldValue('tags', newValues)}
+														placeholder="Add tag"
+													/>
+												</Form.Item>
+											</Col>
+											<Col span={12} style={{ paddingRight: 20 }}>
+												<Form.Item label="Labels">
+													<EditableTagGroup
+														values={values.labels}
+														onValuesChange={newValues => setFieldValue('labels', newValues)}
+														placeholder="Add label"
+													/>
+												</Form.Item>
+											</Col>
+										</Row>
 									</Form>
 								</div>
 							</Modal>
