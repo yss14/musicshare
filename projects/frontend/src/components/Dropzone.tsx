@@ -4,16 +4,16 @@ import { Icon, Typography } from "antd";
 import styled from "styled-components";
 import { uploadFile } from "../utils/upload/uploadFile";
 import { reducer } from "../utils/upload/upload.reducer";
-import { IUploadItem } from "../schemas/upload.schema";
 import { Query } from "react-apollo";
 import {
 	ILocalUserVariables,
 	ILocalShareVariables,
 	ILocalShareData,
 	ILocalUserData
-} from "../resolvers/types.local";
+} from "../graphql/types.local";
 import gql from "graphql-tag";
 import { useConfig } from "../hooks/use-config";
+import { IUploadItem } from "../graphql/rest-types";
 
 const StyledIcon = styled(Icon)`
   font-size: 64px;
@@ -99,7 +99,8 @@ const Dropzone = ({ userId, shareId, children }: IDropzoneProps) => {
 		[shareId, userId]
 	);
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
-		onDrop
+		onDrop,
+		noClick: true,
 	});
 
 	return (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Layout } from "antd";
 import Routing from "./Routing";
 import styled from "styled-components";
@@ -25,18 +25,18 @@ const StyledFooter = styled(Footer)`
 `;
 
 export default () => {
-  return (
-    <Layout>
-      <StyledHeader>
-        <HeaderMenu />
-      </StyledHeader>
-      <Layout style={{ height: "100vh" }}>
-        <Routing />
-      </Layout>
+	return (
+		<Layout>
+			<StyledHeader>
+				<HeaderMenu />
+			</StyledHeader>
+			<Layout style={{ height: "100vh" }}>
+				<Routing />
+			</Layout>
 
-      <StyledFooter>
-        <Player />
-      </StyledFooter>
-    </Layout>
-  );
+			<StyledFooter>
+				<Player />
+			</StyledFooter>
+		</Layout>
+	);
 };

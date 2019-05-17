@@ -5,11 +5,11 @@ import {
 	UPLOAD_REMOVE,
 	UPLOAD_STARTED
 } from "./constants";
-import { UploadItemStatus, UploadItemType } from "../../schemas/upload.schema";
 import { blobToArrayBuffer } from "./blob-to-arraybuffer";
 import * as crypto from "js-sha256";
 import { upload } from "./upload";
 import { IConfig } from "../../config";
+import { UploadItemType, UploadItemStatus } from "../../graphql/rest-types";
 
 interface IAxiosProgress {
 	total?: number;
@@ -17,10 +17,6 @@ interface IAxiosProgress {
 }
 
 let currentUploads: number = 0;
-
-interface IUploadProps {
-	children: (state: any, dispatch: any) => React.ReactNode;
-}
 
 export const uploadFile = (
 	userID: string,

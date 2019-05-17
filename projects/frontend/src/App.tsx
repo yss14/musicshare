@@ -1,32 +1,37 @@
 import React from "react";
 import { ApolloProvider } from "react-apollo";
+import { ApolloProvider as ApolloProviderHooks } from '@apollo/react-hooks';
 import { ApolloClient } from "apollo-client";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { HttpLink } from "apollo-link-http";
 import { onError } from "apollo-link-error";
 import { ApolloLink } from "apollo-link";
-import { resolvers } from "./resolvers";
+import { resolvers } from "./graphql";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import { makeConfigFromEnv } from "./config";
-import gql from "graphql-tag";
 import AppWrapper from "./AppWrapper";
 import { ThemeProvider } from "styled-components";
 import { ConfigContext } from "./context/configContext";
 
 const config = makeConfigFromEnv();
 
-//Client side schema - only "needed" for testing with Apollo DevTools chrome Extension
-const typeDefs = gql`
-  extend type Query {
-    todos: [any]!
-    visibilityFilter: string!
-  }
-
-  extend type Mutation {
-    toggleTodo(id: ID!): any
-    updateVisibilityFilter(visibilityFilter: string!): any
-  }
+const typeDefs = `
+	type SongUpdateInput {
+		title: String
+		suffix: String
+		year: Float
+		bpm: Float
+		releaseDate: String
+		isRip: Boolean
+		artists: [String!]
+		remixer: [String!]
+		featurings: [String!]
+		type: String
+		genres: [String!]
+		label: String
+		tags: [String!]
+	}
 `;
 
 const cache = new InMemoryCache();
@@ -49,8 +54,8 @@ const client = new ApolloClient({
 		})
 	]),
 	cache,
+	resolvers,
 	typeDefs,
-	resolvers
 });
 
 //initial cache data
@@ -81,13 +86,15 @@ const theme = {
 const App = () => {
 	return (
 		<ApolloProvider client={client}>
-			<ThemeProvider theme={theme}>
-				<ConfigContext.Provider value={config}>
-					<Router>
-						<AppWrapper />
-					</Router>
-				</ConfigContext.Provider>
-			</ThemeProvider>
+			<ApolloProviderHooks client={client}>
+				<ThemeProvider theme={theme}>
+					<ConfigContext.Provider value={config}>
+						<Router>
+							<AppWrapper />
+						</Router>
+					</ConfigContext.Provider>
+				</ThemeProvider>
+			</ApolloProviderHooks>
 		</ApolloProvider>
 	);
 };
