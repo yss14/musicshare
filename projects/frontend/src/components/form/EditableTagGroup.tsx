@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useMemo } from 'react';
 import { Tag, Input, Tooltip, Icon, AutoComplete } from 'antd';
 import { useState, useRef } from 'react';
 import { SelectValue } from 'antd/lib/select';
@@ -78,12 +78,17 @@ export const EditableTagGroup = ({ values, onValuesChange: onValueChange, placeh
 
 	const { inputVisible, inputValue } = state;
 
+	const datasourceFiltered = useMemo(() => (datasource || [])
+		.filter(data => !values.includes(data))
+		.filter(data => data.toLowerCase().indexOf(inputValue.toLowerCase()) > -1),
+		[datasource, inputValue, values]);
+
 	return (
 		<div>
 			{values.map((value, index) => {
 				const isLongValue = value.length > 30;
 				const valueElement = (
-					<Tag key={value} closable={index !== 0} onClose={() => handleClose(value)}>
+					<Tag key={value} closable={true} onClose={() => handleClose(value)}>
 						{isLongValue ? `${value.slice(0, 20)}...` : value}
 					</Tag>
 				);
@@ -97,7 +102,7 @@ export const EditableTagGroup = ({ values, onValuesChange: onValueChange, placeh
 			})}
 			{inputVisible && (
 				<AutoComplete
-					dataSource={(datasource || []).filter(data => data.toLowerCase().indexOf(inputValue.toLowerCase()) > -1)}
+					dataSource={datasourceFiltered}
 					style={{ width: 200 }}
 					onSelect={handleInputSelect}
 					onChange={handleInputChange}
