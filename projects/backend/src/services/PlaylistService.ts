@@ -163,11 +163,14 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		}
 
 		const sharePlaylists = await getPlaylistsForShare(shareID);
+		const playlistSongs = await Promise.all(sharePlaylists.map(playlist => getSongs(shareID, playlist.id)));
+		const affectedPlaylists = sharePlaylists.filter((playlist, idx) =>
+			playlistSongs[idx].find(song => song.id === songID) !== undefined);
 
 		const cql = `
 			UPDATE ${SongsByPlaylistTable.name}
 			SET ${Object.keys(baseSong).map(key => `${key} = ?`).join(', ')}
-			WHERE playlist_id IN (${sharePlaylists.map(playlist => playlist.id).join(', ')})
+			WHERE playlist_id IN (${affectedPlaylists.map(playlist => playlist.id).join(', ')})
 				AND song_id = ${songID} AND share_id = ${shareID};
 		`;
 
