@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table } from 'antd';
-import { IShareSong, IBaseSong } from '../graphql/types';
-import { buildSongName } from '../utils/songname-builder';
+import { IShareSong, IBaseSong } from '../../graphql/types';
+import { buildSongName } from '../../utils/songname-builder';
 
 const columns = [
 	{

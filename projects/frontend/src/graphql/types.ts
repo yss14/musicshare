@@ -12,11 +12,11 @@ export interface IVisibilityVariables {
 }
 
 export interface IShareVariables {
-	shareId: string;
+	shareID: string;
 }
 
 export interface IShareData {
-	shareId: string;
+	shareID: string;
 }
 
 export interface IShare {
@@ -83,6 +83,7 @@ const baseSongKeys = `
 	genres
 	labels
 	tags
+	duration
 `;
 
 export const shareSongKeys = `

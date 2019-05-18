@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { SongTable } from '../../components/SongTable';
+import { SongTable } from '../../components/song-table/SongTable';
 import { SongModal } from '../../components/modals/song-modal/SongModal';
 import { ISharePlaylistRoute } from '../../interfaces';
 import useReactRouter from 'use-react-router';
 import { usePlaylist } from '../../graphql/queries/playlist-songs';
+import { SongTableHeader } from '../../components/song-table/SongTableHeader';
 
 interface IPlaylistSongsProps {
 	shareID: string;
@@ -25,6 +26,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 
 	return (
 		<>
+			<SongTableHeader title={data.share.playlist.name} songs={songs} />
 			<SongTable songs={songs} onRowClick={onRowClick} />
 			{editSongID ? <SongModal songID={editSongID} shareID={shareID} closeForm={() => setEditSongID(null)} /> : null}
 		</>

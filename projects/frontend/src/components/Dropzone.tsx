@@ -51,7 +51,7 @@ interface WrapperProps {
 
 const GET_SHARE_ID = gql`
   query {
-    shareId @client
+    shareID @client
   }
 `;
 const GET_USER_ID = gql`

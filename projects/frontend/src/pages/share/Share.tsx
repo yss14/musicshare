@@ -8,7 +8,7 @@ import {
 import useReactRouter from 'use-react-router';
 import { Route } from "react-router";
 import { ShareSongs } from "./ShareSongs";
-import { PlaylistSongs } from "./SharePlaylistSongs";
+import { PlaylistSongs } from "./PlaylistSongs";
 
 interface IShareProps {
 	shareID: string;
@@ -16,8 +16,8 @@ interface IShareProps {
 }
 
 const UPDATE_SHARE_ID = gql`
-  mutation updateShareId($shareId: String!) {
-    updateShareId(shareId: $shareId) @client
+  mutation updateShareId($shareID: String!) {
+    updateShareId(shareID: $shareID) @client
   }
 `;
 

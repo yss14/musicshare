@@ -62,7 +62,7 @@ const client = new ApolloClient({
 const data = {
 	todos: [],
 	userId: "f0d8e1f0-aeb1-11e8-a117-43673ffd376b",
-	shareId: "",
+	shareID: "",
 	visibilityFilter: "SHOW_ALL",
 	networkStatus: {
 		__typename: "NetworkStatus",
