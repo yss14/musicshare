@@ -1,13 +1,9 @@
 import gql from "graphql-tag";
 import { Mutation } from "react-apollo";
 import { Nullable } from "../../types/Nullable";
-import { IShareSong, shareSongKeys, IBaseSong } from "../types";
+import { shareSongKeys, IBaseSong } from "../types";
 import { MutationUpdaterFn } from "apollo-client";
-import { useMutation } from "@apollo/react-hooks";
-import { IGetShareWithSongsData, GET_SHARE_WITH_SONGS, IGetShareWithSongsVariables } from "../queries/share-songs-query";
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs";
-import { GET_PLAYLISTS, IGetPlaylistsData, IGetPlaylistsVariables } from "../queries/playlists-query";
-import { notNull } from "../../utils/not-null";
 
 export const UPDATE_SONG = gql`
 	mutation UpdateSong($shareID: String!, $songID: String!, $song: SongUpdateInput!){
@@ -44,10 +40,6 @@ export interface IUpdateSongData {
 }
 
 export class UpdateSongMutation extends Mutation<IUpdateSongData, IUpdateSongVariables>{ }
-
-interface IUseUpdateSongHook {
-	shareID: string;
-}
 
 export const makeUpdateSongCache = (shareID: string, playlistID?: string): MutationUpdaterFn<IUpdateSongData> => (cache, { data }) => {
 	if (!playlistID) return;

@@ -4,14 +4,12 @@ import { ClickParam } from "antd/lib/menu";
 import styled from "styled-components";
 import { Link, withRouter, RouteComponentProps } from "react-router-dom";
 import { IShareRoute } from "../../interfaces";
-import { usePlaylists, GET_PLAYLISTS, IGetPlaylistsData, IGetPlaylistsVariables } from "../../graphql/queries/playlists-query";
+import { usePlaylists } from "../../graphql/queries/playlists-query";
 import { sortBy } from 'lodash';
-import { CREATE_PLAYLIST, ICreatePlaylistData, useCreatePlaylist } from "../../graphql/mutations/create-playlist";
+import { useCreatePlaylist } from "../../graphql/mutations/create-playlist";
 import { Prompt } from "../modals/promt/Prompt";
-import { useMutation } from "@apollo/react-hooks";
-import { MutationUpdaterFn } from "apollo-client";
 
-const { SubMenu, ItemGroup, Item } = Menu;
+const { SubMenu, Item } = Menu;
 
 const StyledMenu = styled(Menu)`
   height: calc(100% - 64px);
