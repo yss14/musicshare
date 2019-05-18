@@ -9,7 +9,6 @@ import { TagsQuery, GET_TAGS } from '../../../graphql/queries/tags-query';
 interface ISongModalProps {
 	shareID: string;
 	songID: string;
-	onSongUpdate?: (updatedSong: any) => void;
 	closeForm: () => void;
 }
 
