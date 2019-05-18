@@ -9,10 +9,11 @@ import { TagsQuery, GET_TAGS } from '../../../graphql/queries/tags-query';
 interface ISongModalProps {
 	shareID: string;
 	songID: string;
+	playlistID?: string;
 	closeForm: () => void;
 }
 
-export const SongModal = ({ songID, shareID, closeForm }: ISongModalProps) => {
+export const SongModal = ({ songID, shareID, closeForm, playlistID }: ISongModalProps) => {
 	return (
 		<SongQuery query={GET_SONG} variables={{ songID, shareID }}>
 			{({ loading: loadingSong, error: errorSong, data: dataSong }) => (
@@ -43,6 +44,7 @@ export const SongModal = ({ songID, shareID, closeForm }: ISongModalProps) => {
 															closeForm={closeForm}
 															shareID={shareID}
 															tags={dataTags.share.tags}
+															playlistID={playlistID}
 														/>
 													)
 												} else {

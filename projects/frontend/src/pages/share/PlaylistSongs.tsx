@@ -22,13 +22,20 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	if (loading) return <div>Loading...</div>;
 	if (error || !data) return <div>{error}</div>;
 
-	const songs = data.share.playlist.songs;
+	const { songs, id } = data.share.playlist;
 
 	return (
 		<>
 			<SongTableHeader title={data.share.playlist.name} songs={songs} />
 			<SongTable songs={songs} onRowClick={onRowClick} />
-			{editSongID ? <SongModal songID={editSongID} shareID={shareID} closeForm={() => setEditSongID(null)} /> : null}
+			{editSongID ? (
+				<SongModal
+					songID={editSongID}
+					shareID={shareID}
+					closeForm={() => setEditSongID(null)}
+					playlistID={id}
+				/>)
+				: null}
 		</>
 	);
 }

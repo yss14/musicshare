@@ -128,4 +128,5 @@ export interface IPlaylist {
 
 export interface IPlaylistWithSongs extends IPlaylist {
 	songs: IPlaylistSong[];
+	__typename: 'Playlist';
 }
