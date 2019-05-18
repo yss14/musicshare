@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { Icon, Layout, Progress } from "antd";
 import styled from "styled-components";
-import Menu from "./Menu";
+import Menu from "./menu/Menu";
 import Dropzone from "./Dropzone";
 import { Flex, Box } from "./Flex";
 
@@ -16,7 +16,7 @@ const { Sider, Content } = Layout;
 const StyledSider = styled(Sider)`
   margin-top: 48px;
   margin-bottom: 48px;
-  height: calc(100% - 64px);
+  height: calc(100% - 32px);
   position: fixed;
   z-index: 9;
   left: 0;

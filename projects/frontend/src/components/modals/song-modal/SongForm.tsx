@@ -6,9 +6,10 @@ import { Form, Input, Row, Col, DatePicker, Switch, Modal } from 'antd';
 import { EditableTagGroup } from '../../form/EditableTagGroup';
 import moment from 'moment';
 import { Dropdown } from '../../form/Dropdown';
-import { UpdateSongMutation, UPDATE_SONG, ISongUpdateInput } from '../../../graphql/mutations/update-song';
+import { UpdateSongMutation, UPDATE_SONG, ISongUpdateInput, IUpdateSongData, makeUpdateSongCache } from '../../../graphql/mutations/update-song';
 import { Nullable } from '../../../types/Nullable';
 import { buildSongName } from '../../../utils/songname-builder';
+import { MutationUpdaterFn } from 'apollo-client';
 
 interface ISongFormProps {
 	shareID: string;
@@ -17,16 +18,20 @@ interface ISongFormProps {
 	songTypes: ISongType[];
 	artists: IArtist[];
 	tags: string[];
+	playlistID?: string;
 	closeForm: () => void;
 }
 
-export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm, tags }: ISongFormProps) => {
+export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm, tags, playlistID }: ISongFormProps) => {
 
 	const artistsDataSource = useMemo(() => artists.map(artist => artist.name), [artists]);
 	const genresDataSource = useMemo(() => genres.map(genre => genre.name), [genres]);
 	const songTypeOptions = useMemo(() => songTypes.map(songType => ({ value: songType.name, label: songType.name })), [songTypes]);
 
-	const songMutationOnUpdate = () => {
+	const updateSongCache = makeUpdateSongCache(shareID, playlistID);
+
+	const songMutationOnUpdate: MutationUpdaterFn<IUpdateSongData> = (cache, data) => {
+		updateSongCache(cache, data);
 		closeForm();
 	}
 

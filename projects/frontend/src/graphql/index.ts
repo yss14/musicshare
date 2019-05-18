@@ -26,10 +26,10 @@ export const resolvers = {
 		},
 		updateShareId: (
 			_: any,
-			{ shareId }: IShareVariables,
+			{ shareID }: IShareVariables,
 			{ cache }: { cache: InMemoryCache }
 		) => {
-			cache.writeData({ data: { shareId } });
+			cache.writeData({ data: { shareID } });
 		}
 	}
 };

@@ -9,19 +9,19 @@ import { TagsQuery, GET_TAGS } from '../../../graphql/queries/tags-query';
 interface ISongModalProps {
 	shareID: string;
 	songID: string;
-	onSongUpdate?: (updatedSong: any) => void;
+	playlistID?: string;
 	closeForm: () => void;
 }
 
-export const SongModal = ({ songID, shareID, closeForm }: ISongModalProps) => {
+export const SongModal = ({ songID, shareID, closeForm, playlistID }: ISongModalProps) => {
 	return (
-		<SongQuery query={GET_SONG} variables={{ songID, shareID }}>
+		<SongQuery query={GET_SONG} variables={{ songID, shareID }} fetchPolicy="network-only">
 			{({ loading: loadingSong, error: errorSong, data: dataSong }) => (
 				<GenresQuery query={GET_GENRES} variables={{ shareID }}>
 					{({ loading: loadingGenres, error: errorGenres, data: dataGenres }) => (
-						<ArtistsQuery query={GET_ARTISTS} variables={{ shareID }}>
+						<ArtistsQuery query={GET_ARTISTS} variables={{ shareID }} fetchPolicy="network-only">
 							{({ loading: loadingArtists, error: errorArtists, data: dataArtists }) => (
-								<TagsQuery query={GET_TAGS} variables={{ shareID }}>
+								<TagsQuery query={GET_TAGS} variables={{ shareID }} fetchPolicy="network-only">
 									{({ loading: loadingTags, error: errorTags, data: dataTags }) => (
 										<SongTypesQuery query={GET_SONGTYPES} variables={{ shareID }}>
 											{({ loading: loadingSongTypes, error: errorSongTypes, data: dataSongTypes }) => {
@@ -44,6 +44,7 @@ export const SongModal = ({ songID, shareID, closeForm }: ISongModalProps) => {
 															closeForm={closeForm}
 															shareID={shareID}
 															tags={dataTags.share.tags}
+															playlistID={playlistID}
 														/>
 													)
 												} else {

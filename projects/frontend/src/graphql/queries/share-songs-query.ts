@@ -22,8 +22,8 @@ export interface IGetShareWithSongsData {
 	}
 }
 
-export interface IGetShareWithSongVariables {
+export interface IGetShareWithSongsVariables {
 	shareID: string;
 }
 
-export class ShareWithSongs extends Query<IGetShareWithSongsData, IGetShareWithSongVariables>{ }
+export class ShareWithSongs extends Query<IGetShareWithSongsData, IGetShareWithSongsVariables>{ }

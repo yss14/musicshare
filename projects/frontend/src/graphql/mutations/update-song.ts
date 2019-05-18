@@ -1,7 +1,9 @@
 import gql from "graphql-tag";
 import { Mutation } from "react-apollo";
 import { Nullable } from "../../types/Nullable";
-import { IShareSong, shareSongKeys } from "../types";
+import { shareSongKeys, IBaseSong } from "../types";
+import { MutationUpdaterFn } from "apollo-client";
+import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs";
 
 export const UPDATE_SONG = gql`
 	mutation UpdateSong($shareID: String!, $songID: String!, $song: SongUpdateInput!){
@@ -34,7 +36,28 @@ export interface IUpdateSongVariables {
 }
 
 export interface IUpdateSongData {
-	updateSong: IShareSong;
+	updateSong: IBaseSong;
 }
 
 export class UpdateSongMutation extends Mutation<IUpdateSongData, IUpdateSongVariables>{ }
+
+export const makeUpdateSongCache = (shareID: string, playlistID?: string): MutationUpdaterFn<IUpdateSongData> => (cache, { data }) => {
+	if (!playlistID) return;
+
+	const currentPlaylist = cache.readQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>({
+		query: PLAYLIST_WITH_SONGS,
+		variables: { playlistID, shareID }
+	});
+
+	const newSongList = currentPlaylist!.share.playlist.songs.map(song =>
+		song.id === data!.updateSong.id
+			? { ...song, ...data!.updateSong }
+			: song
+	);
+
+	cache.writeQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>({
+		query: PLAYLIST_WITH_SONGS,
+		data: { share: { id: shareID, __typename: 'Share', playlist: { ...currentPlaylist!.share.playlist, songs: newSongList } } },
+		variables: { playlistID, shareID }
+	});
+}

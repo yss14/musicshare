@@ -40,7 +40,7 @@ const Blur = styled.div`
 `;
 
 interface IDropzoneProps {
-	shareId: string;
+	shareID: string;
 	userId: string;
 	children: (uploadItems: IUploadItem[]) => ReactNode;
 }
@@ -51,7 +51,7 @@ interface WrapperProps {
 
 const GET_SHARE_ID = gql`
   query {
-    shareId @client
+    shareID @client
   }
 `;
 const GET_USER_ID = gql`
@@ -72,7 +72,7 @@ export default ({ children }: WrapperProps) => {
 									return (
 										<Dropzone
 											userId={localUserQuery.data.userId}
-											shareId={localShareQuery.data.shareId}
+											shareID={localShareQuery.data.shareID}
 										>
 											{state => children(state)}
 										</Dropzone>
@@ -87,16 +87,16 @@ export default ({ children }: WrapperProps) => {
 	);
 };
 
-const Dropzone = ({ userId, shareId, children }: IDropzoneProps) => {
+const Dropzone = ({ userId, shareID, children }: IDropzoneProps) => {
 	const [state, dispatch] = useReducer(reducer, []);
 	const config = useConfig();
 	const onDrop = useCallback(
 		(acceptedFiles: File[]) => {
 			acceptedFiles.forEach(file =>
-				uploadFile(userId, shareId, file, config)(dispatch)
+				uploadFile(userId, shareID, file, config)(dispatch)
 			);
 		},
-		[shareId, userId]
+		[shareID, userId]
 	);
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
 		onDrop,

@@ -12,11 +12,11 @@ export interface IVisibilityVariables {
 }
 
 export interface IShareVariables {
-	shareId: string;
+	shareID: string;
 }
 
 export interface IShareData {
-	shareId: string;
+	shareID: string;
 }
 
 export interface IShare {
@@ -61,7 +61,13 @@ export interface IShareSong extends IBaseSong {
 	requiresUserAction: boolean;
 }
 
-export const shareSongKeys = `
+export interface IPlaylistSong extends IBaseSong {
+	playlistID: string;
+	position: number;
+	dateAdded: string;
+}
+
+const baseSongKeys = `
 	id
 	title
 	suffix
@@ -76,8 +82,20 @@ export const shareSongKeys = `
 	type
 	genres
 	labels
-	requiresUserAction,
 	tags
+	duration
+`;
+
+export const shareSongKeys = `
+	${baseSongKeys}
+	requiresUserAction
+`;
+
+export const playlistSongKeys = `
+	${baseSongKeys}
+	playlistID
+	position
+	dateAdded
 `;
 
 export interface IFile {
@@ -99,4 +117,16 @@ export interface ISongType extends IGenre {
 
 export interface IArtist {
 	name: string;
+}
+
+export interface IPlaylist {
+	id: string;
+	name: string;
+	shareID: string;
+	dateAdded: string;
+}
+
+export interface IPlaylistWithSongs extends IPlaylist {
+	songs: IPlaylistSong[];
+	__typename: 'Playlist';
 }
