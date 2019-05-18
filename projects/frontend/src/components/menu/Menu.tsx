@@ -71,7 +71,7 @@ const NavMenu = ({
 				{
 					sortBy(data!.share.playlists, 'name')
 						.map(playlist => (
-							<Item key={playlist.id} >
+							<Item key={playlist.id} onClick={e => console.log(e.domEvent)}>
 								<Link to={`/shares/${shareID}/playlists/${playlist.id}`}>{playlist.name}</Link>
 							</Item>
 						))

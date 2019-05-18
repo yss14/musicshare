@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import gql from "graphql-tag";
 import { Mutation, MutationFn } from "react-apollo";
-import { RouteComponentProps, withRouter } from "react-router-dom";
+import { RouteComponentProps, withRouter, Route } from "react-router-dom";
 import { Table } from "antd";
 import { buildSongName } from "../../utils/songname-builder";
 import {
@@ -11,6 +11,7 @@ import {
 import { SongModal } from "../../components/modals/song-modal/SongModal";
 import { IShareSong } from "../../graphql/types";
 import { ShareWithSongs, GET_SHARE_WITH_SONGS } from "../../graphql/queries/share-with-songs-query";
+import useRouter from 'use-react-router';
 
 const columns = [
 	{
@@ -56,15 +57,15 @@ const UPDATE_SHARE_ID = gql`
   }
 `;
 
-const MutationWrapper = ({ match }: RouteComponentProps<{ id: string }>) => {
-	const { id } = match.params;
+const MutationWrapper = () => {
+	const { match: { params: { shareID } } } = useRouter<{ shareID: string }>();
 	return (
 		<Mutation<ILocalShareData, ILocalShareVariables>
 			mutation={UPDATE_SHARE_ID}
-			variables={{ shareId: id }}
+			variables={{ shareID }}
 		>
 			{updateShareId => {
-				return <Share shareID={id} updateShareId={updateShareId} />;
+				return <Share shareID={shareID} updateShareId={updateShareId} />;
 			}}
 		</Mutation>
 	);
@@ -113,4 +114,4 @@ const Share = ({ updateShareId, shareID }: IShareProps) => {
 	);
 };
 
-export default withRouter(MutationWrapper);
+export default MutationWrapper;

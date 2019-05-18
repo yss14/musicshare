@@ -3,7 +3,7 @@ export interface ILocalUserVariables {
 }
 
 export interface ILocalShareVariables {
-	shareId: string;
+	shareID: string;
 }
 
 export interface ILocalUserData {
@@ -11,5 +11,5 @@ export interface ILocalUserData {
 }
 
 export interface ILocalShareData {
-	shareId: string;
+	shareID: string;
 }
