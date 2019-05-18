@@ -3,7 +3,7 @@ import { Menu, Icon, Affix, Button } from "antd";
 import { ClickParam } from "antd/lib/menu";
 import styled from "styled-components";
 import { Link, withRouter, RouteComponentProps } from "react-router-dom";
-import { IRouteParams } from "../../interfaces";
+import { IShareRoute } from "../../interfaces";
 import { usePlaylists, GET_PLAYLISTS, IGetPlaylistsData, IGetPlaylistsVariables } from "../../graphql/queries/playlists-query";
 import { sortBy } from 'lodash';
 import { CREATE_PLAYLIST, ICreatePlaylistData, useCreatePlaylist } from "../../graphql/mutations/create-playlist";
@@ -21,10 +21,10 @@ const StyledMenu = styled(Menu)`
 const NavMenu = ({
 	match,
 	location
-}: RouteComponentProps<IRouteParams>) => {
+}: RouteComponentProps<IShareRoute>) => {
 	const [current, setCurrent] = useState("home");
 	const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null);
-	const { id: shareID } = match.params;
+	const { shareID } = match.params;
 
 	const { loading, error, data } = usePlaylists({ shareID });
 	const [createPlaylist] = useCreatePlaylist({ shareID, name: newPlaylistName || '' });

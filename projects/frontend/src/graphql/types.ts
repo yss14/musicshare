@@ -61,7 +61,13 @@ export interface IShareSong extends IBaseSong {
 	requiresUserAction: boolean;
 }
 
-export const shareSongKeys = `
+export interface IPlaylistSong extends IBaseSong {
+	playlistID: string;
+	position: number;
+	dateAdded: string;
+}
+
+const baseSongKeys = `
 	id
 	title
 	suffix
@@ -76,8 +82,19 @@ export const shareSongKeys = `
 	type
 	genres
 	labels
-	requiresUserAction,
 	tags
+`;
+
+export const shareSongKeys = `
+	${baseSongKeys}
+	requiresUserAction
+`;
+
+export const playlistSongKeys = `
+	${baseSongKeys}
+	playlistID
+	position
+	dateAdded
 `;
 
 export interface IFile {
@@ -106,4 +123,8 @@ export interface IPlaylist {
 	name: string;
 	shareID: string;
 	dateAdded: string;
+}
+
+export interface IPlaylistWithSongs extends IPlaylist {
+	songs: IPlaylistSong[];
 }
