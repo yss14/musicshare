@@ -100,3 +100,10 @@ export interface ISongType extends IGenre {
 export interface IArtist {
 	name: string;
 }
+
+export interface IPlaylist {
+	id: string;
+	name: string;
+	shareID: string;
+	dateAdded: string;
+}
