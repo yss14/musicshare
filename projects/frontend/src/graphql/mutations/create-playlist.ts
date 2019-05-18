@@ -3,6 +3,7 @@ import { playlistKeys, IGetPlaylistsData, IGetPlaylistsVariables, GET_PLAYLISTS 
 import { useMutation } from "@apollo/react-hooks";
 import { QueryResult, MutationUpdaterFn } from "react-apollo";
 import { IPlaylist } from "../types";
+import { useCallback } from "react";
 
 export interface ICreatePlaylistVariables {
 	shareID: string;
@@ -27,7 +28,7 @@ interface ICreatePlaylistHook {
 }
 
 export const useCreatePlaylist = ({ shareID, name }: ICreatePlaylistHook) => {
-	const updatePlaylistCache: MutationUpdaterFn<ICreatePlaylistData> = (cache, { data }) => {
+	const updatePlaylistCache = useCallback<MutationUpdaterFn<ICreatePlaylistData>>((cache, { data }) => {
 		const currentPlaylists = cache.readQuery<IGetPlaylistsData, IGetPlaylistsVariables>({
 			query: GET_PLAYLISTS,
 			variables: { shareID }
@@ -38,7 +39,7 @@ export const useCreatePlaylist = ({ shareID, name }: ICreatePlaylistHook) => {
 			data: { share: { id: shareID, __typename: 'Share', playlists: currentPlaylists.concat([data!.createPlaylist]) } },
 			variables: { shareID },
 		});
-	}
+	}, [shareID]);
 
 	const hook = useMutation(CREATE_PLAYLIST, {
 		variables: { shareID, name },
