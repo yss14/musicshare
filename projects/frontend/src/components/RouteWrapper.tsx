@@ -91,7 +91,7 @@ const RouteWrapper = ({ children }: IRouteWrapperProps) => {
 						const failed = uploadItems.find(el => el.status === 3);
 
 						return (
-							<Flex direction="column">
+							<Flex direction="column" style={{ width: "100%", height: "100%" }}>
 								{uploadItems.length > 0 ? (
 									<Box>
 										<Progress
@@ -107,8 +107,8 @@ const RouteWrapper = ({ children }: IRouteWrapperProps) => {
 										/>
 									</Box>
 								) : null}
-								<Box>
-									<div style={{ width: "100%", height: "100%" }} ref={myRef}>
+								<Box style={{ width: "100%", height: "100%" }}>
+									<div style={{ width: "100%", height: "100%", position: "relative" }} ref={myRef}>
 										{currentContainer && children(currentContainer)}
 									</div>
 								</Box>

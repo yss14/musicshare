@@ -37,7 +37,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 
 	return (
 		<UpdateSongMutation mutation={UPDATE_SONG} update={songMutationOnUpdate}>
-			{updateSong => (
+			{(updateSong, { loading }) => (
 				<Formik initialValues={song} onSubmit={(values) => updateSong({ variables: { shareID, songID: song.id, song: makeSongInput(values) } })} validate={validateSong}>
 					{({
 						values,
@@ -55,6 +55,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 								onOk={submitForm}
 								width={700}
 								okText="Save"
+								okButtonProps={{ loading }}
 							>
 								<div id="songmodal">
 									<Form>
@@ -160,6 +161,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 													validateStatus={errors.type ? 'error' : 'success'}
 												>
 													<Dropdown
+														name='type'
 														value={values.type}
 														options={songTypeOptions}
 														onChange={newSongType => setFieldValue('type', newSongType)}
@@ -169,7 +171,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 											<Col span={12} style={{ paddingRight: 20 }}>
 												<Form.Item
 													label="Release Date"
-													validateStatus={errors.type ? 'error' : 'success'}
+													validateStatus={errors.releaseDate ? 'error' : 'success'}
 												>
 													<DatePicker
 														value={values.releaseDate ? moment(values.releaseDate) : undefined}
@@ -183,7 +185,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 											<Col span={12} style={{ paddingRight: 20 }}>
 												<Form.Item
 													label="Is rip"
-													validateStatus={errors.type ? 'error' : 'success'}
+													validateStatus={errors.isRip ? 'error' : 'success'}
 												>
 													<Switch
 														checked={values.isRip}
@@ -237,6 +239,10 @@ const validateSong = (data: IShareSong) => {
 
 	if (data.bpm && (data.bpm < 50 || data.bpm > 200)) {
 		errors.bpm = 'Invalid bpm'
+	}
+
+	if (!data.type) {
+		errors.type = 'No type selected';
 	}
 
 	return errors;

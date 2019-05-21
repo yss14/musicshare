@@ -5,6 +5,7 @@ import { SongModal } from '../../components/modals/song-modal/SongModal';
 import useReactRouter from 'use-react-router';
 import { IShareRoute } from '../../interfaces';
 import { SongTableHeader } from '../../components/song-table/SongTableHeader';
+import { Spinner } from '../../components/Spinner';
 
 export const ShareSongs = () => {
 	const [editSongID, setEditSongID] = useState<string | null>(null);
@@ -19,7 +20,7 @@ export const ShareSongs = () => {
 			<ShareWithSongs query={GET_SHARE_WITH_SONGS} variables={{ shareID }}>
 				{({ loading, error, data }) => {
 					if (loading) {
-						return <div>Loading ...</div>;
+						return <Spinner />;
 					}
 					if (error) return `Error!: ${error}`;
 					if (data) {
