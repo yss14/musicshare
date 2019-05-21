@@ -1,4 +1,5 @@
 import { CustomEnv } from "../utils/env/CustomEnv";
+import { __PROD__ } from "../utils/env/env-constants";
 
 export interface IConfig {
 	database: {
@@ -10,6 +11,9 @@ export interface IConfig {
 	jwt: {
 		secret: string;
 	},
+	server: {
+		enableGraphQLPlayground: boolean;
+	}
 }
 
 const requiredEnvVars = [CustomEnv.JWT_SECRET];
@@ -30,6 +34,11 @@ export const configFromEnv = (): IConfig => {
 		},
 		jwt: {
 			secret: process.env[CustomEnv.JWT_SECRET]!
+		},
+		server: {
+			enableGraphQLPlayground: getBoolean(process.env[CustomEnv.GRAPHQL_ENABLE_PLAYGROUND]) || !__PROD__,
 		}
 	}
 }
+
+const getBoolean = (value: any) => value === 'true';

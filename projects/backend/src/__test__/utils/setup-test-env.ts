@@ -56,6 +56,7 @@ export const setupTestEnv = async ({ seedDatabase, database }: SetupTestEnvArgs)
 	const graphQLServer = await makeGraphQLServer(
 		Container.of(testID),
 		makeGraphQLContextProvider(services),
+		config,
 		authChecker,
 		UserResolver, ShareResolver, SongResolver
 	);

@@ -69,6 +69,7 @@ if (!isProductionEnvironment()) {
 	const graphQLServer = await makeGraphQLServer<IGraphQLContext>(
 		Container,
 		makeGraphQLContextProvider(services),
+		config,
 		graphQLAuthChecker,
 		UserResolver, ShareResolver, SongResolver
 	);
