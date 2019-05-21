@@ -12,7 +12,7 @@ import { SongResolver } from "./resolvers/SongResolver";
 import { makeGraphQLServer } from "./server/GraphQLServer";
 import { __DEV__, __PROD__ } from "./utils/env/env-constants";
 import { makeDatabaseSchemaWithSeed, makeDatabaseSchema } from "./database/schema/make-database-schema";
-import { makeDatabaseSeed } from "./database/seed";
+import { makeDatabaseSeed, insertProductionSetupSeed } from "./database/seed";
 import { graphQLAuthChecker, makeAuthExtractor } from "./auth/auth-middleware";
 import { IGraphQLContext, makeGraphQLContextProvider } from "./types/context";
 import { PlaylistResolver } from "./resolvers/PlaylistResolver";
@@ -58,6 +58,7 @@ if (!isProductionEnvironment()) {
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: config.database.keyspace, clear: true });
 	} else if (__PROD__) {
 		await makeDatabaseSchema(database, { keySpace: config.database.keyspace });
+		await insertProductionSetupSeed({ config, database, services });
 	}
 	console.info('Database schema created');
 

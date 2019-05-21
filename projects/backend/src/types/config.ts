@@ -13,6 +13,13 @@ export interface IConfig {
 	},
 	server: {
 		enableGraphQLPlayground: boolean;
+	},
+	setup: {
+		seed: {
+			username: string;
+			password: string;
+			email: string;
+		}
 	}
 }
 
@@ -37,6 +44,13 @@ export const configFromEnv = (): IConfig => {
 		},
 		server: {
 			enableGraphQLPlayground: getBoolean(process.env[CustomEnv.ENABLE_PLAYGROUND]) || !__PROD__,
+		},
+		setup: {
+			seed: {
+				username: process.env[CustomEnv.SETUP_USERNAME] || 'musicshare',
+				password: process.env[CustomEnv.SETUP_PASSWORD] || 'ILoveMusic',
+				email: process.env[CustomEnv.SETUP_EMAIL] || 'donotreply@musicshare.rocks',
+			}
 		}
 	}
 }

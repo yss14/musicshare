@@ -12,6 +12,7 @@ import { SongType } from '../models/SongType';
 import { Genre } from '../models/GenreModel';
 import { Permissions } from '../auth/permissions';
 import { IServices } from '../services/services';
+import { IConfig } from '../types/config';
 
 type Users = 'user1' | 'user2';
 type Shares = 'library_user1' | 'library_user2' | 'some_shared_library';
@@ -236,3 +237,18 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 			await Promise.all(songInserts.map(s => songService.create(s)));
 		}
 	}
+
+interface IInsertProductionSetupSeed {
+	database: IDatabaseClient;
+	config: IConfig;
+	services: IServices;
+}
+
+export const insertProductionSetupSeed = async ({ config, database, services }: IInsertProductionSetupSeed) => {
+	const { email, password, username } = config.setup.seed;
+
+	const user = await services.userService.create(username, email);
+	await services.passwordLoginService.register({ email, password, userID: user.id });
+
+	console.info(`Created setup user with name ${username} and email ${email}`);
+}

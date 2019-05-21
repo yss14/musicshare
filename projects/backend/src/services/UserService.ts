@@ -12,6 +12,7 @@ export class UserNotFoundError extends Error {
 export interface IUserService {
 	getUserByID(id: string): Promise<User>;
 	getUserByEMail(email: string): Promise<User>;
+	create(name: string, email: string): Promise<User>;
 }
 
 export class UserService implements IUserService {
@@ -41,5 +42,15 @@ export class UserService implements IUserService {
 		}
 
 		return User.fromDBResult(dbResults[0]);
+	}
+
+	public async create(name: string, email: string): Promise<User> {
+		const id = TimeUUID();
+
+		await this.database.query(
+			UsersTable.insert(['id', 'name', 'email'])([id, name, email])
+		);
+
+		return User.fromDBResult({ id, name, email });
 	}
 }
