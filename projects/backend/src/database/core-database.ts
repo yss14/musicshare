@@ -6,7 +6,7 @@ export const connectAndSetupDatabase = async (config: IConfig): Promise<IDatabas
 	let authProvider: auth.AuthProvider | null = null;
 
 	if (config.database.password && config.database.user) {
-		authProvider = new auth.PlainTextAuthProvider(config.database.password, config.database.user);
+		authProvider = new auth.PlainTextAuthProvider(config.database.user, config.database.password);
 	}
 
 	const databaseWithoutKeyspace = new DatabaseClient(
