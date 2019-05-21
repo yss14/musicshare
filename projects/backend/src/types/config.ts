@@ -36,7 +36,7 @@ export const configFromEnv = (): IConfig => {
 			secret: process.env[CustomEnv.JWT_SECRET]!
 		},
 		server: {
-			enableGraphQLPlayground: getBoolean(process.env[CustomEnv.GRAPHQL_ENABLE_PLAYGROUND]) || !__PROD__,
+			enableGraphQLPlayground: getBoolean(process.env[CustomEnv.ENABLE_PLAYGROUND]) || !__PROD__,
 		}
 	}
 }
