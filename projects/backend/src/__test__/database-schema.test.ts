@@ -52,7 +52,9 @@ test('insertProductionSetupSeed', async () => {
 				name: 'Some Testuser',
 				password: 'password1234',
 				email: 'donotreply@musicshare.rocks',
-				shareName: 'Some Share'
+				shareName: 'Some Share',
+				dbCleanInit: false,
+				dbSeed: false,
 			}
 		}
 	}

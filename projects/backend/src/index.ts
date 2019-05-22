@@ -53,11 +53,17 @@ if (!isProductionEnvironment()) {
 	await services.songFileService.createContainerIfNotExists();
 	console.info('FileStorage connected');
 
-	if (__DEV__) {
+	const clearDatabase = __DEV__ || config.setup.seed.dbCleanInit;
+	const seedDatabase = __DEV__ || config.setup.seed.dbSeed;
+
+	if (seedDatabase) {
 		const seed = await makeDatabaseSeed({ database, services });
-		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: config.database.keyspace, clear: true });
-	} else if (__PROD__) {
+		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: config.database.keyspace, clear: clearDatabase });
+	} else {
 		await makeDatabaseSchema(database, { keySpace: config.database.keyspace });
+	}
+
+	if (__PROD__) {
 		await insertProductionSetupSeed({ config, services });
 	}
 	console.info('Database schema created');

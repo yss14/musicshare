@@ -20,6 +20,8 @@ export interface IConfig {
 			password: string;
 			email: string;
 			shareName: string;
+			dbCleanInit: boolean;
+			dbSeed: boolean;
 		}
 	}
 }
@@ -52,6 +54,8 @@ export const configFromEnv = (): IConfig => {
 				password: process.env[CustomEnv.SETUP_PASSWORD] || 'ILoveMusic',
 				email: process.env[CustomEnv.SETUP_EMAIL] || 'donotreply@musicshare.rocks',
 				shareName: process.env[CustomEnv.SETUP_SHARE_NAME] || 'MyShare',
+				dbCleanInit: getBoolean(process.env[CustomEnv.SETUP_CLEAN_INIT]) || false,
+				dbSeed: getBoolean(process.env[CustomEnv.SETUP_SEED_DATABASE]) || false,
 			}
 		}
 	}
