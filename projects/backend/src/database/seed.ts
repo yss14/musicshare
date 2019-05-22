@@ -239,13 +239,12 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 	}
 
 interface IInsertProductionSetupSeed {
-	database: IDatabaseClient;
 	config: IConfig;
 	services: IServices;
 }
 
-export const insertProductionSetupSeed = async ({ config, database, services }: IInsertProductionSetupSeed) => {
-	const { email, password, username } = config.setup.seed;
+export const insertProductionSetupSeed = async ({ config, services }: IInsertProductionSetupSeed) => {
+	const { email, password, name: username } = config.setup.seed;
 
 	const user = await services.userService.create(username, email);
 	await services.passwordLoginService.register({ email, password, userID: user.id });

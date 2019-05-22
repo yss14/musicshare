@@ -58,7 +58,7 @@ if (!isProductionEnvironment()) {
 		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: config.database.keyspace, clear: true });
 	} else if (__PROD__) {
 		await makeDatabaseSchema(database, { keySpace: config.database.keyspace });
-		await insertProductionSetupSeed({ config, database, services });
+		await insertProductionSetupSeed({ config, services });
 	}
 	console.info('Database schema created');
 

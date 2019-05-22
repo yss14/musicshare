@@ -68,6 +68,7 @@ export const setupTestEnv = async ({ seedDatabase, database }: SetupTestEnvArgs)
 		database,
 		allScopes,
 		...services,
+		services,
 	};
 }
 

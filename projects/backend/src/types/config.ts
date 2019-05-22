@@ -16,7 +16,7 @@ export interface IConfig {
 	},
 	setup: {
 		seed: {
-			username: string;
+			name: string;
 			password: string;
 			email: string;
 		}
@@ -47,7 +47,7 @@ export const configFromEnv = (): IConfig => {
 		},
 		setup: {
 			seed: {
-				username: process.env[CustomEnv.SETUP_USERNAME] || 'musicshare',
+				name: process.env[CustomEnv.SETUP_USERNAME] || 'musicshare',
 				password: process.env[CustomEnv.SETUP_PASSWORD] || 'ILoveMusic',
 				email: process.env[CustomEnv.SETUP_EMAIL] || 'donotreply@musicshare.rocks',
 			}
