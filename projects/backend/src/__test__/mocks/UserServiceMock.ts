@@ -24,4 +24,8 @@ export class UserServiceMock implements IUserService {
 	public async create(name: string, email: string): Promise<User> {
 		throw 'Not implemented yet';
 	}
+
+	public async getAll(): Promise<User[]> {
+		throw 'Not implemented yet';
+	}
 }
