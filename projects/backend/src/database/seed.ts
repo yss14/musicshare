@@ -1,6 +1,6 @@
 import * as faker from 'faker';
 import { createPrefilledArray } from '../utils/array/create-prefilled-array';
-import { __PROD__, __DEV__ } from '../utils/env/env-constants';
+import { __PROD__, __DEV__, __TEST__ } from '../utils/env/env-constants';
 import { makeFileObject } from '../models/interfaces/IFile';
 import moment = require('moment');
 import { TimeUUID } from '../types/TimeUUID';
@@ -244,7 +244,7 @@ interface IInsertProductionSetupSeed {
 }
 
 export const insertProductionSetupSeed = async ({ config, services, }: IInsertProductionSetupSeed) => {
-	const { email, password, name: username } = config.setup.seed;
+	const { email, password, name: username, shareName } = config.setup.seed;
 
 	const allUsers = await services.userService.getAll();
 
@@ -253,5 +253,11 @@ export const insertProductionSetupSeed = async ({ config, services, }: IInsertPr
 	const user = await services.userService.create(username, email);
 	await services.passwordLoginService.register({ email, password, userID: user.id });
 
-	console.info(`Created setup user with name ${username} and email ${email}`);
+	await services.shareService.createShare(user.id, shareName);
+
+	// istanbul ignore next
+	if (!__TEST__) {
+		console.info(`Created setup user with name ${username} and email ${email}`);
+		console.info(`Created initial share ${shareName} with ${username} as owner`);
+	}
 }

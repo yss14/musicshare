@@ -24,6 +24,7 @@ import { makeMockedDatabase } from "./mocks/mock-database";
 import { makePlaylistAuthMiddleware } from "../auth/middleware/playlist-auth";
 import { makeSongAuthMiddleware } from "../auth/middleware/song-auth";
 import { AuthTokenStore } from "../auth/AuthTokenStore";
+import { configFromEnv } from "../types/config";
 
 const routePathProtected = '/some/protected/route';
 const routePathPublic = '/some/public/route';
@@ -72,7 +73,7 @@ const setupGraphQLTestEnv = async () => {
 	const graphQLServer = await makeGraphQLServer(
 		null as any,
 		makeGraphQLContextProvider({} as any),
-		null as any,
+		configFromEnv(),
 		graphQLAuthChecker,
 		TestResolver
 	);

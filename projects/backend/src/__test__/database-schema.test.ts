@@ -4,6 +4,7 @@ import { Tables } from '../database/schema/system-tables';
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from './utils/setup-test-env';
 import { configFromEnv, IConfig } from '../types/config';
 import { insertProductionSetupSeed } from '../database/seed';
+import { Share } from '../models/ShareModel';
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -42,7 +43,7 @@ test('clear keyspace', async () => {
 });
 
 test('insertProductionSetupSeed', async () => {
-	const { services, userService, passwordLoginService } = await setupTest({ seedDatabase: false });
+	const { services, userService, passwordLoginService, shareService } = await setupTest({ seedDatabase: false });
 
 	const config: IConfig = {
 		...configFromEnv(),
@@ -51,6 +52,7 @@ test('insertProductionSetupSeed', async () => {
 				name: 'Some Testuser',
 				password: 'password1234',
 				email: 'donotreply@musicshare.rocks',
+				shareName: 'Some Share'
 			}
 		}
 	}
@@ -63,4 +65,11 @@ test('insertProductionSetupSeed', async () => {
 
 	const refreshToken = await passwordLoginService.login(email, password);
 	expect(refreshToken).toBeString();
+
+	const share = await shareService.getSharesByUser(user.id);
+	expect(share).toMatchObject([<Share>{
+		isLibrary: true,
+		name: config.setup.seed.shareName,
+		userID: user.id,
+	}]);
 });

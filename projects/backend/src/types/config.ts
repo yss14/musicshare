@@ -19,6 +19,7 @@ export interface IConfig {
 			name: string;
 			password: string;
 			email: string;
+			shareName: string;
 		}
 	}
 }
@@ -50,6 +51,7 @@ export const configFromEnv = (): IConfig => {
 				name: process.env[CustomEnv.SETUP_USERNAME] || 'musicshare',
 				password: process.env[CustomEnv.SETUP_PASSWORD] || 'ILoveMusic',
 				email: process.env[CustomEnv.SETUP_EMAIL] || 'donotreply@musicshare.rocks',
+				shareName: process.env[CustomEnv.SETUP_SHARE_NAME] || 'MyShare',
 			}
 		}
 	}

@@ -19,4 +19,12 @@ export class ShareServiceMock implements IShareService {
 
 		return share;
 	}
+
+	public async addUser(): Promise<void> {
+		throw 'Not implemented yet';
+	}
+
+	public async createShare(): Promise<void> {
+		throw 'Not implemented yet';
+	}
 }

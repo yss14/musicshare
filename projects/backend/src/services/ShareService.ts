@@ -12,6 +12,8 @@ export class ShareNotFoundError extends Error {
 export interface IShareService {
 	getSharesByUser(userID: string): Promise<Share[]>;
 	getShareByID(shareID: string, userID: string): Promise<Share>;
+	createShare(ownerUserID: string, name: string): Promise<void>;
+	addUser(shareID: string, userID: string, name: string): Promise<void>;
 }
 
 export class ShareService implements IShareService {
@@ -37,5 +39,20 @@ export class ShareService implements IShareService {
 		}
 
 		return Share.fromDBResult(dbResults[0]);
+	}
+
+	public async createShare(ownerUserID: string, name: string) {
+		return this.addUserToShare(TimeUUID().toString(), ownerUserID, name, true);
+	}
+
+	public async addUser(shareID: string, userID: string, name: string) {
+		return this.addUserToShare(shareID, userID, name, false);
+	}
+
+	private async addUserToShare(shareID: string, userID: string, name: string, isLib: boolean): Promise<void> {
+		await this.database.query(
+			SharesByUserTable.insert(['id', 'user_id', 'name', 'is_library'])
+				([TimeUUID(shareID), TimeUUID(userID), name, isLib])
+		);
 	}
 }
