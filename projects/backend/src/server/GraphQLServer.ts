@@ -20,7 +20,8 @@ export const makeGraphQLServer = async <C = unknown>(
 	const graphQLServer = new ApolloServer({
 		schema,
 		context: contextProvider,
-		playground: config.server.enableGraphQLPlayground
+		playground: config.server.enableGraphQLPlayground,
+		introspection: config.server.enableGraphQLPlayground,
 	});
 
 	return graphQLServer;
