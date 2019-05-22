@@ -12,5 +12,5 @@
 **/coverage
 **/azurite
 **/azurite_test
-**/*.env
-**/config
+projects/backend/*.env
+projects/cassandra-schema-builder/*.env
