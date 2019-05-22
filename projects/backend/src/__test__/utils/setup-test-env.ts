@@ -23,7 +23,7 @@ export interface SetupTestEnvArgs {
 
 // tslint:disable:no-parameter-reassignment
 export const setupTestEnv = async ({ seedDatabase, database }: SetupTestEnvArgs) => {
-	seedDatabase = seedDatabase || true;
+	seedDatabase = seedDatabase === undefined ? true : seedDatabase;
 
 	const config = configFromEnv();
 

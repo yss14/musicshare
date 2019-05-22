@@ -42,7 +42,7 @@ test('clear keyspace', async () => {
 });
 
 test('insertProductionSetupSeed', async () => {
-	const { services, userService, passwordLoginService } = await setupTest({});
+	const { services, userService, passwordLoginService } = await setupTest({ seedDatabase: false });
 
 	const config: IConfig = {
 		...configFromEnv(),

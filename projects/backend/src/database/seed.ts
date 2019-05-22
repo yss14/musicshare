@@ -243,8 +243,12 @@ interface IInsertProductionSetupSeed {
 	services: IServices;
 }
 
-export const insertProductionSetupSeed = async ({ config, services }: IInsertProductionSetupSeed) => {
+export const insertProductionSetupSeed = async ({ config, services, }: IInsertProductionSetupSeed) => {
 	const { email, password, name: username } = config.setup.seed;
+
+	const allUsers = await services.userService.getAll();
+
+	if (allUsers.length > 0) return;
 
 	const user = await services.userService.create(username, email);
 	await services.passwordLoginService.register({ email, password, userID: user.id });
