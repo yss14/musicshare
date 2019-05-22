@@ -100,7 +100,7 @@ describe('get share by id', () => {
 		const { graphQLServer } = await setupTest({});
 
 		const share = testData.shares.library_user1;
-		const query = makeShareQuery(share.id.toString());
+		const query = makeShareQuery(share.share_id.toString());
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -124,7 +124,7 @@ describe('get share by id', () => {
 	test('get share by id not part of', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const shareID = testData.shares.library_user2.id.toString();
+		const shareID = testData.shares.library_user2.share_id.toString();
 		const query = makeShareQuery(shareID.toString());
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -141,7 +141,7 @@ describe('get share songs', () => {
 		const { graphQLServer } = await setupTest({});
 
 		const share = testData.shares.library_user1;
-		const query = makeShareQuery(share.id.toString(), [makeShareSongsQuery()]);
+		const query = makeShareQuery(share.share_id.toString(), [makeShareSongsQuery()]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 		const expectedSongs = [
@@ -157,7 +157,7 @@ describe('get share songs', () => {
 		const { graphQLServer } = await setupTest({});
 
 		const share = testData.shares.library_user1;
-		const query = makeShareQuery(share.id.toString(), [makeShareSongsQuery([1, 2])]);
+		const query = makeShareQuery(share.share_id.toString(), [makeShareSongsQuery([1, 2])]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -174,7 +174,7 @@ describe('get share songs', () => {
 
 		const share = testData.shares.library_user1;
 		const lastTimestamp = moment().subtract(150, 'minutes').valueOf();
-		const query = makeShareQuery(share.id.toString(), [makeShareSongsDirtyQuery(lastTimestamp)]);
+		const query = makeShareQuery(share.share_id.toString(), [makeShareSongsDirtyQuery(lastTimestamp)]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -195,7 +195,7 @@ describe('get share song', () => {
 
 		const share = testData.shares.library_user1;
 		const song = testData.songs.song2_library_user1;
-		const query = makeShareQuery(share.id.toString(), [makeShareSongQuery(song.song_id.toString())]);
+		const query = makeShareQuery(share.share_id.toString(), [makeShareSongQuery(song.song_id.toString())]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -205,7 +205,7 @@ describe('get share song', () => {
 	test('get share song by id not existing', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const shareID = testData.shares.library_user1.id.toString();
+		const shareID = testData.shares.library_user1.share_id.toString();
 		const songID = TimeUUID(new Date());
 		const query = makeShareQuery(shareID, [makeShareSongQuery(songID.toString())]);
 
@@ -220,7 +220,7 @@ describe('get share song', () => {
 
 		const share = testData.shares.library_user1;
 		const song = testData.songs.song2_library_user1;
-		const query = makeShareQuery(share.id.toString(), [makeShareSongQuery(song.song_id.toString(), ['accessUrl'])]);
+		const query = makeShareQuery(share.share_id.toString(), [makeShareSongQuery(song.song_id.toString(), ['accessUrl'])]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -239,7 +239,7 @@ describe('get share related data', () => {
 	test('get share song types', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const shareID = testData.shares.library_user1.id.toString();
+		const shareID = testData.shares.library_user1.share_id.toString();
 		const query = makeShareQuery(shareID, [makeShareSongTypesQuery()]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -250,7 +250,7 @@ describe('get share related data', () => {
 	test('get share genres', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const shareID = testData.shares.library_user1.id.toString();
+		const shareID = testData.shares.library_user1.share_id.toString();
 		const query = makeShareQuery(shareID, [makeShareGenresQuery()]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -261,7 +261,7 @@ describe('get share related data', () => {
 	test('get share artists', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const shareID = testData.shares.library_user1.id.toString();
+		const shareID = testData.shares.library_user1.share_id.toString();
 		const query = makeShareQuery(shareID, [makeShareArtistsQuery()]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -280,7 +280,7 @@ describe('get share related data', () => {
 		const database = makeMockedDatabase();
 		(<jest.Mock>database.query).mockReturnValue([testData.shares.library_user1])
 		const { graphQLServer } = await setupTest({ database });
-		const shareID = testData.shares.library_user1.id.toString();
+		const shareID = testData.shares.library_user1.share_id.toString();
 		const query = makeShareQuery(shareID, [makeSharePermissionsQuery()]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -290,7 +290,7 @@ describe('get share related data', () => {
 
 	test('get share tags', async () => {
 		const { graphQLServer } = await setupTest({});
-		const shareID = testData.shares.library_user1.id.toString();
+		const shareID = testData.shares.library_user1.share_id.toString();
 		const query = makeShareQuery(shareID, [makeShareTagsQuery()]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -304,7 +304,7 @@ describe('get share playlists', () => {
 	test('all playlists', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const shareID = testData.shares.library_user1.id.toString();
+		const shareID = testData.shares.library_user1.share_id.toString();
 		const query = makeShareQuery(shareID, [makeSharePlaylistsQuery()]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -322,7 +322,7 @@ describe('get share playlists', () => {
 	test('get by id', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const shareID = testData.shares.library_user1.id.toString();
+		const shareID = testData.shares.library_user1.share_id.toString();
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const query = makeShareQuery(shareID, [makeSharePlaylistQuery(playlistID)]);
 
@@ -335,7 +335,7 @@ describe('get share playlists', () => {
 	test('get playlist songs', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const shareID = testData.shares.library_user1.id.toString();
+		const shareID = testData.shares.library_user1.share_id.toString();
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
 		const query = makeShareQuery(shareID, [makeSharePlaylistQuery(playlistID, [`songs{${playlistSongKeys}}`])]);
 
@@ -360,7 +360,7 @@ describe('get user permissions', () => {
 	test('get user permissions', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const shareID = testData.shares.library_user1.id.toString();
+		const shareID = testData.shares.library_user1.share_id.toString();
 		const query = makeShareQuery(shareID, [makeGetUserPermissionsQuery()]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });

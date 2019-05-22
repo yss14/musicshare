@@ -29,7 +29,7 @@ afterAll(async () => {
 describe('get playlist by id', () => {
 	test('not found', async () => {
 		const { playlistService } = await setupTest({});
-		const shareID = testData.shares.library_user1.id.toString();
+		const shareID = testData.shares.library_user1.share_id.toString();
 
 		await expect(playlistService.getByID(shareID, TimeUUID().toString()))
 			.rejects.toThrowError(PlaylistNotFoundError);

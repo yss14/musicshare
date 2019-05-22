@@ -23,7 +23,7 @@ export class UserService implements IUserService {
 
 	public async getUserByID(id: string): Promise<User> {
 		const dbResults = await this.database.query(
-			UsersTable.select('*', ['id'])([TimeUUID(id)])
+			UsersTable.select('*', ['user_id'])([TimeUUID(id)])
 		);
 
 		if (dbResults.length !== 1) {
@@ -49,10 +49,10 @@ export class UserService implements IUserService {
 		const id = TimeUUID();
 
 		await this.database.query(
-			UsersTable.insert(['id', 'name', 'email'])([id, name, email])
+			UsersTable.insert(['user_id', 'name', 'email'])([id, name, email])
 		);
 
-		return User.fromDBResult({ id, name, email });
+		return User.fromDBResult({ user_id: id, name, email });
 	}
 
 	public async getAll(): Promise<User[]> {

@@ -27,13 +27,13 @@ export namespace DatabaseV1 {
 	});
 
 	export const users = TableSchema({
-		id: { type: ColumnType.TimeUUID, partitionKey: true },
+		user_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		name: { type: ColumnType.Varchar, nullable: false },
 		email: { type: ColumnType.Varchar, clusteringKey: true },
 	});
 
 	export const shares_by_user = TableSchema({
-		id: { type: ColumnType.TimeUUID, clusteringKey: true },
+		share_id: { type: ColumnType.TimeUUID, clusteringKey: true },
 		name: { type: ColumnType.Varchar, nullable: false },
 		user_id: { type: ColumnType.TimeUUID, partitionKey: true },
 		is_library: { type: ColumnType.Boolean, nullable: false },

@@ -47,7 +47,7 @@ describe('create playlist', () => {
 	const makeCreatePlaylistMutation = (shareID: string, name: string) => `
 		createPlaylist(shareID: "${shareID}", name: "${name}"){id, name, shareID, dateAdded}
 	`;
-	const shareID = testData.shares.library_user1.id.toString();
+	const shareID = testData.shares.library_user1.share_id.toString();
 
 	test('valid playlist name', async () => {
 		const { graphQLServer } = await setupTest({});
@@ -101,7 +101,7 @@ describe('delete playlist', () => {
 	const makeDeletePlaylistMutation = (shareID: string, playlistID: string) => `
 		deletePlaylist(shareID: "${shareID}", playlistID: "${playlistID}")
 	`;
-	const shareID = testData.shares.library_user1.id.toString();
+	const shareID = testData.shares.library_user1.share_id.toString();
 
 	test('existing playlist', async () => {
 		const { graphQLServer } = await setupTest({});
@@ -139,7 +139,7 @@ describe('rename playlist', () => {
 	const makeRenamePlaylistQuery = (shareID: string, playlistID: string, newName: string) => `
 		renamePlaylist(shareID: "${shareID}", playlistID: "${playlistID}", newName: "${newName}")
 	`;
-	const shareID = testData.shares.library_user1.id.toString();
+	const shareID = testData.shares.library_user1.share_id.toString();
 
 	test('existing playlist', async () => {
 		const { graphQLServer, playlistService } = await setupTest({});
@@ -197,7 +197,7 @@ describe('add songs to playlist', () => {
 			${playlistSongKeys}
 		}
 	`;
-	const shareID = testData.shares.library_user1.id.toString();
+	const shareID = testData.shares.library_user1.share_id.toString();
 
 	test('existing songs', async () => {
 		const { graphQLServer, playlistService } = await setupTest({});
@@ -268,7 +268,7 @@ describe('remove songs from playlist', () => {
 		}
 	`;
 
-	const shareID = testData.shares.library_user1.id.toString();
+	const shareID = testData.shares.library_user1.share_id.toString();
 
 	test('existing songs', async () => {
 		const { graphQLServer } = await setupTest({});
@@ -325,7 +325,7 @@ describe('update order', () => {
 		}
 	`;
 
-	const shareID = testData.shares.library_user1.id.toString();
+	const shareID = testData.shares.library_user1.share_id.toString();
 
 	test('valid order', async () => {
 		const { graphQLServer } = await setupTest({});

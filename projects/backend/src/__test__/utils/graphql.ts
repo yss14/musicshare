@@ -19,7 +19,7 @@ export const executeGraphQLQuery = async ({ graphQLServer: server, query, expect
 	const expressApp = express();
 	expressApp.use((req, _, next) => {
 		(<ContextRequest>req).context = {
-			userID: userID || testData.users.user1.id.toString(),
+			userID: userID || testData.users.user1.user_id.toString(),
 			scopes: scopes || makeAllScopes(),
 		};
 

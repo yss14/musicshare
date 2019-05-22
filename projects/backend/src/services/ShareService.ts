@@ -31,7 +31,7 @@ export class ShareService implements IShareService {
 
 	public async getShareByID(shareID: string, userID: string): Promise<Share> {
 		const dbResults = await this.database.query(
-			SharesByUserTable.select('*', ['id', 'user_id'])([TimeUUID(shareID), TimeUUID(userID)])
+			SharesByUserTable.select('*', ['share_id', 'user_id'])([TimeUUID(shareID), TimeUUID(userID)])
 		);
 
 		if (!dbResults || dbResults.length === 0) {
@@ -51,7 +51,7 @@ export class ShareService implements IShareService {
 
 	private async addUserToShare(shareID: string, userID: string, name: string, isLib: boolean): Promise<void> {
 		await this.database.query(
-			SharesByUserTable.insert(['id', 'user_id', 'name', 'is_library'])
+			SharesByUserTable.insert(['share_id', 'user_id', 'name', 'is_library'])
 				([TimeUUID(shareID), TimeUUID(userID), name, isLib])
 		);
 	}

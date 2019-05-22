@@ -29,7 +29,7 @@ afterAll(async () => {
 test('get song types for multiple shares', async () => {
 	const { songTypeService } = await setupTest({});
 
-	const shareIDs = [testData.shares.library_user1.id.toString(), testData.shares.some_shared_library.id.toString()];
+	const shareIDs = [testData.shares.library_user1.share_id.toString(), testData.shares.some_shared_library.share_id.toString()];
 	const result = await songTypeService.getSongTypesForShares(shareIDs);
 
 	expect(result).toBeArrayOfSize(defaultSongTypes.length * 2);
@@ -38,7 +38,7 @@ test('get song types for multiple shares', async () => {
 test('remove song type from share', async () => {
 	const { songTypeService } = await setupTest({});
 
-	const shareID = testData.shares.library_user1.id.toString();
+	const shareID = testData.shares.library_user1.share_id.toString();
 	await songTypeService.removeSongTypeFromShare(shareID, SongType.fromObject(defaultSongTypes[4]));
 	await songTypeService.removeSongTypeFromShare(shareID, SongType.fromObject(defaultSongTypes[9]));
 

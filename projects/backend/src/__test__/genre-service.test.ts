@@ -29,7 +29,7 @@ afterAll(async () => {
 test('get genres for multiple shares', async () => {
 	const { genreService } = await setupTest({});
 
-	const shareIDs = [testData.shares.library_user1.id.toString(), testData.shares.some_shared_library.id.toString()];
+	const shareIDs = [testData.shares.library_user1.share_id.toString(), testData.shares.some_shared_library.share_id.toString()];
 	const result = await genreService.getGenresForShares(shareIDs);
 
 	expect(result).toBeArrayOfSize(defaultGenres.length * 2);
@@ -38,7 +38,7 @@ test('get genres for multiple shares', async () => {
 test('remove genre from share', async () => {
 	const { genreService } = await setupTest({});
 
-	const shareID = testData.shares.library_user1.id.toString();
+	const shareID = testData.shares.library_user1.share_id.toString();
 	await genreService.removeGenreFromShare(shareID, Genre.fromObject(defaultGenres[4]));
 	await genreService.removeGenreFromShare(shareID, Genre.fromObject(defaultGenres[9]));
 
