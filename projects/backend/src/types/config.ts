@@ -1,4 +1,5 @@
 import { CustomEnv } from "../utils/env/CustomEnv";
+import { __PROD__ } from "../utils/env/env-constants";
 
 export interface IConfig {
 	database: {
@@ -10,6 +11,19 @@ export interface IConfig {
 	jwt: {
 		secret: string;
 	},
+	server: {
+		enableGraphQLPlayground: boolean;
+	},
+	setup: {
+		seed: {
+			name: string;
+			password: string;
+			email: string;
+			shareName: string;
+			dbCleanInit: boolean;
+			dbSeed: boolean;
+		}
+	}
 }
 
 const requiredEnvVars = [CustomEnv.JWT_SECRET];
@@ -30,6 +44,21 @@ export const configFromEnv = (): IConfig => {
 		},
 		jwt: {
 			secret: process.env[CustomEnv.JWT_SECRET]!
+		},
+		server: {
+			enableGraphQLPlayground: getBoolean(process.env[CustomEnv.ENABLE_PLAYGROUND]) || !__PROD__,
+		},
+		setup: {
+			seed: {
+				name: process.env[CustomEnv.SETUP_USERNAME] || 'musicshare',
+				password: process.env[CustomEnv.SETUP_PASSWORD] || 'ILoveMusic',
+				email: process.env[CustomEnv.SETUP_EMAIL] || 'donotreply@musicshare.rocks',
+				shareName: process.env[CustomEnv.SETUP_SHARE_NAME] || 'MyShare',
+				dbCleanInit: getBoolean(process.env[CustomEnv.SETUP_CLEAN_INIT]) || false,
+				dbSeed: getBoolean(process.env[CustomEnv.SETUP_SEED_DATABASE]) || false,
+			}
 		}
 	}
 }
+
+const getBoolean = (value: any) => value === 'true';

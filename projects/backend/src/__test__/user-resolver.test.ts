@@ -69,8 +69,8 @@ describe('get user by id', () => {
 		const { users } = testData;
 		const query = makeUserQuery();
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: users.user1.id.toString() });
-		expect(body).toEqual(makeGraphQLResponse({ user: users.user1 }));
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: users.user1.user_id.toString() });
+		expect(body).toEqual(makeGraphQLResponse({ user: User.fromDBResult(users.user1) }));
 	});
 
 	test('get user by id not existing', async () => {
@@ -95,11 +95,11 @@ describe('get users shares', () => {
 		const testUser = testData.users.user1;
 		const query = makeUserQuery(true, true);
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: testUser.id.toString() });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: testUser.user_id.toString() });
 
 		expect(body).toEqual(makeGraphQLResponse({
 			user: {
-				...testUser,
+				...User.fromDBResult(testUser),
 				shares: [testData.shares.library_user1].map(Share.fromDBResult)
 			}
 		}));
@@ -111,11 +111,11 @@ describe('get users shares', () => {
 		const testUser = testData.users.user1;
 		const query = makeUserQuery(true, false);
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: testUser.id.toString() });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: testUser.user_id.toString() });
 
 		expect(body).toEqual(makeGraphQLResponse({
 			user: {
-				...testUser,
+				...User.fromDBResult(testUser),
 				shares: [testData.shares.some_shared_library, testData.shares.library_user1].map(Share.fromDBResult)
 			}
 		}));
@@ -262,8 +262,8 @@ describe('update user permissions', () => {
 	const makeUpdateUserPermissionsMutation = (shareID: string, userID: string, permissions: Permission[]) => `
 		mutation{updateUserPermissions(shareID: "${shareID}", userID: "${userID}", permissions: [${permissions.map(permission => `"${permission}"`).join(',')}])}
 	`;
-	const shareID = testData.shares.library_user1.id.toString();
-	const userID = testData.users.user1.id.toString();
+	const shareID = testData.shares.library_user1.share_id.toString();
+	const userID = testData.users.user1.user_id.toString();
 
 	const database = makeMockedDatabase();
 	(<jest.Mock>database.query).mockReturnValue([testData.shares.library_user1]);

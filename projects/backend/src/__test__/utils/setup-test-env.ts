@@ -23,7 +23,7 @@ export interface SetupTestEnvArgs {
 
 // tslint:disable:no-parameter-reassignment
 export const setupTestEnv = async ({ seedDatabase, database }: SetupTestEnvArgs) => {
-	seedDatabase = seedDatabase || true;
+	seedDatabase = seedDatabase === undefined ? true : seedDatabase;
 
 	const config = configFromEnv();
 
@@ -56,6 +56,7 @@ export const setupTestEnv = async ({ seedDatabase, database }: SetupTestEnvArgs)
 	const graphQLServer = await makeGraphQLServer(
 		Container.of(testID),
 		makeGraphQLContextProvider(services),
+		config,
 		authChecker,
 		UserResolver, ShareResolver, SongResolver
 	);
@@ -67,6 +68,7 @@ export const setupTestEnv = async ({ seedDatabase, database }: SetupTestEnvArgs)
 		database,
 		allScopes,
 		...services,
+		services,
 	};
 }
 
@@ -95,6 +97,6 @@ export const setupTestSuite = () => {
 }
 
 export const makeAllScopes = (): Scopes => [
-	{ shareID: testData.shares.library_user1.id.toString(), permissions: Permissions.ALL },
-	{ shareID: testData.shares.some_shared_library.id.toString(), permissions: Permissions.ALL },
+	{ shareID: testData.shares.library_user1.share_id.toString(), permissions: Permissions.ALL },
+	{ shareID: testData.shares.some_shared_library.share_id.toString(), permissions: Permissions.ALL },
 ];

@@ -89,7 +89,7 @@ export namespace CQL {
 		const clusteringOrder = clusteringColumns.length ? ` WITH CLUSTERING ORDER BY (${clusteringColumns.map(col => `${col[0]} ${col[1].order.toString().toUpperCase()}`).join(', ')})` : '';
 
 		const cql = [
-			`CREATE TABLE ${tableName} (`,
+			`CREATE TABLE IF NOT EXISTS ${tableName} (`,
 			Object.entries(schema).map(([columnName, columnDef]) =>
 				`	${columnName} ${mapColumnType(columnDef.type)},`).join('\n'),
 			`	`,

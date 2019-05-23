@@ -16,7 +16,7 @@ interface IPermissionServiceArgs {
 export const PermissionService = ({ database }: IPermissionServiceArgs): IPermissionService => {
 	const getPermissionsForUser = async (shareID: string, userID: string): Promise<Permission[]> => {
 		const dbResults = await database.query(
-			SharesByUserTable.select(['permissions'], ['user_id', 'id'])([TimeUUID(userID), TimeUUID(shareID)]));
+			SharesByUserTable.select(['permissions'], ['user_id', 'share_id'])([TimeUUID(userID), TimeUUID(shareID)]));
 
 		return dbResults[0].permissions
 			.filter(Permissions.isPermission);
@@ -24,7 +24,7 @@ export const PermissionService = ({ database }: IPermissionServiceArgs): IPermis
 
 	const addPermissionsForUser = async (shareID: string, userID: string, permissions: Permission[]) => {
 		await database.query(
-			SharesByUserTable.update(['permissions'], ['user_id', 'id'])
+			SharesByUserTable.update(['permissions'], ['user_id', 'share_id'])
 				([permissions], [TimeUUID(userID), TimeUUID(shareID)])
 		);
 	}

@@ -21,7 +21,7 @@ export class User {
 		return plainToClass(
 			User,
 			{
-				id: dbResult.id.toString(),
+				id: dbResult.user_id.toString(),
 				name: dbResult.name,
 				email: dbResult.email
 			}

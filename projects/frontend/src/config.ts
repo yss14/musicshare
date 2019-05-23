@@ -11,9 +11,23 @@ const requiredEnvVars = [
 	'REACT_APP_MUSICSHARE_BACKEND_URL'
 ];
 
+interface IEnvLike {
+	[key: string]: string;
+}
+
+interface IWindowWithEnv extends Window {
+	_env_: IEnvLike;
+}
+
+const isWindowWithEnv = (obj: Window): obj is IWindowWithEnv => typeof (<any>obj)._env_ === 'object';
+
+const getEnvValue = (name: string): string => isWindowWithEnv(window)
+	? window['_env_'][name]
+	: process.env[name]!;
+
 export const makeConfigFromEnv = (): IConfig => {
 	for (const requiredEnvVar of requiredEnvVars) {
-		if (process.env[requiredEnvVar] === undefined) {
+		if (getEnvValue(requiredEnvVar) === undefined) {
 			throw new Error(`Missing environment variable ${requiredEnvVar}`);
 		}
 	}
@@ -21,8 +35,8 @@ export const makeConfigFromEnv = (): IConfig => {
 	return {
 		services: {
 			musicshare: {
-				backendURL: process.env.REACT_APP_MUSICSHARE_BACKEND_URL!,
-				authTokenDev: process.env.REACT_APP_MUSICSHARE_BACKEND_AUTH_TOKEN_DEV
+				backendURL: getEnvValue('REACT_APP_MUSICSHARE_BACKEND_URL'),
+				authTokenDev: getEnvValue('REACT_APP_MUSICSHARE_BACKEND_AUTH_TOKEN_DEV'),
 			}
 		}
 	}

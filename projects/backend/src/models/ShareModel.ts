@@ -27,7 +27,7 @@ export class Share {
 		return plainToClass(
 			Share,
 			{
-				id: dbResult.id.toString(),
+				id: dbResult.share_id.toString(),
 				name: dbResult.name,
 				userID: dbResult.user_id.toString(),
 				isLibrary: dbResult.is_library

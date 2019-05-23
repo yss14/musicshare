@@ -12,6 +12,8 @@ export class UserNotFoundError extends Error {
 export interface IUserService {
 	getUserByID(id: string): Promise<User>;
 	getUserByEMail(email: string): Promise<User>;
+	getAll(): Promise<User[]>;
+	create(name: string, email: string): Promise<User>;
 }
 
 export class UserService implements IUserService {
@@ -21,7 +23,7 @@ export class UserService implements IUserService {
 
 	public async getUserByID(id: string): Promise<User> {
 		const dbResults = await this.database.query(
-			UsersTable.select('*', ['id'])([TimeUUID(id)])
+			UsersTable.select('*', ['user_id'])([TimeUUID(id)])
 		);
 
 		if (dbResults.length !== 1) {
@@ -41,5 +43,23 @@ export class UserService implements IUserService {
 		}
 
 		return User.fromDBResult(dbResults[0]);
+	}
+
+	public async create(name: string, email: string): Promise<User> {
+		const id = TimeUUID();
+
+		await this.database.query(
+			UsersTable.insert(['user_id', 'name', 'email'])([id, name, email])
+		);
+
+		return User.fromDBResult({ user_id: id, name, email });
+	}
+
+	public async getAll(): Promise<User[]> {
+		const dbResults = await this.database.query(
+			UsersTable.selectAll('*')
+		);
+
+		return dbResults.map(User.fromDBResult);
 	}
 }

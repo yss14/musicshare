@@ -12,5 +12,5 @@
 		"**/build": true
 	},
 	"autoimport.doubleQuotes": false,
-	"typescript.tsdk": "projects/frontend/node_modules/typescript/lib"
+	"typescript.tsdk": "node_modules/typescript/lib"
 }

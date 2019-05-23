@@ -12,7 +12,7 @@ import { SongResolver } from "./resolvers/SongResolver";
 import { makeGraphQLServer } from "./server/GraphQLServer";
 import { __DEV__, __PROD__ } from "./utils/env/env-constants";
 import { makeDatabaseSchemaWithSeed, makeDatabaseSchema } from "./database/schema/make-database-schema";
-import { makeDatabaseSeed } from "./database/seed";
+import { makeDatabaseSeed, insertProductionSetupSeed } from "./database/seed";
 import { graphQLAuthChecker, makeAuthExtractor } from "./auth/auth-middleware";
 import { IGraphQLContext, makeGraphQLContextProvider } from "./types/context";
 import { PlaylistResolver } from "./resolvers/PlaylistResolver";
@@ -53,11 +53,18 @@ if (!isProductionEnvironment()) {
 	await services.songFileService.createContainerIfNotExists();
 	console.info('FileStorage connected');
 
-	if (__DEV__) {
+	const clearDatabase = __DEV__ || config.setup.seed.dbCleanInit;
+	const seedDatabase = __DEV__ || config.setup.seed.dbSeed;
+
+	if (seedDatabase) {
 		const seed = await makeDatabaseSeed({ database, services });
-		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: config.database.keyspace, clear: true });
-	} else if (__PROD__) {
+		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: config.database.keyspace, clear: clearDatabase });
+	} else {
 		await makeDatabaseSchema(database, { keySpace: config.database.keyspace });
+	}
+
+	if (__PROD__) {
+		await insertProductionSetupSeed({ config, services });
 	}
 	console.info('Database schema created');
 
@@ -69,6 +76,7 @@ if (!isProductionEnvironment()) {
 	const graphQLServer = await makeGraphQLServer<IGraphQLContext>(
 		Container,
 		makeGraphQLContextProvider(services),
+		config,
 		graphQLAuthChecker,
 		UserResolver, ShareResolver, SongResolver
 	);

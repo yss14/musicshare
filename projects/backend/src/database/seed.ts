@@ -1,6 +1,6 @@
 import * as faker from 'faker';
 import { createPrefilledArray } from '../utils/array/create-prefilled-array';
-import { __PROD__, __DEV__ } from '../utils/env/env-constants';
+import { __PROD__, __DEV__, __TEST__ } from '../utils/env/env-constants';
 import { makeFileObject } from '../models/interfaces/IFile';
 import moment = require('moment');
 import { TimeUUID } from '../types/TimeUUID';
@@ -12,6 +12,7 @@ import { SongType } from '../models/SongType';
 import { Genre } from '../models/GenreModel';
 import { Permissions } from '../auth/permissions';
 import { IServices } from '../services/services';
+import { IConfig } from '../types/config';
 
 type Users = 'user1' | 'user2';
 type Shares = 'library_user1' | 'library_user2' | 'some_shared_library';
@@ -98,31 +99,31 @@ export const testData: ITestDataSchema = {
 		user1: {
 			name: 'Yss',
 			email: 'yannick.stachelscheid@musicshare.whatever',
-			id: TimeUUID('f0d8e1f0-aeb1-11e8-a117-43673ffd376b')
+			user_id: TimeUUID('f0d8e1f0-aeb1-11e8-a117-43673ffd376b')
 		},
 		user2: {
 			name: 'Simon',
 			email: faker.internet.email(),
-			id: TimeUUID('f0d8e1f1-aeb1-11e8-a117-43673ffd376b')
+			user_id: TimeUUID('f0d8e1f1-aeb1-11e8-a117-43673ffd376b')
 		}
 	},
 	shares: {
 		library_user1: {
-			id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
+			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			name: 'Share Yss',
 			user_id: TimeUUID('f0d8e1f0-aeb1-11e8-a117-43673ffd376b'),
 			is_library: true,
 			permissions: Permissions.ALL,
 		},
 		library_user2: {
-			id: TimeUUID('f0d659e0-aeb1-11e8-a117-43673ffd376b'),
+			share_id: TimeUUID('f0d659e0-aeb1-11e8-a117-43673ffd376b'),
 			name: 'Share Simon',
 			user_id: TimeUUID('f0d8e1f1-aeb1-11e8-a117-43673ffd376b'),
 			is_library: true,
 			permissions: Permissions.ALL,
 		},
 		some_shared_library: {
-			id: TimeUUID('f0d359e0-aeb1-11e8-a117-43673ffd376b'),
+			share_id: TimeUUID('f0d359e0-aeb1-11e8-a117-43673ffd376b'),
 			name: 'Some Shared Library',
 			user_id: TimeUUID('f0d8e1f0-aeb1-11e8-a117-43673ffd376b'),
 			is_library: false,
@@ -180,17 +181,17 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 			for (const user of Object.values(testData.users)) {
 				await database.query(UsersTable.insertFromObj(user));
 
-				await passwordLoginService.register({ userID: user.id.toString(), email: user.email, password: testPassword });
+				await passwordLoginService.register({ userID: user.user_id.toString(), email: user.email, password: testPassword });
 			}
 
 			for (const shareByUser of Object.values(testData.shares)) {
 				await database.query(SharesByUserTable.insertFromObj(shareByUser));
 
 				await Promise.all(defaultSongTypes.map(songType =>
-					songTypeService.addSongTypeToShare(shareByUser.id.toString(), SongType.fromObject(songType))));
+					songTypeService.addSongTypeToShare(shareByUser.share_id.toString(), SongType.fromObject(songType))));
 
 				await Promise.all(defaultGenres.map(genre =>
-					genreService.addGenreToShare(shareByUser.id.toString(), Genre.fromObject(genre))));
+					genreService.addGenreToShare(shareByUser.share_id.toString(), Genre.fromObject(genre))));
 			}
 
 			for (const song of Object.values(testData.songs)) {
@@ -226,7 +227,7 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 					type: 'Remix',
 					genres: ['Some Genre'],
 					labels: null,
-					share_id: testData.shares.library_user1.id,
+					share_id: testData.shares.library_user1.share_id,
 					requires_user_action: false,
 					file: JSON.stringify(makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3')),
 					duration: 120 + Math.floor(Math.random() * 400),
@@ -236,3 +237,27 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 			await Promise.all(songInserts.map(s => songService.create(s)));
 		}
 	}
+
+interface IInsertProductionSetupSeed {
+	config: IConfig;
+	services: IServices;
+}
+
+export const insertProductionSetupSeed = async ({ config, services, }: IInsertProductionSetupSeed) => {
+	const { email, password, name: username, shareName } = config.setup.seed;
+
+	const allUsers = await services.userService.getAll();
+
+	if (allUsers.length > 0) return;
+
+	const user = await services.userService.create(username, email);
+	await services.passwordLoginService.register({ email, password, userID: user.id });
+
+	await services.shareService.createShare(user.id, shareName);
+
+	// istanbul ignore next
+	if (!__TEST__) {
+		console.info(`Created setup user with name ${username} and email ${email}`);
+		console.info(`Created initial share ${shareName} with ${username} as owner`);
+	}
+}

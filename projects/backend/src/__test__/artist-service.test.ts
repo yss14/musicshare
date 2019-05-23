@@ -28,7 +28,7 @@ afterAll(async () => {
 test('get artists for multiple shares', async () => {
 	const { artistService } = await setupTest({});
 
-	const shareIDs = [testData.shares.library_user1.id.toString(), testData.shares.some_shared_library.id.toString()];
+	const shareIDs = [testData.shares.library_user1.share_id.toString(), testData.shares.some_shared_library.share_id.toString()];
 	const result = await artistService.getArtistsForShares(shareIDs);
 
 	expect(result).toIncludeAllMembers([

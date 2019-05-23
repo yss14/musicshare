@@ -24,6 +24,7 @@ import { makeMockedDatabase } from "./mocks/mock-database";
 import { makePlaylistAuthMiddleware } from "../auth/middleware/playlist-auth";
 import { makeSongAuthMiddleware } from "../auth/middleware/song-auth";
 import { AuthTokenStore } from "../auth/AuthTokenStore";
+import { configFromEnv } from "../types/config";
 
 const routePathProtected = '/some/protected/route';
 const routePathPublic = '/some/public/route';
@@ -72,6 +73,7 @@ const setupGraphQLTestEnv = async () => {
 	const graphQLServer = await makeGraphQLServer(
 		null as any,
 		makeGraphQLContextProvider({} as any),
+		configFromEnv(),
 		graphQLAuthChecker,
 		TestResolver
 	);
@@ -250,14 +252,14 @@ describe('auth selectors', () => {
 			const req = { args: {}, root: Share.fromDBResult(share) };
 			const shareID = getShareIDFromRequest(req);
 
-			expect(shareID).toBe(share.id.toString());
+			expect(shareID).toBe(share.share_id.toString());
 		});
 
 		test('args', () => {
-			const req = { args: { shareID: share.id.toString() }, root: undefined };
+			const req = { args: { shareID: share.share_id.toString() }, root: undefined };
 			const shareID = getShareIDFromRequest(req);
 
-			expect(shareID).toBe(share.id.toString());
+			expect(shareID).toBe(share.share_id.toString());
 		});
 
 		test('not found', () => {
@@ -336,7 +338,7 @@ describe('auth middleware', () => {
 		});
 
 		test('insufficient permissions', async () => {
-			const shareID = testData.shares.library_user1.id.toString();
+			const shareID = testData.shares.library_user1.share_id.toString();
 			const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:modify'] }];
 			const middleware = makeShareAuthMiddleware({ checkRef: false, permissions: ['share:members'] }) as Function;
 			const req = { args: { shareID }, root: undefined, context: makeContext({ scopes }) };
@@ -359,7 +361,7 @@ describe('auth middleware', () => {
 	});
 
 	describe('playlist', () => {
-		const shareID = testData.shares.library_user1.id.toString();
+		const shareID = testData.shares.library_user1.share_id.toString();
 
 		test('share reference not found', async () => {
 			const middleware = makePlaylistAuthMiddleware({}) as Function;
@@ -396,9 +398,9 @@ describe('auth middleware', () => {
 });
 
 describe('get permission from scope', () => {
-	const shareID1 = testData.shares.library_user1.id.toString();
-	const shareID2 = testData.shares.some_shared_library.id.toString();
-	const shareID3 = testData.shares.library_user2.id.toString();
+	const shareID1 = testData.shares.library_user1.share_id.toString();
+	const shareID2 = testData.shares.some_shared_library.share_id.toString();
+	const shareID3 = testData.shares.library_user2.share_id.toString();
 	const scopes: Scopes = [
 		{ shareID: shareID1, permissions: ['playlist:create', 'playlist:modify', 'song:modify'] },
 		{ shareID: shareID3, permissions: ['playlist:modify', 'song:upload', 'song:modify'] },
