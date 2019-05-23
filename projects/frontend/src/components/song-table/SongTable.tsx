@@ -2,6 +2,7 @@ import React from 'react';
 import { Table } from 'antd';
 import { IShareSong, IBaseSong } from '../../graphql/types';
 import { buildSongName } from '../../utils/songname-builder';
+import { formatDuration } from '../../utils/format-duration';
 
 const columns = [
 	{
@@ -11,19 +12,19 @@ const columns = [
 		render: (song: IShareSong) => <a href="#">{buildSongName(song)}</a>
 	},
 	{
+		title: "Time",
+		width: 100,
+		dataIndex: "duration",
+		key: "duration",
+		render: (duration: number) => formatDuration(duration)
+	},
+	{
 		title: "Artists",
 		dataIndex: "artists",
 		width: 150,
 		key: "artists",
 		render: (artists: string[]) =>
 			artists.reduce((prev, curr) => prev + ", " + curr)
-	},
-	{
-		title: "Release date",
-		dataIndex: "releaseDate",
-		width: 100,
-		key: "duration",
-		render: (releaseDate: string) => releaseDate
 	},
 	{
 		title: "Genres",

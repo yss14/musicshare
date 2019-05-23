@@ -11,9 +11,10 @@ interface IDropdownProps {
 	value: string | null | undefined;
 	options: IDropdownOption[];
 	onChange: (newValue: string) => void;
+	name?: string;
 }
 
-export const Dropdown = ({ onChange, options, value }: IDropdownProps) => {
+export const Dropdown = ({ onChange, options, value, name }: IDropdownProps) => {
 	const onItemClick = (e: ClickParam) => {
 		onChange(e.key);
 	}
@@ -32,7 +33,7 @@ export const Dropdown = ({ onChange, options, value }: IDropdownProps) => {
 
 	return (
 		<DropdownAntd overlay={dropdownItems}>
-			<Button>
+			<Button name={name}>
 				{selectedOption ? selectedOption.label : 'No selection'} <Icon type="down" />
 			</Button>
 		</DropdownAntd>

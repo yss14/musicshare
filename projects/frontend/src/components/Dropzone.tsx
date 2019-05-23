@@ -37,6 +37,8 @@ const UploadContainer = styled.div`
 
 const Blur = styled.div`
   filter: ${(props: { active: boolean }) => (props.active ? "blur(3px)" : "")};
+  width: 100%;
+  height: 100%;
 `;
 
 interface IDropzoneProps {

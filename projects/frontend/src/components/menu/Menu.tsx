@@ -8,6 +8,7 @@ import { usePlaylists } from "../../graphql/queries/playlists-query";
 import { sortBy } from 'lodash';
 import { useCreatePlaylist } from "../../graphql/mutations/create-playlist";
 import { Prompt } from "../modals/promt/Prompt";
+import { Spinner } from "../Spinner";
 
 const { SubMenu, Item } = Menu;
 
@@ -47,7 +48,7 @@ const NavMenu = ({
 		}
 	}, []);
 
-	if (loading) return <div>Loading...</div>;
+	if (loading) return <Spinner />;
 	if (error) return <div>Error loading playlists</div>;
 
 	return (

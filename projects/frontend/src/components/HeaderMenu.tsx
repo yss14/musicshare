@@ -93,11 +93,6 @@ const NavMenu = () => {
 									))}
 								</ItemGroup>
 							) : null}
-
-							<ItemGroup key="shares:remote" title="Remote Shares">
-								<Item key="share:3">Share 3</Item>
-								<Item key="share:4">Share 4</Item>
-							</ItemGroup>
 						</SubMenu>
 					</Menu>
 				);

@@ -5,6 +5,7 @@ import { ISharePlaylistRoute } from '../../interfaces';
 import useReactRouter from 'use-react-router';
 import { usePlaylist } from '../../graphql/queries/playlist-songs';
 import { SongTableHeader } from '../../components/song-table/SongTableHeader';
+import { Spinner } from '../../components/Spinner';
 
 interface IPlaylistSongsProps {
 	shareID: string;
@@ -19,7 +20,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 		setEditSongID(song.id);
 	}
 
-	if (loading) return <div>Loading...</div>;
+	if (loading) return <Spinner />;
 	if (error || !data) return <div>{error}</div>;
 
 	const { songs, id } = data.share.playlist;
