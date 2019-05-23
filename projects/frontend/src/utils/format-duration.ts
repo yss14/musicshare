@@ -5,7 +5,11 @@ export const formatDuration = (duration: number) => {
 	remainder = remainder - (minutes * 60);
 	const seconds = remainder;
 
-	return `${fillZeros(hours)}:${fillZeros(minutes)}:${fillZeros(seconds)}`;
+	if (hours > 0) {
+		return `${fillZeros(hours)}:${fillZeros(minutes)}:${fillZeros(seconds)}`;
+	} else {
+		return `${fillZeros(minutes)}:${fillZeros(seconds)}`;
+	}
 }
 
 const fillZeros = (num: number) => num < 10 ? `0${num}` : num;
