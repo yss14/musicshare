@@ -36,51 +36,63 @@ const Blur = styled.div`
 `;
 
 interface IDropzoneProps {
-  shareID: string;
-  userID: string;
-  children: (uploadItems: IUploadItem[]) => ReactNode;
+	shareID: string;
+	userID: string;
+	children: (uploadItems: IUploadItem[]) => ReactNode;
 }
 
 interface WrapperProps {
-  children: (uploadItems: IUploadItem[]) => ReactNode;
+	children: (uploadItems: IUploadItem[]) => ReactNode;
+}
+
+const getPlaylistIDFromUrl = (): string[] => {
+	const urlParts = window.location.href.split('/');
+	const playlistIdx = urlParts.findIndex(part => part === 'playlists');
+	if (playlistIdx === -1) {
+		return []
+	}
+	const playlistID = urlParts[playlistIdx + 1];
+
+	return playlistID ? [playlistID] : [];
 }
 
 export default ({ children }: WrapperProps) => {
-  const user = useUser();
-  const share = useShare();
-  return user.data && user.data.user && share.data ? (
-    <Dropzone userID={user.data.user.id} shareID={share.data.shareID}>
-      {state => children(state)}
-    </Dropzone>
-  ) : null;
+	const user = useUser();
+	const share = useShare();
+	return user.data && user.data.user && share.data ? (
+		<Dropzone userID={user.data.user.id} shareID={share.data.shareID}>
+			{state => children(state)}
+		</Dropzone>
+	) : null;
 };
 
 const Dropzone = ({ userID, shareID, children }: IDropzoneProps) => {
-  const [state, dispatch] = useReducer(reducer, []);
-  const config = useConfig();
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      acceptedFiles.forEach(file =>
-        uploadFile(userID, shareID, file, config)(dispatch)
-      );
-    },
-    [shareID, userID, config]
-  );
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    noClick: true
-  });
+	const [state, dispatch] = useReducer(reducer, []);
+	const config = useConfig();
+	const onDrop = useCallback(
+		(acceptedFiles: File[]) => {
+			const playlistIDs = getPlaylistIDFromUrl();
+			acceptedFiles.forEach(file =>
+				uploadFile(userID, shareID, playlistIDs, file, config)(dispatch)
+			);
+		},
+		[shareID, userID, config]
+	);
+	const { getRootProps, getInputProps, isDragActive } = useDropzone({
+		onDrop,
+		noClick: true
+	});
 
-  return (
-    <div style={{ width: "100%", height: "100%" }} {...getRootProps()}>
-      <input {...getInputProps()} />
-      {isDragActive ? (
-        <UploadContainer>
-          <StyledIcon type="upload" />
-          <Title level={1}>Drop here to upload track</Title>
-        </UploadContainer>
-      ) : null}
-      <Blur active={isDragActive}>{children(state)}</Blur>
-    </div>
-  );
+	return (
+		<div style={{ width: "100%", height: "100%" }} {...getRootProps()}>
+			<input {...getInputProps()} />
+			{isDragActive ? (
+				<UploadContainer>
+					<StyledIcon type="upload" />
+					<Title level={1}>Drop here to upload track</Title>
+				</UploadContainer>
+			) : null}
+			<Blur active={isDragActive}>{children(state)}</Blur>
+		</div>
+	);
 };
