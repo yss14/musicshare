@@ -17,7 +17,6 @@ const s3Client = new S3({
 	signatureVersion: 'v4',
 });
 
-
 describe('instance creation', () => {
 	test('single instance', async () => {
 		const container = 'single-instance-' + uuid();

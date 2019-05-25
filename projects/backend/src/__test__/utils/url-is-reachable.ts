@@ -16,4 +16,3 @@ export const urlIsReachable = async (remoteUrl: string, method: 'head' | 'get' =
 
 	return false;
 }
-
