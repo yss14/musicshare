@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Table } from "antd";
 import { IShareSong, IBaseSong } from "../../graphql/types";
 import { buildSongName } from "../../utils/songname-builder";
@@ -42,7 +42,19 @@ interface ISongTableProps {
 }
 
 export const SongTable = ({ songs, onRowClick }: ISongTableProps) => {
-  const height = window.innerHeight;
+  const [height, setHeight] = useState(0);
+  const updateDimensions = () => {
+    setHeight(window.innerHeight);
+  };
+
+  useEffect(() => {
+    updateDimensions();
+    window.addEventListener("resize", updateDimensions);
+    return () => {
+      window.removeEventListener("resize", updateDimensions);
+    };
+  }, []);
+
   return (
     <Table
       size="middle"
@@ -50,7 +62,7 @@ export const SongTable = ({ songs, onRowClick }: ISongTableProps) => {
       dataSource={songs}
       rowKey={(record, index) => "song-key-" + index}
       pagination={false}
-      scroll={{ y: window.innerHeight - 200 }}
+      scroll={{ y: height - 210 }}
       onRowClick={onRowClick}
     />
   );
