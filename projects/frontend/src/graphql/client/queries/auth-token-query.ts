@@ -3,13 +3,14 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 
 export interface IUserData {
-  userID: string;
+  authToken: string;
 }
 
-export const GET_USER_ID = gql`
+export const GET_AUTH_TOKEN = gql`
   query {
-    userID @client
+    authToken @client
   }
 `;
 
-export const useUser = (): QueryResult<IUserData, {}> => useQuery(GET_USER_ID);
+export const useAuthToken = (): QueryResult<IUserData, {}> =>
+  useQuery(GET_AUTH_TOKEN);
