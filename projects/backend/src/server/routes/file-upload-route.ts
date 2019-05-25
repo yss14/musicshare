@@ -81,7 +81,7 @@ const extractContentType = async (req: express.Request): Promise<Either<IRespons
 	}
 }
 
-const extractPlaylistIDs = (req: express.Request): string[] => {
+export const extractPlaylistIDs = (req: express.Request): string[] => {
 	const { playlistID } = req.query;
 
 	if (playlistID === undefined) {
