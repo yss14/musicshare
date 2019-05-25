@@ -12,6 +12,13 @@ services:
       - CASSANDRA_SEEDS=cassandra
       - CASSANDRA_PASSWORD_SEEDER=yes
       - CASSANDRA_PASSWORD=cassandra
+  minio:
+    image: 'bitnami/minio:latest'
+    ports:
+      - '9000:9000'
+    environment:
+      - MINIO_ACCESS_KEY=musicshare
+      - MINIO_SECRET_KEY=musicshare
 volumes:
   cassandra_data:
     driver: local

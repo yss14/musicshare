@@ -1,6 +1,6 @@
-import { FileService, UploadFileArgs, GetLinkToFileArgs } from "../../file-service/FileService";
+import { IFileService, UploadFileArgs, GetLinkToFileArgs } from "../../file-service/FileService";
 
-export class FileServiceMock implements FileService {
+export class FileServiceMock implements IFileService {
 	public readonly container: string = 'mockcontainer';
 
 	constructor(
@@ -18,5 +18,9 @@ export class FileServiceMock implements FileService {
 
 	public async getFileAsBuffer(filenameRemote: string): Promise<Buffer> {
 		return Buffer.from('somecontent');
+	}
+
+	public async createContainerIfNotExists(): Promise<void> {
+		throw 'Not implemented yet';
 	}
 }

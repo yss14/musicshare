@@ -26,6 +26,7 @@
 		"!**/__test__/**",
 		"!src/database/seed.ts",
 		"!src/database/fixtures.ts",
+		"!src/database/core-database.ts",
 		"!src/utils/env/load-envs-from-file.ts"
 	],
 	"coverageReporters": [

@@ -18,6 +18,8 @@ We are working hard to release the first version of MusicShare. See the [roadmap
 ## Local Setup
 
 ### Run The Project
+**Windows:** Be sure to have `node-gyp` and the latest Node.JS version installed. For `node-gyp`, see instructions [here](https://github.com/nodejs/node-gyp#installation).
+
 1. Clone this repo
 2. Run `npm install` or `yarn install` to install and bootstrap dependencies
 3. Create local configurations for `frontend` and `backend` by copying the sample `.env` files (`cp projects/backend/config/development_sample.env projects/backend/development.env && cp projects/frontend/config/sample.env projects/frontend/.env`)

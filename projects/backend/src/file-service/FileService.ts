@@ -13,10 +13,11 @@ export interface GetLinkToFileArgs {
 	ipAddress?: string;
 }
 
-export interface FileService {
+export interface IFileService {
 	uploadFile(args: UploadFileArgs): Promise<void>;
 	getLinkToFile(args: GetLinkToFileArgs): Promise<string>;
 	getFileAsBuffer(filenameRemote: string): Promise<Buffer>;
+	createContainerIfNotExists(): Promise<void>;
 
 	readonly container: string;
 }

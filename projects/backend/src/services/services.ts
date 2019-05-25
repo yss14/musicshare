@@ -18,9 +18,12 @@ import { ID3MetaData } from "../utils/song-meta/song-meta-formats/id3/ID3MetaDat
 import { MP3SongDuration } from "../utils/song-meta/song-meta-formats/id3/MP3SongDuration";
 import { IConfig } from "../types/config";
 import { ITagService, TagService } from "./TagService";
+import { AWSS3FileService } from "../file-service/AWSS3FileService";
+import { S3 } from "aws-sdk";
+import { IFileService } from "../file-service/FileService";
 
 export interface IServices {
-	songFileService: AzureFileService;
+	songFileService: IFileService;
 	songService: ISongService;
 	shareService: IShareService;
 	userService: IUserService;
@@ -39,7 +42,7 @@ export interface IServices {
 }
 
 export const initServices = (config: IConfig, database: IDatabaseClient): IServices => {
-	const songFileService = new AzureFileService('songs');
+	const songFileService = initFileStore(config, 'songs');
 	const songService = new SongService(database);
 	const shareService = new ShareService(database);
 	const userService = new UserService(database);
@@ -77,4 +80,26 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 		permissionService,
 		tagService,
 	};
+}
+
+const initFileStore = (config: IConfig, container: string): IFileService => {
+	const { provider, s3 } = config.fileStorage;
+
+	if (provider === 'azureblob') {
+		return new AzureFileService(container);
+	} else if (provider === 'awss3') {
+		if (!s3) {
+			throw new Error(`AWS S3 is specified as file storage provider, but no credentials are provided`);
+		}
+
+		return new AWSS3FileService(new S3({
+			accessKeyId: s3.accessKey,
+			secretAccessKey: s3.secretKey,
+			endpoint: s3.host,
+			s3ForcePathStyle: true,
+			signatureVersion: 'v4',
+		}), container);
+	} else {
+		throw new Error(`Unknown file storage provider ${provider}`);
+	}
 }

@@ -2,6 +2,7 @@ dist: trusty
 
 services:
   - cassandra
+  - docker
 
 language: node_js
 node_js:
@@ -17,6 +18,10 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-6
+
+before_install:
+- docker pull bitnami/minio:latest
+- docker run -d -p 127.0.0.1:9000:9000 -e MINIO_ACCESS_KEY=musicshare -e MINIO_SECRET_KEY=musicshare bitnami/minio 
       
 install:  
   - npm install
