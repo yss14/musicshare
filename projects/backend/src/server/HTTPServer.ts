@@ -4,7 +4,7 @@ import * as Cors from 'cors';
 import * as Morgan from 'morgan';
 import { fileUploadRouter } from './routes/file-upload-route';
 import { __DEV__, __PROD__ } from '../utils/env/env-constants';
-import { FileService } from '../file-service/FileService';
+import { IFileService } from '../file-service/FileService';
 import { ISongUploadProcessingQueue } from '../job-queues/SongUploadProcessingQueue';
 import { Server } from 'net';
 import { ApolloServer } from 'apollo-server-express';
@@ -15,7 +15,7 @@ const ONE_HUNDRED_MEGABYTE = 100 * 1024 * 1024;
 
 export interface IHTTPServerArgs {
 	graphQLServer: ApolloServer;
-	songFileService: FileService;
+	songFileService: IFileService;
 	uploadProcessingQueue: ISongUploadProcessingQueue;
 	authExtractor: CustomRequestHandler;
 }

@@ -1,5 +1,5 @@
 import { ISongService } from '../services/SongService';
-import { FileService } from '../file-service/FileService';
+import { IFileService } from '../file-service/FileService';
 import { ISongMetaDataService } from '../utils/song-meta/SongMetaDataService';
 import { IFile } from '../models/interfaces/IFile';
 import * as BetterQueue from 'better-queue';
@@ -32,7 +32,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 
 	constructor(
 		private readonly songService: ISongService,
-		private readonly fileService: FileService,
+		private readonly fileService: IFileService,
 		private readonly songMetaDataService: ISongMetaDataService,
 		private readonly songTypeService: ISongTypeService,
 	) {

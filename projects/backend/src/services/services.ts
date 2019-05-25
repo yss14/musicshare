@@ -20,10 +20,10 @@ import { IConfig } from "../types/config";
 import { ITagService, TagService } from "./TagService";
 import { AWSS3FileService } from "../file-service/AWSS3FileService";
 import { S3 } from "aws-sdk";
-import { FileService } from "../file-service/FileService";
+import { IFileService } from "../file-service/FileService";
 
 export interface IServices {
-	songFileService: FileService;
+	songFileService: IFileService;
 	songService: ISongService;
 	shareService: IShareService;
 	userService: IUserService;
@@ -82,7 +82,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	};
 }
 
-const initFileStore = (config: IConfig, container: string): FileService => {
+const initFileStore = (config: IConfig, container: string): IFileService => {
 	const { provider, s3 } = config.fileStorage;
 
 	if (provider === 'azureblob') {

@@ -1,4 +1,4 @@
-import { FileService, UploadFileArgs, GetLinkToFileArgs } from "./FileService";
+import { IFileService, UploadFileArgs, GetLinkToFileArgs } from "./FileService";
 import * as azBlob from 'azure-storage';
 import moment = require("moment");
 import { ICreateBlockBlobRequestOptions } from "../types/azure-storage-additional-types";
@@ -14,7 +14,7 @@ export interface UploadFileArgsAzure extends UploadFileArgs {
 	opts?: ICreateBlockBlobRequestOptions;
 }
 
-export class AzureFileService implements FileService {
+export class AzureFileService implements IFileService {
 	private readonly blobStorage: azBlob.BlobService;
 	public readonly container: string;
 

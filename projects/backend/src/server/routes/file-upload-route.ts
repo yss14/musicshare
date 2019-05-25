@@ -8,7 +8,7 @@ import { withMiddleware } from "../../utils/typed-express/typed-middleware";
 import * as crypto from 'crypto';
 import * as path from 'path';
 import { v4 as uuid } from 'uuid';
-import { FileService } from "../../file-service/FileService";
+import { IFileService } from "../../file-service/FileService";
 import { Duplex } from "stream";
 import * as BodyParser from 'body-parser';
 import { commonRestErrors } from "../../utils/typed-express/common-rest-errors";
@@ -81,7 +81,7 @@ const extractContentType = async (req: express.Request): Promise<Either<IRespons
 	}
 }
 
-const requestHandler = (fileService: FileService, uploadProcessingQueue: ISongUploadProcessingQueue) =>
+const requestHandler = (fileService: IFileService, uploadProcessingQueue: ISongUploadProcessingQueue) =>
 	// tslint:disable-next-line:max-func-args
 	async (req: express.Request, contentType: string, file: Buffer, userID: string, shareID: string): Promise<IResponse> => {
 		const originalFilename = decodeURI(path.basename(req.path));
@@ -124,7 +124,7 @@ const requestHandler = (fileService: FileService, uploadProcessingQueue: ISongUp
 		}
 	}
 
-const fileUploadRoute = (fileService: FileService, uploadProcessingQueue: ISongUploadProcessingQueue) => wrapRequestHandler(
+const fileUploadRoute = (fileService: IFileService, uploadProcessingQueue: ISongUploadProcessingQueue) => wrapRequestHandler(
 	withMiddleware(
 		extractContentType,
 		extractBodyBuffer,
@@ -134,7 +134,7 @@ const fileUploadRoute = (fileService: FileService, uploadProcessingQueue: ISongU
 );
 
 interface IFileUploadRouterArgs {
-	songFileService: FileService;
+	songFileService: IFileService;
 	uploadProcessingQueue: ISongUploadProcessingQueue;
 	maxFileSize: number;
 	allowedMimeTypes?: string[];
