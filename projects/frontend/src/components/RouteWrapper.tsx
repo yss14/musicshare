@@ -80,7 +80,7 @@ const RouteWrapper = ({ children }: IRouteWrapperProps) => {
     if (!currentContainer && myRef) {
       setCurrentContainer(myRef);
     }
-  });
+  }, [currentContainer]);
 
   return (
     <Layout>

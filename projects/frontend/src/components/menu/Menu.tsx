@@ -46,7 +46,7 @@ const NavMenu = ({ match, location }: RouteComponentProps<IShareRoute>) => {
         setCurrent(`share:${split[2]}`);
       }
     }
-  }, []);
+  }, [location]);
 
   if (loading) return <Spinner />;
   if (error) return <div>Error loading playlists</div>;

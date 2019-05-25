@@ -48,7 +48,6 @@ interface WrapperProps {
 export default ({ children }: WrapperProps) => {
   const user = useUser();
   const share = useShare();
-  console.log(user.data);
   return user.data && user.data.user && share.data ? (
     <Dropzone userID={user.data.user.id} shareID={share.data.shareID}>
       {state => children(state)}
@@ -65,7 +64,7 @@ const Dropzone = ({ userID, shareID, children }: IDropzoneProps) => {
         uploadFile(userID, shareID, file, config)(dispatch)
       );
     },
-    [shareID, userID]
+    [shareID, userID, config]
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
