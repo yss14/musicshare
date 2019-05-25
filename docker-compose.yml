@@ -18,7 +18,7 @@ services:
       - '9000:9000'
     environment:
       - MINIO_ACCESS_KEY=musicshare
-      - MINIO_SERVER_SECRET_KEY=musicshare
+      - MINIO_SECRET_KEY=musicshare
 volumes:
   cassandra_data:
     driver: local
