@@ -10,7 +10,7 @@ export class ShareIDArg {
 
 @ArgsType()
 export class ShareNameArg {
-	@Length(2, 100)
+	@Length(1, 100)
 	@Field(() => String)
 	public readonly name!: string;
 }
