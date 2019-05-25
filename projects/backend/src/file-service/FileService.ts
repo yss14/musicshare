@@ -17,6 +17,7 @@ export interface FileService {
 	uploadFile(args: UploadFileArgs): Promise<void>;
 	getLinkToFile(args: GetLinkToFileArgs): Promise<string>;
 	getFileAsBuffer(filenameRemote: string): Promise<Buffer>;
+	createContainerIfNotExists(): Promise<void>;
 
 	readonly container: string;
 }

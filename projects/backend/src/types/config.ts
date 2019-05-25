@@ -23,6 +23,13 @@ export interface IConfig {
 			dbCleanInit: boolean;
 			dbSeed: boolean;
 		}
+	},
+	fileStorage: {
+		s3?: {
+			host: string;
+			accessKey: string;
+			secretKey: string;
+		}
 	}
 }
 
@@ -32,6 +39,16 @@ export const configFromEnv = (): IConfig => {
 	for (const requiredEnvVar of requiredEnvVars) {
 		if (process.env[requiredEnvVar] === undefined) {
 			throw new Error(`Required environment variable ${requiredEnvVar} is missing`);
+		}
+	}
+
+	let s3Config = undefined;
+
+	if (process.env[CustomEnv.S3_ACCESS_KEY] && process.env[CustomEnv.S3_SECRET_KEY] && process.env[CustomEnv.S3_HOST]) {
+		s3Config = {
+			accessKey: process.env[CustomEnv.S3_ACCESS_KEY]!,
+			secretKey: process.env[CustomEnv.S3_SECRET_KEY]!,
+			host: process.env[CustomEnv.S3_HOST]!,
 		}
 	}
 
@@ -57,6 +74,9 @@ export const configFromEnv = (): IConfig => {
 				dbCleanInit: getBoolean(process.env[CustomEnv.SETUP_CLEAN_INIT]) || false,
 				dbSeed: getBoolean(process.env[CustomEnv.SETUP_SEED_DATABASE]) || false,
 			}
+		},
+		fileStorage: {
+			s3: s3Config
 		}
 	}
 }

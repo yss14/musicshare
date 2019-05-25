@@ -19,4 +19,8 @@ export class FileServiceMock implements FileService {
 	public async getFileAsBuffer(filenameRemote: string): Promise<Buffer> {
 		return Buffer.from('somecontent');
 	}
+
+	public async createContainerIfNotExists(): Promise<void> {
+		throw 'Not implemented yet';
+	}
 }
