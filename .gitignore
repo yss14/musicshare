@@ -78,3 +78,5 @@ azurite*/
 # mac file system files
 *.DS_Store
 
+# custom scripts
+scripts
