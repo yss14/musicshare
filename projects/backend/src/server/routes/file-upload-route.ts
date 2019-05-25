@@ -81,6 +81,20 @@ const extractContentType = async (req: express.Request): Promise<Either<IRespons
 	}
 }
 
+const extractPlaylistIDs = (req: express.Request): string[] => {
+	const { playlistID } = req.query;
+
+	if (playlistID === undefined) {
+		return [];
+	}
+
+	if (typeof playlistID === "string") {
+		return [playlistID]
+	}
+
+	return playlistID;
+}
+
 const requestHandler = (fileService: IFileService, uploadProcessingQueue: ISongUploadProcessingQueue) =>
 	// tslint:disable-next-line:max-func-args
 	async (req: express.Request, contentType: string, file: Buffer, userID: string, shareID: string): Promise<IResponse> => {
@@ -110,7 +124,8 @@ const requestHandler = (fileService: IFileService, uploadProcessingQueue: ISongU
 					blob: remoteFilename
 				},
 				userID,
-				shareID
+				shareID,
+				playlistIDs: extractPlaylistIDs(req)
 			}
 
 			await uploadProcessingQueue.enqueueUpload(jobQueuePayload);

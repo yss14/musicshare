@@ -54,10 +54,10 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 		new ID3MetaData(artistExtractor),
 		new MP3SongDuration()
 	]);
-	const songProcessingQueue = new SongUploadProcessingQueue(songService, songFileService, songMetaDataService, songTypeService);
+	const playlistService = PlaylistService({ database, songService });
+	const songProcessingQueue = new SongUploadProcessingQueue(songService, songFileService, songMetaDataService, songTypeService, playlistService);
 	const authService = new AuthenticationService(config.jwt.secret);
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
-	const playlistService = PlaylistService({ database, songService });
 	const invalidAuthTokenStore = AuthTokenStore({ database, tokenGroup: 'authtoken' });
 	const permissionService = PermissionService({ database });
 	const tagService = TagService({ songService });

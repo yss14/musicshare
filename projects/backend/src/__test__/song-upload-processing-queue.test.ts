@@ -6,32 +6,36 @@ import { ISongMetaDataService } from "../utils/song-meta/SongMetaDataService";
 import { SongUploadProcessingQueue, ISongProcessingQueuePayload } from "../job-queues/SongUploadProcessingQueue";
 import { TimeUUID } from "../types/TimeUUID";
 import { SongTypeServiceMock } from "./mocks/SongTypeServiceMock";
+import { PlaylistServiceMock } from "./mocks/PlaylistServiceMock";
 
 const setupTestEnv = () => {
 	const songService = new SongServiceMock();
 	const fileService = new FileServiceMock(() => undefined, () => '');
 	const songMetaDataService: ISongMetaDataService = { analyse: async () => ({}) };
+	const playlistService = PlaylistServiceMock();
 	const songTypeServiceMock = SongTypeServiceMock();
 
-	const songUploadProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeServiceMock);
+	const songUploadProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeServiceMock, playlistService);
 
-	return { songService, fileService, songMetaDataService, songUploadProcessingQueue };
+	return { songService, fileService, songMetaDataService, songUploadProcessingQueue, playlistService };
 }
 
 const makeValidPayload = (): ISongProcessingQueuePayload => ({
 	file: { blob: 'somefile', container: 'songs', fileExtension: 'mp3', originalFilename: 'somefile' },
 	shareID: TimeUUID(new Date()).toString(),
-	userID: TimeUUID(new Date()).toString()
+	userID: TimeUUID(new Date()).toString(),
+	playlistIDs: [TimeUUID(new Date()).toString()]
 })
 
 test('upload successful', async () => {
-	const { songUploadProcessingQueue } = setupTestEnv();
+	const { songUploadProcessingQueue, playlistService } = setupTestEnv();
 	const payload = makeValidPayload();
 
 	const result = await songUploadProcessingQueue.enqueueUpload(payload);
 
 	expect(result).toBeString();
 	expect(result.length).toBeGreaterThan(0);
+	expect(playlistService.addSongs).toBeCalledTimes(1);
 });
 
 test('wrong payload format', async () => {
