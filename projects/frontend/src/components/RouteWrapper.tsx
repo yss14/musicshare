@@ -6,10 +6,32 @@ import React, {
   MutableRefObject
 } from "react";
 import { Icon, Layout, Progress } from "antd";
-import styled from "styled-components";
 import Menu from "./menu/Menu";
 import Dropzone from "./Dropzone";
 import { Flex, Box } from "./Flex";
+import Routing from "../Routing";
+import styled from "styled-components";
+import Player from "./Player";
+import HeaderMenu from "./HeaderMenu";
+
+const { Header, Footer } = Layout;
+
+const StyledHeader = styled(Header)`
+  position: fixed;
+  background-color: ${(props: { theme: any }) => props.theme.lightgrey};
+  z-index: 10;
+  padding: 0;
+  height: 48px;
+  width: 100%;
+`;
+
+const StyledFooter = styled(Footer)`
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  z-index: 10;
+  height: 48px;
+`;
 
 const { Sider, Content } = Layout;
 
@@ -61,7 +83,11 @@ const RouteWrapper = ({ children }: IRouteWrapperProps) => {
   });
 
   return (
-    <>
+    <Layout>
+      <StyledHeader>
+        <HeaderMenu />
+      </StyledHeader>
+
       <StyledSider
         theme="light"
         collapsible
@@ -127,7 +153,10 @@ const RouteWrapper = ({ children }: IRouteWrapperProps) => {
           }}
         </Dropzone>
       </StyledContent>
-    </>
+      <StyledFooter>
+        <Player />
+      </StyledFooter>
+    </Layout>
   );
 };
 

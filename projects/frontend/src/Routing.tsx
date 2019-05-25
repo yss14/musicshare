@@ -1,25 +1,42 @@
-import React, { Suspense, lazy } from "react";
-import { Route } from "react-router-dom";
+import React, { Suspense, lazy, useEffect } from "react";
+import { Route, Redirect } from "react-router-dom";
 import { Spin } from "antd";
 import RouteWrapper from "./components/RouteWrapper";
+import Login from "./pages/login/Login";
+import { useAuthToken } from "./graphql/client/queries/auth-token-query";
+import { useUser } from "./graphql/queries/user-query";
 
-const Shares = lazy(() => import("./pages/shares/Shares"));
 const Share = lazy(() => import("./pages/share/Share"));
 
 export default () => {
-	return (
-		<Suspense fallback={<Spin />}>
-			<Route
-				path="/shares/:shareID"
-				render={() => <RouteWrapper>{container => <Share />}</RouteWrapper>}
-			/>
-			<Route
-				path="/library"
-				render={() => (
-					<RouteWrapper>{container => <div>Library</div>}</RouteWrapper>
-				)}
-			/>
-			<Route exact path="/" component={Shares} />
-		</Suspense>
-	);
+  const { data, error, loading } = useUser();
+  if (loading) {
+    return <Spin />;
+  }
+  return (
+    <Suspense fallback={<Spin />}>
+      <Route
+        path="/shares/:shareID"
+        render={() => <RouteWrapper>{container => <Share />}</RouteWrapper>}
+      />
+      <Route
+        path="/library"
+        render={() => (
+          <RouteWrapper>{container => <div>Library</div>}</RouteWrapper>
+        )}
+      />
+      <Route exact path="/login" render={() => <Login />} />
+      <Route
+        exact
+        path="/"
+        render={() =>
+          data && data.user && data.user.id && !error ? (
+            <Redirect to="/library" />
+          ) : (
+            <Redirect to="/login" />
+          )
+        }
+      />
+    </Suspense>
+  );
 };

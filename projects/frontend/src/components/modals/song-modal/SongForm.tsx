@@ -6,7 +6,7 @@ import { Form, Input, Row, Col, DatePicker, Switch, Modal } from 'antd';
 import { EditableTagGroup } from '../../form/EditableTagGroup';
 import moment from 'moment';
 import { Dropdown } from '../../form/Dropdown';
-import { UpdateSongMutation, UPDATE_SONG, ISongUpdateInput, IUpdateSongData, makeUpdateSongCache } from '../../../graphql/mutations/update-song';
+import { UpdateSongMutation, UPDATE_SONG, ISongUpdateInput, IUpdateSongData, makeUpdateSongCache } from '../../../graphql/mutations/update-song-mutation';
 import { Nullable } from '../../../types/Nullable';
 import { buildSongName } from '../../../utils/songname-builder';
 import { MutationUpdaterFn } from 'apollo-client';

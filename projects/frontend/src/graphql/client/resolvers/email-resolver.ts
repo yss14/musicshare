@@ -10,7 +10,7 @@ export const updateUserEmail = (
   { id, email }: IEmailVariables,
   { cache }: { cache: InMemoryCache }
 ) => {
-  const data = { email };
+  const data = { email, id };
   //cache key should be __typename:id
-  cache.writeData({ id: `User:${id}`, data });
+  cache.writeData({ data });
 };
