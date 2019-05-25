@@ -11,6 +11,8 @@ export namespace Permissions {
 
 	export const ALL = [...songPermissions, ...playlistPermissions, ...sharePermissions];
 
+	export const NONE = [];
+
 	export const isPermission = (obj: any): obj is Permission => ALL.includes(obj);
 }
 

@@ -1,3 +1,4 @@
+import { Permissions } from './../auth/permissions';
 import { Share } from '../models/ShareModel';
 import { SharesByUserTable } from '../database/schema/tables';
 import { TimeUUID } from '../types/TimeUUID';
@@ -12,7 +13,7 @@ export class ShareNotFoundError extends Error {
 export interface IShareService {
 	getSharesByUser(userID: string): Promise<Share[]>;
 	getShareByID(shareID: string, userID: string): Promise<Share>;
-	createShare(ownerUserID: string, name: string): Promise<void>;
+	create(ownerUserID: string, name: string): Promise<Share>;
 	addUser(shareID: string, userID: string, name: string): Promise<void>;
 }
 
@@ -41,18 +42,21 @@ export class ShareService implements IShareService {
 		return Share.fromDBResult(dbResults[0]);
 	}
 
-	public async createShare(ownerUserID: string, name: string) {
-		return this.addUserToShare(TimeUUID().toString(), ownerUserID, name, true);
+	public async create(ownerUserID: string, name: string): Promise<Share> {
+		const shareID = TimeUUID();
+		await this.addUserToShare(shareID.toString(), ownerUserID, name, true, Permissions.ALL);
+
+		return Share.fromDBResult({ share_id: shareID, name: name, user_id: TimeUUID(ownerUserID), is_library: true, permissions: [] });
 	}
 
-	public async addUser(shareID: string, userID: string, name: string) {
-		return this.addUserToShare(shareID, userID, name, false);
+	public async addUser(shareID: string, userID: string, name: string): Promise<void> {
+		return this.addUserToShare(shareID, userID, name, false, Permissions.NONE);
 	}
 
-	private async addUserToShare(shareID: string, userID: string, name: string, isLib: boolean): Promise<void> {
+	private async addUserToShare(shareID: string, userID: string, name: string, isLib: boolean, permissions: string[]) {
 		await this.database.query(
-			SharesByUserTable.insert(['share_id', 'user_id', 'name', 'is_library'])
-				([TimeUUID(shareID), TimeUUID(userID), name, isLib])
+			SharesByUserTable.insert(['share_id', 'user_id', 'name', 'is_library', 'permissions'])
+				([TimeUUID(shareID), TimeUUID(userID), name, isLib, permissions])
 		);
 	}
 }

@@ -95,6 +95,16 @@ const makeSharePlaylistQuery = (playlistID: string, fields: string[] = []) => `
 	}
 `;
 
+const makeCreateShareMutation = (name: string) => `
+	mutation{
+		createShare(name: "${name}"){
+			id,
+			name,
+			permissions
+		}
+	}
+`;
+
 describe('get share by id', () => {
 	test('get share by id', async () => {
 		const { graphQLServer } = await setupTest({});
@@ -367,5 +377,29 @@ describe('get user permissions', () => {
 
 		expect(body.data.share.userPermissions).toBeArrayOfSize(Permissions.ALL.length);
 		expect(body.data.share.userPermissions).toContainAllValues(Permissions.ALL);
+	});
+});
+
+describe('create share', () => {
+	test('valid share', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const newShareName = "New Share";
+		const query = makeCreateShareMutation(newShareName);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.createShare.permissions).toBeArrayOfSize(Permissions.ALL.length);
+		expect(body.data.createShare.name).toEqual(newShareName);
+	});
+
+	test('invalid share name', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const query = makeCreateShareMutation("");
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.createShare).toBe(null);
+		expect(body.errors).toMatchObject([{ message: "Argument Validation Error" }])
 	});
 });

@@ -253,7 +253,7 @@ export const insertProductionSetupSeed = async ({ config, services, }: IInsertPr
 	const user = await services.userService.create(username, email);
 	await services.passwordLoginService.register({ email, password, userID: user.id });
 
-	await services.shareService.createShare(user.id, shareName);
+	await services.shareService.create(user.id, shareName);
 
 	// istanbul ignore next
 	if (!__TEST__) {

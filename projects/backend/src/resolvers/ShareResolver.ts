@@ -1,4 +1,4 @@
-import { Resolver, Query, Arg, FieldResolver, Root, Authorized, Args, Ctx } from "type-graphql";
+import { Resolver, Query, Arg, FieldResolver, Root, Authorized, Args, Ctx, Mutation } from "type-graphql";
 import { Share } from "../models/ShareModel";
 import { ShareSong } from "../models/SongModel";
 import { SongType } from '../models/SongType';
@@ -9,6 +9,7 @@ import { PlaylistIDArg } from '../args/playlist-args';
 import { ShareAuth } from '../auth/middleware/share-auth';
 import { IGraphQLContext } from '../types/context';
 import { IServices } from '../services/services';
+import { ShareNameArg } from "../args/share-args";
 
 @Resolver(of => Share)
 export class ShareResolver {
@@ -123,5 +124,14 @@ export class ShareResolver {
 		@Ctx() ctx: IGraphQLContext,
 	): Promise<string[]> {
 		return this.services.permissionService.getPermissionsForUser(share.id.toString(), ctx.userID!);
+	}
+
+	@Authorized()
+	@Mutation(() => Share, { nullable: true })
+	public async createShare(
+		@Args() { name }: ShareNameArg,
+		@Ctx() ctx: IGraphQLContext
+	): Promise<Share | null> {
+		return this.services.shareService.create(ctx.userID!, name);
 	}
 }
