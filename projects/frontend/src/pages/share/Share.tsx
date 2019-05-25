@@ -30,7 +30,7 @@ const Share = ({ updateShareId, shareID }: IShareProps) => {
 
   useEffect(() => {
     updateShareId();
-  }, [shareID, updateShareId]);
+  }, [shareID]);
 
   return (
     <>
