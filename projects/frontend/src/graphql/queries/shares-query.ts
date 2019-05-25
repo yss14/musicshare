@@ -1,20 +1,22 @@
 import gql from "graphql-tag";
-import { Query } from "react-apollo";
+import { Query, QueryResult } from "react-apollo";
 import { IShare } from "../types";
+import { useQuery } from "@apollo/react-hooks";
 
 export interface IGetSharesData {
-	user: {
-		shares: IShare[];
-	};
+  user: {
+    shares: IShare[];
+  };
 }
 
 export interface IGetSharesVariables {
-	id: string;
+  id: string;
 }
 
 export const GET_SHARES = gql`
   query user {
     user {
+      id
       shares {
         id
         name
@@ -25,4 +27,5 @@ export const GET_SHARES = gql`
   }
 `;
 
-export class ShareQuery extends Query<IGetSharesData, IGetSharesVariables> { }
+export const useShares = (): QueryResult<IGetSharesData, {}> =>
+  useQuery(GET_SHARES);

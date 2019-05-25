@@ -4,10 +4,12 @@ export interface ILoginVariables {
   shareID: string;
 }
 
-export const updateShareId = (
+export const updateTokens = (
   _: any,
-  { shareID }: ILoginVariables,
+  { authToken, refreshToken }: any,
   { cache }: { cache: InMemoryCache }
 ) => {
-  cache.writeData({ data: { shareID } });
+  cache.writeData({ data: { authToken, refreshToken } });
 };
+
+//NOT USED

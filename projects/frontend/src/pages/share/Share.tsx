@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import gql from "graphql-tag";
 import { MutationFn } from "react-apollo";
 
 import useReactRouter from "use-react-router";

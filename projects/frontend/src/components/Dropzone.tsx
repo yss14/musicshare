@@ -4,11 +4,10 @@ import { Icon, Typography } from "antd";
 import styled from "styled-components";
 import { uploadFile } from "../utils/upload/uploadFile";
 import { reducer } from "../utils/upload/upload.reducer";
-import { Query } from "react-apollo";
 import { useConfig } from "../hooks/use-config";
 import { IUploadItem } from "../graphql/rest-types";
-import { useUser } from "../graphql/client/queries/user-query";
 import { useShare } from "../graphql/client/queries/share-query";
+import { useUser } from "../graphql/queries/user-query";
 
 const StyledIcon = styled(Icon)`
   font-size: 64px;
@@ -49,9 +48,8 @@ interface WrapperProps {
 export default ({ children }: WrapperProps) => {
   const user = useUser();
   const share = useShare();
-  console.log(user, share);
-  return user.data && share.data ? (
-    <Dropzone userID={user.data.userID} shareID={share.data.shareID}>
+  return user.data && user.data.user && share.data ? (
+    <Dropzone userID={user.data.user.id} shareID={share.data.shareID}>
       {state => children(state)}
     </Dropzone>
   ) : null;
@@ -66,7 +64,7 @@ const Dropzone = ({ userID, shareID, children }: IDropzoneProps) => {
         uploadFile(userID, shareID, file, config)(dispatch)
       );
     },
-    [shareID, userID]
+    [shareID, userID, config]
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
