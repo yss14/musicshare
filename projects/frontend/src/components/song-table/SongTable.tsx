@@ -24,7 +24,7 @@ const columns = [
     width: 150,
     key: "artists",
     render: (artists: string[]) =>
-      artists.reduce((prev, curr) => prev + ", " + curr)
+      artists.reduce((prev, curr) => prev + ", " + curr,'')
   },
   {
     title: "Genres",
@@ -32,7 +32,7 @@ const columns = [
     width: 150,
     key: "genres",
     render: (genres: string[]) =>
-      genres.reduce((prev, curr) => prev + ", " + curr)
+      genres.reduce((prev, curr) => prev + ", " + curr,'')
   }
 ];
 

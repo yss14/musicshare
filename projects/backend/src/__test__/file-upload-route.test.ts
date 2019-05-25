@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { FileServiceMock } from './mocks/FileServiceMock';
 import { promises as fsPromises } from 'fs';
-import { fileUploadRouter, fileUploadErrors } from '../server/routes/file-upload-route';
+import { fileUploadRouter, fileUploadErrors, extractPlaylistIDs } from '../server/routes/file-upload-route';
 import { makeExpressApp } from './utils/make-express-app';
 import * as request from 'supertest';
 import { HTTPStatusCodes } from '../types/http-status-codes';
@@ -189,3 +189,25 @@ test('valid request, but file upload fails', async (done) => {
 		done();
 	});
 });
+
+describe('extractPlaylistIDs', () => {
+
+	test('no ids', () => {
+		const req: any = {
+			query: {}
+		}
+		expect(extractPlaylistIDs(req)).toEqual([])
+	})
+	test('1 id', () => {
+		const req: any = {
+			query: { playlistID: "test-id" }
+		}
+		expect(extractPlaylistIDs(req)).toEqual(["test-id"])
+	})
+	test('more ids', () => {
+		const req: any = {
+			query: { playlistID: ["test-id-1", "test-id-2", "test-id-3"] }
+		}
+		expect(extractPlaylistIDs(req)).toEqual(["test-id-1", "test-id-2", "test-id-3"])
+	})
+})

@@ -7,11 +7,13 @@ import bind from 'bind-decorator';
 import { TimeUUID } from '../types/TimeUUID';
 import { types as CTypes } from 'cassandra-driver';
 import { ISongTypeService } from '../services/SongTypeService';
+import { IPlaylistService } from '../services/PlaylistService';
 
 export interface ISongProcessingQueuePayload {
 	file: IFile;
 	userID: string;
 	shareID: string;
+	playlistIDs: string[];
 }
 
 const isSongProcessingQueuePayload = (obj: any): obj is ISongProcessingQueuePayload => {
@@ -35,6 +37,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 		private readonly fileService: IFileService,
 		private readonly songMetaDataService: ISongMetaDataService,
 		private readonly songTypeService: ISongTypeService,
+		private readonly playlistService: IPlaylistService,
 	) {
 		this.jobQueue = new BetterQueue<ISongProcessingQueuePayload, string>(this.process);
 	}
@@ -84,6 +87,14 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 				duration: songMeta.duration || 0,
 				tags: [],
 			});
+
+			for (const playlistID of uploadMeta.playlistIDs) {
+				try {
+					await this.playlistService.addSongs(uploadMeta.shareID, playlistID, [song])
+				} catch (err) {
+					console.error(err);
+				}
+			}
 
 			return callback(undefined, song);
 		} catch (err) {
