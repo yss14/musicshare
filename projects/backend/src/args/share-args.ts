@@ -7,3 +7,10 @@ export class ShareIDArg {
 	@Field(() => String)
 	public readonly shareID!: string;
 }
+
+@ArgsType()
+export class ShareNameArg {
+	@Length(1, 100)
+	@Field(() => String)
+	public readonly name!: string;
+}
