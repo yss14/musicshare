@@ -1,6 +1,8 @@
 import { CustomEnv } from "../utils/env/CustomEnv";
 import { __PROD__ } from "../utils/env/env-constants";
 
+type FileStorageProvider = 'azureblob' | 'awss3';
+
 export interface IConfig {
 	database: {
 		host: string;
@@ -25,6 +27,7 @@ export interface IConfig {
 		}
 	},
 	fileStorage: {
+		provider: 'azureblob' | 'awss3';
 		s3?: {
 			host: string;
 			accessKey: string;
@@ -32,6 +35,9 @@ export interface IConfig {
 		}
 	}
 }
+
+const processFileStorageProvider = (str: string | undefined): FileStorageProvider | undefined =>
+	(str === 'azureblob' || str === 'awss3') ? str : undefined;
 
 const requiredEnvVars = [CustomEnv.JWT_SECRET];
 
@@ -76,6 +82,7 @@ export const configFromEnv = (): IConfig => {
 			}
 		},
 		fileStorage: {
+			provider: processFileStorageProvider(process.env[CustomEnv.FILE_STORAGE_PROVIDER]) || 'awss3',
 			s3: s3Config
 		}
 	}
