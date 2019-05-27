@@ -1,4 +1,5 @@
 import { SQL } from "./sql";
+import { isString } from 'util';
 
 export interface Collection<T extends ColumnType> {
 	type: T;
@@ -106,12 +107,12 @@ export const SQLFunc = (cqlFunction: NativeFunction | string): SQLFunction => ({
 
 export const isSQLFunction = (value: any): value is SQLFunction => typeof value.func === 'string';
 
-/*type ColumnValuesBase<C extends Columns, Subset extends (keyof C)[]> =
+type ColumnValuesBase<C extends Columns, Subset extends (keyof C)[]> =
 	{ [key in keyof Subset]: TableRecord<C>[Extract<Subset[key], keyof C>] | SQLFunction };
 
 type ColumnValues<C extends Columns, Subset extends (keyof C)[]> =
 	ColumnValuesBase<C, Subset>[keyof Subset][] &
-	ColumnValuesBase<C, Subset>;*/
+	ColumnValuesBase<C, Subset>;
 
 export type IQuery<C extends Columns> = {
 	sql: string;
@@ -125,9 +126,9 @@ export type Keys<C extends Columns> = (keyof C)[] & (NonEmpty<keyof C> | []);
 export interface ITable<C extends Columns> {
 	readonly name: string;
 	create(): IQuery<{}>;
-	/*insert<Subset extends Keys<C>>(subset: Subset): (values: ColumnValues<C, Subset>) => IQuery<{}>;
-	insertFromObj<Subset extends TableRecord<C>>(obj: Subset): IQuery<{}>;
-	update<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset, where: Where):
+	insert<Subset extends Keys<C>>(subset: Subset): (values: ColumnValues<C, Subset>) => IQuery<{}>;
+	insertFromObj<Subset extends TableRecord<C>>(obj: Partial<Subset>): IQuery<{}>;
+	/*update<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset, where: Where):
 		(subsetValues: ColumnValues<C, Subset>, whereValues: ColumnValues<C, Where>) => IQuery<{}>;
 	selectAll<Subset extends Keys<C>>(subset: Subset | "*"):
 		IQuery<Pick<C, Extract<Subset[number], string>>>;
@@ -146,6 +147,19 @@ export const Table =
 			name: table,
 			create: () => ({
 				sql: SQL.createTable(table, columns)
-			})
+			}),
+			insert: (subset) => (values) => ({
+				sql: SQL.insert(table, subset.filter(isString)),
+				values
+			}),
+			insertFromObj: (obj) => {
+				const subset = Object.keys(obj);
+				const values = Object.values(obj);
+
+				return {
+					sql: SQL.insert(table, subset),
+					values
+				};
+			},
 		}
 	}

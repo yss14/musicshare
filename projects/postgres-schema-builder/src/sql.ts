@@ -45,82 +45,90 @@ export namespace SQL {
 		`;
 	}
 
-	const collectForeignKeyConstraints = (columns: ({ name: string } & Column)[]): IReferenceConstraintInternal[] => flatten(
-		columns.map(col => col.foreignKeys
-			? col.foreignKeys.map(fkc => ({ ...fkc, column: col.name }))
-			: []
-		)
-	);
+	export const insert = (tableName: string, subset: string[]) => {
+		const cql = `INSERT INTO ${tableName}`
+			+ ` ( ${subset.join(", ")} )`
+			+ ` VALUES ( ${subset.map((_, idx) => `$${idx + 1}`).join(', ')} );`;
 
-	const prepareCreateColumnStatement = (col: ({ name: string } & Column)): string => {
-		let replaceArr: any[] = [];
-
-		if (col.defaultValue !== undefined) {
-			replaceArr.push(col.defaultValue);
-		}
-
-		return `${col.name} ${!col.autoIncrement ? mapColumnType(col) : ''} ` +
-			`${col.autoIncrement ? 'SERIAL ' : ''}` +
-			`${col.nullable !== undefined && !col.nullable ? 'NOT NULL ' : ''}` +
-			`${col.defaultValue !== undefined ? `DEFAULT ${isSQLFunction(col.defaultValue) ?
-				col.defaultValue.func : mapValues(col.defaultValue)}` : ''}`;
-	}
-
-	const prepareForeignKeyConstraintStatements = (tableName: string, foreignKeyConstraints: IReferenceConstraintInternal[]): string[] => {
-		return foreignKeyConstraints
-			.map(fkc =>
-				`${tableName}_${fkc.column}_fkey
-				FOREIGN KEY (${fkc.column}) REFERENCES ${fkc.targetTable} (${fkc.targetColumn})
-				${fkc.onDelete !== undefined ? mapUpdateDeleteRule(fkc.onDelete, false) : ''}
-				${fkc.onUpdate !== undefined ? mapUpdateDeleteRule(fkc.onUpdate, true) : ''}`
-			);
-	}
-
-	const mapColumnType = (col: Column) => {
-		if (typeof (col.type) === "object") {
-			if ("json" in col.type) {
-				return "JSON";
-			}
-		} else if (isCollection(col.type)) {
-			return col.type.toUpperCase() + '[]';
-		} else {
-			return col.type.toUpperCase();
-		}
-
-		throw new Error(`Unknown column type ${col.type}`);
-	}
-
-	const mapValues = (val: any): any => {
-		if (val === undefined || val === null) {
-			return 'NULL';
-		} else if (typeof val === 'string') {
-			return pgEscape('%L', val);
-		} else if (moment.isMoment(val)) {
-			return `'${dateToSQLUTCFormat(val.utc().toDate())}'`;
-		} else if (val instanceof Date) {
-			return `'${dateToSQLUTCFormat(val)}'`;
-		} else if (typeof val === 'object') {
-			return mapValues(JSON.stringify(val));
-		} else {
-			return val;
-		}
-	}
-
-	const mapUpdateDeleteRule = (rule: ForeignKeyUpdateDeleteRule, isUpdate: boolean): string => {
-		const prefix = isUpdate ? 'UPDATE' : 'DELETE';
-
-		switch (rule) {
-			case ForeignKeyUpdateDeleteRule.Cascade: return `ON ${prefix} CASCADE`;
-			case ForeignKeyUpdateDeleteRule.NoAction: return '';
-			case ForeignKeyUpdateDeleteRule.Restrict: return '';
-			case ForeignKeyUpdateDeleteRule.SetDefault: return `ON ${prefix} SET DEFAULT`;
-			case ForeignKeyUpdateDeleteRule.SetNull: return `ON ${prefix} SET NULL`;
-		}
+		return cql;
 	}
 
 	export const createIndex = (unique: boolean, name: string, column: string): string => {
 		const sql = `CREATE ${unique ? 'UNIQUE ' : ''}INDEX IF NOT EXISTS ${name}_${column}_${unique ? 'u' : ''}index ON ${name} (${column});`
 
 		return sql;
+	}
+}
+
+const collectForeignKeyConstraints = (columns: ({ name: string } & Column)[]): IReferenceConstraintInternal[] => flatten(
+	columns.map(col => col.foreignKeys
+		? col.foreignKeys.map(fkc => ({ ...fkc, column: col.name }))
+		: []
+	)
+);
+
+const prepareCreateColumnStatement = (col: ({ name: string } & Column)): string => {
+	let replaceArr: any[] = [];
+
+	if (col.defaultValue !== undefined) {
+		replaceArr.push(col.defaultValue);
+	}
+
+	return `${col.name} ${!col.autoIncrement ? mapColumnType(col) : ''} ` +
+		`${col.autoIncrement ? 'SERIAL ' : ''}` +
+		`${col.nullable !== undefined && !col.nullable ? 'NOT NULL ' : ''}` +
+		`${col.defaultValue !== undefined ? `DEFAULT ${isSQLFunction(col.defaultValue) ?
+			col.defaultValue.func : mapValues(col.defaultValue)}` : ''}`;
+}
+
+const prepareForeignKeyConstraintStatements = (tableName: string, foreignKeyConstraints: IReferenceConstraintInternal[]): string[] => {
+	return foreignKeyConstraints
+		.map(fkc =>
+			`${tableName}_${fkc.column}_fkey
+			FOREIGN KEY (${fkc.column}) REFERENCES ${fkc.targetTable} (${fkc.targetColumn})
+			${fkc.onDelete !== undefined ? mapUpdateDeleteRule(fkc.onDelete, false) : ''}
+			${fkc.onUpdate !== undefined ? mapUpdateDeleteRule(fkc.onUpdate, true) : ''}`
+		);
+}
+
+const mapColumnType = (col: Column) => {
+	if (typeof (col.type) === "object") {
+		if ("json" in col.type) {
+			return "JSON";
+		}
+	} else if (isCollection(col.type)) {
+		return col.type.toUpperCase() + '[]';
+	} else {
+		return col.type.toUpperCase();
+	}
+
+	throw new Error(`Unknown column type ${col.type}`);
+}
+
+const mapValues = (val: any): any => {
+	if (val === undefined || val === null) {
+		return 'NULL';
+	} else if (typeof val === 'string') {
+		return pgEscape('%L', val);
+	} else if (moment.isMoment(val)) {
+		return `'${dateToSQLUTCFormat(val.utc().toDate())}'`;
+	} else if (val instanceof Date) {
+		return `'${dateToSQLUTCFormat(val)}'`;
+	} else if (typeof val === 'object') {
+		return mapValues(JSON.stringify(val));
+	} else {
+		return val;
+	}
+}
+
+const mapUpdateDeleteRule = (rule: ForeignKeyUpdateDeleteRule, isUpdate: boolean): string => {
+	const prefix = isUpdate ? 'UPDATE' : 'DELETE';
+
+	switch (rule) {
+		case ForeignKeyUpdateDeleteRule.Cascade: return `ON ${prefix} CASCADE`;
+		case ForeignKeyUpdateDeleteRule.NoAction: return '';
+		case ForeignKeyUpdateDeleteRule.Restrict: return '';
+		case ForeignKeyUpdateDeleteRule.SetDefault: return `ON ${prefix} SET DEFAULT`;
+		case ForeignKeyUpdateDeleteRule.SetNull: return `ON ${prefix} SET NULL`;
 	}
 }
