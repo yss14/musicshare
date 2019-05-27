@@ -1,4 +1,4 @@
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 import { SongTypesByShareTable, ISongTypeByShareDBResult } from "../database/schema/tables";
 import { TimeUUID } from "../types/TimeUUID";
 import { SongType } from "../models/SongType";

@@ -1,5 +1,5 @@
 import { User } from '../models/UserModel';
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 import { UsersTable } from "../database/schema/tables";
 import { TimeUUID } from "../types/TimeUUID";
 

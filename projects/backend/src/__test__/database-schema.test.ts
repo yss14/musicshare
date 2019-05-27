@@ -1,4 +1,4 @@
-import { makeTestDatabase, IDatabaseClient } from 'cassandra-schema-builder';
+import { makeTestDatabase, IDatabaseClient } from 'postgres-schema-builder';
 import { clearKeySpace, makeDatabaseSchema, clearTables } from "../database/schema/make-database-schema";
 import { Tables } from '../database/schema/system-tables';
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from './utils/setup-test-env';

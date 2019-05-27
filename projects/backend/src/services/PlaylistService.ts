@@ -1,12 +1,12 @@
 import { PlaylistSong, playlistSongFromDBResult } from "../models/SongModel";
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 import { PlaylistsByShareTable, IPlaylistByShareDBResult, ISongByPlaylistDBResult, ISongByShareDBResult, SongsByPlaylistTable, ISongBaseDBResult } from "../database/schema/tables";
 import { TimeUUID } from "../types/TimeUUID";
 import { Playlist } from "../models/PlaylistModel";
 import * as snakeCaseObjKeys from 'snakecase-keys';
 import { ISongService } from "./SongService";
 import { SongUpdateInput } from "../inputs/SongInput";
-import { IQuery } from "cassandra-schema-builder/build/table";
+import { IQuery } from "postgres-schema-builder/build/table";
 
 export type OrderUpdate = [string, number];
 

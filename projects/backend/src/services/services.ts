@@ -1,4 +1,4 @@
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 import { AzureFileService } from "../file-service/AzureFileService";
 import { ISongService, SongService } from "./SongService";
 import { IShareService, ShareService } from "./ShareService";

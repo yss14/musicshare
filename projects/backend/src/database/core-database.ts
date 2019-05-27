@@ -1,5 +1,5 @@
 import { IConfig } from "../types/config";
-import { IDatabaseClient, DatabaseClient, Query, CQL } from "cassandra-schema-builder";
+import { IDatabaseClient, DatabaseClient, Query, CQL } from "postgres-schema-builder";
 import { auth, Client } from "cassandra-driver";
 
 export const connectAndSetupDatabase = async (config: IConfig): Promise<IDatabaseClient> => {

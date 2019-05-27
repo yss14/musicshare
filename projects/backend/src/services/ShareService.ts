@@ -2,7 +2,7 @@ import { Permissions } from './../auth/permissions';
 import { Share } from '../models/ShareModel';
 import { SharesByUserTable } from '../database/schema/tables';
 import { TimeUUID } from '../types/TimeUUID';
-import { IDatabaseClient } from 'cassandra-schema-builder';
+import { IDatabaseClient } from 'postgres-schema-builder';
 
 export class ShareNotFoundError extends Error {
 	constructor(shareID: string) {

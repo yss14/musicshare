@@ -1,7 +1,7 @@
 import { ShareSong, shareSongFromDBResult } from '../models/SongModel';
 import { sortByTimeUUIDAsc } from '../utils/sort/sort-timeuuid';
 import { TimeUUID } from '../types/TimeUUID';
-import { IDatabaseClient } from 'cassandra-schema-builder';
+import { IDatabaseClient } from 'postgres-schema-builder';
 import { ISongByShareDBResult, SongsByShareTable, ISongBaseDBResult } from '../database/schema/tables';
 import { SongUpdateInput } from '../inputs/SongInput';
 import * as snakeCaseObjKeys from 'snakecase-keys';

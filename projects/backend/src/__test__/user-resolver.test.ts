@@ -11,7 +11,7 @@ import { User } from "../models/UserModel";
 import { plainToClass } from "class-transformer";
 import { Permission } from "../auth/permissions";
 import { Scopes } from "../types/context";
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 
 const { cleanUp, getDatabase } = setupTestSuite();

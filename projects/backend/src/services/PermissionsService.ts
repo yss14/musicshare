@@ -1,5 +1,5 @@
 import { Permission, Permissions } from "../auth/permissions";
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 import { SharesByUserTable } from "../database/schema/tables";
 import { TimeUUID } from "../types/TimeUUID";
 

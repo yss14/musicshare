@@ -1,4 +1,4 @@
-import { TableSchema, ColumnType, TableRecord, Table } from "cassandra-schema-builder";
+import { TableSchema, ColumnType, TableRecord, Table } from "postgres-schema-builder";
 
 const SystemTables = {
 	['system_schema.tables']: TableSchema({

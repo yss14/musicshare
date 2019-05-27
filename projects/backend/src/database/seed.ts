@@ -6,7 +6,7 @@ import moment = require('moment');
 import { TimeUUID } from '../types/TimeUUID';
 import { types as CTypes } from 'cassandra-driver';
 import { IUsersDBResult, IShareByUserDBResult, ISongByShareDBResult, UsersTable, SharesByUserTable, IPlaylistByShareDBResult } from './schema/tables';
-import { IDatabaseClient } from 'cassandra-schema-builder';
+import { IDatabaseClient } from 'postgres-schema-builder';
 import { defaultSongTypes, defaultGenres } from './fixtures';
 import { SongType } from '../models/SongType';
 import { Genre } from '../models/GenreModel';

@@ -5,7 +5,7 @@ import { testData } from "../database/seed";
 import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
 import { HTTPStatusCodes } from "../types/http-status-codes";
 import { makeMockedDatabase } from "./mocks/mock-database";
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 import moment = require("moment");
 import { SongsByPlaylistTable } from "../database/schema/tables";

@@ -1,5 +1,6 @@
 import { Columns } from "./table";
 import { topologicalSort } from './topological-sort';
+import { SQL } from "./sql";
 
 export function dateToSQLUTCFormat(date: Date) {
 	return date.getUTCFullYear() + "-" + twoDigits(1 + date.getUTCMonth()) + "-" + twoDigits(date.getUTCDate()) + " " + twoDigits(date.getUTCHours()) + ":" + twoDigits(date.getUTCMinutes()) + ":" + twoDigits(date.getUTCSeconds()) + "." + date.getUTCMilliseconds();
@@ -13,7 +14,8 @@ const twoDigits = (d: number): string => {
 }
 
 export const composeCreateTableStatements = <Tables extends { [name: string]: Columns }>(tables: Tables) =>
-	sortTableDependencies(tables);
+	sortTableDependencies(tables)
+		.map(([name, columns]) => SQL.createTable(name, columns));
 
 const sortTableDependencies = (tables: Record<string, Columns>) => {
 	const tablesSorted = topologicalSort(

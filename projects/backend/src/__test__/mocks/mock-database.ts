@@ -1,4 +1,4 @@
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 
 interface IDatabaseClientMocked extends IDatabaseClient {
 	mocked: true;

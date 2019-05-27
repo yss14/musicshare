@@ -1,4 +1,4 @@
-import { TableSchema, ColumnType, CSet } from 'cassandra-schema-builder';
+import { TableSchema, ColumnType, CSet } from 'postgres-schema-builder';
 
 export namespace DatabaseV1 {
 	const baseSchema = TableSchema({

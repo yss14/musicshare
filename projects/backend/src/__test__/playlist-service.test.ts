@@ -2,7 +2,7 @@ import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-te
 import { TimeUUID } from "../types/TimeUUID";
 import { PlaylistNotFoundError } from "../services/PlaylistService";
 import { testData } from "../database/seed";
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 
 const { cleanUp, getDatabase } = setupTestSuite();

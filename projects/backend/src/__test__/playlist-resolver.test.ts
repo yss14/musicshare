@@ -10,7 +10,7 @@ import { OrderUpdate } from "../services/PlaylistService";
 import { sortBy } from 'lodash';
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { Scopes } from "../types/context";
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 
 const { cleanUp, getDatabase } = setupTestSuite();

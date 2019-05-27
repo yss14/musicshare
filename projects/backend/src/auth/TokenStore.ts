@@ -1,4 +1,4 @@
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 import { TokensByShareTable } from "../database/schema/tables";
 
 export interface ITokenStore {

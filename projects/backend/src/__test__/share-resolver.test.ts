@@ -13,7 +13,7 @@ import { Playlist } from "../models/PlaylistModel";
 import { sortBy } from 'lodash';
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { Permissions } from "../auth/permissions";
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 
 const { cleanUp, getDatabase } = setupTestSuite();
