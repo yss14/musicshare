@@ -53,6 +53,32 @@ export namespace SQL {
 		return cql;
 	}
 
+	export const update = (tableName: string, subset: string[], where: string[]) => {
+		const cql = `UPDATE ${tableName} `
+			+ `SET ${subset.map((col, idx) => `${col} = $${idx + 1}`).join(', ')} `
+			+ `WHERE ${where.map((col, idx) => `${col} = $${subset.length + idx + 1}`).join(' AND ')};`
+
+		return cql;
+	}
+
+	export const selectAll = (tableName: string, subset: string[] | '*') => {
+		const cql = `SELECT ${subset === '*' ? '*' : subset.join(', ')} `
+			+ `FROM ${tableName};`;
+
+		return cql;
+	}
+
+	export const select = (tableName: string, subset: string[] | '*', where: string[]) => {
+		const cql = `SELECT ${subset === "*" ? "*" : subset.join(", ")}`
+			+ ` FROM ${tableName}`
+			+ ` WHERE ${where.map((column, i) => `(${column} = $${i + 1})`).join(' AND ')}`
+			+ `;`;
+
+		return cql;
+	}
+
+	export const dropTable = (tableName: string) => `DROP TABLE ${tableName};`;
+
 	export const createIndex = (unique: boolean, name: string, column: string): string => {
 		const sql = `CREATE ${unique ? 'UNIQUE ' : ''}INDEX IF NOT EXISTS ${name}_${column}_${unique ? 'u' : ''}index ON ${name} (${column});`
 

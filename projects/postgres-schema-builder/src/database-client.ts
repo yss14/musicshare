@@ -1,5 +1,6 @@
-import { Client, Pool, PoolConfig } from 'pg';
+import { Client, Pool, PoolConfig, types } from 'pg';
 import { Columns, IQuery, TableRecord } from "./table";
+
 
 type QueryRows<T> = (TableRecord<Extract<T, Columns>>)[];
 
@@ -31,6 +32,9 @@ export const DatabaseClient = (client: Client | Pool): IDatabaseClient => {
 	const close = () => {
 		return client.end();
 	}
+
+	const IOD_DATE = 1082;
+	types.setTypeParser(IOD_DATE, date => date);
 
 	return { query, close };
 }

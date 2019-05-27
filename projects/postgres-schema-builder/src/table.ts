@@ -128,14 +128,13 @@ export interface ITable<C extends Columns> {
 	create(): IQuery<{}>;
 	insert<Subset extends Keys<C>>(subset: Subset): (values: ColumnValues<C, Subset>) => IQuery<{}>;
 	insertFromObj<Subset extends TableRecord<C>>(obj: Partial<Subset>): IQuery<{}>;
-	/*update<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset, where: Where):
+	update<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset, where: Where):
 		(subsetValues: ColumnValues<C, Subset>, whereValues: ColumnValues<C, Where>) => IQuery<{}>;
 	selectAll<Subset extends Keys<C>>(subset: Subset | "*"):
 		IQuery<Pick<C, Extract<Subset[number], string>>>;
 	select<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset | "*", where: Where, allowFiltering?: boolean):
 		(conditions: ColumnValues<C, Where>) => IQuery<Pick<C, Extract<Subset[number], string>>>;
-	selectWhere(where: string): (values: unknown[]) => IQuery<C>;
-	drop(): IQuery<{}>;*/
+	drop(): IQuery<{}>;
 }
 
 export const Table =
@@ -161,5 +160,31 @@ export const Table =
 					values
 				};
 			},
+			update: (subset, where) => (subsetValues, whereValues) => ({
+				sql: SQL.update(table, subset.filter(isString), where.filter(isString)),
+				values: [...subsetValues, ...whereValues],
+			}),
+			selectAll: (subset) => {
+				const sql = subset === '*'
+					? SQL.selectAll(table, subset)
+					: SQL.selectAll(table, subset.filter(isString));
+
+				return {
+					sql
+				}
+			},
+			select: (subset, where) => {
+				const sql = subset === '*'
+					? SQL.select(table, subset, where.filter(isString))
+					: SQL.select(table, subset.filter(isString), where.filter(isString));
+
+				return (values) => ({
+					sql,
+					values
+				});
+			},
+			drop: () => ({
+				sql: SQL.dropTable(table)
+			}),
 		}
 	}
