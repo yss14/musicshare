@@ -1,4 +1,4 @@
-import { Columns, Column, IReferenceConstraintInternal, isCollection, isSQLFunction, ForeignKeyUpdateDeleteRule, ICreateIndexStatement } from "./table";
+import { Columns, Column, IReferenceConstraintInternal, isCollection, isSQLFunction, ForeignKeyUpdateDeleteRule, ICreateIndexStatement, IQuery } from "./table";
 import { flatten } from 'lodash';
 import * as pgEscape from 'pg-escape';
 import { dateToSQLUTCFormat } from "./sql-utils";
@@ -84,6 +84,11 @@ export namespace SQL {
 
 		return sql;
 	}
+
+	export const raw = <T extends {}>(sql: string, values: unknown[] = []): IQuery<T> => ({
+		sql,
+		values
+	});
 }
 
 const collectForeignKeyConstraints = (columns: ({ name: string } & Column)[]): IReferenceConstraintInternal[] => flatten(

@@ -1,12 +1,9 @@
 import { PlaylistSong, playlistSongFromDBResult } from "../models/SongModel";
-import { IDatabaseClient } from "postgres-schema-builder";
-import { PlaylistsByShareTable, IPlaylistByShareDBResult, ISongByPlaylistDBResult, ISongByShareDBResult, SongsByPlaylistTable, ISongBaseDBResult } from "../database/schema/tables";
-import { TimeUUID } from "../types/TimeUUID";
+import { IDatabaseClient, SQL } from "postgres-schema-builder";
 import { Playlist } from "../models/PlaylistModel";
-import * as snakeCaseObjKeys from 'snakecase-keys';
 import { ISongService } from "./SongService";
-import { SongUpdateInput } from "../inputs/SongInput";
-import { IQuery } from "postgres-schema-builder/build/table";
+import { IPlaylistDBResult, PlaylistsTable, SharePlaylistsTable, PlaylistSongsTable, SongsTable, CoreTables } from "../database/schema/tables";
+import { v4 as uuid } from 'uuid';
 
 export type OrderUpdate = [string, number];
 
@@ -26,7 +23,6 @@ export interface IPlaylistService {
 	getSongs(shareID: string, playlistID: string): Promise<PlaylistSong[]>;
 	updateOrder(shareID: string, playlistID: string, orderUpdates: OrderUpdate[]): Promise<void>;
 	getPlaylistsForShare(shareID: string): Promise<Playlist[]>;
-	updateSong(shareID: string, songID: string, song: SongUpdateInput): Promise<void>;
 }
 
 interface IPlaylistServiceArgs {
@@ -48,29 +44,31 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 	}
 
 	const create = async (shareID: string, name: string, id?: string) => {
-		const playlistObj: IPlaylistByShareDBResult = {
-			playlist_id: TimeUUID(id || new Date()),
+		const playlistID = id || uuid();
+		const playlistObj: IPlaylistDBResult = {
+			playlist_id: playlistID,
 			name,
-			share_id: TimeUUID(shareID),
-			date_removed: null
+			date_removed: null,
+			date_added: new Date(),
 		};
 
-		await database.query(PlaylistsByShareTable.insertFromObj(playlistObj));
+		await database.query(PlaylistsTable.insertFromObj(playlistObj));
+		await database.query(SharePlaylistsTable.insertFromObj({ share_id_ref: shareID, playlist_id_ref: playlistID }));
 
 		return Playlist.fromDBResult(playlistObj);
 	};
 
 	const del = async (shareID: string, playlistID: string) => {
 		await database.query(
-			PlaylistsByShareTable.update(['date_removed'], ['share_id', 'playlist_id'])
-				([new Date()], [TimeUUID(shareID), TimeUUID(playlistID)])
+			PlaylistsTable.update(['date_removed'], ['playlist_id'])
+				([new Date()], [playlistID])
 		);
 	};
 
 	const rename = async (shareID: string, playlistID: string, newName: string) => {
 		await database.query(
-			PlaylistsByShareTable.update(['name'], ['share_id', 'playlist_id'])
-				([newName], [TimeUUID(shareID), TimeUUID(playlistID)])
+			PlaylistsTable.update(['name'], ['playlist_id'])
+				([newName], [playlistID])
 		);
 	};
 
@@ -80,28 +78,20 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 
 		const currentSongs = await getSongs(shareID, playlistID);
 		const shareSongs = await songService.getByShare(shareID);
-		const songObjects: ISongByPlaylistDBResult[] = shareSongs
+		const insertQueries = shareSongs
 			.filter(song => songShouldBeAdded(song.id) && songNotInPlaylist(song.id))
-			.map(({ requiresUserAction, id, ...song }, idx) => ({
-				...(snakeCaseObjKeys(song) as ISongByShareDBResult),
-				song_id: TimeUUID(id),
-				playlist_id: TimeUUID(playlistID),
-				position: currentSongs.length + idx,
-				date_added: new Date(),
-				date_removed: null,
-				file: JSON.stringify(song.file),
-				share_id: TimeUUID(shareID),
-			}));
+			.map(song => PlaylistSongsTable.insertFromObj({ playlist_id_ref: playlistID, song_id_ref: song.id }));
 
-		await Promise.all(songObjects.map(songObj => database.query(SongsByPlaylistTable.insertFromObj(songObj))));
+		await Promise.all(insertQueries.map(insertQuery => database.query(insertQuery))); // TODO transactional
 	};
 
 	const removeSongs = async (shareID: string, playlistID: string, songIDs: string[]) => {
-		const updateDateRemovedQuery = SongsByPlaylistTable.update(['date_removed'], ['playlist_id', 'song_id', 'share_id']);
-		const queries = songIDs.map(songID =>
-			updateDateRemovedQuery([new Date()], [TimeUUID(playlistID), TimeUUID(songID), TimeUUID(shareID)]));
+		const deleteQuerys = songIDs.map(songID => ({
+			sql: `DELETE FROM ${PlaylistSongsTable.name} WHERE playlist_id_ref = $1 AND song_id_ref = $2;`,
+			values: [playlistID, songID],
+		}));
+		await Promise.all(deleteQuerys.map(deleteQuery => database.query(deleteQuery))); // TODO transactional
 
-		await database.query(SongsByPlaylistTable.batch(queries));
 		await normalizeOrder(shareID, playlistID);
 	}
 
@@ -116,14 +106,17 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 	}
 
 	const getSongs = async (shareID: string, playlistID: string): Promise<PlaylistSong[]> => {
-		const songs = await database.query(
-			SongsByPlaylistTable.select('*', ['share_id', 'playlist_id'])
-				([TimeUUID(shareID), TimeUUID(playlistID)])
-		);
+		const songQuery = SQL.raw<typeof CoreTables.songs>(`
+			SELECT s.* FROM ${SongsTable.name}
+			INNER JOIN ${PlaylistSongsTable.name} ps ON ps.song_id_ref = s.song_id
+			WHERE ps.playlist_id_ref = $1;
+		`, [playlistID]);
+
+		const songs = await database.query(songQuery);
 
 		return songs
 			.filter(song => song.date_removed === null)
-			.map(song => playlistSongFromDBResult({ ...song }));
+			.map(song => playlistSongFromDBResult({ ...song })); // TODO unify
 	};
 
 	const updateOrder = async (shareID: string, playlistID: string, orderUpdates: OrderUpdate[]) => {
@@ -141,45 +134,25 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 	}
 
 	const executeOrderUpdates = async (shareID: string, playlistID: string, orderUpdates: OrderUpdate[]) => {
-		const updateOrderQuery = SongsByPlaylistTable.update(['position'], ['playlist_id', 'song_id', 'share_id']);
+		const updateOrderQuery = PlaylistSongsTable.update(['position'], ['playlist_id_ref', 'song_id_ref']);
 		const queries = orderUpdates
-			.map(orderUpdate => updateOrderQuery([orderUpdate[1]], [TimeUUID(playlistID), TimeUUID(orderUpdate[0]), TimeUUID(shareID)]));
+			.map(orderUpdate => updateOrderQuery([orderUpdate[1]], [playlistID, orderUpdate[0]]));
 
-		await database.query(SongsByPlaylistTable.batch(queries));
+		await Promise.all(queries.map(query => database.query(query))); // TODO transactional
 	}
 
 	const getPlaylistsForShare = async (shareID: string): Promise<Playlist[]> => {
-		const playlists = await database.query(PlaylistsByShareTable.select('*', ['share_id'])([TimeUUID(shareID)]));
+		const sharePlaylistQuery = SQL.raw<typeof CoreTables.playlists>(`
+			SELECT p.* FROM ${PlaylistsTable.name}
+			INNER JOIN ${SharePlaylistsTable.name} sp ON sp.playlist_id_ref = p.playlist_id
+			WHERE sp.share_id_ref = $1;
+		`, [shareID])
+
+		const playlists = await database.query(sharePlaylistQuery);
 
 		return playlists
 			.filter(playlist => playlist.date_removed === null)
 			.map(Playlist.fromDBResult);
-	}
-
-	const updateSong = async (shareID: string, songID: string, song: SongUpdateInput) => {
-		const baseSong: Partial<ISongBaseDBResult> = {
-			...snakeCaseObjKeys(song),
-			date_last_edit: new Date(),
-		}
-
-		const sharePlaylists = await getPlaylistsForShare(shareID);
-		const playlistSongs = await Promise.all(sharePlaylists.map(playlist => getSongs(shareID, playlist.id)));
-		const affectedPlaylists = sharePlaylists.filter((playlist, idx) =>
-			playlistSongs[idx].find(song => song.id === songID) !== undefined);
-
-		const cql = `
-			UPDATE ${SongsByPlaylistTable.name}
-			SET ${Object.keys(baseSong).map(key => `${key} = ?`).join(', ')}
-			WHERE playlist_id IN (${affectedPlaylists.map(playlist => playlist.id).join(', ')})
-				AND song_id = ${songID} AND share_id = ${shareID};
-		`;
-
-		const updateQuery: IQuery<{}> = {
-			cql,
-			values: Object.values(baseSong)
-		};
-
-		await database.query(updateQuery);
 	}
 
 	return {
@@ -192,6 +165,5 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		getSongs,
 		updateOrder,
 		getPlaylistsForShare,
-		updateSong,
 	}
 };

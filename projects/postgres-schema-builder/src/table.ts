@@ -84,6 +84,15 @@ type ColumnBaseType<C extends Column> =
 	C extends { type: ColumnType.Timestamp } ? Date :
 	C extends { type: ColumnType.TimestampTZ } ? Date :
 	C extends { type: ColumnType.UUID } ? string :
+	C extends { type: Collection<ColumnType.BigInt> } ? BigInteger[] :
+	C extends { type: Collection<ColumnType.Boolean> } ? boolean[] :
+	C extends { type: Collection<ColumnType.Varchar> } ? string[] :
+	C extends { type: Collection<ColumnType.Date> } ? Date[] :
+	C extends { type: Collection<ColumnType.Integer> } ? number[] :
+	C extends { type: Collection<ColumnType.Text> } ? string[] :
+	C extends { type: Collection<ColumnType.Timestamp> } ? Date[] :
+	C extends { type: Collection<ColumnType.TimestampTZ> } ? Date[] :
+	C extends { type: Collection<ColumnType.UUID> } ? string[] :
 	unknown;
 
 type ColumnTypeFinal<C extends Column> =
