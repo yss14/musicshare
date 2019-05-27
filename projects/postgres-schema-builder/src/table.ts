@@ -67,6 +67,8 @@ export interface IColumnTypeJson<Type> {
 	sample?: Type;
 }
 
+export const JSONType = <Type>(): IColumnTypeJson<Type> => ({ json: true });
+
 type BigInteger = BigInt | number;
 
 export const TableSchema = <C extends Columns>(columns: C):
