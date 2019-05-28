@@ -1,8 +1,8 @@
-import { Permissions } from './../auth/permissions';
+import { Permissions, Permission } from './../auth/permissions';
 import { Share } from '../models/ShareModel';
-import { SharesByUserTable } from '../database/schema/tables';
-import { TimeUUID } from '../types/TimeUUID';
-import { IDatabaseClient } from 'postgres-schema-builder';
+import { IDatabaseClient, SQL } from 'postgres-schema-builder';
+import { CoreTables, SharesTable, UserSharesTable } from '../database/schema/tables';
+import { v4 as uuid } from 'uuid';
 
 export class ShareNotFoundError extends Error {
 	constructor(shareID: string) {
@@ -11,10 +11,10 @@ export class ShareNotFoundError extends Error {
 }
 
 export interface IShareService {
-	getSharesByUser(userID: string): Promise<Share[]>;
+	getSharesOfUser(userID: string): Promise<Share[]>;
 	getShareByID(shareID: string, userID: string): Promise<Share>;
 	create(ownerUserID: string, name: string): Promise<Share>;
-	addUser(shareID: string, userID: string, name: string): Promise<void>;
+	addUser(shareID: string, userID: string, name: string, permissions: Permission[]): Promise<void>;
 }
 
 export class ShareService implements IShareService {
@@ -22,17 +22,21 @@ export class ShareService implements IShareService {
 		private readonly database: IDatabaseClient,
 	) { }
 
-	public async getSharesByUser(userID: string): Promise<Share[]> {
-		const dbResults = await this.database.query(
-			SharesByUserTable.select('*', ['user_id'])([TimeUUID(userID)])
-		);
+	public async getSharesOfUser(userID: string): Promise<Share[]> {
+		const userSharesQuery = SQL.raw<typeof CoreTables.shares>(`
+			SELECT s.* FROM ${SharesTable.name}
+			INNER JOIN ${UserSharesTable.name} us.share_id_ref = s.share_id
+			WHERE us.user_id_ref = $1;
+		`, [userID]);
+
+		const dbResults = await this.database.query(userSharesQuery);
 
 		return dbResults.map(Share.fromDBResult);
 	}
 
 	public async getShareByID(shareID: string, userID: string): Promise<Share> {
 		const dbResults = await this.database.query(
-			SharesByUserTable.select('*', ['share_id', 'user_id'])([TimeUUID(shareID), TimeUUID(userID)])
+			SharesTable.select('*', ['share_id'])([shareID])
 		);
 
 		if (!dbResults || dbResults.length === 0) {
@@ -43,20 +47,28 @@ export class ShareService implements IShareService {
 	}
 
 	public async create(ownerUserID: string, name: string): Promise<Share> {
-		const shareID = TimeUUID();
-		await this.addUserToShare(shareID.toString(), ownerUserID, name, true, Permissions.ALL);
+		const shareID = uuid();
 
-		return Share.fromDBResult({ share_id: shareID, name: name, user_id: TimeUUID(ownerUserID), is_library: true, permissions: [] });
+		await this.database.query(
+			SharesTable.insertFromObj({ share_id: shareID, name, date_added: new Date() })
+		);
+		await this.addUserToShare(shareID, ownerUserID, name, true, Permissions.ALL);
+
+		return Share.fromDBResult({ share_id: shareID, name: name, is_library: true, permissions: [] });
 	}
 
-	public async addUser(shareID: string, userID: string, name: string): Promise<void> {
-		return this.addUserToShare(shareID, userID, name, false, Permissions.NONE);
+	public async addUser(shareID: string, userID: string, name: string, permissions: Permission[]): Promise<void> {
+		return this.addUserToShare(shareID, userID, name, false, permissions);
 	}
 
 	private async addUserToShare(shareID: string, userID: string, name: string, isLib: boolean, permissions: string[]) {
 		await this.database.query(
-			SharesByUserTable.insert(['share_id', 'user_id', 'name', 'is_library', 'permissions'])
-				([TimeUUID(shareID), TimeUUID(userID), name, isLib, permissions])
+			UserSharesTable.insertFromObj({
+				user_id_ref: userID,
+				share_id_ref: shareID,
+				permissions,
+				date_added: new Date(),
+			})
 		);
 	}
 }

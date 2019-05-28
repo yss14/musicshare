@@ -68,7 +68,7 @@ test('insertProductionSetupSeed', async () => {
 	const refreshToken = await passwordLoginService.login(email, password);
 	expect(refreshToken).toBeString();
 
-	const share = await shareService.getSharesByUser(user.id);
+	const share = await shareService.getSharesOfUser(user.id);
 	expect(share).toMatchObject([<Share>{
 		isLibrary: true,
 		name: config.setup.seed.shareName,
