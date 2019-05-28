@@ -93,6 +93,7 @@ type ColumnBaseType<C extends Column> =
 	C extends { type: Collection<ColumnType.Timestamp> } ? Date[] :
 	C extends { type: Collection<ColumnType.TimestampTZ> } ? Date[] :
 	C extends { type: Collection<ColumnType.UUID> } ? string[] :
+	C extends { type: IColumnTypeJson<unknown> } ? Required<C["type"]>["sample"] :
 	unknown;
 
 type ColumnTypeFinal<C extends Column> =

@@ -1,12 +1,12 @@
 import { File } from './FileModel';
-import { ObjectType, Field, Int } from "type-graphql";
+import { ObjectType, Field } from "type-graphql";
 import { Share } from "./ShareModel";
 import { Nullable } from '../types/Nullable';
 import { ISong } from './interfaces/ISong';
 import { plainToClass } from 'class-transformer';
-import { ISongByShareDBResult, ISongByPlaylistDBResult, ISongBaseDBResult } from '../database/schema/tables';
+import { ISongDBResult } from '../database/schema/tables';
 
-@ObjectType({ description: 'This represents a base song and its properties' })
+@ObjectType({ description: 'This represents a song and its properties' })
 export class Song implements Nullable<ISong>{
 	@Field()
 	public readonly id!: string;
@@ -64,65 +64,33 @@ export class Song implements Nullable<ISong>{
 
 	@Field(type => [String])
 	public readonly tags!: string[];
-}
-
-@ObjectType({ description: 'This represents a song which is part of a library or share' })
-export class ShareSong extends Song implements Nullable<ISong>{
-	@Field()
-	public readonly requiresUserAction!: boolean;
-}
-
-// istanbul ignore next
-const songMapper = (row: ISongBaseDBResult) => ({
-	id: row.song_id.toString(),
-	title: row.title,
-	suffix: row.suffix,
-	year: row.year,
-	bpm: row.bpm,
-	dateLastEdit: row.date_last_edit.toISOString(),
-	releaseDate: row.release_date ? row.release_date.toString() : null,
-	isRip: row.is_rip,
-	artists: row.artists || [],
-	remixer: row.remixer || [],
-	featurings: row.featurings || [],
-	type: row.type,
-	genres: row.genres || [],
-	labels: row.labels || [],
-	file: row.file ? JSON.parse(row.file) : {},
-	duration: row.duration,
-	tags: row.tags || [],
-});
-
-const shareSongMapper = (row: ISongByShareDBResult) => ({
-	...songMapper(row),
-	requiresUserAction: row.requires_user_action,
-})
-
-export const shareSongFromDBResult = (row: ISongByShareDBResult): ShareSong => plainToClass(
-	ShareSong,
-	shareSongMapper(row)
-)
-
-@ObjectType({ description: 'This represents a song which is part of a playlist' })
-export class PlaylistSong extends Song {
-	@Field()
-	public readonly playlistID!: string;
-
-	@Field(() => Int)
-	public readonly position!: number;
 
 	@Field()
 	public readonly dateAdded!: Date;
+
+	public static fromDBResult(row: ISongDBResult) {
+		return plainToClass(
+			Song,
+			{
+				id: row.song_id.toString(),
+				title: row.title,
+				suffix: row.suffix,
+				year: row.year,
+				bpm: row.bpm,
+				dateLastEdit: row.date_last_edit.toISOString(),
+				releaseDate: row.release_date ? row.release_date.toString() : null,
+				isRip: row.is_rip,
+				artists: row.artists || [],
+				remixer: row.remixer || [],
+				featurings: row.featurings || [],
+				type: row.type,
+				genres: row.genres || [],
+				labels: row.labels || [],
+				file: row.file,
+				duration: row.duration,
+				tags: row.tags || [],
+				dateAdded: row.date_added.toISOString(),
+			}
+		)
+	}
 }
-
-const playlistSongMapper = (row: ISongByPlaylistDBResult) => ({
-	...songMapper(row),
-	playlistID: row.playlist_id.toString(),
-	position: row.position,
-	dateAdded: row.date_added,
-});
-
-export const playlistSongFromDBResult = (row: ISongByPlaylistDBResult): PlaylistSong => plainToClass(
-	PlaylistSong,
-	playlistSongMapper(row)
-)
