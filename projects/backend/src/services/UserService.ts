@@ -47,12 +47,13 @@ export class UserService implements IUserService {
 
 	public async create(name: string, email: string): Promise<User> {
 		const id = uuid();
+		const date = new Date();
 
 		await this.database.query(
-			UsersTable.insert(['user_id', 'name', 'email'])([id, name, email])
+			UsersTable.insert(['user_id', 'name', 'email', 'date_added'])([id, name, email, date])
 		);
 
-		return User.fromDBResult({ user_id: id, name, email });
+		return User.fromDBResult({ user_id: id, name, email, date_added: date, date_removed: null });
 	}
 
 	public async getAll(): Promise<User[]> {

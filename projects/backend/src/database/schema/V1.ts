@@ -12,13 +12,13 @@ export namespace DatabaseV1 {
 		user_id: { type: ColumnType.UUID, primaryKey: true, unique: true },
 		name: { type: ColumnType.Varchar, nullable: false },
 		email: { type: ColumnType.Varchar, nullable: false },
-		share_id_ref_lib: { type: ColumnType.UUID, createIndex: true, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.SetNull }] },
 	});
 
 	export const shares = TableSchema({
 		...baseSchema,
 		share_id: { type: ColumnType.UUID, primaryKey: true, unique: true },
 		name: { type: ColumnType.Varchar, nullable: false },
+		is_library: { type: ColumnType.Boolean, nullable: false },
 	});
 
 	export const user_shares = TableSchema({

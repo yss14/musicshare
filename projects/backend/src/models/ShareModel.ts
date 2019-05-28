@@ -1,7 +1,7 @@
 import { ObjectType, Field } from "type-graphql";
 import { ShareSong } from "./SongModel";
 import { plainToClass } from "class-transformer";
-import { IShareByUserDBResult } from "../database/schema/tables";
+import { IShareDBResult } from "../database/schema/tables";
 
 @ObjectType({ description: "Object representing a share or a personal library" })
 export class Share {
@@ -12,9 +12,6 @@ export class Share {
 	public readonly name!: string;
 
 	@Field()
-	public readonly userID!: string;
-
-	@Field()
 	public readonly isLibrary!: boolean;
 
 	@Field(type => [ShareSong])
@@ -23,13 +20,12 @@ export class Share {
 	@Field(type => ShareSong, { nullable: true })
 	public readonly song!: ShareSong | null;
 
-	public static fromDBResult(dbResult: IShareByUserDBResult): Share {
+	public static fromDBResult(dbResult: IShareDBResult): Share {
 		return plainToClass(
 			Share,
 			{
 				id: dbResult.share_id.toString(),
 				name: dbResult.name,
-				userID: dbResult.user_id.toString(),
 				isLibrary: dbResult.is_library
 			}
 		);
