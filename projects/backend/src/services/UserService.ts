@@ -1,7 +1,7 @@
 import { User } from '../models/UserModel';
 import { IDatabaseClient } from "postgres-schema-builder";
 import { UsersTable } from "../database/schema/tables";
-import { TimeUUID } from "../types/TimeUUID";
+import { v4 as uuid } from 'uuid';
 
 export class UserNotFoundError extends Error {
 	constructor(filterColumn: string, value: string) {
@@ -23,7 +23,7 @@ export class UserService implements IUserService {
 
 	public async getUserByID(id: string): Promise<User> {
 		const dbResults = await this.database.query(
-			UsersTable.select('*', ['user_id'])([TimeUUID(id)])
+			UsersTable.select('*', ['user_id'])([id])
 		);
 
 		if (dbResults.length !== 1) {
@@ -35,7 +35,7 @@ export class UserService implements IUserService {
 
 	public async getUserByEMail(email: string): Promise<User> {
 		const dbResults = await this.database.query(
-			UsersTable.select('*', ['email'], true)([email])
+			UsersTable.select('*', ['email'])([email])
 		);
 
 		if (dbResults.length !== 1) {
@@ -46,7 +46,7 @@ export class UserService implements IUserService {
 	}
 
 	public async create(name: string, email: string): Promise<User> {
-		const id = TimeUUID();
+		const id = uuid();
 
 		await this.database.query(
 			UsersTable.insert(['user_id', 'name', 'email'])([id, name, email])
