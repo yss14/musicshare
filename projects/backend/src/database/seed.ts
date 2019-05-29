@@ -14,7 +14,7 @@ import { IConfig } from '../types/config';
 
 type Users = 'user1' | 'user2';
 type Shares = 'library_user1' | 'library_user2' | 'some_shared_library';
-type Songs = 'song1_library_user1' | 'song2_library_user1' | 'song3_library_user1' | 'song1_some_shared_library';
+type Songs = 'song1_library_user1' | 'song2_library_user1' | 'song3_library_user1';
 type Playlists = 'playlist1_library_user1' | 'playlist2_library_user1' | 'playlist_some_shared_library';
 
 interface ITestDataSchema {
@@ -139,11 +139,6 @@ export const testData: ITestDataSchema = {
 		song1_library_user1: songZeroOliverSmith,
 		song2_library_user1: songPerthDusky,
 		song3_library_user1: songContactAlastor,
-		song1_some_shared_library: {
-			...songContactAlastor,
-			remixer: ['Marsh'],
-			type: 'Remix',
-		}
 	},
 	playlists: {
 		playlist1_library_user1: {

@@ -1,11 +1,11 @@
-import { Columns, Column, IReferenceConstraintInternal, isCollection, isSQLFunction, ForeignKeyUpdateDeleteRule, ICreateIndexStatement, IQuery } from "./table";
+import { Columns, Column, IReferenceConstraintInternal, isCollection, isSQLFunction, ForeignKeyUpdateDeleteRule, ICreateIndexStatement, IQuery, isJSONType } from "./table";
 import { flatten } from 'lodash';
 import * as pgEscape from 'pg-escape';
 import { dateToSQLUTCFormat } from "./sql-utils";
 import moment = require("moment");
 
 export namespace SQL {
-	export const createDatabase = (name: string) => `CREATE DATABASE ${name} IF NOT EXISTS;`;
+	export const createDatabase = (name: string) => `CREATE DATABASE ${name};`;
 
 	export const createTable = (name: string, columns: Columns): string => {
 		const entries = Object.entries(columns).map(([name, column]) => ({ name, ...column }));
@@ -15,12 +15,16 @@ export namespace SQL {
 			return col.primaryKey !== undefined && col.primaryKey;
 		});
 
+		if (primaryKeyColoumns.length === 0) {
+			throw new Error(`Primary Key(s) missing. Cannot create table ${name}.`);
+		}
+
 		const createTableQuery = `
                 CREATE TABLE IF NOT EXISTS ${name} (
 				${entries
 				.map(prepareCreateColumnStatement)
 				.concat([
-					`CONSTRAINT PK_${name}_${primaryKeyColoumns.map(pkc => pkc.name).join('_')} PRIMARY KEY (${primaryKeyColoumns.map(pkc => pkc.name).join(',')})`
+					`CONSTRAINT PK_${name}_${primaryKeyColoumns.map(pkc => pkc.name).join('_')} PRIMARY KEY (${primaryKeyColoumns.map(pkc => `"${pkc.name}"`).join(',')})`
 				])
 				.concat(
 					prepareForeignKeyConstraintStatements(name, foreignKeyConstraints)
@@ -49,7 +53,7 @@ export namespace SQL {
 
 	export const insert = (tableName: string, subset: string[]) => {
 		const cql = `INSERT INTO ${tableName}`
-			+ ` ( ${subset.join(", ")} )`
+			+ ` ( ${subset.map(column => `"${column}"`).join(", ")} )`
 			+ ` VALUES ( ${subset.map((_, idx) => `$${idx + 1}`).join(', ')} );`;
 
 		return cql;
@@ -57,8 +61,8 @@ export namespace SQL {
 
 	export const update = (tableName: string, subset: string[], where: string[]) => {
 		const cql = `UPDATE ${tableName} `
-			+ `SET ${subset.map((col, idx) => `${col} = $${idx + 1}`).join(', ')} `
-			+ `WHERE ${where.map((col, idx) => `${col} = $${subset.length + idx + 1}`).join(' AND ')};`
+			+ `SET ${subset.map((col, idx) => `"${col}" = $${idx + 1}`).join(', ')} `
+			+ `WHERE ${where.map((col, idx) => `"${col}" = $${subset.length + idx + 1}`).join(' AND ')};`
 
 		return cql;
 	}
@@ -71,9 +75,9 @@ export namespace SQL {
 	}
 
 	export const select = (tableName: string, subset: string[] | '*', where: string[]) => {
-		const cql = `SELECT ${subset === "*" ? "*" : subset.join(", ")}`
+		const cql = `SELECT ${subset === "*" ? "*" : subset.map(column => `"${column}"`).join(", ")}`
 			+ ` FROM ${tableName}`
-			+ ` WHERE ${where.map((column, i) => `(${column} = $${i + 1})`).join(' AND ')}`
+			+ ` WHERE ${where.map((column, i) => `("${column}" = $${i + 1})`).join(' AND ')}`
 			+ `;`;
 
 		return cql;
@@ -107,7 +111,7 @@ const prepareCreateColumnStatement = (col: ({ name: string } & Column)): string 
 		replaceArr.push(col.defaultValue);
 	}
 
-	return `${col.name} ${!col.autoIncrement ? mapColumnType(col) : ''} ` +
+	return `"${col.name}" ${!col.autoIncrement ? mapColumnType(col) : ''} ` +
 		`${col.autoIncrement ? 'SERIAL ' : ''}` +
 		`${col.nullable !== undefined && !col.nullable ? 'NOT NULL ' : ''}` +
 		`${col.defaultValue !== undefined ? `DEFAULT ${isSQLFunction(col.defaultValue) ?
@@ -125,17 +129,13 @@ const prepareForeignKeyConstraintStatements = (tableName: string, foreignKeyCons
 }
 
 const mapColumnType = (col: Column) => {
-	if (typeof (col.type) === "object") {
-		if ("json" in col.type) {
-			return "JSON";
-		}
+	if (isJSONType(col.type)) {
+		return 'JSON';
 	} else if (isCollection(col.type)) {
-		return col.type.toUpperCase() + '[]';
+		return col.type.type.toUpperCase() + '[]';
 	} else {
 		return col.type.toUpperCase();
 	}
-
-	throw new Error(`Unknown column type ${col.type}`);
 }
 
 const mapValues = (val: any): any => {

@@ -7,9 +7,10 @@ type QueryRows<T> = (TableRecord<Extract<T, Columns>>)[];
 export class SQLError extends Error {
 	constructor(
 		err: Error,
-		sql: string
+		sql: string,
+		values?: unknown[],
 	) {
-		super(`${err} ${sql}`);
+		super(`SQLError: ${err} SQL: ${sql} Values: ${values}`);
 	}
 }
 
@@ -25,7 +26,7 @@ export const DatabaseClient = (client: Client | Pool): IDatabaseClient => {
 
 			return dbResult.rows;
 		} catch (err) {
-			throw new SQLError(err, query.sql);
+			throw new SQLError(err, query.sql, query.values);
 		}
 	}
 

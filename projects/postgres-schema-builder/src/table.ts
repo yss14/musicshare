@@ -68,6 +68,7 @@ export interface IColumnTypeJson<Type> {
 }
 
 export const JSONType = <Type>(): IColumnTypeJson<Type> => ({ json: true });
+export const isJSONType = (type: any): type is IColumnTypeJson<unknown> => typeof type === 'object' && type.json === true;
 
 type BigInteger = BigInt | number;
 
@@ -142,7 +143,7 @@ export interface ITable<C extends Columns> {
 	readonly name: string;
 	create(): IQuery<{}>;
 	insert<Subset extends Keys<C>>(subset: Subset): (values: ColumnValues<C, Subset>) => IQuery<{}>;
-	insertFromObj<Subset extends TableRecord<C>>(obj: Subset): IQuery<{}>;
+	insertFromObj<Subset extends TableRecord<C>>(obj: Partial<Subset>): IQuery<{}>;
 	update<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset, where: Where):
 		(subsetValues: ColumnValues<C, Subset>, whereValues: ColumnValues<C, Where>) => IQuery<{}>;
 	selectAll<Subset extends Keys<C>>(subset: Subset | "*"):

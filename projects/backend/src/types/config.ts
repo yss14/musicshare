@@ -7,7 +7,7 @@ export interface IConfig {
 	database: {
 		host: string;
 		port: number;
-		keyspace: string;
+		database: string;
 		user?: string;
 		password?: string;
 	},
@@ -63,7 +63,7 @@ export const configFromEnv = (): IConfig => {
 		database: {
 			host: process.env[CustomEnv.POSTGRES_HOST] || '127.0.0.1',
 			port: getInteger(process.env[CustomEnv.POSTGRES_PORT]) || 5432,
-			keyspace: process.env[CustomEnv.POSTGRES_DATABASE] || 'musicshare',
+			database: process.env[CustomEnv.POSTGRES_DATABASE] || 'musicshare',
 			password: process.env[CustomEnv.POSTGRES_PASSWORD],
 			user: process.env[CustomEnv.POSTGRES_USER],
 		},
