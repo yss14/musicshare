@@ -81,9 +81,9 @@ export const setupTestSuite = () => {
 			const testDatabaseEnv = await makeTestDatabase();
 
 			database = testDatabaseEnv.database;
-			databaseCleanUp = testDatabaseEnv.cleanUp;
+			databaseCleanUp = testDatabaseEnv.cleanupHook;
 
-			await makeDatabaseSchema(database, { keySpace: testDatabaseEnv.databaseKeyspace });
+			await makeDatabaseSchema(database, { databaseUser: testDatabaseEnv.clientConfig.user! });
 		}
 
 		return database;

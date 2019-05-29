@@ -8,7 +8,7 @@ import { makeMockedDatabase } from "./mocks/mock-database";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 import moment = require("moment");
-import { SongsByPlaylistTable } from "../database/schema/tables";
+import { PlaylistSongsTable } from "../database/schema/tables";
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -81,8 +81,8 @@ describe('update song mutation', () => {
 
 		const playlist1 = testData.playlists.playlist1_library_user1;
 		const playlist2 = testData.playlists.playlist2_library_user1;
-		const songsPlaylist1 = await playlistService.getSongs(share.share_id.toString(), playlist1.playlist_id.toString());
-		const songsPlaylist2 = await playlistService.getSongs(share.share_id.toString(), playlist2.playlist_id.toString());
+		const songsPlaylist1 = await playlistService.getSongs(playlist1.playlist_id.toString());
+		const songsPlaylist2 = await playlistService.getSongs(playlist2.playlist_id.toString());
 
 		expect(songsPlaylist1).toBeArrayOfSize(playlist1.songs.length);
 		expect(songsPlaylist2).toBeArrayOfSize(playlist1.songs.length); // playlist1.songs.length due to duplicates
@@ -90,7 +90,7 @@ describe('update song mutation', () => {
 		expect(songsPlaylist1.find(playlistSong => playlistSong.id === song.song_id.toString())).toMatchObject(input);
 		expect(songsPlaylist2.find(playlistSong => playlistSong.id === song.song_id.toString())).toMatchObject(input);
 
-		const allPlaylistSongEntries = await database.query(SongsByPlaylistTable.selectAll('*'));
+		const allPlaylistSongEntries = await database.query(PlaylistSongsTable.selectAll('*'));
 		expect(allPlaylistSongEntries).toBeArrayOfSize(2 * playlist1.songs.length);
 	});
 

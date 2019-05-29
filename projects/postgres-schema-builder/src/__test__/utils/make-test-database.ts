@@ -19,5 +19,5 @@ export const makeTestDatabase = async () => {
 		await clientWithoutDatabase.end();
 	}
 
-	return { database, cleanupHook };
+	return { database, cleanupHook, clientConfig: clientConfigWithoutDatabase, testDatabaseName };
 }

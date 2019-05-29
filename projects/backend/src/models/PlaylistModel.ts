@@ -13,13 +13,17 @@ export class Playlist {
 	@Field()
 	public readonly dateAdded!: Date;
 
-	public static fromDBResult(dbResult: IPlaylistDBResult): Playlist {
+	@Field()
+	public readonly shareID!: string;
+
+	public static fromDBResult(dbResult: IPlaylistDBResult, shareID: string): Playlist {
 		return plainToClass(
 			Playlist,
 			{
 				id: dbResult.playlist_id.toString(),
 				name: dbResult.name,
 				dateAdded: dbResult.date_added,
+				shareID,
 			}
 		);
 	}

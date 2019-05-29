@@ -53,9 +53,14 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		};
 
 		await database.query(PlaylistsTable.insertFromObj(playlistObj));
-		await database.query(SharePlaylistsTable.insertFromObj({ share_id_ref: shareID, playlist_id_ref: playlistID }));
+		await database.query(SharePlaylistsTable.insertFromObj({
+			share_id_ref: shareID,
+			playlist_id_ref: playlistID,
+			date_removed: null,
+			date_added: new Date(),
+		}));
 
-		return Playlist.fromDBResult(playlistObj);
+		return Playlist.fromDBResult(playlistObj, shareID);
 	};
 
 	const del = async (shareID: string, playlistID: string) => {
@@ -80,7 +85,13 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		const shareSongs = await songService.getByShare(shareID);
 		const insertQueries = shareSongs
 			.filter(song => songShouldBeAdded(song.id) && songNotInPlaylist(song.id))
-			.map(song => PlaylistSongsTable.insertFromObj({ playlist_id_ref: playlistID, song_id_ref: song.id }));
+			.map((song, idx) => PlaylistSongsTable.insertFromObj({
+				playlist_id_ref: playlistID,
+				song_id_ref: song.id,
+				date_removed: null,
+				date_added: new Date(),
+				position: currentSongs.length + idx + 1
+			}));
 
 		await Promise.all(insertQueries.map(insertQuery => database.query(insertQuery))); // TODO transactional
 	};
@@ -152,7 +163,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 
 		return playlists
 			.filter(playlist => playlist.date_removed === null)
-			.map(Playlist.fromDBResult);
+			.map(playlist => Playlist.fromDBResult(playlist, shareID));
 	}
 
 	return {

@@ -1,5 +1,5 @@
 import { IDatabaseClient } from "postgres-schema-builder";
-import { TokensByShareTable } from "../database/schema/tables";
+import { ShareTokensTable } from "../database/schema/tables";
 
 export interface ITokenStore {
 	addToken(token: string): void;
@@ -21,16 +21,16 @@ export const PeristentTokenStore = ({ database, tokenGroup }: IPeristentTokenSto
 	let tokensSinceLastPersist: string[] = [];
 
 	const load = async () => {
-		const dbResults = await database.query(TokensByShareTable.select('*', ['group'])([tokenGroup]));
+		const dbResults = await database.query(ShareTokensTable.select('*', ['group'])([tokenGroup]));
 
 		tokenCache = new Set<string>(dbResults.map(dbResult => dbResult.token_value));
 	}
 
 	const persist = async () => {
 		const insertQueries = tokensSinceLastPersist.map(token =>
-			TokensByShareTable.insert(['group', 'token_value'])([tokenGroup, token]));
+			ShareTokensTable.insert(['group', 'token_value'])([tokenGroup, token]));
 
-		await database.query(TokensByShareTable.batch(insertQueries));
+		await Promise.all(insertQueries.map(database.query)); // TODO transactional
 
 		tokensSinceLastPersist = [];
 	}

@@ -45,7 +45,7 @@ export class AuthenticationService implements IAuthenticationService {
 			userName: user.name,
 			email: user.email,
 			scopes,
-			tokenID: TimeUUID().toString(),
+			tokenID: uuid(),
 			refreshToken,
 		}
 

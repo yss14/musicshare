@@ -23,8 +23,8 @@ export namespace DatabaseV1 {
 
 	export const user_shares = TableSchema({
 		...baseSchema,
-		share_id_ref: { type: ColumnType.UUID, createIndex: true, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
-		user_id_ref: { type: ColumnType.UUID, createIndex: true, foreignKeys: [{ targetTable: 'users', targetColumn: 'user_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
+		share_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
+		user_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'users', targetColumn: 'user_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
 		permissions: { type: PArray(ColumnType.Varchar), nullable: false },
 	});
 
@@ -52,8 +52,8 @@ export namespace DatabaseV1 {
 
 	export const share_songs = TableSchema({
 		...baseSchema,
-		share_id_ref: { type: ColumnType.UUID, createIndex: true, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
-		song_id_ref: { type: ColumnType.UUID, createIndex: true, foreignKeys: [{ targetTable: 'songs', targetColumn: 'song_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
+		share_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
+		song_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'songs', targetColumn: 'song_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
 	});
 
 	export const playlists = TableSchema({
@@ -64,14 +64,14 @@ export namespace DatabaseV1 {
 
 	export const share_playlists = TableSchema({
 		...baseSchema,
-		share_id_ref: { type: ColumnType.UUID, createIndex: true, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
-		playlist_id_ref: { type: ColumnType.UUID, createIndex: true, foreignKeys: [{ targetTable: 'playlists', targetColumn: 'playlist_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
+		share_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
+		playlist_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'playlists', targetColumn: 'playlist_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
 	});
 
 	export const playlist_songs = TableSchema({
 		...baseSchema,
-		playlist_id_ref: { type: ColumnType.UUID, createIndex: true, foreignKeys: [{ targetTable: 'playlists', targetColumn: 'playlist_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
-		song_id_ref: { type: ColumnType.UUID, createIndex: true, foreignKeys: [{ targetTable: 'songs', targetColumn: 'song_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
+		playlist_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'playlists', targetColumn: 'playlist_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
+		song_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'songs', targetColumn: 'song_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
 		position: { type: ColumnType.Integer, createIndex: true, nullable: false },
 	});
 
@@ -81,25 +81,24 @@ export namespace DatabaseV1 {
 		group: { type: ColumnType.Varchar, primaryKey: true },
 		has_artists: { type: ColumnType.Boolean, nullable: false },
 		alternative_names: { type: PArray(ColumnType.Varchar) },
-		share_id_ref: { type: ColumnType.UUID, createIndex: true, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
+		share_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
 	});
 
 	export const genres = TableSchema({
 		...baseSchema,
 		name: { type: ColumnType.Varchar, primaryKey: true },
 		group: { type: ColumnType.Varchar, primaryKey: true },
-		share_id_ref: { type: ColumnType.UUID, createIndex: true, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
+		share_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
 	});
 
 	export const user_login_credentials = TableSchema({
 		...baseSchema,
-		user_id_ref: { type: ColumnType.UUID, createIndex: true, foreignKeys: [{ targetTable: 'users', targetColumn: 'user_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
+		user_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'users', targetColumn: 'user_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
 		credential: { type: ColumnType.Varchar, nullable: false },
 	});
 
 	export const share_tokens = TableSchema({
 		token_value: { type: ColumnType.Varchar, primaryKey: true },
 		group: { type: ColumnType.Varchar, primaryKey: true },
-		share_id_ref: { type: ColumnType.UUID, createIndex: true, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
 	});
 }

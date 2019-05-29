@@ -5,7 +5,6 @@ interface IDatabaseClientMocked extends IDatabaseClient {
 }
 
 export const makeMockedDatabase = (): IDatabaseClientMocked => ({
-	execute: jest.fn(),
 	query: jest.fn(),
 	close: jest.fn(),
 	mocked: true,

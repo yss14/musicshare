@@ -2,7 +2,6 @@ import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-te
 import { testData } from "../database/seed";
 import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
 import { Share } from "../models/ShareModel";
-import { shareSongFromDBResult, playlistSongFromDBResult } from "../models/SongModel";
 import { includesSong, compareSongs } from "./utils/compare-songs";
 import { TimeUUID } from "../types/TimeUUID";
 import { defaultSongTypes, defaultGenres } from "../database/fixtures";
@@ -15,6 +14,7 @@ import { makeMockedDatabase } from "./mocks/mock-database";
 import { Permissions } from "../auth/permissions";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
+import { Song } from "../models/SongModel";
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -158,7 +158,7 @@ describe('get share songs', () => {
 			testData.songs.song1_library_user1,
 			testData.songs.song2_library_user1,
 			testData.songs.song3_library_user1,
-		].map(shareSongFromDBResult);
+		].map(Song.fromDBResult);
 
 		expectedSongs.forEach(expectedSong => includesSong(body.data.share.songs, expectedSong));
 	});
@@ -174,7 +174,7 @@ describe('get share songs', () => {
 		const expectedSongs = [
 			testData.songs.song1_library_user1,
 			testData.songs.song2_library_user1,
-		].map(shareSongFromDBResult);
+		].map(Song.fromDBResult);
 
 		expectedSongs.forEach(expectedSong => includesSong(body.data.share.songs, expectedSong));
 	});
@@ -191,7 +191,7 @@ describe('get share songs', () => {
 		const expectedSongs = [
 			testData.songs.song2_library_user1,
 			testData.songs.song3_library_user1,
-		].map(shareSongFromDBResult);
+		].map(Song.fromDBResult);
 
 		const receivedSongs = body.data.share.songsDirty;
 		expect(receivedSongs.length).toBe(2);
@@ -209,7 +209,7 @@ describe('get share song', () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
-		compareSongs(shareSongFromDBResult(song), body.data.share.song);
+		compareSongs(Song.fromDBResult(song), body.data.share.song);
 	});
 
 	test('get share song by id not existing', async () => {
@@ -322,7 +322,7 @@ describe('get share playlists', () => {
 		const receivedPlaylists = sortBy(body.data.share.playlists, 'name');
 		const expectedPlaylists = sortBy(
 			[testData.playlists.playlist1_library_user1, testData.playlists.playlist2_library_user1]
-				.map(Playlist.fromDBResult)
+				.map(playlist => Playlist.fromDBResult(playlist, shareID))
 				.map(playlist => JSON.parse(JSON.stringify(playlist)))
 			, 'name');
 
@@ -339,7 +339,7 @@ describe('get share playlists', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.share.playlist)
-			.toEqual(JSON.parse(JSON.stringify(Playlist.fromDBResult(testData.playlists.playlist1_library_user1))))
+			.toEqual(JSON.parse(JSON.stringify(Playlist.fromDBResult(testData.playlists.playlist1_library_user1, shareID))))
 	});
 
 	test('get playlist songs', async () => {
@@ -351,10 +351,8 @@ describe('get share playlists', () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 		const receivedSongs = body.data.share.playlist.songs;
-		const expectedSongs = testData.playlists.playlist1_library_user1.songs.map((song, idx) => playlistSongFromDBResult({
+		const expectedSongs = testData.playlists.playlist1_library_user1.songs.map((song, idx) => Song.fromDBResult({
 			...song,
-			playlist_id: TimeUUID(playlistID),
-			position: idx,
 			date_added: new Date(),
 			date_removed: null,
 		}));

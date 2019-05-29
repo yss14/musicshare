@@ -12,9 +12,9 @@ interface ICreateSchemaOpts {
 	clear?: boolean;
 }
 
-const keys = <O>(o: O) => {
+/* const keys = <O>(o: O) => {
 	return Object.keys(o) as (keyof O)[];
-}
+} */
 
 export const makeDatabaseSchema = async (database: IDatabaseClient, { databaseUser, clear = false }: ICreateSchemaOpts) => {
 	if (clear) {

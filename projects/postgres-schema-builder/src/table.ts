@@ -98,6 +98,7 @@ type ColumnBaseType<C extends Column> =
 
 type ColumnTypeFinal<C extends Column> =
 	C extends { primaryKey: true } ? ColumnBaseType<C> :
+	C extends { defaultValue: {} } ? ColumnBaseType<C> :
 	C extends { nullable: false } ? ColumnBaseType<C> :
 	ColumnBaseType<C> | null;
 
@@ -132,6 +133,8 @@ export type IQuery<C extends Columns> = {
 	columns?: C;
 };
 
+export const Query = (sql: string, values?: unknown[]): IQuery<{}> => ({ sql, values });
+
 type NonEmpty<Type> = [Type, ...Type[]];
 export type Keys<C extends Columns> = (keyof C)[] & (NonEmpty<keyof C> | []);
 
@@ -139,7 +142,7 @@ export interface ITable<C extends Columns> {
 	readonly name: string;
 	create(): IQuery<{}>;
 	insert<Subset extends Keys<C>>(subset: Subset): (values: ColumnValues<C, Subset>) => IQuery<{}>;
-	insertFromObj<Subset extends TableRecord<C>>(obj: Partial<Subset>): IQuery<{}>;
+	insertFromObj<Subset extends TableRecord<C>>(obj: Subset): IQuery<{}>;
 	update<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset, where: Where):
 		(subsetValues: ColumnValues<C, Subset>, whereValues: ColumnValues<C, Where>) => IQuery<{}>;
 	selectAll<Subset extends Keys<C>>(subset: Subset | "*"):

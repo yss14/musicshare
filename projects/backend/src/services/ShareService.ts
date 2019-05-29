@@ -13,7 +13,7 @@ export class ShareNotFoundError extends Error {
 export interface IShareService {
 	getSharesOfUser(userID: string): Promise<Share[]>;
 	getShareByID(shareID: string, userID: string): Promise<Share>;
-	create(ownerUserID: string, name: string): Promise<Share>;
+	create(ownerUserID: string, name: string, isLib: boolean): Promise<Share>;
 	addUser(shareID: string, userID: string, name: string, permissions: Permission[]): Promise<void>;
 }
 
@@ -46,12 +46,12 @@ export class ShareService implements IShareService {
 		return Share.fromDBResult(dbResults[0]);
 	}
 
-	public async create(ownerUserID: string, name: string): Promise<Share> {
+	public async create(ownerUserID: string, name: string, isLib: boolean): Promise<Share> {
 		const shareID = uuid();
 		const date = new Date();
 
 		await this.database.query(
-			SharesTable.insertFromObj({ share_id: shareID, name, date_added: date })
+			SharesTable.insertFromObj({ share_id: shareID, name, date_added: date, is_library: isLib, date_removed: null })
 		);
 		await this.addUserToShare(shareID, ownerUserID, name, true, Permissions.ALL);
 
@@ -69,6 +69,7 @@ export class ShareService implements IShareService {
 				share_id_ref: shareID,
 				permissions,
 				date_added: new Date(),
+				date_removed: null,
 			})
 		);
 	}

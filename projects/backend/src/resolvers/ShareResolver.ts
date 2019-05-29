@@ -132,6 +132,6 @@ export class ShareResolver {
 		@Args() { name }: ShareNameArg,
 		@Ctx() ctx: IGraphQLContext
 	): Promise<Share | null> {
-		return this.services.shareService.create(ctx.userID!, name);
+		return this.services.shareService.create(ctx.userID!, name, false);
 	}
 }

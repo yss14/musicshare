@@ -2,9 +2,7 @@ import { setupTestEnv, SetupTestEnvArgs, setupTestSuite } from "./utils/setup-te
 import { testData } from "../database/seed";
 import { executeGraphQLQuery, argumentValidationError, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql";
 import moment = require("moment");
-import { TimeUUID } from "../types/TimeUUID";
 import { playlistSongKeys } from "./fixtures/song-query";
-import { playlistSongFromDBResult } from "../models/SongModel";
 import { includesSong } from "./utils/compare-songs";
 import { OrderUpdate } from "../services/PlaylistService";
 import { sortBy } from 'lodash';
@@ -12,6 +10,8 @@ import { makeMockedDatabase } from "./mocks/mock-database";
 import { Scopes } from "../types/context";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
+import { Song } from "../models/SongModel";
+import { v4 as uuid } from 'uuid';
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -115,7 +115,7 @@ describe('delete playlist', () => {
 
 	test('not existing playlist', async () => {
 		const { graphQLServer } = await setupTest({});
-		const playlistID = TimeUUID().toString();
+		const playlistID = uuid();
 		const query = makeMutation(makeDeletePlaylistMutation(shareID, playlistID));
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -157,7 +157,7 @@ describe('rename playlist', () => {
 
 	test('not existing playlist', async () => {
 		const { graphQLServer, playlistService } = await setupTest({});
-		const playlistID = TimeUUID().toString();
+		const playlistID = uuid();
 		const newName = 'Some new playlist name';
 		const query = makeMutation(makeRenamePlaylistQuery(shareID, playlistID, newName));
 
@@ -207,10 +207,8 @@ describe('add songs to playlist', () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
-		const expectedSongs = songs.map((song, idx) => playlistSongFromDBResult({
+		const expectedSongs = songs.map((song, idx) => Song.fromDBResult({
 			...song,
-			position: idx,
-			playlist_id: TimeUUID(playlistID),
 			date_added: new Date(),
 			date_removed: null,
 		}));
@@ -222,7 +220,7 @@ describe('add songs to playlist', () => {
 	test('not existing songs', async () => {
 		const { graphQLServer, playlistService } = await setupTest({});
 		const { id: playlistID } = await playlistService.create(shareID, 'Some other new playlist');
-		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, [TimeUUID().toString()]));
+		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, [uuid()]));
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -237,10 +235,8 @@ describe('add songs to playlist', () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
-		const expectedSongs = songs.map((song, idx) => playlistSongFromDBResult({
+		const expectedSongs = songs.map((song, idx) => Song.fromDBResult({
 			...song,
-			position: idx,
-			playlist_id: TimeUUID(playlistID),
 			date_added: new Date(),
 			date_removed: null,
 		}));
@@ -291,7 +287,7 @@ describe('remove songs from playlist', () => {
 	test('not existing songs', async () => {
 		const { graphQLServer } = await setupTest({});
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
-		const songIDs = [TimeUUID().toString(), TimeUUID().toString()];
+		const songIDs = [uuid(), uuid()];
 
 		const query = makeMutation(makeRemoveSongsQuery(shareID, playlistID, songIDs));
 
@@ -349,7 +345,7 @@ describe('update order', () => {
 	test('not existing songs', async () => {
 		const { graphQLServer } = await setupTest({});
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
-		const songIDNotPart = TimeUUID().toString();
+		const songIDNotPart = uuid();
 		const orderUpdates: OrderUpdate[] = [
 			[songIDNotPart, 2],
 			[testData.playlists.playlist1_library_user1.songs[1].song_id.toString(), 1],

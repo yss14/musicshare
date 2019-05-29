@@ -6,8 +6,8 @@ export class ShareServiceMock implements IShareService {
 		private readonly shares: Share[]
 	) { }
 
-	public async getSharesOfUser(userID: string): Promise<Share[]> {
-		return this.shares.filter(share => share.userID === userID);
+	public async getSharesOfUser(): Promise<Share[]> {
+		throw 'Not implemented yet';
 	}
 
 	public async getShareByID(id: string): Promise<Share> {

@@ -17,7 +17,6 @@ import { hasAllPermissions, getShareIDFromRequest, getPlaylistIDFromRequest, get
 import { Share } from "../models/ShareModel";
 import { TimeUUID } from "../types/TimeUUID";
 import { Playlist } from "../models/PlaylistModel";
-import { shareSongFromDBResult } from "../models/SongModel";
 import { makeShareAuthMiddleware } from "../auth/middleware/share-auth";
 import { ShareNotFoundError, ShareService } from "../services/ShareService";
 import { makeMockedDatabase } from "./mocks/mock-database";
@@ -25,6 +24,7 @@ import { makePlaylistAuthMiddleware } from "../auth/middleware/playlist-auth";
 import { makeSongAuthMiddleware } from "../auth/middleware/song-auth";
 import { AuthTokenStore } from "../auth/AuthTokenStore";
 import { configFromEnv } from "../types/config";
+import { Song } from "../models/SongModel";
 
 const routePathProtected = '/some/protected/route';
 const routePathPublic = '/some/public/route';
@@ -272,9 +272,10 @@ describe('auth selectors', () => {
 
 	describe('playlist', () => {
 		const playlist = testData.playlists.playlist1_library_user1;
+		const shareID = testData.shares.library_user1.share_id;
 
 		test('root', () => {
-			const req = { args: {}, root: Playlist.fromDBResult(playlist) };
+			const req = { args: {}, root: Playlist.fromDBResult(playlist, shareID) };
 			const playlistID = getPlaylistIDFromRequest(req);
 
 			expect(playlistID).toBe(playlist.playlist_id.toString());
@@ -299,7 +300,7 @@ describe('auth selectors', () => {
 		const song = testData.songs.song1_library_user1;
 
 		test('root', () => {
-			const req = { args: {}, root: shareSongFromDBResult(song) };
+			const req = { args: {}, root: Song.fromDBResult(song) };
 			const songID = getSongIDFromRequest(req);
 
 			expect(songID).toBe(song.song_id.toString());

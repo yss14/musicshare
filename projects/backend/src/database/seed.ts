@@ -185,7 +185,7 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 			for (const user of Object.values(testData.users)) {
 				await database.query(UsersTable.insertFromObj(user));
 
-				await passwordLoginService.register({ userID: user.user_id.toString(), email: user.email, password: testPassword });
+				await passwordLoginService.register({ userID: user.user_id.toString(), password: testPassword });
 			}
 
 			for (const shareByUser of Object.values(testData.shares)) {
@@ -256,9 +256,9 @@ export const insertProductionSetupSeed = async ({ config, services, }: IInsertPr
 	if (allUsers.length > 0) return;
 
 	const user = await services.userService.create(username, email);
-	await services.passwordLoginService.register({ email, password, userID: user.id });
+	await services.passwordLoginService.register({ password, userID: user.id });
 
-	await services.shareService.create(user.id, shareName);
+	await services.shareService.create(user.id, shareName, true);
 
 	// istanbul ignore next
 	if (!__TEST__) {

@@ -5,6 +5,8 @@ import { dateToSQLUTCFormat } from "./sql-utils";
 import moment = require("moment");
 
 export namespace SQL {
+	export const createDatabase = (name: string) => `CREATE DATABASE ${name} IF NOT EXISTS;`;
+
 	export const createTable = (name: string, columns: Columns): string => {
 		const entries = Object.entries(columns).map(([name, column]) => ({ name, ...column }));
 		const foreignKeyConstraints: IReferenceConstraintInternal[] = collectForeignKeyConstraints(entries);

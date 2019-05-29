@@ -1,6 +1,5 @@
 import { makeTestDatabase, IDatabaseClient } from 'postgres-schema-builder';
-import { clearKeySpace, makeDatabaseSchema, clearTables } from "../database/schema/make-database-schema";
-import { Tables } from '../database/schema/system-tables';
+import { clearDatabase, makeDatabaseSchema, clearTables } from "../database/schema/make-database-schema";
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from './utils/setup-test-env';
 import { configFromEnv, IConfig } from '../types/config';
 import { insertProductionSetupSeed } from '../database/seed';
@@ -31,15 +30,11 @@ afterAll(async () => {
 });
 
 test('clear keyspace', async () => {
-	const { database, databaseKeyspace, cleanUp } = await makeTestDatabase();
-	cleanupHooks.push(cleanUp);
+	const { database, clientConfig, cleanupHook } = await makeTestDatabase();
+	cleanupHooks.push(cleanupHook);
 
-	await makeDatabaseSchema(database, { keySpace: databaseKeyspace });
-	await clearKeySpace(database, databaseKeyspace);
-
-	const currentTables = await database.query(Tables.select('*', ['keyspace_name'])([databaseKeyspace]));
-
-	expect(currentTables).toEqual([]);
+	await makeDatabaseSchema(database, { databaseUser: clientConfig.user! });
+	await clearDatabase(database, clientConfig.user!);
 });
 
 test('insertProductionSetupSeed', async () => {
@@ -69,9 +64,8 @@ test('insertProductionSetupSeed', async () => {
 	expect(refreshToken).toBeString();
 
 	const share = await shareService.getSharesOfUser(user.id);
-	expect(share).toMatchObject([<Share>{
+	expect(share).toMatchObject([<Partial<Share>>{
 		isLibrary: true,
 		name: config.setup.seed.shareName,
-		userID: user.id,
 	}]);
 });

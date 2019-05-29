@@ -6,6 +6,7 @@ type FileStorageProvider = 'azureblob' | 'awss3';
 export interface IConfig {
 	database: {
 		host: string;
+		port: number;
 		keyspace: string;
 		user?: string;
 		password?: string;
@@ -60,10 +61,11 @@ export const configFromEnv = (): IConfig => {
 
 	return {
 		database: {
-			host: process.env[CustomEnv.CASSANDRA_HOST] || '127.0.0.1',
-			keyspace: process.env[CustomEnv.CASSANDRA_KEYSPACE] || 'musicshare',
-			password: process.env[CustomEnv.CASSANDRA_PASSWORD],
-			user: process.env[CustomEnv.CASSANDRA_USER],
+			host: process.env[CustomEnv.POSTGRES_HOST] || '127.0.0.1',
+			port: getInteger(process.env[CustomEnv.POSTGRES_PORT]) || 5432,
+			keyspace: process.env[CustomEnv.POSTGRES_DATABASE] || 'musicshare',
+			password: process.env[CustomEnv.POSTGRES_PASSWORD],
+			user: process.env[CustomEnv.POSTGRES_USER],
 		},
 		jwt: {
 			secret: process.env[CustomEnv.JWT_SECRET]!
@@ -89,3 +91,4 @@ export const configFromEnv = (): IConfig => {
 }
 
 const getBoolean = (value: any) => value === 'true';
+const getInteger = (value: any) => !isNaN(value) ? parseInt(value) : undefined;
