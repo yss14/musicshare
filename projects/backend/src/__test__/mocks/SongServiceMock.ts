@@ -1,17 +1,17 @@
 import { ISongService } from "../../services/SongService";
-import { ShareSong } from "../../models/SongModel";
+import { Song } from "../../models/SongModel";
 import { TimeUUID } from "../../types/TimeUUID";
 
 export class SongServiceMock implements ISongService {
-	public async getByID(shareID: string, songID: string): Promise<ShareSong> {
+	public async getByID(shareID: string, songID: string): Promise<Song> {
 		throw 'Not implemented yet';
 	}
 
-	public async getByShare(shareID: string): Promise<ShareSong[]> {
+	public async getByShare(shareID: string): Promise<Song[]> {
 		throw 'Not implemented yet';
 	}
 
-	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<ShareSong[]> {
+	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]> {
 		throw 'Not implemented yet';
 	}
 

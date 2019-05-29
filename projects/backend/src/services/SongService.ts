@@ -1,4 +1,4 @@
-import { ShareSong, shareSongFromDBResult } from '../models/SongModel';
+import { Song } from '../models/SongModel';
 import { sortByTimeUUIDAsc } from '../utils/sort/sort-timeuuid';
 import { IDatabaseClient, SQL } from 'postgres-schema-builder';
 import { SongUpdateInput } from '../inputs/SongInput';
@@ -14,9 +14,9 @@ export class SongNotFoundError extends Error {
 }
 
 export interface ISongService {
-	getByID(shareID: string, songID: string): Promise<ShareSong>;
-	getByShare(shareID: string): Promise<ShareSong[]>;
-	getByShareDirty(shareID: string, lastTimestamp: number): Promise<ShareSong[]>;
+	getByID(shareID: string, songID: string): Promise<Song>;
+	getByShare(shareID: string): Promise<Song[]>;
+	getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]>;
 	create(song: ISongDBResult): Promise<string>;
 	update(shareID: string, songID: string, song: SongUpdateInput): Promise<void>;
 }
@@ -26,7 +26,7 @@ export class SongService implements ISongService {
 		private readonly database: IDatabaseClient,
 	) { }
 
-	public async getByID(shareID: string, songID: string): Promise<ShareSong> {
+	public async getByID(shareID: string, songID: string): Promise<Song> {
 		const dbResults = await this.database.query(
 			SQL.raw<typeof CoreTables.songs>(`
 				SELECT s.* FROM ${SongsTable.name} s
@@ -39,11 +39,11 @@ export class SongService implements ISongService {
 			throw new SongNotFoundError(shareID, songID);
 		}
 
-		return shareSongFromDBResult(dbResults[0]);
+		return Song.fromDBResult(dbResults[0]);
 
 	}
 
-	public async getByShare(shareID: string): Promise<ShareSong[]> {
+	public async getByShare(shareID: string): Promise<Song[]> {
 		const dbResults = await this.database.query(
 			SQL.raw<typeof CoreTables.songs>(`
 				SELECT s.* FROM ${SongsTable.name} s
@@ -53,11 +53,11 @@ export class SongService implements ISongService {
 		);
 
 		return dbResults
-			.map(shareSongFromDBResult)
+			.map(Song.fromDBResult)
 			.sort((lhs, rhs) => sortByTimeUUIDAsc(lhs.id, rhs.id));
 	}
 
-	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<ShareSong[]> {
+	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]> {
 		const songs = await this.getByShare(shareID);
 		// TODO do via SQL query
 		return songs.filter(song => moment(song.dateLastEdit).valueOf() > lastTimestamp);

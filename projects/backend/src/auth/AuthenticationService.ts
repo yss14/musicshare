@@ -2,7 +2,7 @@ import * as JWT from 'jsonwebtoken';
 import { User } from '../models/UserModel';
 import { Scopes } from '../types/context';
 import { __PROD__ } from '../utils/env/env-constants';
-import { TimeUUID } from '../types/TimeUUID';
+import { v4 as uuid } from 'uuid';
 
 interface IAuthTokenBase {
 	userID: string;

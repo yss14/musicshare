@@ -4,8 +4,7 @@ import { ISongMetaDataService } from '../utils/song-meta/SongMetaDataService';
 import { IFile } from '../models/interfaces/IFile';
 import * as BetterQueue from 'better-queue';
 import bind from 'bind-decorator';
-import { TimeUUID } from '../types/TimeUUID';
-import { types as CTypes } from 'cassandra-driver';
+import { v4 as uuid } from 'uuid';
 import { ISongTypeService } from '../services/SongTypeService';
 import { IPlaylistService } from '../services/PlaylistService';
 
@@ -67,13 +66,13 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 			const songMeta = await this.songMetaDataService.analyse(uploadMeta.file, audioBuffer, songTypes);
 
 			const song = await this.songService.create({
-				song_id: TimeUUID(),
+				song_id: uuid(),
 				title: songMeta.title || uploadMeta.file.originalFilename,
 				suffix: songMeta.suffix || null,
-				year: songMeta.year,
+				year: songMeta.year || null,
 				bpm: songMeta.bpm || null,
 				date_last_edit: new Date(),
-				release_date: songMeta.releaseDate ? CTypes.LocalDate.fromDate(new Date(songMeta.releaseDate)) : null,
+				release_date: songMeta.releaseDate ? new Date(songMeta.releaseDate) : null,
 				is_rip: songMeta.isRip || false,
 				artists: [...(songMeta.artists || [])],
 				remixer: [...(songMeta.remixer || [])],
@@ -81,11 +80,12 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 				type: songMeta.type || null,
 				genres: [...(songMeta.genres || [])],
 				labels: songMeta.labels || [],
-				share_id: TimeUUID(uploadMeta.shareID.toString()),
 				requires_user_action: !songMeta.title || songMeta.title.trim().length === 0 || !songMeta.artists || songMeta.artists.length === 0,
-				file: JSON.stringify(uploadMeta.file),
+				file: uploadMeta.file,
 				duration: songMeta.duration || 0,
 				tags: [],
+				date_added: new Date(),
+				date_removed: null,
 			});
 
 			for (const playlistID of uploadMeta.playlistIDs) {

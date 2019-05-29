@@ -1,9 +1,9 @@
-import { PlaylistSong, playlistSongFromDBResult } from "../models/SongModel";
 import { IDatabaseClient, SQL } from "postgres-schema-builder";
 import { Playlist } from "../models/PlaylistModel";
 import { ISongService } from "./SongService";
 import { IPlaylistDBResult, PlaylistsTable, SharePlaylistsTable, PlaylistSongsTable, SongsTable, CoreTables } from "../database/schema/tables";
 import { v4 as uuid } from 'uuid';
+import { Song } from "../models/SongModel";
 
 export type OrderUpdate = [string, number];
 
@@ -20,7 +20,7 @@ export interface IPlaylistService {
 	rename(shareID: string, playlistID: string, newName: string): Promise<void>;
 	addSongs(shareID: string, playlistID: string, songIDs: string[]): Promise<void>;
 	removeSongs(shareID: string, playlistID: string, songIDs: string[]): Promise<void>;
-	getSongs(shareID: string, playlistID: string): Promise<PlaylistSong[]>;
+	getSongs(playlistID: string): Promise<Song[]>;
 	updateOrder(shareID: string, playlistID: string, orderUpdates: OrderUpdate[]): Promise<void>;
 	getPlaylistsForShare(shareID: string): Promise<Playlist[]>;
 }
@@ -76,7 +76,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		const songNotInPlaylist = (songID: string) => currentSongs.findIndex(currentSong => currentSong.id === songID) === -1;
 		const songShouldBeAdded = (songID: string) => songIDs.includes(songID);
 
-		const currentSongs = await getSongs(shareID, playlistID);
+		const currentSongs = await getSongs(playlistID);
 		const shareSongs = await songService.getByShare(shareID);
 		const insertQueries = shareSongs
 			.filter(song => songShouldBeAdded(song.id) && songNotInPlaylist(song.id))
@@ -96,31 +96,31 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 	}
 
 	const normalizeOrder = async (shareID: string, playlistID: string) => {
-		const songs = await getSongs(shareID, playlistID);
+		const songs = await getSongs(playlistID);
 
 		const orderUpdates = songs
-			.sort((lhs, rhs) => lhs.position - rhs.position)
 			.map((song, idx): OrderUpdate => [song.id.toString(), idx]);
 
 		await executeOrderUpdates(shareID, playlistID, orderUpdates);
 	}
 
-	const getSongs = async (shareID: string, playlistID: string): Promise<PlaylistSong[]> => {
+	const getSongs = async (playlistID: string): Promise<Song[]> => {
 		const songQuery = SQL.raw<typeof CoreTables.songs>(`
 			SELECT s.* FROM ${SongsTable.name}
 			INNER JOIN ${PlaylistSongsTable.name} ps ON ps.song_id_ref = s.song_id
-			WHERE ps.playlist_id_ref = $1;
+			WHERE ps.playlist_id_ref = $1
+			ORDER BY ps.position ASC;
 		`, [playlistID]);
 
 		const songs = await database.query(songQuery);
 
 		return songs
 			.filter(song => song.date_removed === null)
-			.map(song => playlistSongFromDBResult({ ...song })); // TODO unify
+			.map(Song.fromDBResult);
 	};
 
 	const updateOrder = async (shareID: string, playlistID: string, orderUpdates: OrderUpdate[]) => {
-		const currentSongs = await getSongs(shareID, playlistID);
+		const currentSongs = await getSongs(playlistID);
 		const someSongsIDsPartOfPlaylist = orderUpdates.map(orderUpdate =>
 			orderUpdate[0]).some(songID =>
 				currentSongs.findIndex(currentSong =>

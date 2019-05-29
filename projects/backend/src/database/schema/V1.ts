@@ -47,6 +47,7 @@ export namespace DatabaseV1 {
 		file: { type: JSONType<IFile>() },
 		duration: { type: ColumnType.Integer, nullable: false },
 		tags: { type: PArray(ColumnType.Varchar) },
+		requires_user_action: { type: ColumnType.Boolean, nullable: false, default: false },
 	});
 
 	export const share_songs = TableSchema({

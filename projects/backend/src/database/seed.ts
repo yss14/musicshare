@@ -3,14 +3,12 @@ import { createPrefilledArray } from '../utils/array/create-prefilled-array';
 import { __PROD__, __DEV__, __TEST__ } from '../utils/env/env-constants';
 import { makeFileObject } from '../models/interfaces/IFile';
 import moment = require('moment');
-import { TimeUUID } from '../types/TimeUUID';
-import { types as CTypes } from 'cassandra-driver';
-import { IUsersDBResult, IShareByUserDBResult, ISongByShareDBResult, UsersTable, SharesByUserTable, IPlaylistByShareDBResult } from './schema/tables';
+import { v4 as uuid } from 'uuid';
+import { UsersTable, IUserDBResult, IShareDBResult, ISongDBResult, IPlaylistDBResult, SharesTable } from './schema/tables';
 import { IDatabaseClient } from 'postgres-schema-builder';
 import { defaultSongTypes, defaultGenres } from './fixtures';
 import { SongType } from '../models/SongType';
 import { Genre } from '../models/GenreModel';
-import { Permissions } from '../auth/permissions';
 import { IServices } from '../services/services';
 import { IConfig } from '../types/config';
 
@@ -20,22 +18,22 @@ type Songs = 'song1_library_user1' | 'song2_library_user1' | 'song3_library_user
 type Playlists = 'playlist1_library_user1' | 'playlist2_library_user1' | 'playlist_some_shared_library';
 
 interface ITestDataSchema {
-	users: { [P in Users]: Required<IUsersDBResult>; };
-	shares: { [P in Shares]: Required<IShareByUserDBResult> };
-	songs: { [P in Songs]: Required<ISongByShareDBResult> };
-	playlists: { [P in Playlists]: Required<IPlaylistByShareDBResult> & { songs: ISongByShareDBResult[] } };
+	users: { [P in Users]: Required<IUserDBResult>; };
+	shares: { [P in Shares]: Required<IShareDBResult> };
+	songs: { [P in Songs]: Required<ISongDBResult> };
+	playlists: { [P in Playlists]: Required<IPlaylistDBResult> & { songs: ISongDBResult[] } };
 }
 
 export const testPassword = 'test1234';
 
-const songZeroOliverSmith: ISongByShareDBResult = {
-	song_id: TimeUUID(moment().subtract(3, 'hours').toDate()),
+const songZeroOliverSmith: ISongDBResult = {
+	song_id: uuid(),
 	title: 'Zero',
 	suffix: null,
 	year: 2018,
 	bpm: null,
 	date_last_edit: moment().subtract(3, 'hours').toDate(),
-	release_date: CTypes.LocalDate.fromDate(new Date('2018-03-11')),
+	release_date: new Date('2018-03-11'),
 	is_rip: false,
 	artists: ['Oliver Smith'],
 	remixer: [],
@@ -43,21 +41,22 @@ const songZeroOliverSmith: ISongByShareDBResult = {
 	type: null,
 	genres: ['Trance'],
 	labels: null,
-	share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 	requires_user_action: false,
-	file: JSON.stringify(makeFileObject('songs', 'zero', 'zero_somesuffic', 'mp3')),
+	file: makeFileObject('songs', 'zero', 'zero_somesuffic', 'mp3'),
 	duration: 401,
 	tags: ['Anjuna', 'Progressive'],
+	date_added: moment().subtract(3, 'hours').toDate(),
+	date_removed: null,
 }
 
-const songPerthDusky: ISongByShareDBResult = {
-	song_id: TimeUUID(moment().subtract(2, 'hours').toDate()),
+const songPerthDusky: ISongDBResult = {
+	song_id: uuid(),
 	title: 'Perth',
 	suffix: null,
 	year: 2018,
 	bpm: null,
 	date_last_edit: moment().subtract(2, 'hours').toDate(),
-	release_date: CTypes.LocalDate.fromDate(new Date('2019-01-02')),
+	release_date: new Date('2019-01-02'),
 	is_rip: true,
 	artists: ['Kink'],
 	remixer: ['Dusky'],
@@ -65,15 +64,16 @@ const songPerthDusky: ISongByShareDBResult = {
 	type: 'Remix',
 	genres: ['Deep House'],
 	labels: ['Anjunadeep'],
-	share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 	requires_user_action: false,
-	file: JSON.stringify(makeFileObject('songs', 'perth', 'perth_abgtrip', 'mp3')),
+	file: makeFileObject('songs', 'perth', 'perth_abgtrip', 'mp3'),
 	duration: 370,
 	tags: ['Anjuna', 'Deep', 'Funky'],
+	date_added: moment().subtract(2, 'hours').toDate(),
+	date_removed: null,
 }
 
-const songContactAlastor: ISongByShareDBResult = {
-	song_id: TimeUUID(moment().subtract(1, 'hour').toDate()),
+const songContactAlastor: ISongDBResult = {
+	song_id: uuid(),
 	title: 'Contact',
 	suffix: null,
 	year: 2019,
@@ -87,11 +87,12 @@ const songContactAlastor: ISongByShareDBResult = {
 	type: 'Original Mix',
 	genres: ['Progressive House'],
 	labels: ['Anjunadeep'],
-	share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 	requires_user_action: false,
-	file: JSON.stringify(makeFileObject('songs', 'contact', 'contact_rue_alastor', 'mp3')),
+	file: makeFileObject('songs', 'contact', 'contact_rue_alastor', 'mp3'),
 	duration: 248,
 	tags: ['Dark', 'Party Chill'],
+	date_added: moment().subtract(1, 'hour').toDate(),
+	date_removed: null,
 }
 
 export const testData: ITestDataSchema = {
@@ -99,35 +100,39 @@ export const testData: ITestDataSchema = {
 		user1: {
 			name: 'Yss',
 			email: 'yannick.stachelscheid@musicshare.whatever',
-			user_id: TimeUUID('f0d8e1f0-aeb1-11e8-a117-43673ffd376b')
+			user_id: uuid(),
+			date_added: moment().subtract(3, 'hours').toDate(),
+			date_removed: null,
 		},
 		user2: {
 			name: 'Simon',
 			email: faker.internet.email(),
-			user_id: TimeUUID('f0d8e1f1-aeb1-11e8-a117-43673ffd376b')
+			user_id: uuid(),
+			date_added: moment().subtract(3, 'hours').toDate(),
+			date_removed: null,
 		}
 	},
 	shares: {
 		library_user1: {
-			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
+			share_id: uuid(),
 			name: 'Share Yss',
-			user_id: TimeUUID('f0d8e1f0-aeb1-11e8-a117-43673ffd376b'),
 			is_library: true,
-			permissions: Permissions.ALL,
+			date_added: moment().subtract(3, 'hours').toDate(),
+			date_removed: null,
 		},
 		library_user2: {
-			share_id: TimeUUID('f0d659e0-aeb1-11e8-a117-43673ffd376b'),
+			share_id: uuid(),
 			name: 'Share Simon',
-			user_id: TimeUUID('f0d8e1f1-aeb1-11e8-a117-43673ffd376b'),
 			is_library: true,
-			permissions: Permissions.ALL,
+			date_added: moment().subtract(3, 'hours').toDate(),
+			date_removed: null,
 		},
 		some_shared_library: {
-			share_id: TimeUUID('f0d359e0-aeb1-11e8-a117-43673ffd376b'),
+			share_id: uuid(),
 			name: 'Some Shared Library',
-			user_id: TimeUUID('f0d8e1f0-aeb1-11e8-a117-43673ffd376b'),
 			is_library: false,
-			permissions: Permissions.ALL,
+			date_added: moment().subtract(3, 'hours').toDate(),
+			date_removed: null,
 		}
 	},
 	songs: {
@@ -136,32 +141,31 @@ export const testData: ITestDataSchema = {
 		song3_library_user1: songContactAlastor,
 		song1_some_shared_library: {
 			...songContactAlastor,
-			share_id: TimeUUID('f0d359e0-aeb1-11e8-a117-43673ffd376b'),
 			remixer: ['Marsh'],
 			type: 'Remix',
 		}
 	},
 	playlists: {
 		playlist1_library_user1: {
-			playlist_id: TimeUUID(moment().subtract(1, 'hours').toDate()),
+			playlist_id: uuid(),
 			name: 'Playlist 1',
-			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			date_removed: null,
 			songs: [songZeroOliverSmith, songPerthDusky, songContactAlastor],
+			date_added: moment().subtract(3, 'hours').toDate(),
 		},
 		playlist2_library_user1: {
-			playlist_id: TimeUUID(moment().subtract(1, 'day').toDate()),
+			playlist_id: uuid(),
 			name: 'Playlist 2',
-			share_id: TimeUUID('f0d649e0-aeb1-11e8-a117-43673ffd376b'),
 			date_removed: null,
 			songs: [songZeroOliverSmith, songPerthDusky, songContactAlastor, songZeroOliverSmith, songPerthDusky, songContactAlastor],
+			date_added: moment().subtract(3, 'hours').toDate(),
 		},
 		playlist_some_shared_library: {
-			playlist_id: TimeUUID(moment().subtract(1, 'hours').toDate()),
+			playlist_id: uuid(),
 			name: 'Some Shared Playlist 1',
-			share_id: TimeUUID('f0d359e0-aeb1-11e8-a117-43673ffd376b'),
 			date_removed: null,
-			songs: [songPerthDusky]
+			songs: [songPerthDusky],
+			date_added: moment().subtract(3, 'hours').toDate(),
 		}
 	}
 }
@@ -175,7 +179,7 @@ interface IMakeDatabaseSeedArgs {
 
 export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs): DatabaseSeed =>
 	async (): Promise<void> => {
-		const { songService, songTypeService, genreService, passwordLoginService, playlistService } = services;
+		const { songService, songTypeService, genreService, passwordLoginService } = services;
 
 		if (!__PROD__) {
 			for (const user of Object.values(testData.users)) {
@@ -185,7 +189,7 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 			}
 
 			for (const shareByUser of Object.values(testData.shares)) {
-				await database.query(SharesByUserTable.insertFromObj(shareByUser));
+				await database.query(SharesTable.insertFromObj(shareByUser));
 
 				await Promise.all(defaultSongTypes.map(songType =>
 					songTypeService.addSongTypeToShare(shareByUser.share_id.toString(), SongType.fromObject(songType))));
@@ -198,7 +202,7 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 				await songService.create(song);
 			}
 
-			for (const playlist of Object.values(testData.playlists)) {
+			/*for (const playlist of Object.values(testData.playlists)) {
 				await playlistService.create(playlist.share_id.toString(), playlist.name, playlist.playlist_id.toString());
 
 				await playlistService.addSongs(
@@ -206,14 +210,14 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 					playlist.playlist_id.toString(),
 					playlist.songs.map(song => song.song_id.toString())
 				);
-			}
+			}*/
 		}
 
 		if (__DEV__) {
 			const prefilledArray = createPrefilledArray(100, {});
 			const songInserts = prefilledArray
-				.map((_, idx): Required<ISongByShareDBResult> => ({
-					song_id: TimeUUID(),
+				.map((_, idx): Required<ISongDBResult> => ({
+					song_id: uuid(),
 					title: faker.name.findName(),
 					suffix: null,
 					year: null,
@@ -227,11 +231,12 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 					type: 'Remix',
 					genres: ['Some Genre'],
 					labels: null,
-					share_id: testData.shares.library_user1.share_id,
 					requires_user_action: false,
-					file: JSON.stringify(makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3')),
+					file: makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3'),
 					duration: 120 + Math.floor(Math.random() * 400),
 					tags: [],
+					date_added: new Date(),
+					date_removed: null,
 				}));
 
 			await Promise.all(songInserts.map(s => songService.create(s)));

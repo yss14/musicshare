@@ -1,7 +1,7 @@
 import * as argon2 from 'argon2';
 import { UserLoginCredentialsTable } from '../database/schema/tables';
 import { IDatabaseClient } from 'postgres-schema-builder';
-import { TimeUUID } from '../types/TimeUUID';
+import { v4 as uuid } from 'uuid';
 import { IAuthenticationService } from './AuthenticationService';
 import { IUserService } from '../services/UserService';
 

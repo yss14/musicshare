@@ -58,9 +58,9 @@ if (!isProductionEnvironment()) {
 
 	if (seedDatabase) {
 		const seed = await makeDatabaseSeed({ database, services });
-		await makeDatabaseSchemaWithSeed(database, seed, { keySpace: config.database.keyspace, clear: clearDatabase });
+		await makeDatabaseSchemaWithSeed(database, seed, { databaseUser: config.database.user!, clear: clearDatabase });
 	} else {
-		await makeDatabaseSchema(database, { keySpace: config.database.keyspace });
+		await makeDatabaseSchema(database, { databaseUser: config.database.user! });
 	}
 
 	if (__PROD__) {

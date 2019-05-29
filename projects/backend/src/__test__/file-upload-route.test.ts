@@ -7,7 +7,7 @@ import * as request from 'supertest';
 import { HTTPStatusCodes } from '../types/http-status-codes';
 import { commonRestErrors } from '../utils/typed-express/common-rest-errors';
 import { SongUploadProcessingQueueMock } from './mocks/SongUploadProcessingQueueMock';
-import { TimeUUID } from '../types/TimeUUID';
+import { v4 as uuid } from 'uuid';
 import { NextHandleFunction } from 'connect';
 import { CustomRequestHandler } from '../types/context';
 

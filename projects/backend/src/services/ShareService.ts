@@ -48,13 +48,14 @@ export class ShareService implements IShareService {
 
 	public async create(ownerUserID: string, name: string): Promise<Share> {
 		const shareID = uuid();
+		const date = new Date();
 
 		await this.database.query(
-			SharesTable.insertFromObj({ share_id: shareID, name, date_added: new Date() })
+			SharesTable.insertFromObj({ share_id: shareID, name, date_added: date })
 		);
 		await this.addUserToShare(shareID, ownerUserID, name, true, Permissions.ALL);
 
-		return Share.fromDBResult({ share_id: shareID, name: name, is_library: true, permissions: [] });
+		return Share.fromDBResult({ share_id: shareID, name: name, is_library: true, date_added: date, date_removed: null });
 	}
 
 	public async addUser(shareID: string, userID: string, name: string, permissions: Permission[]): Promise<void> {
