@@ -1,6 +1,6 @@
 import { DatabaseSeed } from "../seed";
 import { CoreTables } from "./tables";
-import { IDatabaseClient, composeCreateTableStatements } from "postgres-schema-builder";
+import { IDatabaseClient, composeCreateTableStatements, sortTableDependencies, SQL } from "postgres-schema-builder";
 
 export const makeDatabaseSchemaWithSeed = async (database: IDatabaseClient, seed: DatabaseSeed, opts: ICreateSchemaOpts) => {
 	await makeDatabaseSchema(database, opts);
@@ -11,10 +11,6 @@ interface ICreateSchemaOpts {
 	databaseUser: string;
 	clear?: boolean;
 }
-
-/* const keys = <O>(o: O) => {
-	return Object.keys(o) as (keyof O)[];
-} */
 
 export const makeDatabaseSchema = async (database: IDatabaseClient, { databaseUser, clear = false }: ICreateSchemaOpts) => {
 	if (clear) {
@@ -29,12 +25,11 @@ export const makeDatabaseSchema = async (database: IDatabaseClient, { databaseUs
 }
 
 export const clearTables = async (database: IDatabaseClient) => {
-	/*const allTables = getAllTables();
+	const tablesInOrder = sortTableDependencies(CoreTables).reverse();
 
-	const truncateQueries = allTables.map(table => database.execute(`TRUNCATE TABLE ${table.name};`));
-
-	await Promise.all(truncateQueries);*/
-	throw 'Not implemented yet';
+	for (const [tableName] of tablesInOrder) {
+		await database.query(SQL.raw<{}>(`DELETE FROM ${tableName};`));
+	}
 }
 
 export const clearDatabase = async (database: IDatabaseClient, databaseUser: string) => {

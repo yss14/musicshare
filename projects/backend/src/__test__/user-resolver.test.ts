@@ -45,7 +45,6 @@ const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => 
 				${withShares ? `shares(libOnly: ${libOnly}){
 					id,
 					name,
-					userID,
 					isLibrary
 				}` : ''}
 			}
@@ -116,7 +115,7 @@ describe('get users shares', () => {
 		expect(body).toEqual(makeGraphQLResponse({
 			user: {
 				...User.fromDBResult(testUser),
-				shares: [testData.shares.some_shared_library, testData.shares.library_user1].map(Share.fromDBResult)
+				shares: [testData.shares.library_user1, testData.shares.some_shared_library].map(Share.fromDBResult)
 			}
 		}));
 	});

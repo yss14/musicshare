@@ -11,4 +11,4 @@ export const makeMockedDatabase = (): IDatabaseClientMocked => ({
 });
 
 export const isMockedDatabase = (obj: any): obj is IDatabaseClientMocked =>
-	obj.mocked === true && obj.execute !== undefined && obj.query !== undefined && obj.close !== undefined;
+	obj.mocked === true && obj.query !== undefined && obj.close !== undefined;

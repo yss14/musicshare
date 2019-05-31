@@ -46,10 +46,10 @@ export const PasswordLoginService = ({ authService, database, userService }: IPa
 
 	const login = async (email: string, password: string) => {
 		const getUserCredentialsQuery = SQL.raw<typeof CoreTables.user_login_credentials>(`
-			SELECT uc.* FROM ${UserLoginCredentialsTable.name}
+			SELECT uc.* FROM ${UserLoginCredentialsTable.name} uc
 			INNER JOIN ${UsersTable.name} u ON u.user_id = uc.user_id_ref
 			WHERE u.email = $1 AND uc.date_removed IS NULL;
-		`);
+		`, [email]);
 
 		const loginCredentials = await database.query(getUserCredentialsQuery);
 

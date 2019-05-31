@@ -26,7 +26,8 @@ export class ShareService implements IShareService {
 		const userSharesQuery = SQL.raw<typeof CoreTables.shares>(`
 			SELECT s.* FROM ${SharesTable.name} s
 			INNER JOIN ${UserSharesTable.name} us ON us.share_id_ref = s.share_id
-			WHERE us.user_id_ref = $1;
+			WHERE us.user_id_ref = $1
+			ORDER BY s.date_added;
 		`, [userID]);
 
 		const dbResults = await this.database.query(userSharesQuery);

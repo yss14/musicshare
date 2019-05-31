@@ -72,7 +72,7 @@ export class Song implements Nullable<ISong>{
 		return plainToClass(
 			Song,
 			{
-				id: row.song_id.toString(),
+				id: row.song_id,
 				title: row.title,
 				suffix: row.suffix,
 				year: row.year,

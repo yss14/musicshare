@@ -17,7 +17,7 @@ export const composeCreateTableStatements = <Tables extends { [name: string]: Co
 	sortTableDependencies(tables)
 		.map(([name, columns]) => SQL.createTable(name, columns));
 
-const sortTableDependencies = (tables: Record<string, Columns>) => {
+export const sortTableDependencies = (tables: Record<string, Columns>) => {
 	const tablesSorted = topologicalSort(
 		Object.entries(tables),
 		([name]) => name,

@@ -133,7 +133,7 @@ export const testData: ITestDataSchema = {
 			share_id: libraryUser2ShareID,
 			name: 'Share Simon',
 			is_library: true,
-			date_added: moment().subtract(3, 'hours').toDate(),
+			date_added: moment().subtract(2, 'hours').toDate(),
 			date_removed: null,
 			user_ids: [user2ID],
 		},
@@ -141,7 +141,7 @@ export const testData: ITestDataSchema = {
 			share_id: someShareShareID,
 			name: 'Some Shared Library',
 			is_library: false,
-			date_added: moment().subtract(3, 'hours').toDate(),
+			date_added: moment().subtract(1, 'hours').toDate(),
 			date_removed: null,
 			user_ids: [user1ID, user2ID],
 		}
