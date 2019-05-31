@@ -6,7 +6,6 @@ import { OrderUpdateScalar } from "../types/scalars/order-update";
 import { PlaylistNameArg, PlaylistIDArg, PlaylistNewNameArg } from "../args/playlist-args";
 import { ShareIDArg } from "../args/share-args";
 import { SongIDsArg } from "../args/song-args";
-import { sortBy } from 'lodash';
 import { PlaylistAuth } from "../auth/middleware/playlist-auth";
 import { IServices } from "../services/services";
 
@@ -98,6 +97,6 @@ export class PlaylistResolver {
 
 		const playlistSongs = await this.services.playlistService.getSongs(playlistID);
 
-		return sortBy(playlistSongs, 'position');
+		return playlistSongs;
 	}
 }

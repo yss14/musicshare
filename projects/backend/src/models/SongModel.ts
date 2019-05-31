@@ -5,6 +5,7 @@ import { Nullable } from '../types/Nullable';
 import { ISong } from './interfaces/ISong';
 import { plainToClass } from 'class-transformer';
 import { ISongDBResult } from '../database/schema/tables';
+import moment = require('moment');
 
 @ObjectType({ description: 'This represents a song and its properties' })
 export class Song implements Nullable<ISong>{
@@ -65,8 +66,8 @@ export class Song implements Nullable<ISong>{
 	@Field(type => [String])
 	public readonly tags!: string[];
 
-	@Field()
-	public readonly dateAdded!: Date;
+	@Field(type => String)
+	public readonly dateAdded!: string;
 
 	public static fromDBResult(row: ISongDBResult) {
 		return plainToClass(
@@ -78,7 +79,7 @@ export class Song implements Nullable<ISong>{
 				year: row.year,
 				bpm: row.bpm,
 				dateLastEdit: row.date_last_edit.toISOString(),
-				releaseDate: row.release_date ? row.release_date.toString() : null,
+				releaseDate: row.release_date ? moment(row.release_date).format('YYYY-MM-DD') : null,
 				isRip: row.is_rip,
 				artists: row.artists || [],
 				remixer: row.remixer || [],

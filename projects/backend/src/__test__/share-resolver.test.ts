@@ -6,7 +6,7 @@ import { includesSong, compareSongs } from "./utils/compare-songs";
 import { v4 as uuid } from 'uuid';
 import { defaultSongTypes, defaultGenres } from "../database/fixtures";
 import { Artist } from "../models/ArtistModel";
-import { songKeys, playlistSongKeys } from "./fixtures/song-query";
+import { songKeys } from "./fixtures/song-query";
 import moment = require("moment");
 import { Playlist } from "../models/PlaylistModel";
 import { sortBy } from 'lodash';
@@ -347,7 +347,7 @@ describe('get share playlists', () => {
 
 		const shareID = testData.shares.library_user1.share_id.toString();
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
-		const query = makeShareQuery(shareID, [makeSharePlaylistQuery(playlistID, [`songs{${playlistSongKeys}}`])]);
+		const query = makeShareQuery(shareID, [makeSharePlaylistQuery(playlistID, [`songs{${songKeys}}`])]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 		const receivedSongs = body.data.share.playlist.songs;

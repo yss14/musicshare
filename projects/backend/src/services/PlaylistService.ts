@@ -79,7 +79,11 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 
 	const addSongs = async (shareID: string, playlistID: string, songIDs: string[]) => {
 		const currentSongs = await getSongs(playlistID);
+		const shareSongs = await songService.getByShare(shareID);
+		const shareSongIDs = new Set(shareSongs.map(song => song.id));
+
 		const insertQueries = songIDs
+			.filter(songID => shareSongIDs.has(songID))
 			.map((songID, idx) => PlaylistSongsTable.insertFromObj({
 				playlist_id_ref: playlistID,
 				song_id_ref: songID,
@@ -149,7 +153,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 
 	const getPlaylistsForShare = async (shareID: string): Promise<Playlist[]> => {
 		const sharePlaylistQuery = SQL.raw<typeof CoreTables.playlists>(`
-			SELECT p.* FROM ${PlaylistsTable.name}
+			SELECT p.* FROM ${PlaylistsTable.name} p
 			INNER JOIN ${SharePlaylistsTable.name} sp ON sp.playlist_id_ref = p.playlist_id
 			WHERE sp.share_id_ref = $1;
 		`, [shareID])
