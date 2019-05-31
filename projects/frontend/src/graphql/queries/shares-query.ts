@@ -4,13 +4,13 @@ import { IShare } from "../types";
 import { useQuery } from "@apollo/react-hooks";
 
 export interface IGetSharesData {
-  user: {
-    shares: IShare[];
-  };
+	user: {
+		shares: IShare[];
+	};
 }
 
 export interface IGetSharesVariables {
-  id: string;
+	id: string;
 }
 
 export const GET_SHARES = gql`
@@ -20,7 +20,6 @@ export const GET_SHARES = gql`
       shares {
         id
         name
-        userID
         isLibrary
       }
     }
@@ -28,4 +27,4 @@ export const GET_SHARES = gql`
 `;
 
 export const useShares = (): QueryResult<IGetSharesData, {}> =>
-  useQuery(GET_SHARES);
+	useQuery(GET_SHARES);

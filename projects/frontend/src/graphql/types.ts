@@ -1,57 +1,57 @@
 export interface IShareVariables {
-  shareID: string;
+	shareID: string;
 }
 
 export interface IShareData {
-  shareID: string;
+	shareID: string;
 }
 
 export interface IShare {
-  id: string;
-  name: string;
-  userID: string;
+	id: string;
+	name: string;
+	userID: string;
 }
 
 export interface IUserData {
-  user: {
-    shares: IShare[];
-    id: string;
-    name: string;
-    emails: string[];
-  };
+	user: {
+		shares: IShare[];
+		id: string;
+		name: string;
+		emails: string[];
+	};
 }
 
 export interface IUserVariables {
-  id: string;
+	id: string;
 }
 
 export interface IBaseSong {
-  id: string;
-  title: string;
-  suffix: string | null;
-  year: number | null;
-  bpm: number | null;
-  dateLastEdit: string;
-  releaseDate: string | null;
-  isRip: boolean;
-  artists: string[];
-  remixer: string[];
-  featurings: string[];
-  type: string | null;
-  genres: string[];
-  labels: string[];
-  duration: number;
-  tags: string[];
+	id: string;
+	title: string;
+	suffix: string | null;
+	year: number | null;
+	bpm: number | null;
+	dateLastEdit: string;
+	releaseDate: string | null;
+	isRip: boolean;
+	artists: string[];
+	remixer: string[];
+	featurings: string[];
+	type: string | null;
+	genres: string[];
+	labels: string[];
+	duration: number;
+	tags: string[];
 }
 
 export interface IShareSong extends IBaseSong {
-  requiresUserAction: boolean;
+	requiresUserAction: boolean;
 }
 
 export interface IPlaylistSong extends IBaseSong {
-  playlistID: string;
-  position: number;
-  dateAdded: string;
+	playlistID: string;
+	position: number;
+	dateAdded: string;
 }
 
 const baseSongKeys = `
@@ -71,49 +71,46 @@ const baseSongKeys = `
 	labels
 	tags
 	duration
+	dateAdded
 `;
 
 export const shareSongKeys = `
 	${baseSongKeys}
-	requiresUserAction
 `;
 
 export const playlistSongKeys = `
 	${baseSongKeys}
-	playlistID
-	position
-	dateAdded
 `;
 
 export interface IFile {
-  readonly container: string;
-  readonly blob: string;
-  readonly fileExtension: string;
-  readonly originalFilename: string;
+	readonly container: string;
+	readonly blob: string;
+	readonly fileExtension: string;
+	readonly originalFilename: string;
 }
 
 export interface IGenre {
-  name: string;
-  group: string;
+	name: string;
+	group: string;
 }
 
 export interface ISongType extends IGenre {
-  hasArtists: boolean;
-  alternativeNames: string[];
+	hasArtists: boolean;
+	alternativeNames: string[];
 }
 
 export interface IArtist {
-  name: string;
+	name: string;
 }
 
 export interface IPlaylist {
-  id: string;
-  name: string;
-  shareID: string;
-  dateAdded: string;
+	id: string;
+	name: string;
+	shareID: string;
+	dateAdded: string;
 }
 
 export interface IPlaylistWithSongs extends IPlaylist {
-  songs: IPlaylistSong[];
-  __typename: "Playlist";
+	songs: IPlaylistSong[];
+	__typename: "Playlist";
 }
