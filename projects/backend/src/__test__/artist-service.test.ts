@@ -38,6 +38,5 @@ test('get artists for multiple shares', async () => {
 		'Dusky',
 		'Rue',
 		'Alastor',
-		'Marsh'
 	].map(Artist.fromString));
 });
