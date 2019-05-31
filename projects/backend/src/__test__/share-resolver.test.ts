@@ -8,8 +8,6 @@ import { defaultSongTypes, defaultGenres } from "../database/fixtures";
 import { Artist } from "../models/ArtistModel";
 import { songKeys } from "./fixtures/song-query";
 import moment = require("moment");
-import { Playlist } from "../models/PlaylistModel";
-import { sortBy } from 'lodash';
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { Permissions } from "../auth/permissions";
 import { IDatabaseClient } from "postgres-schema-builder";
@@ -43,7 +41,6 @@ const makeShareQuery = (id: string, additionalQueries: string[] = []) => {
 			share(shareID: "${id}"){
 				id,
 				name,
-				userID,
 				isLibrary,
 				${additionalQueries.join(',\n')}
 			}
@@ -319,14 +316,13 @@ describe('get share playlists', () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
-		const receivedPlaylists = sortBy(body.data.share.playlists, 'name');
-		const expectedPlaylists = sortBy(
-			[testData.playlists.playlist1_library_user1, testData.playlists.playlist2_library_user1]
-				.map(playlist => Playlist.fromDBResult(playlist, shareID))
-				.map(playlist => JSON.parse(JSON.stringify(playlist)))
-			, 'name');
+		const expectedPlaylists = [testData.playlists.playlist1_library_user1, testData.playlists.playlist2_library_user1]
+			.map(playlist => ({
+				id: playlist.playlist_id,
+				name: playlist.name,
+			}));
 
-		expect(receivedPlaylists).toEqual(expectedPlaylists);
+		expect(body.data.share.playlists).toMatchObject(expectedPlaylists);
 	});
 
 	test('get by id', async () => {
@@ -338,8 +334,11 @@ describe('get share playlists', () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
-		expect(body.data.share.playlist)
-			.toEqual(JSON.parse(JSON.stringify(Playlist.fromDBResult(testData.playlists.playlist1_library_user1, shareID))))
+		const expectedPlaylist = testData.playlists.playlist1_library_user1;
+		expect(body.data.share.playlist).toMatchObject({
+			id: expectedPlaylist.playlist_id,
+			name: expectedPlaylist.name,
+		});
 	});
 
 	test('get playlist songs', async () => {

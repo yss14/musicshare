@@ -8,7 +8,6 @@ import { makeMockedDatabase } from "./mocks/mock-database";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 import moment = require("moment");
-import { PlaylistSongsTable } from "../database/schema/tables";
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -57,7 +56,7 @@ describe('update song mutation', () => {
 	(<jest.Mock>mockDatabase.query).mockReturnValue([song]);
 
 	test('valid input', async () => {
-		const { graphQLServer, playlistService, database } = await setupTest({});
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = {
 			bpm: 140,
@@ -70,28 +69,12 @@ describe('update song mutation', () => {
 		const query = makeUpdateSongMutation(share.share_id.toString(), song.song_id.toString(), input);
 		const timestampBeforeUpdate = Date.now();
 
-		await playlistService.create(share.share_id.toString(), 'New Playlist'); // verify no null-entries are created
-
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		const { updateSong } = body.data;
 
 		expect(updateSong).toMatchObject(input);
 		expect(moment(updateSong.dateLastEdit).valueOf()).toBeGreaterThan(timestampBeforeUpdate);
-
-		const playlist1 = testData.playlists.playlist1_library_user1;
-		const playlist2 = testData.playlists.playlist2_library_user1;
-		const songsPlaylist1 = await playlistService.getSongs(playlist1.playlist_id.toString());
-		const songsPlaylist2 = await playlistService.getSongs(playlist2.playlist_id.toString());
-
-		expect(songsPlaylist1).toBeArrayOfSize(playlist1.songs.length);
-		expect(songsPlaylist2).toBeArrayOfSize(playlist1.songs.length); // playlist1.songs.length due to duplicates
-
-		expect(songsPlaylist1.find(playlistSong => playlistSong.id === song.song_id.toString())).toMatchObject(input);
-		expect(songsPlaylist2.find(playlistSong => playlistSong.id === song.song_id.toString())).toMatchObject(input);
-
-		const allPlaylistSongEntries = await database.query(PlaylistSongsTable.selectAll('*'));
-		expect(allPlaylistSongEntries).toBeArrayOfSize(2 * playlist1.songs.length);
 	});
 
 	test('title null', async () => {

@@ -155,7 +155,8 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		const sharePlaylistQuery = SQL.raw<typeof CoreTables.playlists>(`
 			SELECT p.* FROM ${PlaylistsTable.name} p
 			INNER JOIN ${SharePlaylistsTable.name} sp ON sp.playlist_id_ref = p.playlist_id
-			WHERE sp.share_id_ref = $1;
+			WHERE sp.share_id_ref = $1 AND p.date_removed IS NULL
+			ORDER BY p.date_added;
 		`, [shareID])
 
 		const playlists = await database.query(sharePlaylistQuery);

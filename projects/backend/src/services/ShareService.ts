@@ -36,9 +36,11 @@ export class ShareService implements IShareService {
 	}
 
 	public async getShareByID(shareID: string, userID: string): Promise<Share> {
-		const dbResults = await this.database.query(
-			SharesTable.select('*', ['share_id'])([shareID])
-		);
+		const dbResults = await this.database.query(SQL.raw<typeof CoreTables.shares>(`
+			SELECT s.* FROM ${SharesTable.name} s
+			INNER JOIN ${UserSharesTable.name} us ON us.share_id_ref = s.share_id
+			WHERE s.share_id = $1 AND us.user_id_ref = $2 AND s.date_removed IS NULL;
+		`, [shareID, userID]));
 
 		if (!dbResults || dbResults.length === 0) {
 			throw new ShareNotFoundError(shareID);
