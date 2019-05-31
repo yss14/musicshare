@@ -1,14 +1,12 @@
-import { TimeUUID } from "../../types/TimeUUID";
+import { isUUID } from "../../type-guards/is-uuid";
 
 expect.extend({
-	toBeTimeUUID: function (this: jest.MatcherUtils, received): jest.CustomMatcherResult {
+	toBeUUID: function (this: jest.MatcherUtils, received): jest.CustomMatcherResult {
 		expect(received).toBeDefined();
 		expect(received).toBeString();
 
-		try {
-			TimeUUID(received);
-		} catch (err) {
-			return { pass: false, message: err.toString() };
+		if (!isUUID(received)) {
+			return { pass: false, message: 'Expected to be a valid timeuuid' };
 		}
 
 		return { pass: !this.isNot, message: 'Expected to be a valid timeuuid' };

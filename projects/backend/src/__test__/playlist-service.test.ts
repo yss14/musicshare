@@ -1,5 +1,5 @@
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env";
-import { TimeUUID } from "../types/TimeUUID";
+import { v4 as uuid } from 'uuid';
 import { PlaylistNotFoundError } from "../services/PlaylistService";
 import { testData } from "../database/seed";
 import { IDatabaseClient } from "postgres-schema-builder";
@@ -31,7 +31,7 @@ describe('get playlist by id', () => {
 		const { playlistService } = await setupTest({});
 		const shareID = testData.shares.library_user1.share_id.toString();
 
-		await expect(playlistService.getByID(shareID, TimeUUID().toString()))
+		await expect(playlistService.getByID(shareID, uuid()))
 			.rejects.toThrowError(PlaylistNotFoundError);
 	});
 });

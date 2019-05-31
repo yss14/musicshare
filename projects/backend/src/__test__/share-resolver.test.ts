@@ -3,7 +3,7 @@ import { testData } from "../database/seed";
 import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
 import { Share } from "../models/ShareModel";
 import { includesSong, compareSongs } from "./utils/compare-songs";
-import { TimeUUID } from "../types/TimeUUID";
+import { v4 as uuid } from 'uuid';
 import { defaultSongTypes, defaultGenres } from "../database/fixtures";
 import { Artist } from "../models/ArtistModel";
 import { songKeys, playlistSongKeys } from "./fixtures/song-query";
@@ -120,7 +120,7 @@ describe('get share by id', () => {
 	test('get share by id not existing', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const shareID = TimeUUID('a0d8e1f0-aeb1-11e8-a117-43673ffd376a');
+		const shareID = uuid();
 		const query = makeShareQuery(shareID.toString());
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -216,7 +216,7 @@ describe('get share song', () => {
 		const { graphQLServer } = await setupTest({});
 
 		const shareID = testData.shares.library_user1.share_id.toString();
-		const songID = TimeUUID(new Date());
+		const songID = uuid();
 		const query = makeShareQuery(shareID, [makeShareSongQuery(songID.toString())]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });

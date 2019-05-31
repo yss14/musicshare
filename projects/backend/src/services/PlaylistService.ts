@@ -78,16 +78,11 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 	};
 
 	const addSongs = async (shareID: string, playlistID: string, songIDs: string[]) => {
-		const songNotInPlaylist = (songID: string) => currentSongs.findIndex(currentSong => currentSong.id === songID) === -1;
-		const songShouldBeAdded = (songID: string) => songIDs.includes(songID);
-
 		const currentSongs = await getSongs(playlistID);
-		const shareSongs = await songService.getByShare(shareID);
-		const insertQueries = shareSongs
-			.filter(song => songShouldBeAdded(song.id) && songNotInPlaylist(song.id))
-			.map((song, idx) => PlaylistSongsTable.insertFromObj({
+		const insertQueries = songIDs
+			.map((songID, idx) => PlaylistSongsTable.insertFromObj({
 				playlist_id_ref: playlistID,
-				song_id_ref: song.id,
+				song_id_ref: songID,
 				date_removed: null,
 				date_added: new Date(),
 				position: currentSongs.length + idx + 1
@@ -117,7 +112,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 
 	const getSongs = async (playlistID: string): Promise<Song[]> => {
 		const songQuery = SQL.raw<typeof CoreTables.songs>(`
-			SELECT s.* FROM ${SongsTable.name}
+			SELECT s.* FROM ${SongsTable.name} s
 			INNER JOIN ${PlaylistSongsTable.name} ps ON ps.song_id_ref = s.song_id
 			WHERE ps.playlist_id_ref = $1
 			ORDER BY ps.position ASC;

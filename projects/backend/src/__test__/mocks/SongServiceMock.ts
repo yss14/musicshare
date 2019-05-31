@@ -1,6 +1,6 @@
 import { ISongService } from "../../services/SongService";
 import { Song } from "../../models/SongModel";
-import { TimeUUID } from "../../types/TimeUUID";
+import { v4 as uuid } from 'uuid';
 
 export class SongServiceMock implements ISongService {
 	public async getByID(shareID: string, songID: string): Promise<Song> {
@@ -16,7 +16,7 @@ export class SongServiceMock implements ISongService {
 	}
 
 	public async create(): Promise<string> {
-		return TimeUUID(new Date()).toString();
+		return uuid();
 	}
 
 	public async update() {

@@ -4,7 +4,7 @@ import { executeGraphQLQuery, makeGraphQLResponse, insufficientPermissionsError 
 import { testData, testPassword } from "../database/seed";
 import { Share } from "../models/ShareModel";
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env";
-import { TimeUUID } from "../types/TimeUUID";
+import { v4 as uuid } from 'uuid';
 import * as argon2 from 'argon2';
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { User } from "../models/UserModel";
@@ -76,7 +76,7 @@ describe('get user by id', () => {
 	test('get user by id not existing', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const userID = TimeUUID('a0d8e1f0-aeb1-11e8-a117-43673ffd376a').toString();
+		const userID = uuid();
 		const query = makeUserQuery();
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID });
@@ -235,7 +235,7 @@ describe('issue new auth token', () => {
 
 	test('user not found', async () => {
 		const { graphQLServer, authService } = await setupTest({ database: mockDatabase });
-		const testUser = plainToClass(User, { id: TimeUUID().toString() });
+		const testUser = plainToClass(User, { id: uuid() });
 		const refreshToken = await authService.issueRefreshToken(testUser);
 		const query = makeIssueAuthTokenQuery(refreshToken);
 

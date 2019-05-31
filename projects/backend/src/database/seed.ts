@@ -4,13 +4,14 @@ import { __PROD__, __DEV__, __TEST__ } from '../utils/env/env-constants';
 import { makeFileObject } from '../models/interfaces/IFile';
 import moment = require('moment');
 import { v4 as uuid } from 'uuid';
-import { UsersTable, IUserDBResult, IShareDBResult, ISongDBResult, IPlaylistDBResult, SharesTable } from './schema/tables';
+import { UsersTable, IUserDBResult, IShareDBResult, ISongDBResult, IPlaylistDBResult } from './schema/tables';
 import { IDatabaseClient } from 'postgres-schema-builder';
 import { defaultSongTypes, defaultGenres } from './fixtures';
 import { SongType } from '../models/SongType';
 import { Genre } from '../models/GenreModel';
 import { IServices } from '../services/services';
 import { IConfig } from '../types/config';
+import { Permissions } from '../auth/permissions';
 
 type Users = 'user1' | 'user2';
 type Shares = 'library_user1' | 'library_user2' | 'some_shared_library';
@@ -19,9 +20,9 @@ type Playlists = 'playlist1_library_user1' | 'playlist2_library_user1' | 'playli
 
 interface ITestDataSchema {
 	users: { [P in Users]: Required<IUserDBResult>; };
-	shares: { [P in Shares]: Required<IShareDBResult> };
+	shares: { [P in Shares]: Required<IShareDBResult> & { user_ids: string[] } };
 	songs: { [P in Songs]: Required<ISongDBResult> };
-	playlists: { [P in Playlists]: Required<IPlaylistDBResult> & { songs: ISongDBResult[] } };
+	playlists: { [P in Playlists]: Required<IPlaylistDBResult> & { songs: ISongDBResult[], share_id: string } };
 }
 
 export const testPassword = 'test1234';
@@ -95,44 +96,54 @@ const songContactAlastor: ISongDBResult = {
 	date_removed: null,
 }
 
+const libraryUser1ShareID = uuid();
+const libraryUser2ShareID = uuid();
+const someShareShareID = uuid();
+const user1ID = 'f0d8e1f0-aeb1-11e8-a117-43673ffd376b';
+const user2ID = '3ba6fab4-f6ad-4916-9f1d-cdcfe522fd8e';
+
 export const testData: ITestDataSchema = {
 	users: {
 		user1: {
 			name: 'Yss',
 			email: 'yannick.stachelscheid@musicshare.whatever',
-			user_id: uuid(),
+			user_id: user1ID,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
 		},
 		user2: {
 			name: 'Simon',
 			email: faker.internet.email(),
-			user_id: uuid(),
+			user_id: user2ID,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
 		}
 	},
 	shares: {
 		library_user1: {
-			share_id: uuid(),
+			share_id: libraryUser1ShareID,
 			name: 'Share Yss',
 			is_library: true,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
+			user_ids: [user1ID],
+
 		},
 		library_user2: {
-			share_id: uuid(),
+			share_id: libraryUser2ShareID,
 			name: 'Share Simon',
 			is_library: true,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
+			user_ids: [user2ID],
 		},
 		some_shared_library: {
-			share_id: uuid(),
+			share_id: someShareShareID,
 			name: 'Some Shared Library',
 			is_library: false,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
+			user_ids: [user1ID, user2ID],
 		}
 	},
 	songs: {
@@ -147,6 +158,7 @@ export const testData: ITestDataSchema = {
 			date_removed: null,
 			songs: [songZeroOliverSmith, songPerthDusky, songContactAlastor],
 			date_added: moment().subtract(3, 'hours').toDate(),
+			share_id: libraryUser1ShareID,
 		},
 		playlist2_library_user1: {
 			playlist_id: uuid(),
@@ -154,6 +166,7 @@ export const testData: ITestDataSchema = {
 			date_removed: null,
 			songs: [songZeroOliverSmith, songPerthDusky, songContactAlastor, songZeroOliverSmith, songPerthDusky, songContactAlastor],
 			date_added: moment().subtract(3, 'hours').toDate(),
+			share_id: libraryUser1ShareID,
 		},
 		playlist_some_shared_library: {
 			playlist_id: uuid(),
@@ -161,6 +174,7 @@ export const testData: ITestDataSchema = {
 			date_removed: null,
 			songs: [songPerthDusky],
 			date_added: moment().subtract(3, 'hours').toDate(),
+			share_id: someShareShareID,
 		}
 	}
 }
@@ -174,7 +188,7 @@ interface IMakeDatabaseSeedArgs {
 
 export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs): DatabaseSeed =>
 	async (): Promise<void> => {
-		const { songService, songTypeService, genreService, passwordLoginService } = services;
+		const { songService, songTypeService, genreService, passwordLoginService, playlistService, shareService } = services;
 
 		if (!__PROD__) {
 			for (const user of Object.values(testData.users)) {
@@ -184,28 +198,33 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 			}
 
 			for (const shareByUser of Object.values(testData.shares)) {
-				await database.query(SharesTable.insertFromObj(shareByUser));
+				//await database.query(SharesTable.insertFromObj(shareByUser));
+				await shareService.create(shareByUser.user_ids[0], shareByUser.name, shareByUser.is_library, shareByUser.share_id);
+
+				for (const shareUserID of shareByUser.user_ids.slice(1)) {
+					await shareService.addUser(shareByUser.share_id, shareUserID, Permissions.ALL);
+				}
 
 				await Promise.all(defaultSongTypes.map(songType =>
-					songTypeService.addSongTypeToShare(shareByUser.share_id.toString(), SongType.fromObject(songType))));
+					songTypeService.addSongTypeToShare(shareByUser.share_id, SongType.fromObject(songType))));
 
 				await Promise.all(defaultGenres.map(genre =>
-					genreService.addGenreToShare(shareByUser.share_id.toString(), Genre.fromObject(genre))));
+					genreService.addGenreToShare(shareByUser.share_id, Genre.fromObject(genre))));
 			}
 
 			for (const song of Object.values(testData.songs)) {
-				await songService.create(song);
+				await songService.create(libraryUser1ShareID, song);
 			}
 
-			/*for (const playlist of Object.values(testData.playlists)) {
-				await playlistService.create(playlist.share_id.toString(), playlist.name, playlist.playlist_id.toString());
+			for (const playlist of Object.values(testData.playlists)) {
+				await playlistService.create(playlist.share_id, playlist.name, playlist.playlist_id.toString());
 
 				await playlistService.addSongs(
-					playlist.share_id.toString(),
-					playlist.playlist_id.toString(),
+					playlist.share_id,
+					playlist.playlist_id,
 					playlist.songs.map(song => song.song_id.toString())
 				);
-			}*/
+			}
 		}
 
 		if (__DEV__) {
@@ -234,7 +253,7 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 					date_removed: null,
 				}));
 
-			await Promise.all(songInserts.map(s => songService.create(s)));
+			await Promise.all(songInserts.map(song => songService.create(libraryUser1ShareID, song)));
 		}
 	}
 

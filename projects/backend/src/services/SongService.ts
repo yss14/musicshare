@@ -1,5 +1,4 @@
 import { Song } from '../models/SongModel';
-import { sortByTimeUUIDAsc } from '../utils/sort/sort-timeuuid';
 import { IDatabaseClient, SQL } from 'postgres-schema-builder';
 import { SongUpdateInput } from '../inputs/SongInput';
 import * as snakeCaseObjKeys from 'snakecase-keys';
@@ -17,7 +16,7 @@ export interface ISongService {
 	getByID(shareID: string, songID: string): Promise<Song>;
 	getByShare(shareID: string): Promise<Song[]>;
 	getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]>;
-	create(song: ISongDBResult): Promise<string>;
+	create(shareID: string, song: ISongDBResult): Promise<string>;
 	update(shareID: string, songID: string, song: SongUpdateInput): Promise<void>;
 }
 
@@ -48,13 +47,13 @@ export class SongService implements ISongService {
 			SQL.raw<typeof CoreTables.songs>(`
 				SELECT s.* FROM ${SongsTable.name} s
 				INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
-				WHERE ss.share_id_ref = $1 AND s.date_removed IS NULL;
+				WHERE ss.share_id_ref = $1 AND s.date_removed IS NULL
+				ORDER BY s.date_added;
 			`, [shareID])
 		);
 
 		return dbResults
-			.map(Song.fromDBResult)
-			.sort((lhs, rhs) => sortByTimeUUIDAsc(lhs.id, rhs.id));
+			.map(Song.fromDBResult);
 	}
 
 	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]> {
@@ -63,13 +62,12 @@ export class SongService implements ISongService {
 		return songs.filter(song => moment(song.dateLastEdit).valueOf() > lastTimestamp);
 	}
 
-	public async create(song: ISongDBResult): Promise<string> {
+	public async create(shareID: string, song: ISongDBResult): Promise<string> {
 		// istanbul ignore next
 		let id = song.song_id || uuid();
 
-		await this.database.query(
-			SongsTable.insertFromObj(song)
-		);
+		await this.database.query(SongsTable.insertFromObj(song));
+		await this.database.query(ShareSongsTable.insertFromObj({ share_id_ref: shareID, song_id_ref: id }));
 
 		return id.toString();
 	}

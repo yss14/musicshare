@@ -13,8 +13,8 @@ export class ShareNotFoundError extends Error {
 export interface IShareService {
 	getSharesOfUser(userID: string): Promise<Share[]>;
 	getShareByID(shareID: string, userID: string): Promise<Share>;
-	create(ownerUserID: string, name: string, isLib: boolean): Promise<Share>;
-	addUser(shareID: string, userID: string, name: string, permissions: Permission[]): Promise<void>;
+	create(ownerUserID: string, name: string, isLib: boolean, shareID?: string): Promise<Share>;
+	addUser(shareID: string, userID: string, permissions: Permission[]): Promise<void>;
 }
 
 export class ShareService implements IShareService {
@@ -24,8 +24,8 @@ export class ShareService implements IShareService {
 
 	public async getSharesOfUser(userID: string): Promise<Share[]> {
 		const userSharesQuery = SQL.raw<typeof CoreTables.shares>(`
-			SELECT s.* FROM ${SharesTable.name}
-			INNER JOIN ${UserSharesTable.name} us.share_id_ref = s.share_id
+			SELECT s.* FROM ${SharesTable.name} s
+			INNER JOIN ${UserSharesTable.name} us ON us.share_id_ref = s.share_id
 			WHERE us.user_id_ref = $1;
 		`, [userID]);
 
@@ -46,23 +46,23 @@ export class ShareService implements IShareService {
 		return Share.fromDBResult(dbResults[0]);
 	}
 
-	public async create(ownerUserID: string, name: string, isLib: boolean): Promise<Share> {
-		const shareID = uuid();
+	public async create(ownerUserID: string, name: string, isLib: boolean, shareID?: string): Promise<Share> {
+		const id = shareID || uuid();
 		const date = new Date();
 
 		await this.database.query(
-			SharesTable.insertFromObj({ share_id: shareID, name, date_added: date, is_library: isLib, date_removed: null })
+			SharesTable.insertFromObj({ share_id: id, name, date_added: date, is_library: isLib, date_removed: null })
 		);
-		await this.addUserToShare(shareID, ownerUserID, name, true, Permissions.ALL);
+		await this.addUserToShare(id, ownerUserID, Permissions.ALL);
 
-		return Share.fromDBResult({ share_id: shareID, name: name, is_library: true, date_added: date, date_removed: null });
+		return Share.fromDBResult({ share_id: id, name: name, is_library: true, date_added: date, date_removed: null });
 	}
 
-	public async addUser(shareID: string, userID: string, name: string, permissions: Permission[]): Promise<void> {
-		return this.addUserToShare(shareID, userID, name, false, permissions);
+	public async addUser(shareID: string, userID: string, permissions: Permission[]): Promise<void> {
+		return this.addUserToShare(shareID, userID, permissions);
 	}
 
-	private async addUserToShare(shareID: string, userID: string, name: string, isLib: boolean, permissions: string[]) {
+	private async addUserToShare(shareID: string, userID: string, permissions: string[]) {
 		await this.database.query(
 			UserSharesTable.insertFromObj({
 				user_id_ref: userID,
