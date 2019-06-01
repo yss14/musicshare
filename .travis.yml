@@ -1,7 +1,7 @@
 dist: trusty
 
 services:
-  - cassandra
+  - postgresql
   - docker
 
 language: node_js
