@@ -1,6 +1,6 @@
 {
 	"name": "postgres-schema-builder",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Typesafe postgres schema builder",
 	"keywords": [
 		"postgres",
