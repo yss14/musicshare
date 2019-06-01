@@ -25,7 +25,7 @@ export class SongResolver implements ResolverInterface<Song>{
 		if (song.file) {
 			return this.services.songFileService.getLinkToFile({
 				filenameRemote: song.file.blob,
-				expireDate: moment().add(10 * 60, 'minutes') // TODO take song duration + buffer time
+				expireDate: moment().add(song.duration, 'seconds').add(5, 'minutes')
 			})
 		} else {
 			throw new Error(`Song ${song.id} has no file attached`);

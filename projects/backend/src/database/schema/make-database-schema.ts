@@ -19,9 +19,9 @@ export const makeDatabaseSchema = async (database: IDatabaseClient, { databaseUs
 
 	const createTableStatements = composeCreateTableStatements(CoreTables);
 
-	for (const createTableStatement of createTableStatements) {
-		await database.query({ sql: createTableStatement }); // TODO transaction
-	}
+	await database.transaction(async (client) => {
+		createTableStatements.forEach(createTableStatement => client.query({ sql: createTableStatement }))
+	});
 }
 
 export const clearTables = async (database: IDatabaseClient) => {

@@ -92,7 +92,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 				position: currentSongs.length + idx + 1
 			}));
 
-		await Promise.all(insertQueries.map(insertQuery => database.query(insertQuery))); // TODO transactional
+		await database.batch(insertQueries);
 	};
 
 	const removeSongs = async (shareID: string, playlistID: string, songIDs: string[]) => {
@@ -100,7 +100,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 			sql: `DELETE FROM ${PlaylistSongsTable.name} WHERE playlist_id_ref = $1 AND song_id_ref = $2;`,
 			values: [playlistID, songID],
 		}));
-		await Promise.all(deleteQuerys.map(deleteQuery => database.query(deleteQuery))); // TODO transactional
+		await database.batch(deleteQuerys);
 
 		await normalizeOrder(shareID, playlistID);
 	}
@@ -148,7 +148,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		const queries = orderUpdates
 			.map(orderUpdate => updateOrderQuery([orderUpdate[1]], [playlistID, orderUpdate[0]]));
 
-		await Promise.all(queries.map(query => database.query(query))); // TODO transactional
+		await database.batch(queries);
 	}
 
 	const getPlaylistsForShare = async (shareID: string): Promise<Playlist[]> => {

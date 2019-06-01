@@ -30,7 +30,7 @@ export const PeristentTokenStore = ({ database, tokenGroup }: IPeristentTokenSto
 		const insertQueries = tokensSinceLastPersist.map(token =>
 			ShareTokensTable.insert(['group', 'token_value'])([tokenGroup, token]));
 
-		await Promise.all(insertQueries.map(database.query)); // TODO transactional
+		await database.batch(insertQueries);
 
 		tokensSinceLastPersist = [];
 	}
