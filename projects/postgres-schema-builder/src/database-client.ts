@@ -74,9 +74,9 @@ export const DatabaseClient = (client: Pool): IDatabaseClient => {
 
 export const postgresConfigFromEnv = (): PoolConfig => {
 	const config: PoolConfig = {
-		host: process.env.POSTGRES_HOST,
+		host: process.env.POSTGRES_HOST || 'localhost',
 		port: process.env.POSTGRES_PORT ? parseInt(process.env.POSTGRES_PORT) : undefined,
-		user: process.env.POSTGRES_USER,
+		user: process.env.POSTGRES_USER || 'postgres',
 	}
 
 	if (process.env.POSTGRES_DATABASE) {

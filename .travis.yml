@@ -18,7 +18,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-6
-  postgresql: "11.3"
+  postgresql: "9.6"
 
 before_install:
 - docker pull bitnami/minio:latest
