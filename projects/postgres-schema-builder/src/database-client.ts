@@ -72,10 +72,20 @@ export const DatabaseClient = (client: Pool): IDatabaseClient => {
 	return { query, batch, close, transaction };
 }
 
-export const postgresConfigFromEnv = (): PoolConfig => ({
-	host: process.env.POSTGRES_HOST,
-	port: process.env.POSTGRES_PORT ? parseInt(process.env.POSTGRES_PORT) : undefined,
-	database: process.env.POSTGRES_DATABASE,
-	user: process.env.POSTGRES_USER,
-	password: process.env.POSTGRES_PASSWORD,
-});
+export const postgresConfigFromEnv = (): PoolConfig => {
+	const config: PoolConfig = {
+		host: process.env.POSTGRES_HOST,
+		port: process.env.POSTGRES_PORT ? parseInt(process.env.POSTGRES_PORT) : undefined,
+		user: process.env.POSTGRES_USER,
+	}
+
+	if (process.env.POSTGRES_DATABASE) {
+		config.database = process.env.POSTGRES_DATABASE;
+	}
+
+	if (process.env.POSTGRES_PASSWORD) {
+		config.password = process.env.POSTGRES_PASSWORD;
+	}
+
+	return config;
+};
