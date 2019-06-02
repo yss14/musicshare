@@ -198,7 +198,6 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 			}
 
 			for (const shareByUser of Object.values(testData.shares)) {
-				//await database.query(SharesTable.insertFromObj(shareByUser));
 				await shareService.create(shareByUser.user_ids[0], shareByUser.name, shareByUser.is_library, shareByUser.share_id);
 
 				for (const shareUserID of shareByUser.user_ids.slice(1)) {

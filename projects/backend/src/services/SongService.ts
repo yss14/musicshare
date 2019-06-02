@@ -58,8 +58,8 @@ export class SongService implements ISongService {
 
 	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]> {
 		const songs = await this.getByShare(shareID);
-		// TODO do via SQL query
-		return songs.filter(song => moment(song.dateLastEdit).valueOf() > lastTimestamp);
+
+		return songs.filter(song => moment(song.dateLastEdit).valueOf() > lastTimestamp); // TODO do via SQL query
 	}
 
 	public async create(shareID: string, song: ISongDBResult): Promise<string> {
