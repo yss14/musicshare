@@ -6,10 +6,13 @@ export const makeTestDatabase = async () => {
 	const clientConfigWithoutDatabase = postgresConfigFromEnv();
 	clientConfigWithoutDatabase.database = undefined;
 
+	console.log(clientConfigWithoutDatabase)
+
 	const clientWithoutDatabase = new Pool(clientConfigWithoutDatabase);
 	const testDatabaseName = 'test_' + uuid().split('-').join('');
 
 	await clientWithoutDatabase.query({ text: `CREATE DATABASE ${testDatabaseName};` });
+	console.log('Test database created')
 
 	const database = DatabaseClient(new Pool({ ...clientConfigWithoutDatabase, database: testDatabaseName }));
 
