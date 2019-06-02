@@ -1,25 +1,26 @@
-import { TableRecord, Table } from "cassandra-schema-builder";
+import { TableRecord, Table } from "postgres-schema-builder";
 import { DatabaseV1 } from "./V1";
 
 export const CoreTables = DatabaseV1;
 
-export interface ISongBaseDBResult extends TableRecord<typeof CoreTables.song_base_schema> { }
-export interface IUsersDBResult extends TableRecord<typeof CoreTables.users> { }
-export interface IShareByUserDBResult extends TableRecord<typeof CoreTables.shares_by_user> { }
-export interface ISongByShareDBResult extends TableRecord<typeof CoreTables.songs_by_shares> { }
-export interface ISongTypeByShareDBResult extends TableRecord<typeof CoreTables.song_types_by_share> { }
-export interface IGenreByShareDBResult extends TableRecord<typeof CoreTables.genres_by_share> { }
+export interface IUserDBResult extends TableRecord<typeof CoreTables.users> { }
+export interface IShareDBResult extends TableRecord<typeof CoreTables.shares> { }
+export interface ISongDBResult extends TableRecord<typeof CoreTables.songs> { }
+export interface IPlaylistDBResult extends TableRecord<typeof CoreTables.playlists> { }
+export interface ISongTypeDBResult extends TableRecord<typeof CoreTables.song_types> { }
+export interface IGenreDBResult extends TableRecord<typeof CoreTables.genres> { }
 export interface IUserLoginCredentialDBResult extends TableRecord<typeof CoreTables.user_login_credentials> { }
-export interface IPlaylistByShareDBResult extends TableRecord<typeof CoreTables.playlists_by_share> { }
-export interface ISongByPlaylistDBResult extends TableRecord<typeof CoreTables.songs_by_playlist> { }
-export interface ITokenByShareDBResult extends TableRecord<typeof CoreTables.tokens_by_share> { }
+export interface IShareTokenDBResult extends TableRecord<typeof CoreTables.share_tokens> { }
 
 export const UsersTable = Table(CoreTables, 'users');
-export const SharesByUserTable = Table(CoreTables, 'shares_by_user');
-export const SongsByShareTable = Table(CoreTables, 'songs_by_shares');
-export const SongTypesByShareTable = Table(CoreTables, 'song_types_by_share');
-export const GenresByShareTable = Table(CoreTables, 'genres_by_share');
+export const SharesTable = Table(CoreTables, 'shares');
+export const UserSharesTable = Table(CoreTables, 'user_shares');
+export const SongsTable = Table(CoreTables, 'songs');
+export const ShareSongsTable = Table(CoreTables, 'share_songs');
+export const PlaylistsTable = Table(CoreTables, 'playlists');
+export const SharePlaylistsTable = Table(CoreTables, 'share_playlists');
+export const PlaylistSongsTable = Table(CoreTables, 'playlist_songs');
+export const SongTypesTable = Table(CoreTables, 'song_types');
+export const GenresTable = Table(CoreTables, 'genres');
 export const UserLoginCredentialsTable = Table(CoreTables, 'user_login_credentials');
-export const PlaylistsByShareTable = Table(CoreTables, 'playlists_by_share');
-export const SongsByPlaylistTable = Table(CoreTables, 'songs_by_playlist');
-export const TokensByShareTable = Table(CoreTables, 'tokens_by_share');
+export const ShareTokensTable = Table(CoreTables, 'share_tokens');

@@ -1,5 +1,5 @@
 import { ObjectType, Field } from "type-graphql";
-import { IPlaylistByShareDBResult } from "../database/schema/tables";
+import { IPlaylistDBResult } from "../database/schema/tables";
 import { plainToClass } from "class-transformer";
 
 @ObjectType({ description: 'This represents a playlist' })
@@ -11,19 +11,19 @@ export class Playlist {
 	public readonly name!: string;
 
 	@Field()
-	public readonly shareID!: string;
-
-	@Field()
 	public readonly dateAdded!: Date;
 
-	public static fromDBResult(dbResult: IPlaylistByShareDBResult): Playlist {
+	@Field()
+	public readonly shareID!: string;
+
+	public static fromDBResult(dbResult: IPlaylistDBResult, shareID: string): Playlist {
 		return plainToClass(
 			Playlist,
 			{
 				id: dbResult.playlist_id.toString(),
 				name: dbResult.name,
-				shareID: dbResult.share_id.toString(),
-				dateAdded: dbResult.playlist_id.getDate(),
+				dateAdded: dbResult.date_added,
+				shareID,
 			}
 		);
 	}

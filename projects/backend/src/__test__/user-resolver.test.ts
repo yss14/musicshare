@@ -4,14 +4,14 @@ import { executeGraphQLQuery, makeGraphQLResponse, insufficientPermissionsError 
 import { testData, testPassword } from "../database/seed";
 import { Share } from "../models/ShareModel";
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env";
-import { TimeUUID } from "../types/TimeUUID";
+import { v4 as uuid } from 'uuid';
 import * as argon2 from 'argon2';
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { User } from "../models/UserModel";
 import { plainToClass } from "class-transformer";
 import { Permission } from "../auth/permissions";
 import { Scopes } from "../types/context";
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 
 const { cleanUp, getDatabase } = setupTestSuite();
@@ -45,7 +45,6 @@ const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => 
 				${withShares ? `shares(libOnly: ${libOnly}){
 					id,
 					name,
-					userID,
 					isLibrary
 				}` : ''}
 			}
@@ -76,7 +75,7 @@ describe('get user by id', () => {
 	test('get user by id not existing', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const userID = TimeUUID('a0d8e1f0-aeb1-11e8-a117-43673ffd376a').toString();
+		const userID = uuid();
 		const query = makeUserQuery();
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID });
@@ -116,7 +115,7 @@ describe('get users shares', () => {
 		expect(body).toEqual(makeGraphQLResponse({
 			user: {
 				...User.fromDBResult(testUser),
-				shares: [testData.shares.some_shared_library, testData.shares.library_user1].map(Share.fromDBResult)
+				shares: [testData.shares.library_user1, testData.shares.some_shared_library].map(Share.fromDBResult)
 			}
 		}));
 	});
@@ -235,7 +234,7 @@ describe('issue new auth token', () => {
 
 	test('user not found', async () => {
 		const { graphQLServer, authService } = await setupTest({ database: mockDatabase });
-		const testUser = plainToClass(User, { id: TimeUUID().toString() });
+		const testUser = plainToClass(User, { id: uuid() });
 		const refreshToken = await authService.issueRefreshToken(testUser);
 		const query = makeIssueAuthTokenQuery(refreshToken);
 

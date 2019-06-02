@@ -1,8 +1,7 @@
-import { IDatabaseClient } from "cassandra-schema-builder";
-import { SongTypesByShareTable, ISongTypeByShareDBResult } from "../database/schema/tables";
-import { TimeUUID } from "../types/TimeUUID";
+import { IDatabaseClient } from "postgres-schema-builder";
 import { SongType } from "../models/SongType";
 import { flatten } from 'lodash';
+import { SongTypesTable, ISongTypeDBResult } from "../database/schema/tables";
 
 export interface ISongTypeService {
 	getSongTypesForShare(shareID: string): Promise<SongType[]>;
@@ -13,13 +12,13 @@ export interface ISongTypeService {
 }
 
 const selectQueryWithShareID = (database: IDatabaseClient, shareID: string) =>
-	database.query(SongTypesByShareTable.select('*', ['share_id'])([TimeUUID(shareID)]));
+	database.query(SongTypesTable.select('*', ['share_id_ref'])([shareID]));
 
-const makeInsertSongTypeQuery = (songTypeObj: ISongTypeByShareDBResult) => SongTypesByShareTable.insertFromObj(songTypeObj);
+const makeInsertSongTypeQuery = (songTypeObj: ISongTypeDBResult) => SongTypesTable.insertFromObj(songTypeObj);
 const makeDeleteSongTypeQuery = () =>
-	SongTypesByShareTable.update(['date_removed'], ['share_id', 'name', 'group']);
+	SongTypesTable.update(['date_removed'], ['share_id_ref', 'name', 'group']);
 
-const filterNotRemoved = (row: ISongTypeByShareDBResult) => row.date_removed === null;
+const filterNotRemoved = (row: ISongTypeDBResult) => row.date_removed === null;
 
 export class SongTypeService implements ISongTypeService {
 	constructor(
@@ -44,7 +43,7 @@ export class SongTypeService implements ISongTypeService {
 
 	public async addSongTypeToShare(shareID: string, songType: SongType) {
 		const insertQuery = makeInsertSongTypeQuery({
-			share_id: TimeUUID(shareID),
+			share_id_ref: shareID,
 			name: songType.name,
 			group: songType.group,
 			alternative_names: songType.alternativeNames,
@@ -58,7 +57,7 @@ export class SongTypeService implements ISongTypeService {
 
 	public async removeSongTypeFromShare(shareID: string, songType: SongType) {
 		const { name, group } = songType;
-		const deleteQuery = makeDeleteSongTypeQuery()([new Date()], [TimeUUID(shareID), name, group]);
+		const deleteQuery = makeDeleteSongTypeQuery()([new Date()], [shareID, name, group]);
 
 		await this.database.query(deleteQuery);
 	}

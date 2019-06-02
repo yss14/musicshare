@@ -1,7 +1,7 @@
 import { PeristentTokenStore } from "../auth/TokenStore";
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env";
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 
 const { cleanUp, getDatabase } = setupTestSuite();

@@ -5,7 +5,7 @@ import { makeGraphQLServer } from "../../server/GraphQLServer";
 import { ShareResolver } from "../../resolvers/ShareResolver";
 import { SongResolver } from "../../resolvers/SongResolver";
 import { UserResolver } from "../../resolvers/UserResolver";
-import { makeTestDatabase, IDatabaseClient } from "cassandra-schema-builder";
+import { makeTestDatabase, IDatabaseClient } from "postgres-schema-builder";
 import { makeDatabaseSeed, testData } from "../../database/seed";
 import { makeDatabaseSchema } from "../../database/schema/make-database-schema";
 import uuid = require("uuid");
@@ -81,9 +81,9 @@ export const setupTestSuite = () => {
 			const testDatabaseEnv = await makeTestDatabase();
 
 			database = testDatabaseEnv.database;
-			databaseCleanUp = testDatabaseEnv.cleanUp;
+			databaseCleanUp = testDatabaseEnv.cleanupHook;
 
-			await makeDatabaseSchema(database, { keySpace: testDatabaseEnv.databaseKeyspace });
+			await makeDatabaseSchema(database, { databaseUser: testDatabaseEnv.clientConfig.user! });
 		}
 
 		return database;

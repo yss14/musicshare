@@ -1,10 +1,8 @@
-// tslint:disable-next-line:no-import-side-effect
-import "reflect-metadata";
 import { SongServiceMock } from "./mocks/SongServiceMock";
 import { FileServiceMock } from "./mocks/FileServiceMock";
 import { ISongMetaDataService } from "../utils/song-meta/SongMetaDataService";
 import { SongUploadProcessingQueue, ISongProcessingQueuePayload } from "../job-queues/SongUploadProcessingQueue";
-import { TimeUUID } from "../types/TimeUUID";
+import { v4 as uuid } from 'uuid';
 import { SongTypeServiceMock } from "./mocks/SongTypeServiceMock";
 import { PlaylistServiceMock } from "./mocks/PlaylistServiceMock";
 
@@ -22,9 +20,9 @@ const setupTestEnv = () => {
 
 const makeValidPayload = (): ISongProcessingQueuePayload => ({
 	file: { blob: 'somefile', container: 'songs', fileExtension: 'mp3', originalFilename: 'somefile' },
-	shareID: TimeUUID(new Date()).toString(),
-	userID: TimeUUID(new Date()).toString(),
-	playlistIDs: [TimeUUID(new Date()).toString()]
+	shareID: uuid(),
+	userID: uuid(),
+	playlistIDs: [uuid()]
 })
 
 test('upload successful', async () => {
@@ -42,7 +40,7 @@ test('wrong payload format', async () => {
 	const { songUploadProcessingQueue } = setupTestEnv();
 	const payload: any = {
 		file: { blob: 'somefile', container: 'songs', fileExtension: 'mp3', originalFilename: 'somefile' },
-		shareID: TimeUUID(new Date()).toString(),
+		shareID: uuid(),
 	}
 
 	await expect(songUploadProcessingQueue.enqueueUpload(payload))

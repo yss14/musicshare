@@ -34,10 +34,10 @@ export class UserResolver {
 		@Arg('libOnly', { nullable: true }) libOnly?: boolean
 	): Promise<Share[]> {
 		if (libOnly) {
-			return this.services.shareService.getSharesByUser(user.id)
+			return this.services.shareService.getSharesOfUser(user.id)
 				.then(shares => shares.filter(share => share.isLibrary));
 		} else {
-			return this.services.shareService.getSharesByUser(user.id);
+			return this.services.shareService.getSharesOfUser(user.id);
 		}
 	}
 
@@ -94,7 +94,7 @@ export class UserResolver {
 	private async getUserShareScopes(userID: string): Promise<IShareScope[]> {
 		const { shareService, permissionService } = this.services;
 
-		const shares = await shareService.getSharesByUser(userID);
+		const shares = await shareService.getSharesOfUser(userID);
 
 		const userSharePermissions = await Promise.all(
 			shares.map(share => permissionService.getPermissionsForUser(share.id, userID))

@@ -15,9 +15,7 @@ import { Permission } from "../auth/permissions";
 import { makeAllScopes } from "./utils/setup-test-env";
 import { hasAllPermissions, getShareIDFromRequest, getPlaylistIDFromRequest, getSongIDFromRequest, getCurrentPermissionsForShare } from "../auth/middleware/auth-selectors";
 import { Share } from "../models/ShareModel";
-import { TimeUUID } from "../types/TimeUUID";
 import { Playlist } from "../models/PlaylistModel";
-import { shareSongFromDBResult } from "../models/SongModel";
 import { makeShareAuthMiddleware } from "../auth/middleware/share-auth";
 import { ShareNotFoundError, ShareService } from "../services/ShareService";
 import { makeMockedDatabase } from "./mocks/mock-database";
@@ -25,6 +23,8 @@ import { makePlaylistAuthMiddleware } from "../auth/middleware/playlist-auth";
 import { makeSongAuthMiddleware } from "../auth/middleware/song-auth";
 import { AuthTokenStore } from "../auth/AuthTokenStore";
 import { configFromEnv } from "../types/config";
+import { Song } from "../models/SongModel";
+import { v4 as uuid } from 'uuid';
 
 const routePathProtected = '/some/protected/route';
 const routePathPublic = '/some/public/route';
@@ -263,7 +263,7 @@ describe('auth selectors', () => {
 		});
 
 		test('not found', () => {
-			const req = { args: { otherID: TimeUUID().toString() }, root: User.fromDBResult(testData.users.user1) };
+			const req = { args: { otherID: uuid().toString() }, root: User.fromDBResult(testData.users.user1) };
 			const shareID = getShareIDFromRequest(req);
 
 			expect(shareID).toBeNull();
@@ -272,9 +272,10 @@ describe('auth selectors', () => {
 
 	describe('playlist', () => {
 		const playlist = testData.playlists.playlist1_library_user1;
+		const shareID = testData.shares.library_user1.share_id;
 
 		test('root', () => {
-			const req = { args: {}, root: Playlist.fromDBResult(playlist) };
+			const req = { args: {}, root: Playlist.fromDBResult(playlist, shareID) };
 			const playlistID = getPlaylistIDFromRequest(req);
 
 			expect(playlistID).toBe(playlist.playlist_id.toString());
@@ -288,7 +289,7 @@ describe('auth selectors', () => {
 		});
 
 		test('not found', () => {
-			const req = { args: { otherID: TimeUUID().toString() }, root: User.fromDBResult(testData.users.user1) };
+			const req = { args: { otherID: uuid().toString() }, root: User.fromDBResult(testData.users.user1) };
 			const playlistID = getPlaylistIDFromRequest(req);
 
 			expect(playlistID).toBeNull();
@@ -299,7 +300,7 @@ describe('auth selectors', () => {
 		const song = testData.songs.song1_library_user1;
 
 		test('root', () => {
-			const req = { args: {}, root: shareSongFromDBResult(song) };
+			const req = { args: {}, root: Song.fromDBResult(song) };
 			const songID = getSongIDFromRequest(req);
 
 			expect(songID).toBe(song.song_id.toString());
@@ -313,7 +314,7 @@ describe('auth selectors', () => {
 		});
 
 		test('not found', () => {
-			const req = { args: { otherID: TimeUUID().toString() }, root: User.fromDBResult(testData.users.user1) };
+			const req = { args: { otherID: uuid().toString() }, root: User.fromDBResult(testData.users.user1) };
 			const songID = getSongIDFromRequest(req);
 
 			expect(songID).toBeNull();
@@ -351,7 +352,7 @@ describe('auth middleware', () => {
 			(database.query as jest.Mock).mockReturnValue([]);
 			const shareService = new ShareService(database);
 
-			const shareID = TimeUUID().toString();
+			const shareID = uuid();
 			const middleware = makeShareAuthMiddleware({}) as Function;
 			const context = makeContext({});
 			const req = { args: { shareID }, root: undefined, context: { ...context, services: { ...context.services, shareService } } };

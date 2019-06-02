@@ -1,7 +1,6 @@
 import { Permission, Permissions } from "../auth/permissions";
-import { IDatabaseClient } from "cassandra-schema-builder";
-import { SharesByUserTable } from "../database/schema/tables";
-import { TimeUUID } from "../types/TimeUUID";
+import { IDatabaseClient } from "postgres-schema-builder";
+import { UserSharesTable } from "../database/schema/tables";
 
 export interface IPermissionService {
 	getPermissionsForUser(shareID: string, userID: string): Promise<Permission[]>;
@@ -16,7 +15,7 @@ interface IPermissionServiceArgs {
 export const PermissionService = ({ database }: IPermissionServiceArgs): IPermissionService => {
 	const getPermissionsForUser = async (shareID: string, userID: string): Promise<Permission[]> => {
 		const dbResults = await database.query(
-			SharesByUserTable.select(['permissions'], ['user_id', 'share_id'])([TimeUUID(userID), TimeUUID(shareID)]));
+			UserSharesTable.select(['permissions'], ['user_id_ref', 'share_id_ref'])([userID, shareID]));
 
 		return dbResults[0].permissions
 			.filter(Permissions.isPermission);
@@ -24,8 +23,8 @@ export const PermissionService = ({ database }: IPermissionServiceArgs): IPermis
 
 	const addPermissionsForUser = async (shareID: string, userID: string, permissions: Permission[]) => {
 		await database.query(
-			SharesByUserTable.update(['permissions'], ['user_id', 'share_id'])
-				([permissions], [TimeUUID(userID), TimeUUID(shareID)])
+			UserSharesTable.update(['permissions'], ['user_id_ref', 'share_id_ref'])
+				([permissions], [userID, shareID])
 		);
 	}
 

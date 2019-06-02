@@ -1,8 +1,8 @@
-import { ShareSong, PlaylistSong } from "../../models/SongModel";
+import { Song } from "../../models/SongModel";
 
-export const compareSongs = <S extends ShareSong | PlaylistSong>(lhs: S, rhs: S) => {
-	const { artists: lArtists, remixer: lRemixer, featurings: lFeaturings, genres: lGenres, ...lRest } = lhs;
-	const { artists: rArtists, remixer: rRemixer, featurings: rFeaturings, genres: rGenres, ...rRest } = rhs;
+export const compareSongs = <S extends Song>(lhs: S, rhs: S) => {
+	const { artists: lArtists, remixer: lRemixer, featurings: lFeaturings, genres: lGenres, releaseDate: lReleaseDate, ...lRest } = lhs;
+	const { artists: rArtists, remixer: rRemixer, featurings: rFeaturings, genres: rGenres, releaseDate: rReleaseDate, ...rRest } = rhs;
 
 	// need to be sorted, otherwise order is compared by jest
 	expect(lArtists.sort()).toEqual(rArtists.sort());
@@ -20,7 +20,7 @@ export const compareSongs = <S extends ShareSong | PlaylistSong>(lhs: S, rhs: S)
 	}
 }
 
-export const includesSong = <S extends ShareSong | PlaylistSong>(songs: S[], song: S) => {
+export const includesSong = <S extends Song | Song>(songs: S[], song: S) => {
 	const expectedSong = songs.find(s => s.id === song.id);
 
 	if (!expectedSong) {
@@ -30,6 +30,6 @@ export const includesSong = <S extends ShareSong | PlaylistSong>(songs: S[], son
 	compareSongs(expectedSong, song);
 }
 
-type SongRest<S extends ShareSong | PlaylistSong> = Pick<S, Exclude<keyof S, "artists" | "remixer" | "featurings" | "genres">>
+type SongRest<S extends Song | Song> = Pick<S, Exclude<keyof S, "artists" | "remixer" | "featurings" | "genres">>
 
-const isPlaylistSongRest = (obj: any): obj is SongRest<PlaylistSong> => obj.dateAdded !== undefined;
+const isPlaylistSongRest = (obj: any): obj is SongRest<Song> => obj.dateAdded !== undefined;

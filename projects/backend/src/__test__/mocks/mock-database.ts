@@ -1,15 +1,16 @@
-import { IDatabaseClient } from "cassandra-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder";
 
 interface IDatabaseClientMocked extends IDatabaseClient {
 	mocked: true;
 }
 
 export const makeMockedDatabase = (): IDatabaseClientMocked => ({
-	execute: jest.fn(),
 	query: jest.fn(),
+	batch: jest.fn(),
+	transaction: jest.fn(),
 	close: jest.fn(),
 	mocked: true,
 });
 
 export const isMockedDatabase = (obj: any): obj is IDatabaseClientMocked =>
-	obj.mocked === true && obj.execute !== undefined && obj.query !== undefined && obj.close !== undefined;
+	obj.mocked === true && obj.query !== undefined && obj.close !== undefined;

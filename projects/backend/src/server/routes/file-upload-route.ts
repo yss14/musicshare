@@ -14,9 +14,9 @@ import * as BodyParser from 'body-parser';
 import { commonRestErrors } from "../../utils/typed-express/common-rest-errors";
 import { __TEST__ } from "../../utils/env/env-constants";
 import { ISongUploadProcessingQueue, ISongProcessingQueuePayload } from "../../job-queues/SongUploadProcessingQueue";
-import { isTimeUUID } from "../../type-guards/is-timeuuid";
 import { NextHandleFunction } from "connect";
 import { CustomRequestHandler } from "../../types/context";
+import { isUUID } from "../../type-guards/is-uuid";
 
 export const fileUploadErrors = {
 	bodyNoValidByteBuffer: { identifier: 'body.novalidbytebuffer', message: 'The body is not a valid byte buffer' },
@@ -54,7 +54,7 @@ const extractBodyBuffer = async (req: express.Request): Promise<Either<IResponse
 const extractUserID = async (req: express.Request): Promise<Either<IResponse, string>> => {
 	const { userID } = req.params;
 
-	if (typeof userID === 'string' && isTimeUUID(userID)) {
+	if (typeof userID === 'string' && isUUID(userID)) {
 		return right(userID);
 	} else {
 		return left(ResponseError(HTTPStatusCodes.BAD_REQUEST, fileUploadErrors.paramUserIDNotValid));
@@ -64,7 +64,7 @@ const extractUserID = async (req: express.Request): Promise<Either<IResponse, st
 const extractShareID = async (req: express.Request): Promise<Either<IResponse, string>> => {
 	const { shareID } = req.params;
 
-	if (typeof shareID === 'string' && isTimeUUID(shareID)) {
+	if (typeof shareID === 'string' && isUUID(shareID)) {
 		return right(shareID);
 	} else {
 		return left(ResponseError(HTTPStatusCodes.BAD_REQUEST, fileUploadErrors.paramShareIDNotValid));

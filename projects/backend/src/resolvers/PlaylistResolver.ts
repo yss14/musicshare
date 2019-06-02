@@ -1,12 +1,11 @@
 import { Playlist } from "../models/PlaylistModel";
 import { Resolver, Authorized, FieldResolver, Root, Arg, Mutation, Args } from "type-graphql";
 import { OrderUpdate } from "../services/PlaylistService";
-import { PlaylistSong } from "../models/SongModel";
+import { Song } from "../models/SongModel";
 import { OrderUpdateScalar } from "../types/scalars/order-update";
 import { PlaylistNameArg, PlaylistIDArg, PlaylistNewNameArg } from "../args/playlist-args";
 import { ShareIDArg } from "../args/share-args";
 import { SongIDsArg } from "../args/song-args";
-import { sortBy } from 'lodash';
 import { PlaylistAuth } from "../auth/middleware/playlist-auth";
 import { IServices } from "../services/services";
 
@@ -18,11 +17,11 @@ export class PlaylistResolver {
 
 	@Authorized()
 	@PlaylistAuth()
-	@FieldResolver(() => [PlaylistSong])
+	@FieldResolver(() => [Song])
 	public async songs(
 		@Root() playlist: Playlist,
-	): Promise<PlaylistSong[]> {
-		return this.services.playlistService.getSongs(playlist.shareID, playlist.id);
+	): Promise<Song[]> {
+		return this.services.playlistService.getSongs(playlist.id);
 	}
 
 	@Authorized()
@@ -62,42 +61,42 @@ export class PlaylistResolver {
 
 	@Authorized()
 	@PlaylistAuth(['playlist:mutate_songs'])
-	@Mutation(() => [PlaylistSong])
+	@Mutation(() => [Song])
 	public async addSongsToPlaylist(
 		@Args() { shareID }: ShareIDArg,
 		@Args() { playlistID }: PlaylistIDArg,
 		@Args() { songIDs }: SongIDsArg,
-	): Promise<PlaylistSong[]> {
+	): Promise<Song[]> {
 		await this.services.playlistService.addSongs(shareID, playlistID, songIDs);
 
-		return this.services.playlistService.getSongs(shareID, playlistID);
+		return this.services.playlistService.getSongs(playlistID);
 	}
 
 	@Authorized()
 	@PlaylistAuth(['playlist:mutate_songs'])
-	@Mutation(() => [PlaylistSong])
+	@Mutation(() => [Song])
 	public async removeSongsFromPlaylist(
 		@Args() { shareID }: ShareIDArg,
 		@Args() { playlistID }: PlaylistIDArg,
 		@Args() { songIDs }: SongIDsArg,
-	): Promise<PlaylistSong[]> {
+	): Promise<Song[]> {
 		await this.services.playlistService.removeSongs(shareID, playlistID, songIDs);
 
-		return this.services.playlistService.getSongs(shareID, playlistID);
+		return this.services.playlistService.getSongs(playlistID);
 	}
 
 	@Authorized()
 	@PlaylistAuth(['playlist:mutate_songs'])
-	@Mutation(() => [PlaylistSong])
+	@Mutation(() => [Song])
 	public async updateOrderOfPlaylist(
 		@Args() { shareID }: ShareIDArg,
 		@Args() { playlistID }: PlaylistIDArg,
 		@Arg('orderUpdates', () => [OrderUpdateScalar]) orderUpdates: OrderUpdate[],
-	): Promise<PlaylistSong[]> {
+	): Promise<Song[]> {
 		await this.services.playlistService.updateOrder(shareID, playlistID, orderUpdates);
 
-		const playlistSongs = await this.services.playlistService.getSongs(shareID, playlistID);
+		const playlistSongs = await this.services.playlistService.getSongs(playlistID);
 
-		return sortBy(playlistSongs, 'position');
+		return playlistSongs;
 	}
 }

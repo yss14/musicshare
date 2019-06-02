@@ -1,9 +1,9 @@
 declare namespace jest {
 	interface Matchers<R> {
-		toBeTimeUUID(): CustomMatcherResult;
+		toBeUUID(): CustomMatcherResult;
 	}
 
 	interface Expect {
-		toBeTimeUUID(): void;
+		toBeUUID(): void;
 	}
 }

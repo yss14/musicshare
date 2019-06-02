@@ -1,6 +1,6 @@
 import { Share } from './ShareModel';
 import { ObjectType, Field } from "type-graphql";
-import { IUsersDBResult } from '../database/schema/tables';
+import { IUserDBResult } from '../database/schema/tables';
 import { plainToClass } from 'class-transformer';
 
 @ObjectType({ description: "Object representing a user" })
@@ -17,7 +17,7 @@ export class User {
 	@Field(type => [Share])
 	public readonly shares!: Share[];
 
-	public static fromDBResult(dbResult: IUsersDBResult): User {
+	public static fromDBResult(dbResult: IUserDBResult): User {
 		return plainToClass(
 			User,
 			{
