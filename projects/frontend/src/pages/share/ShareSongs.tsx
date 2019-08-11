@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { ShareWithSongs, GET_SHARE_WITH_SONGS } from '../../graphql/queries/share-songs-query';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ShareWithSongs, GET_SHARE_WITH_SONGS, useShareSongs } from '../../graphql/queries/share-songs-query';
 import { SongTable } from '../../components/song-table/SongTable';
 import { SongModal } from '../../components/modals/song-modal/SongModal';
 import useReactRouter from 'use-react-router';
@@ -11,38 +11,41 @@ import { usePlayer } from '../../player/player-hook';
 import { getSongMediaURL } from '../../graphql/programmatic/get-song-mediaurl';
 import { useApolloClient } from '@apollo/react-hooks';
 
-export const ShareSongs = () => {
+export const ShareSongs: React.FC = () => {
 	const [editSongID, setEditSongID] = useState<string | null>(null);
 	const { match: { params: { shareID } } } = useReactRouter<IShareRoute>();
-	const { changeSong } = usePlayer();
+	const { changeSong, enqueueSongs, clearQueue } = usePlayer();
 	const apolloClient = useApolloClient();
 	const fetchSongMediaURL = useMemo(() => getSongMediaURL(apolloClient), [apolloClient]);
+	const makePlayableSong = (shareID: string) => (song: IBaseSong) => ({
+		...song,
+		getMediaURL: () => fetchSongMediaURL(shareID, song.id)
+	});
+	const { loading, error, data } = useShareSongs(shareID);
 
-	const onRowClick = (song: IBaseSong) => {
-		changeSong({
-			...song,
-			getMediaURL: () => fetchSongMediaURL(shareID, song.id)
-		});
+	const onRowClick = (song: IBaseSong, idx: number) => {
+		changeSong(makePlayableSong(shareID)(song));
+
+		if (data) {
+			const songs = data.share.songs;
+			const followUpSongs = songs.filter((_, songIdx) => songIdx > idx);
+
+			clearQueue();
+			enqueueSongs(followUpSongs.map(makePlayableSong(shareID)));
+		}
 	}
+
+	if (loading || !data) {
+		return <Spinner />;
+	}
+	if (error) return <div>`Error!: ${error}`</div>;
 
 	return (
 		<>
-			<ShareWithSongs query={GET_SHARE_WITH_SONGS} variables={{ shareID }}>
-				{({ loading, error, data }) => {
-					if (loading) {
-						return <Spinner />;
-					}
-					if (error) return `Error!: ${error}`;
-					if (data) {
-						return (
-							<>
-								<SongTableHeader title="All songs" songs={data.share.songs} />
-								<SongTable songs={data.share.songs} onRowClick={onRowClick} />
-							</>
-						);
-					}
-				}}
-			</ShareWithSongs>
+			<>
+				<SongTableHeader title="All songs" songs={data.share.songs} />
+				<SongTable songs={data.share.songs} onRowClick={onRowClick} />
+			</>
 			{editSongID ? <SongModal songID={editSongID} shareID={shareID} closeForm={() => setEditSongID(null)} /> : null}
 		</>
 	);

@@ -53,6 +53,8 @@ export interface IPlayer {
 	changeVolume: (newVolume: number) => void;
 	changeSong: (newSong: IBaseSongPlayable) => void;
 	enqueueSong: (song: IBaseSongPlayable) => void;
+	enqueueSongs: (songs: IBaseSongPlayable[]) => void;
+	clearQueue: () => void;
 	subscribeEvents: (callback: PlayerEventSubscriber) => void;
 	unsubscribeEvents: (callback: PlayerEventSubscriber) => void;
 	seek: (newCurrentTime: number) => void;
@@ -115,11 +117,13 @@ export const Player = (): IPlayer => {
 
 	const enqueueSong = (song: IBaseSongPlayable) => {
 		songQueue.push(song);
-
-		if (primaryDeck.paused) {
-			next();
-		}
 	}
+
+	const enqueueSongs = (songs: IBaseSongPlayable[]) => {
+		songs.forEach(song => songQueue.push(song));
+	}
+
+	const clearQueue = () => songQueue.splice(0, songQueue.length);
 
 	primaryDeck.addEventListener('ended', () => {
 		const isNextSong = next();
@@ -167,5 +171,5 @@ export const Player = (): IPlayer => {
 		}
 	}, 500);
 
-	return { play, pause, changeVolume, next, prev, changeSong, enqueueSong, subscribeEvents, unsubscribeEvents, seek }
+	return { play, pause, changeVolume, next, prev, changeSong, enqueueSong, enqueueSongs, subscribeEvents, unsubscribeEvents, seek, clearQueue }
 }

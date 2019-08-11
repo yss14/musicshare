@@ -58,9 +58,11 @@ export const usePlayer = () => {
 			player.changeVolume(newVolume);
 			dispatch(setVolume(newVolume));
 		},
-		seek: (newCurrentTime: number) => player.seek(newCurrentTime),
-		changeSong: (newSong: IBaseSongPlayable) => player.changeSong(newSong),
-		enqueueSong: (song: IBaseSongPlayable) => player.enqueueSong(song),
+		seek: player.seek,
+		changeSong: player.changeSong,
+		enqueueSong: player.enqueueSong,
+		enqueueSongs: player.enqueueSongs,
+		clearQueue: player.clearQueue,
 		volume,
 		playing,
 		playpackProgress,

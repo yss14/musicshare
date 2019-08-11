@@ -63,7 +63,7 @@ const SliderCaption = styled.div<SliderCaptionProps>`
 	right: 0;
 	text-align: center;
 	color: ${props => props.textColor || '#F8A585'};
-	font-size: 12px;
+	font-size: 11px;
 `;
 
 interface IPlayerSliderProps {
@@ -127,10 +127,7 @@ export const Player = ({ }) => {
 		}
 	}
 
-	const handleSeek = (newCurrentTimePercentage: number) => {
-		console.log({ newCurrentTimePercentage, duration })
-		seek(newCurrentTimePercentage * duration);
-	}
+	const handleSeek = (newCurrentTimePercentage: number) => seek(newCurrentTimePercentage * duration);
 
 	return (
 		<FlexWithStyles direction="row" align="center">
@@ -142,7 +139,10 @@ export const Player = ({ }) => {
 			<ProgressBarContainer>
 				<PlayerSlider
 					progress={playpackProgress}
-					progressText={currentSong ? buildSongName(currentSong) : ''}
+					progressText={currentSong
+						? `${currentSong.artists.join(', ')} - ${buildSongName(currentSong)}`
+						: ''
+					}
 					onClick={handleSeek}
 				/>
 			</ProgressBarContainer>
