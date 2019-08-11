@@ -47,12 +47,16 @@ const SliderContainer = styled.div`
 	cursor: col-resize;
 `;
 
-type SliderFillProps = Pick<IPlayerSliderProps, 'fillColor'> & { width: number };
+interface ISliderFillProps {
+	fillColor: string;
+	width: number
+};
 
-const SliderFill = styled.div<SliderFillProps>`
-	background-color: ${props => props.fillColor || 'white'};
+const SliderFill = styled.div<ISliderFillProps>`
+	background-color: ${props => props.fillColor};
 	width: ${props => props.width}%;
 	height: 100%;
+	position: absolute;
 `;
 
 type SliderCaptionProps = Pick<IPlayerSliderProps, 'textColor'>
@@ -66,15 +70,19 @@ const SliderCaption = styled.div<SliderCaptionProps>`
 	font-size: 11px;
 `;
 
-interface IPlayerSliderProps {
-	progress: number;
-	onClick: (newProgress: number) => unknown;
+interface IProgressOption {
+	percentage: number;
 	fillColor?: string;
+}
+
+interface IPlayerSliderProps {
+	progresses: IProgressOption[];
+	onClick: (newProgress: number) => unknown;
 	progressText?: string;
 	textColor?: string;
 }
 
-const PlayerSlider: React.FC<IPlayerSliderProps> = ({ progress, onClick, fillColor, progressText, textColor }) => {
+const PlayerSlider: React.FC<IPlayerSliderProps> = ({ progresses, onClick, progressText, textColor, children }) => {
 	const sliderContainerRef = useRef<HTMLDivElement>(null);
 	const [leftMouseButtonIsClicked, setLeftMouseButtonIsClicked] = useState(false);
 
@@ -103,13 +111,18 @@ const PlayerSlider: React.FC<IPlayerSliderProps> = ({ progress, onClick, fillCol
 			ref={sliderContainerRef}
 		>
 			<SliderCaption textColor={textColor}>{progressText}</SliderCaption>
-			<SliderFill fillColor={fillColor} width={progress * 100} />
+			{
+				progresses.map(progress => (
+					<SliderFill fillColor={progress.fillColor || 'white'} width={progress.percentage * 100} />
+				))
+			}
+			{children}
 		</SliderContainer>
 	);
 }
 
 export const Player = ({ }) => {
-	const { play, pause, next, prev, volume, changeVolume, playing, currentSong, playpackProgress, duration, seek } = usePlayer();
+	const { play, pause, next, prev, volume, changeVolume, playing, currentSong, playpackProgress, duration, seek, bufferingProgress } = usePlayer();
 
 	const handleClickMute = () => {
 		if (volume <= 0) {
@@ -138,7 +151,10 @@ export const Player = ({ }) => {
 			</ControlContainer>
 			<ProgressBarContainer>
 				<PlayerSlider
-					progress={playpackProgress}
+					progresses={[
+						{ percentage: playpackProgress },
+						{ percentage: bufferingProgress, fillColor: 'rgba(255, 255, 255, 0.1)' },
+					]}
 					progressText={currentSong
 						? `${currentSong.artists.join(', ')} - ${buildSongName(currentSong)}`
 						: ''
@@ -150,7 +166,7 @@ export const Player = ({ }) => {
 				<ControlButton src={controlVolumeImg} onClick={handleClickMute} />
 				<VolumeSliderContainer>
 					<PlayerSlider
-						progress={volume}
+						progresses={[{ percentage: volume }]}
 						onClick={changeVolume}
 						progressText={(Math.round(volume * 100) / 100).toString()}
 					/>

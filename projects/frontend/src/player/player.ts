@@ -27,6 +27,13 @@ interface IPlaybackProgressEvent {
 
 const setProgress = (newProgress: number): IPlaybackProgressEvent => ({ type: 'playback_progress', data: newProgress });
 
+interface IBufferingProgressEvent {
+	type: 'buffering_progress';
+	data: number;
+}
+
+const setBufferingProgress = (newProgress: number): IBufferingProgressEvent => ({ type: 'buffering_progress', data: newProgress });
+
 interface ISongChangeEvent {
 	type: 'song_change';
 	data: IBaseSongPlayable | null;
@@ -41,7 +48,8 @@ interface ISongDurationChangeEvent {
 
 const setSongDuration = (newDuration: number): ISongDurationChangeEvent => ({ type: 'song_duration_change', data: newDuration });
 
-export type PlayerEvent = IPlaybackStatusEvent | IPlaybackProgressEvent | ISongChangeEvent | ISongDurationChangeEvent;
+export type PlayerEvent = IPlaybackStatusEvent | IPlaybackProgressEvent | ISongChangeEvent | ISongDurationChangeEvent
+	| IBufferingProgressEvent;
 
 type PlayerEventSubscriber = (event: PlayerEvent) => unknown;
 
@@ -155,7 +163,7 @@ export const Player = (): IPlayer => {
 		dispatch(setProgress(progress));
 	});
 
-	setInterval(() => {
+	const checkPrebufferingNextSong = () => {
 		const currentProgress = getPlaybackProgress(primaryDeck);
 
 		if (primaryDeck.paused || currentProgress < 0) return;
@@ -169,7 +177,33 @@ export const Player = (): IPlayer => {
 				bufferingDeck.src = mediaURL;
 			})
 		}
+	}
+
+	const readAndDispatchBufferingProgress = () => {
+		if (primaryDeck.buffered.length === 0) return;
+
+		const bufferingProgress = primaryDeck.buffered.end(0) / primaryDeck.duration;
+
+		dispatch(setBufferingProgress(bufferingProgress));
+	}
+
+	setInterval(() => {
+		checkPrebufferingNextSong();
+		readAndDispatchBufferingProgress();
 	}, 500);
 
-	return { play, pause, changeVolume, next, prev, changeSong, enqueueSong, enqueueSongs, subscribeEvents, unsubscribeEvents, seek, clearQueue }
+	return {
+		play,
+		pause,
+		changeVolume,
+		next,
+		prev,
+		changeSong,
+		enqueueSong,
+		enqueueSongs,
+		subscribeEvents,
+		unsubscribeEvents,
+		seek,
+		clearQueue,
+	}
 }
