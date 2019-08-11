@@ -8,6 +8,7 @@ import controlPrevImg from '../images/control_prev.png';
 import controlVolumeImg from '../images/control_volume.png';
 import { usePlayer } from "../player/player-hook";
 import { buildSongName } from "../utils/songname-builder";
+import { formatDuration } from "../utils/format-duration";
 
 const FlexWithStyles = styled(Flex)`
   background: #3a3a3a;
@@ -68,6 +69,16 @@ const SliderCaption = styled.div<SliderCaptionProps>`
 	text-align: center;
 	color: ${props => props.textColor || '#F8A585'};
 	font-size: 11px;
+`;
+
+const SliderCaptionLeft = styled(SliderCaption)`
+	text-align: left;
+	margin-left: 8px;
+`;
+
+const SliderCaptionRight = styled(SliderCaption)`
+	text-align: right;
+	margin-right: 8px;
 `;
 
 interface IProgressOption {
@@ -142,6 +153,9 @@ export const Player = ({ }) => {
 
 	const handleSeek = (newCurrentTimePercentage: number) => seek(newCurrentTimePercentage * duration);
 
+	const playedTime = Math.round(playpackProgress * duration);
+	const remainingTime = Math.round(duration - playedTime);
+
 	return (
 		<FlexWithStyles direction="row" align="center">
 			<ControlContainer>
@@ -160,7 +174,10 @@ export const Player = ({ }) => {
 						: ''
 					}
 					onClick={handleSeek}
-				/>
+				>
+					<SliderCaptionLeft>{formatDuration(playedTime)}</SliderCaptionLeft>
+					<SliderCaptionRight>{formatDuration(remainingTime)}</SliderCaptionRight>
+				</PlayerSlider>
 			</ProgressBarContainer>
 			<ControlContainer>
 				<ControlButton src={controlVolumeImg} onClick={handleClickMute} />
