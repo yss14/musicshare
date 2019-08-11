@@ -1,38 +1,49 @@
 import { IBaseSongPlayable } from "../graphql/types";
 
-interface IPlayerDeck {
-	play: () => void;
-	pause: () => void;
-	isPlaying: () => boolean;
-	getPlaybackProgress: () => number;
-	enqueueSong: (song: IBaseSongPlayable) => Promise<void>;
-	on: (event: 'ended', callback: () => unknown) => void;
-}
-
-const PlayerDeck = (): IPlayerDeck => {
+const PlayerDeck = () => {
 	const audio = document.createElement('audio');
 	audio.style.display = 'none';
 	document.body.appendChild(audio);
 
-	const play = () => audio.play();
-	const pause = () => audio.pause();
-	const isPlaying = () => !audio.paused;
-	const getPlaybackProgress = () => {
-		const progress = audio.currentTime / audio.duration;
-
-		return progress || -1;
-	}
-
-	const enqueueSong = async (song: IBaseSongPlayable) => {
-		const mediaURL = await song.getMediaURL();
-
-		audio.src = mediaURL;
-	}
-
-	const on = (event: string, callback: () => unknown) => audio.addEventListener(event, callback);
-
-	return { play, pause, isPlaying, enqueueSong, getPlaybackProgress, on }
+	return audio;
 }
+
+const getPlaybackProgress = (deck: HTMLAudioElement) => {
+	return (deck.currentTime / deck.duration) || -1;
+}
+
+interface IPlaybackStatusEvent {
+	type: 'playback_status';
+	data: boolean;
+}
+
+const setPlaying = (): IPlaybackStatusEvent => ({ type: 'playback_status', data: true });
+const setPaused = (): IPlaybackStatusEvent => ({ type: 'playback_status', data: false });
+
+interface IPlaybackProgressEvent {
+	type: 'playback_progress';
+	data: number;
+}
+
+const setProgress = (newProgress: number): IPlaybackProgressEvent => ({ type: 'playback_progress', data: newProgress });
+
+interface ISongChangeEvent {
+	type: 'song_change';
+	data: IBaseSongPlayable | null;
+}
+
+const setSong = (newSong: IBaseSongPlayable | null): ISongChangeEvent => ({ type: 'song_change', data: newSong });
+
+interface ISongDurationChangeEvent {
+	type: 'song_duration_change';
+	data: number;
+}
+
+const setSongDuration = (newDuration: number): ISongDurationChangeEvent => ({ type: 'song_duration_change', data: newDuration });
+
+export type PlayerEvent = IPlaybackStatusEvent | IPlaybackProgressEvent | ISongChangeEvent | ISongDurationChangeEvent;
+
+type PlayerEventSubscriber = (event: PlayerEvent) => unknown;
 
 export interface IPlayer {
 	play: () => void;
@@ -42,25 +53,48 @@ export interface IPlayer {
 	changeVolume: (newVolume: number) => void;
 	changeSong: (newSong: IBaseSongPlayable) => void;
 	enqueueSong: (song: IBaseSongPlayable) => void;
+	subscribeEvents: (callback: PlayerEventSubscriber) => void;
+	unsubscribeEvents: (callback: PlayerEventSubscriber) => void;
+	seek: (newCurrentTime: number) => void;
 }
 
 export const Player = (): IPlayer => {
-	let currentDeck = PlayerDeck();
-	let nextDeck = PlayerDeck();
+	const primaryDeck = PlayerDeck();
+	const bufferingDeck = PlayerDeck();
+	bufferingDeck.volume = 0;
+
 	const songQueue: IBaseSongPlayable[] = [];
 	const playedSongs: IBaseSongPlayable[] = [];
+	let isBufferingNextSong = false;
 
-	const play = () => currentDeck.play();
-	const pause = () => currentDeck.pause();
-	const changeVolume = () => undefined; // TODO
+	const eventSubscribers: Set<PlayerEventSubscriber> = new Set();
+
+	const subscribeEvents = (callback: PlayerEventSubscriber) => eventSubscribers.add(callback);
+	const unsubscribeEvents = (callback: PlayerEventSubscriber) => eventSubscribers.delete(callback);
+
+	const dispatch = (event: PlayerEvent) => Array.from(eventSubscribers)
+		.forEach(subscriber => subscriber(event));
+
+	const play = () => primaryDeck.play();
+	const pause = () => primaryDeck.pause();
+	const changeVolume = (newVolume: number) => primaryDeck.volume = newVolume;
+	const seek = (newCurrentTime: number) => primaryDeck.currentTime = newCurrentTime;
 
 	const next = () => {
 		const nextSong = songQueue.shift();
+		isBufferingNextSong = false;
+		bufferingDeck.src = "";
 
-		if (!nextSong) return;
+		if (!nextSong) return false;
 
-		currentDeck.enqueueSong(nextSong)
-			.then(() => currentDeck.play());
+		nextSong.getMediaURL().then(mediaURL => {
+			dispatch(setSong(nextSong));
+
+			primaryDeck.src = mediaURL;
+			primaryDeck.play();
+		});
+
+		return true;
 	}
 
 	const prev = () => {
@@ -68,8 +102,10 @@ export const Player = (): IPlayer => {
 
 		if (!prevSong) return;
 
-		currentDeck.enqueueSong(prevSong)
-			.then(() => currentDeck.play());
+		prevSong.getMediaURL().then(mediaURL => {
+			primaryDeck.src = mediaURL;
+			primaryDeck.play();
+		});
 	}
 
 	const changeSong = (newSong: IBaseSongPlayable) => {
@@ -80,39 +116,56 @@ export const Player = (): IPlayer => {
 	const enqueueSong = (song: IBaseSongPlayable) => {
 		songQueue.push(song);
 
-		if (!currentDeck.isPlaying) {
+		if (primaryDeck.paused) {
 			next();
 		}
 	}
 
-	const switchDecks = () => {
-		const currentDeckRef = currentDeck;
-		currentDeck = nextDeck
-		nextDeck = currentDeckRef
+	primaryDeck.addEventListener('ended', () => {
+		const isNextSong = next();
 
-		currentDeck.play();
-	}
+		dispatch(setSong(null));
+		dispatch(setSongDuration(0));
+		dispatch(setProgress(0));
 
-	const onDeckFinish = () => {
-		switchDecks();
-	}
+		if (!isNextSong) {
+			dispatch(setPaused());
+		}
+	});
+	primaryDeck.addEventListener('play', () => {
+		dispatch(setPlaying());
+	});
+	primaryDeck.addEventListener('pause', () => {
+		dispatch(setPaused());
+	});
+	primaryDeck.addEventListener('timeupdate', () => {
+		const progress = primaryDeck.currentTime / primaryDeck.duration;
 
-	currentDeck.on('ended', onDeckFinish);
-	nextDeck.on('ended', onDeckFinish);
+		dispatch(setProgress(progress));
+	});
+	primaryDeck.addEventListener('durationchange', () => {
+		const { currentTime, duration } = primaryDeck;
+		const progress = currentTime / duration;
+
+		dispatch(setSongDuration(duration));
+		dispatch(setProgress(progress));
+	});
 
 	setInterval(() => {
-		const currentProgress = currentDeck.getPlaybackProgress();
+		const currentProgress = getPlaybackProgress(primaryDeck);
 
-		if (!currentDeck.isPlaying() || currentProgress < 0) return;
+		if (primaryDeck.paused || currentProgress < 0) return;
 
-		if (currentProgress >= 0.9) {
-			const nextSong = songQueue.shift();
+		if (currentProgress >= 0.9 && songQueue.length > 0 && !isBufferingNextSong) {
+			const nextSong = songQueue[0];
+			isBufferingNextSong = true;
+			console.log('Start buffering next song');
 
-			if (!nextSong) return;
-
-			nextDeck.enqueueSong(nextSong)
+			nextSong.getMediaURL().then(mediaURL => {
+				bufferingDeck.src = mediaURL;
+			})
 		}
 	}, 500);
 
-	return { play, pause, changeVolume, next, prev, changeSong, enqueueSong }
+	return { play, pause, changeVolume, next, prev, changeSong, enqueueSong, subscribeEvents, unsubscribeEvents, seek }
 }
