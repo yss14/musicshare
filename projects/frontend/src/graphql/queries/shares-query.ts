@@ -26,5 +26,4 @@ export const GET_SHARES = gql`
   }
 `;
 
-export const useShares = (): QueryResult<IGetSharesData, {}> =>
-	useQuery(GET_SHARES);
+export const useShares = () => useQuery<IGetSharesData, {}>(GET_SHARES);

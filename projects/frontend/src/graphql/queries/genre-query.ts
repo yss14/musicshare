@@ -27,4 +27,5 @@ export const GET_GENRES = gql`
 
 export class GenresQuery extends Query<IGetGenreData, IGetGenreVariables>{ }
 
-export const useGenres = ({ variables }: { variables: IGetGenreVariables }): QueryResult<IGetGenreData, IGetGenreVariables> => useQuery(GET_GENRES);
+export const useGenres = (variables: IGetGenreVariables) =>
+	useQuery<IGetGenreData, IGetGenreVariables>(GET_GENRES, { variables });

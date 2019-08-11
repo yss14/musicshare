@@ -23,4 +23,5 @@ export const GET_TAGS = gql`
 
 export class TagsQuery extends Query<IGetTagsData, IGetTagsVariables>{ }
 
-export const useTags = ({ variables }: { variables: IGetTagsVariables }): QueryResult<IGetTagsData, IGetTagsVariables> => useQuery(GET_TAGS, { variables });
+export const useTags = ({ variables }: { variables: IGetTagsVariables }) =>
+	useQuery<IGetTagsData, IGetTagsVariables>(GET_TAGS, { variables });

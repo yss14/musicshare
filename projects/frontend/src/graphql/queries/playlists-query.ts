@@ -35,5 +35,5 @@ export const GET_PLAYLISTS = gql`
 
 export class PlaylistsQuery extends Query<IGetPlaylistsData, IGetPlaylistsVariables>{ }
 
-export const usePlaylists = (vars: IGetPlaylistsVariables): QueryResult<IGetPlaylistsData, IGetPlaylistsVariables> =>
-	useQuery(GET_PLAYLISTS, { variables: vars });
+export const usePlaylists = (vars: IGetPlaylistsVariables) =>
+	useQuery<IGetPlaylistsData, IGetPlaylistsVariables>(GET_PLAYLISTS, { variables: vars });

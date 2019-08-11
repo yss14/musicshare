@@ -3,14 +3,14 @@ import { QueryResult } from "react-apollo";
 import { useQuery } from "@apollo/react-hooks";
 
 export interface IUserData {
-  user: {
-    id: string;
-    shares: {
-      id: string;
-      name: string;
-      isLibrary: boolean;
-    }[];
-  };
+	user: {
+		id: string;
+		shares: {
+			id: string;
+			name: string;
+			isLibrary: boolean;
+		}[];
+	};
 }
 
 export const GET_USER = gql`
@@ -26,4 +26,4 @@ export const GET_USER = gql`
   }
 `;
 
-export const useUser = (): QueryResult<IUserData, {}> => useQuery(GET_USER);
+export const useUser = () => useQuery<IUserData, {}>(GET_USER);

@@ -32,5 +32,5 @@ export const PLAYLIST_WITH_SONGS = gql`
   	}
 `;
 
-export const usePlaylist = (variables: IGetPlaylistSongsVariables): QueryResult<IGetPlaylistSongsData, IGetPlaylistSongsVariables> =>
-	useQuery(PLAYLIST_WITH_SONGS, { variables, fetchPolicy: 'network-only' });
+export const usePlaylist = (variables: IGetPlaylistSongsVariables) =>
+	useQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>(PLAYLIST_WITH_SONGS, { variables, fetchPolicy: 'network-only' });
