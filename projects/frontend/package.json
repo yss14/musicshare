@@ -18,7 +18,7 @@
 		"apollo-link-error": "^1.1.10",
 		"apollo-link-http": "^1.5.14",
 		"babel-plugin-import": "^1.11.0",
-		"customize-cra": "^0.2.12",
+		"customize-cra": "^0.7.0",
 		"flexbox-react": "^4.4.0",
 		"formik": "^1.5.4",
 		"graphql": "^14.2.1",
