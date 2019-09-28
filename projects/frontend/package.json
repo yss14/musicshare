@@ -59,6 +59,6 @@
 		"@typescript-eslint/parser": "^1.7.0",
 		"apollo": "^2.11.1",
 		"eslint": "^5.16.0",
-		"eslint-plugin-react-hooks": "^1.6.0"
+		"eslint-plugin-react-hooks": "^2.1.1"
 	}
 }
