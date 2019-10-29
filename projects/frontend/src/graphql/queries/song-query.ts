@@ -1,5 +1,4 @@
 import { IShareSong, shareSongKeys } from "../types";
-import { Query, QueryResult } from "react-apollo";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 
@@ -25,6 +24,5 @@ export const GET_SONG = gql`
   	}
 `;
 
-export class SongQuery extends Query<ISongData, ISongVariables>{ }
-
-export const useSong = ({ variables }: { variables: ISongVariables }) => useQuery<ISongData, ISongVariables>(GET_SONG);
+export const useSong = (shareID: string, songID: string) =>
+	useQuery<ISongData, ISongVariables>(GET_SONG, { variables: { shareID, songID } });

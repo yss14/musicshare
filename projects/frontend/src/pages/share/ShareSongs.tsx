@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { ShareWithSongs, GET_SHARE_WITH_SONGS, useShareSongs } from '../../graphql/queries/share-songs-query';
+import { useShareSongs } from '../../graphql/queries/share-songs-query';
 import { SongTable } from '../../components/song-table/SongTable';
 import { SongModal } from '../../components/modals/song-modal/SongModal';
 import useReactRouter from 'use-react-router';
@@ -33,6 +33,8 @@ export const ShareSongs: React.FC = () => {
 			clearQueue();
 			enqueueSongs(followUpSongs.map(makePlayableSong(shareID)));
 		}
+
+		setEditSongID(song.id)
 	}
 
 	if (loading || !data) {

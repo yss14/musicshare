@@ -6,14 +6,7 @@ import { ShareSongs } from "./ShareSongs";
 import { PlaylistSongs } from "./PlaylistSongs";
 import {
 	useUpdateShare,
-	IShareVariables
 } from "../../graphql/client/mutations/share-mutation";
-import { MutationFn } from "react-apollo/Mutation";
-
-interface IShareProps {
-	shareID: string;
-	updateShareId: MutationFn<{}, IShareVariables>;
-}
 
 const MutationWrapper = () => {
 	const {
@@ -25,11 +18,16 @@ const MutationWrapper = () => {
 	return <Share shareID={shareID} updateShareId={updateShareId as any} />;
 };
 
+interface IShareProps {
+	shareID: string;
+	updateShareId: (shareID: string) => any;
+}
+
 const Share = ({ updateShareId, shareID }: IShareProps) => {
 	const { match } = useReactRouter();
 
 	useEffect(() => {
-		updateShareId();
+		updateShareId(shareID);
 	}, [shareID]);
 
 	return (

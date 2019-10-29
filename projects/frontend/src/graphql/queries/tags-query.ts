@@ -1,5 +1,4 @@
 import gql from "graphql-tag";
-import { Query, QueryResult } from "react-apollo";
 import { useQuery } from "@apollo/react-hooks";
 
 export interface IGetTagsData {
@@ -21,7 +20,5 @@ export const GET_TAGS = gql`
 	}
 `;
 
-export class TagsQuery extends Query<IGetTagsData, IGetTagsVariables>{ }
-
-export const useTags = ({ variables }: { variables: IGetTagsVariables }) =>
-	useQuery<IGetTagsData, IGetTagsVariables>(GET_TAGS, { variables });
+export const useTags = (shareID: string) =>
+	useQuery<IGetTagsData, IGetTagsVariables>(GET_TAGS, { variables: { shareID } });
