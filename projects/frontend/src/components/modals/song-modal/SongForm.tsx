@@ -175,7 +175,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 												>
 													<DatePicker
 														value={values.releaseDate ? moment(values.releaseDate) : undefined}
-														onChange={e => setFieldValue('releaseDate', e.toISOString())}
+														onChange={e => setFieldValue('releaseDate', e!.toISOString())}
 														placeholder="Release Date"
 													/>
 												</Form.Item>

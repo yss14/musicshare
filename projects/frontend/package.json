@@ -2,42 +2,7 @@
 	"name": "@musicshare/frontend",
 	"version": "1.0.1",
 	"private": true,
-	"dependencies": {
-		"@apollo/react-common": "^3.0.0",
-		"@apollo/react-hooks": "^3.0.0",
-		"@types/graphql": "^14.2.0",
-		"@types/jest": "24.0.13",
-		"@types/node": "12.0.4",
-		"@types/react": "16.8.19",
-		"@types/react-dom": "16.8.4",
-		"@types/react-router-dom": "^4.3.1",
-		"@types/styled-components": "^4.1.14",
-		"antd": "^3.16.2",
-		"apollo-cache-inmemory": "^1.5.1",
-		"apollo-client": "^2.5.1",
-		"apollo-link": "^1.2.11",
-		"apollo-link-error": "^1.1.10",
-		"apollo-link-http": "^1.5.14",
-		"babel-plugin-import": "^1.11.0",
-		"customize-cra": "^0.2.12",
-		"flexbox-react": "^4.4.0",
-		"formik": "^1.5.4",
-		"graphql": "^14.2.1",
-		"graphql-tag": "^2.10.1",
-		"howler": "^2.1.2",
-		"js-sha256": "^0.9.0",
-		"less": "^3.9.0",
-		"less-loader": "^5.0.0",
-		"react": "^16.8.6",
-		"react-apollo": "^2.5.4",
-		"react-app-rewired": "^2.1.1",
-		"react-dom": "^16.8.6",
-		"react-dropzone": "^10.1.4",
-		"react-router-dom": "^5.0.0",
-		"react-scripts": "2.1.8",
-		"styled-components": "^4.2.0",
-		"use-react-router": "^1.0.6"
-	},
+	"dependencies": {},
 	"scripts": {
 		"start": "react-app-rewired start",
 		"dev": "npm run start",
@@ -56,12 +21,5 @@
 		"not ie <= 11",
 		"not op_mini all"
 	],
-	"devDependencies": {
-		"@types/howler": "^2.1.1",
-		"@typescript-eslint/eslint-plugin": "^1.7.0",
-		"@typescript-eslint/parser": "^1.7.0",
-		"apollo": "^2.11.1",
-		"eslint": "^5.16.0",
-		"eslint-plugin-react-hooks": "^1.6.0"
-	}
+	"devDependencies": {}
 }
