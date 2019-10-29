@@ -25,7 +25,6 @@ export class AWSS3FileService implements IFileService {
 	}
 
 	public uploadFile({ contentType, filenameRemote, source }: UploadFileArgs): Promise<void> {
-		console.log(contentType)
 		return new Promise<void>((resolve, reject) => {
 			this.s3Client.upload({
 				Bucket: this.bucket,

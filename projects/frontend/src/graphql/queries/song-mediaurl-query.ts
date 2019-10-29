@@ -21,6 +21,6 @@ export const GET_SONG_MEDIAURL = gql`
 				id,
 				accessUrl,
 			}
-    	}
-  	}
+		}
+	}
 `;
