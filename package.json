@@ -49,7 +49,7 @@
 		"jest-runner-concurrent": "^0.1.1",
 		"lerna": "^3.13.4",
 		"ts-jest": "^24.0.1",
-		"tsc-watch": "^2.1.2",
+		"tsc-watch": "^4.0.0",
 		"tslint": "^5.15.0",
 		"tslint-clean-code": "^0.2.9",
 		"tslint-config-prettier": "^1.18.0",
