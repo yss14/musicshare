@@ -13,6 +13,7 @@ import { formatDuration } from "../utils/format-duration";
 const FlexWithStyles = styled(Flex)`
   background: #3a3a3a;
   padding: 8px 4px;
+  height: 100%;
 `;
 
 const ControlContainer = styled.div`

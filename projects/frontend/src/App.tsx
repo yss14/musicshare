@@ -7,9 +7,10 @@ import { client, cache } from "./Apollo";
 import { makeConfigFromEnv } from "./config";
 import { ThemeProvider } from "styled-components";
 import { ConfigContext } from "./context/configContext";
-import Routing from "./Routing";
+import { Routing } from "./components/routing/Routing";
 import { PlayerContext } from "./player/player-context";
 import { Player } from "./player/player";
+import { IPrimaryTheme } from "./types/Theme";
 
 const config = makeConfigFromEnv();
 
@@ -35,10 +36,9 @@ cache.writeData({ data });
 
 client.onResetStore(async () => cache.writeData({ data }));
 
-const theme = {
+const theme: IPrimaryTheme = {
 	main: "#275dad",
 	white: "#ffffff",
-	y: "#fcf7f8",
 	lightgrey: "#aba9c3",
 	grey: "#ced3dc",
 	darkgrey: "#474350"
