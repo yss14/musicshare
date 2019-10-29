@@ -10,6 +10,7 @@ export interface IShare {
 	id: string;
 	name: string;
 	userID: string;
+	isLibrary: boolean;
 }
 
 export interface IUserData {

@@ -10,9 +10,10 @@ const Container = styled(Flex)`
 `;
 
 export default () => {
-  return (
-    <Container direction="row" justify="center" align="center">
-      <LoginForm />
-    </Container>
-  );
+	console.log('Login')
+	return (
+		<Container direction="row" justify="center" align="center">
+			<LoginForm />
+		</Container>
+	);
 };

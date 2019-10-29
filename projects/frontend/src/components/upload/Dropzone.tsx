@@ -2,12 +2,12 @@ import React, { useCallback, useReducer, ReactNode } from "react";
 import { useDropzone } from "react-dropzone";
 import { Icon, Typography } from "antd";
 import styled from "styled-components";
-import { uploadFile } from "../utils/upload/uploadFile";
-import { reducer } from "../utils/upload/upload.reducer";
-import { useConfig } from "../hooks/use-config";
-import { IUploadItem } from "../graphql/rest-types";
-import { useShare } from "../graphql/client/queries/share-query";
-import { useUser } from "../graphql/queries/user-query";
+import { uploadFile } from "../../utils/upload/uploadFile";
+import { reducer } from "../../utils/upload/upload.reducer";
+import { useConfig } from "../../hooks/use-config";
+import { IUploadItem } from "../../graphql/rest-types";
+import { useShare } from "../../graphql/client/queries/share-query";
+import { useUser } from "../../graphql/queries/user-query";
 
 const StyledIcon = styled(Icon)`
   font-size: 64px;

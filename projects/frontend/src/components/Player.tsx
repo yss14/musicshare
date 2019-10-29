@@ -13,6 +13,7 @@ import { formatDuration } from "../utils/format-duration";
 const FlexWithStyles = styled(Flex)`
   background: #3a3a3a;
   padding: 8px 4px;
+  height: 100%;
 `;
 
 const ControlContainer = styled.div`
@@ -123,8 +124,8 @@ const PlayerSlider: React.FC<IPlayerSliderProps> = ({ progresses, onClick, progr
 		>
 			<SliderCaption textColor={textColor}>{progressText}</SliderCaption>
 			{
-				progresses.map(progress => (
-					<SliderFill fillColor={progress.fillColor || 'white'} width={progress.percentage * 100} />
+				progresses.map((progress, idx) => (
+					<SliderFill fillColor={progress.fillColor || 'white'} width={progress.percentage * 100} key={idx} />
 				))
 			}
 			{children}
