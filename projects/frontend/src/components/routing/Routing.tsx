@@ -23,7 +23,7 @@ export const Routing = () => {
 		}
 	}, [error]);
 
-	if (loading || !data) {
+	if (loading) {
 		return <Spin />;
 	}
 
@@ -39,7 +39,7 @@ export const Routing = () => {
 						/>
 					)} />
 				<Route exact path="/login" render={() => <Login />} />
-				<Route exact path="/" render={() => <RedirectToLibrary shares={data.user.shares} />} />
+				{data && <Route exact path="/" render={() => <RedirectToLibrary shares={data.user.shares} />} />}
 				<Route render={() => <NotFound />} />
 			</Switch>
 		</Suspense>

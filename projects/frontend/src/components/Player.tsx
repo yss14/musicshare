@@ -124,8 +124,8 @@ const PlayerSlider: React.FC<IPlayerSliderProps> = ({ progresses, onClick, progr
 		>
 			<SliderCaption textColor={textColor}>{progressText}</SliderCaption>
 			{
-				progresses.map(progress => (
-					<SliderFill fillColor={progress.fillColor || 'white'} width={progress.percentage * 100} />
+				progresses.map((progress, idx) => (
+					<SliderFill fillColor={progress.fillColor || 'white'} width={progress.percentage * 100} key={idx} />
 				))
 			}
 			{children}
