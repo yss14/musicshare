@@ -1,6 +1,5 @@
 import { IPlaylist } from "../types";
 import gql from "graphql-tag";
-import { Query, QueryResult } from "react-apollo";
 import { useQuery } from "@apollo/react-hooks";
 
 export interface IGetPlaylistsData {
@@ -32,8 +31,6 @@ export const GET_PLAYLISTS = gql`
 		}
 	}
 `;
-
-export class PlaylistsQuery extends Query<IGetPlaylistsData, IGetPlaylistsVariables>{ }
 
 export const usePlaylists = (vars: IGetPlaylistsVariables) =>
 	useQuery<IGetPlaylistsData, IGetPlaylistsVariables>(GET_PLAYLISTS, { variables: vars });

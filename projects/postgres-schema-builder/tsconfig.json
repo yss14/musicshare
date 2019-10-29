@@ -3,7 +3,10 @@
 	"compilerOptions": {
 		"target": "es6",
 		"outDir": "build/",
-		"declaration": true
+		"declaration": true,
+		"types": [
+			"node"
+		]
 	},
 	"include": [
 		"src/index.ts",

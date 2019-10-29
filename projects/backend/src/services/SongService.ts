@@ -74,7 +74,7 @@ export class SongService implements ISongService {
 
 	public async update(shareID: string, songID: string, song: SongUpdateInput): Promise<void> {
 		const baseSong: Partial<ISongDBResult> = {
-			...snakeCaseObjKeys(song),
+			...snakeCaseObjKeys(song as any),
 			date_last_edit: new Date(),
 		}
 

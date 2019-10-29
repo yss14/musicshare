@@ -1,7 +1,5 @@
 import { ISongType } from "../types";
 import gql from "graphql-tag";
-import { Query, QueryResult } from "react-apollo";
-import { GET_SONG } from "./song-query";
 import { useQuery } from "@apollo/react-hooks";
 
 export interface IGetSongTypesData {
@@ -28,7 +26,5 @@ export const GET_SONGTYPES = gql`
 	}
 `;
 
-export class SongTypesQuery extends Query<IGetSongTypesData, IGetSongTypesVariables>{ }
-
-export const useSongTypes = ({ variables }: { variables: IGetSongTypesVariables }) =>
-	useQuery<IGetSongTypesData, IGetSongTypesVariables>(GET_SONG);
+export const useSongTypes = (shareID: string) =>
+	useQuery<IGetSongTypesData, IGetSongTypesVariables>(GET_SONGTYPES, { variables: { shareID } });

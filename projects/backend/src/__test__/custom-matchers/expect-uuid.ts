@@ -6,9 +6,9 @@ expect.extend({
 		expect(received).toBeString();
 
 		if (!isUUID(received)) {
-			return { pass: false, message: 'Expected to be a valid timeuuid' };
+			return { pass: false, message: () => 'Expected to be a valid timeuuid' };
 		}
 
-		return { pass: !this.isNot, message: 'Expected to be a valid timeuuid' };
+		return { pass: !this.isNot, message: () => 'Expected to be a valid timeuuid' };
 	}
 });
