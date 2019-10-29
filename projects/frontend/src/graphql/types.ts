@@ -44,6 +44,10 @@ export interface IBaseSong {
 	tags: string[];
 }
 
+export interface IBaseSongPlayable extends IBaseSong {
+	getMediaURL: () => Promise<string>;
+}
+
 export interface IShareSong extends IBaseSong {
 	requiresUserAction: boolean;
 }

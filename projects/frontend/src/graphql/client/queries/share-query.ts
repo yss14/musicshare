@@ -3,7 +3,7 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 
 export interface IShareData {
-  shareID: string;
+	shareID: string;
 }
 
 export const GET_SHARE_ID = gql`
@@ -12,5 +12,4 @@ export const GET_SHARE_ID = gql`
   }
 `;
 
-export const useShare = (): QueryResult<IShareData, {}> =>
-  useQuery(GET_SHARE_ID);
+export const useShare = () => useQuery<IShareData, {}>(GET_SHARE_ID);

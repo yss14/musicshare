@@ -27,4 +27,4 @@ export const GET_SONG = gql`
 
 export class SongQuery extends Query<ISongData, ISongVariables>{ }
 
-export const useSong = ({ variables }: { variables: ISongVariables }): QueryResult<ISongData, ISongVariables> => useQuery(GET_SONG);
+export const useSong = ({ variables }: { variables: ISongVariables }) => useQuery<ISongData, ISongVariables>(GET_SONG);

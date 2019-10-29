@@ -17,6 +17,7 @@ import { ISongUploadProcessingQueue, ISongProcessingQueuePayload } from "../../j
 import { NextHandleFunction } from "connect";
 import { CustomRequestHandler } from "../../types/context";
 import { isUUID } from "../../type-guards/is-uuid";
+import * as mime from 'mime';
 
 export const fileUploadErrors = {
 	bodyNoValidByteBuffer: { identifier: 'body.novalidbytebuffer', message: 'The body is not a valid byte buffer' },
@@ -97,9 +98,15 @@ export const extractPlaylistIDs = (req: express.Request): string[] => {
 
 const requestHandler = (fileService: IFileService, uploadProcessingQueue: ISongUploadProcessingQueue) =>
 	// tslint:disable-next-line:max-func-args
-	async (req: express.Request, contentType: string, file: Buffer, userID: string, shareID: string): Promise<IResponse> => {
+	async (req: express.Request, _: string, file: Buffer, userID: string, shareID: string): Promise<IResponse> => {
 		const originalFilename = decodeURI(path.basename(req.path));
 		const fileExtension = path.extname(originalFilename).split('.').join('');
+		const contentType = mime.getType(fileExtension);
+
+		if (!contentType) {
+			return ResponseError(HTTPStatusCodes.BAD_REQUEST, fileUploadErrors.headerContentTypeMissing);
+		}
+
 		const remoteFilename = crypto
 			.createHash('sha256')
 			.update(uuid() + file.length)

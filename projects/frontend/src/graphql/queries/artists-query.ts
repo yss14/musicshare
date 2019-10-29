@@ -26,4 +26,5 @@ export const GET_ARTISTS = gql`
 
 export class ArtistsQuery extends Query<IGetArtistsData, IGetArtistsVariables>{ }
 
-export const useArtists = ({ variables }: { variables: IGetArtistsVariables }): QueryResult<IGetArtistsData, IGetArtistsVariables> => useQuery(GET_ARTISTS, { variables });
+export const useArtists = ({ variables }: { variables: IGetArtistsVariables }) =>
+	useQuery<IGetArtistsData, IGetArtistsVariables>(GET_ARTISTS, { variables });
