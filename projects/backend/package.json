@@ -41,7 +41,7 @@
 		"@types/ws": "^6.0.1",
 		"azurite": "^2.7.0",
 		"cross-env": "^5.2.0",
-		"dotenv": "^7.0.0",
+		"dotenv": "^8.2.0",
 		"find-free-port": "^2.0.0"
 	},
 	"dependencies": {
@@ -58,7 +58,7 @@
 		"cassandra-schema-builder": "^1.0.1",
 		"class-transformer": "^0.2.0",
 		"cors": "^2.8.5",
-		"dotenv": "^7.0.0",
+		"dotenv": "^8.2.0",
 		"express": "^4.16.4",
 		"faker": "^4.1.0",
 		"graphql": "^14.2.1",
