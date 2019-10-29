@@ -40,7 +40,7 @@
 		"@types/url-regex": "^5.0.0",
 		"@types/ws": "^6.0.1",
 		"azurite": "^2.7.0",
-		"cross-env": "^5.2.0",
+		"cross-env": "^6.0.3",
 		"dotenv": "^7.0.0",
 		"find-free-port": "^2.0.0"
 	},
