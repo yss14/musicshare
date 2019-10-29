@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Menu, Icon, Spin } from "antd";
 import { ClickParam } from "antd/lib/menu";
 import styled from "styled-components";
-import { Link, withRouter, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useShares } from "../graphql/queries/shares-query";
 
 const { SubMenu, ItemGroup, Item } = Menu;

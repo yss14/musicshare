@@ -7,6 +7,7 @@ import { MainLayout } from "../MainLayout";
 import { RedirectToLibrary } from "./RedirectToLibrary";
 import { NotFound } from "./NotFound";
 import { SharePlaylistsSidebar } from "../menu/SharePlaylistsSidebar";
+import { UploadDropzone } from "../upload/UploadDropzone";
 
 const Share = lazy(() => import("../../pages/share/Share"));
 
@@ -33,7 +34,7 @@ export const Routing = () => {
 					path="/shares/:shareID"
 					render={() => (
 						<MainLayout
-							content={<Share />}
+							content={<UploadDropzone><Share /></UploadDropzone>}
 							sidebarLeft={<SharePlaylistsSidebar />}
 						/>
 					)} />
