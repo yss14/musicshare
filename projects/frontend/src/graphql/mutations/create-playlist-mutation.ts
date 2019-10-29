@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import { playlistKeys, IGetPlaylistsData, IGetPlaylistsVariables, GET_PLAYLISTS } from "../queries/playlists-query";
 import { useMutation } from "@apollo/react-hooks";
-import { MutationUpdaterFn } from "react-apollo";
+import { MutationUpdaterFn } from "apollo-client/core/watchQueryOptions";
 import { IPlaylist } from "../types";
 import { useCallback } from "react";
 
