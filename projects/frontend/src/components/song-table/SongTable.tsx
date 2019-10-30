@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Table } from "antd";
 import { IShareSong, IBaseSong } from "../../graphql/types";
 import { buildSongName } from "../../utils/songname-builder";
@@ -38,10 +38,11 @@ const columns = [
 
 interface ISongTableProps {
 	songs: IBaseSong[];
-	onRowClick: (record: IBaseSong, index: number, event: Event) => void;
+	onRowClick: (event: React.MouseEvent, song: IBaseSong, index: number) => void;
+	onRowContextMenu: (event: React.MouseEvent, song: IBaseSong) => void;
 }
 
-export const SongTable = ({ songs, onRowClick }: ISongTableProps) => {
+export const SongTable = ({ songs, onRowClick, onRowContextMenu }: ISongTableProps) => {
 	const [height, setHeight] = useState(0);
 	const updateDimensions = () => {
 		setHeight(window.innerHeight);
@@ -56,14 +57,20 @@ export const SongTable = ({ songs, onRowClick }: ISongTableProps) => {
 	}, []);
 
 	return (
-		<Table
-			size="middle"
-			columns={columns}
-			dataSource={songs}
-			rowKey={(record, index) => "song-key-" + index}
-			pagination={false}
-			scroll={{ y: height - 210 }}
-			onRowClick={onRowClick}
-		/>
+		<>
+			<Table
+				size="middle"
+				columns={columns}
+				dataSource={songs}
+				rowKey={(record, index) => "song-key-" + index}
+				pagination={false}
+				scroll={{ y: height - 210 }}
+				onRow={(record, index) => ({
+					onClick: event => onRowClick(event, record, index),
+					onContextMenu: event => onRowContextMenu(event, record)
+				})}
+			/>
+		</>
 	);
 };
+

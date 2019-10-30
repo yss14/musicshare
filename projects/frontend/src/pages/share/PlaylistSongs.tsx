@@ -31,7 +31,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	const { loading, data, error } = usePlaylist({ playlistID, shareID });
 	const { changeSong, clearQueue, enqueueSongs } = usePlayer();
 
-	const onRowClick = (song: IBaseSong, idx: number) => {
+	const onRowClick = (event: React.MouseEvent, song: IBaseSong, idx: number) => {
 		changeSong(makePlayableSong(shareID)(song));
 
 		if (data) {
@@ -51,7 +51,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	return (
 		<>
 			<SongTableHeader title={data.share.playlist.name} songs={songs} />
-			<SongTable songs={songs} onRowClick={onRowClick} />
+			<SongTable songs={songs} onRowClick={onRowClick} onRowContextMenu={() => undefined} />
 			{editSongID ? (
 				<SongModal
 					songID={editSongID}

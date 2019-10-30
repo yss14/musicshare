@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useShareSongs } from '../../graphql/queries/share-songs-query';
 import { SongTable } from '../../components/song-table/SongTable';
 import { SongModal } from '../../components/modals/song-modal/SongModal';
@@ -8,22 +8,21 @@ import { SongTableHeader } from '../../components/song-table/SongTableHeader';
 import { Spinner } from '../../components/Spinner';
 import { IBaseSong } from '../../graphql/types';
 import { usePlayer } from '../../player/player-hook';
-import { getSongMediaURL } from '../../graphql/programmatic/get-song-mediaurl';
-import { useApolloClient } from '@apollo/react-hooks';
+import { useContextMenu } from '../../components/modals/contextmenu/ContextMenu';
+import { useSongUtils } from '../../hooks/use-song-utils';
+import { SongContextMenu } from './SongContextMenu';
 
 export const ShareSongs: React.FC = () => {
-	const [editSongID, setEditSongID] = useState<string | null>(null);
+	const [editSong, setEditSong] = useState<IBaseSong | null>(null);
+	const [showSongModal, setShowSongModal] = useState(false)
 	const { match: { params: { shareID } } } = useReactRouter<IShareRoute>();
 	const { changeSong, enqueueSongs, clearQueue } = usePlayer();
-	const apolloClient = useApolloClient();
-	const fetchSongMediaURL = useMemo(() => getSongMediaURL(apolloClient), [apolloClient]);
-	const makePlayableSong = (shareID: string) => (song: IBaseSong) => ({
-		...song,
-		getMediaURL: () => fetchSongMediaURL(shareID, song.id)
-	});
 	const { loading, error, data } = useShareSongs(shareID);
+	const contextMenuRef = useRef<HTMLDivElement>(null)
+	const { showContextMenu } = useContextMenu(contextMenuRef)
+	const { makePlayableSong } = useSongUtils()
 
-	const onRowClick = (song: IBaseSong, idx: number) => {
+	const onRowClick = (event: React.MouseEvent, song: IBaseSong, idx: number) => {
 		changeSong(makePlayableSong(shareID)(song));
 
 		if (data) {
@@ -34,7 +33,14 @@ export const ShareSongs: React.FC = () => {
 			enqueueSongs(followUpSongs.map(makePlayableSong(shareID)));
 		}
 
-		setEditSongID(song.id)
+		setEditSong(song)
+		setShowSongModal(true)
+	}
+
+	const onRowContextMenu = (event: React.MouseEvent, song: IBaseSong) => {
+		setEditSong(song)
+
+		showContextMenu(event)
 	}
 
 	if (loading || !data) {
@@ -44,11 +50,10 @@ export const ShareSongs: React.FC = () => {
 
 	return (
 		<>
-			<>
-				<SongTableHeader title="All songs" songs={data.share.songs} />
-				<SongTable songs={data.share.songs} onRowClick={onRowClick} />
-			</>
-			{editSongID ? <SongModal songID={editSongID} shareID={shareID} closeForm={() => setEditSongID(null)} /> : null}
+			<SongTableHeader title="All songs" songs={data.share.songs} />
+			<SongTable songs={data.share.songs} onRowClick={onRowClick} onRowContextMenu={onRowContextMenu} />
+			{editSong && showSongModal ? <SongModal songID={editSong.id} shareID={shareID} closeForm={() => setShowSongModal(false)} /> : null}
+			<SongContextMenu song={editSong} ref={contextMenuRef} onShowInformation={() => setShowSongModal(true)} />
 		</>
 	);
 }
