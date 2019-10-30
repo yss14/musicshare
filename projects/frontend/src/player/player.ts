@@ -62,6 +62,7 @@ export interface IPlayer {
 	changeSong: (newSong: IBaseSongPlayable) => void;
 	enqueueSong: (song: IBaseSongPlayable) => void;
 	enqueueSongs: (songs: IBaseSongPlayable[]) => void;
+	enqueueSongNext: (song: IBaseSongPlayable) => void;
 	clearQueue: () => void;
 	subscribeEvents: (callback: PlayerEventSubscriber) => void;
 	unsubscribeEvents: (callback: PlayerEventSubscriber) => void;
@@ -129,6 +130,10 @@ export const Player = (): IPlayer => {
 
 	const enqueueSongs = (songs: IBaseSongPlayable[]) => {
 		songs.forEach(song => songQueue.push(song));
+	}
+
+	const enqueueSongNext = (song: IBaseSongPlayable) => {
+		songQueue.unshift(song);
 	}
 
 	const clearQueue = () => songQueue.splice(0, songQueue.length);
@@ -201,6 +206,7 @@ export const Player = (): IPlayer => {
 		changeSong,
 		enqueueSong,
 		enqueueSongs,
+		enqueueSongNext,
 		subscribeEvents,
 		unsubscribeEvents,
 		seek,

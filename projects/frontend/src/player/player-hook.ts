@@ -68,6 +68,7 @@ export const usePlayer = () => {
 		changeSong: player.changeSong,
 		enqueueSong: player.enqueueSong,
 		enqueueSongs: player.enqueueSongs,
+		enqueueSongNext: player.enqueueSongNext,
 		clearQueue: player.clearQueue,
 		volume,
 		playing,
