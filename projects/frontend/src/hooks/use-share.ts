@@ -1,8 +1,8 @@
-import { useParams } from "react-router-dom"
-import { IShareRoute } from "../interfaces"
+import { ShareIDContext } from "../context/ShareIDContext"
+import { useContext } from "react"
 
 export const useShareID = () => {
-	const { shareID } = useParams<IShareRoute>()
+	const shareID = useContext(ShareIDContext)
 
 	return shareID
 }

@@ -7,6 +7,7 @@ import { PlaylistSongs } from "./PlaylistSongs";
 import {
 	useUpdateShare,
 } from "../../graphql/client/mutations/share-mutation";
+import { ShareIDContext } from "../../context/ShareIDContext";
 
 const MutationWrapper = () => {
 	const {
@@ -31,13 +32,13 @@ const Share = ({ updateShareId, shareID }: IShareProps) => {
 	}, [shareID]);
 
 	return (
-		<>
+		<ShareIDContext.Provider value={shareID}>
 			<Route
 				path={`${match.url}/playlists/:playlistID`}
 				render={() => <PlaylistSongs shareID={shareID} />}
 			/>
 			<Route path="/shares/:shareID" exact render={() => <ShareSongs />} />
-		</>
+		</ShareIDContext.Provider>
 	);
 };
 
