@@ -20,7 +20,7 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const { changeSong, enqueueSong, enqueueSongNext } = usePlayer();
 	const shareID = useShareID()
 	const { makePlayableSong } = useSongUtils()
-	const [addSongsToPlaylist] = useAddSongsToPlaylist()
+	const addSongsToPlaylist = useAddSongsToPlaylist()
 
 	const onClickPlayNow = useCallback(() => {
 		if (!song) return
@@ -50,14 +50,8 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 		if (!song) return
 
 		setShowPickPlaylistModal(false)
-
-		playlists.map(playlist => addSongsToPlaylist({
-			variables: {
-				playlistID: playlist.id,
-				shareID,
-				songIDs: [song.id],
-			}
-		}))
+		console.log(playlists)
+		playlists.map(playlist => addSongsToPlaylist(playlist.shareID, playlist.id, [song.id]))
 	}
 
 	return (
