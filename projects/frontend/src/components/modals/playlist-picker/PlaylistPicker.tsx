@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Modal, Select } from 'antd'
 import { usePlaylists } from '../../../graphql/queries/playlists-query'
 import { useShareID } from '../../../hooks/use-share'
-import useReactRouter from "use-react-router";
 import { IPlaylist } from '../../../graphql/types';
 import { filterUndefined } from '../../../utils/filter-null';
 

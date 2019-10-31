@@ -4,9 +4,7 @@ import useReactRouter from "use-react-router";
 import { Route } from "react-router";
 import { ShareSongs } from "./ShareSongs";
 import { PlaylistSongs } from "./PlaylistSongs";
-import {
-	useUpdateShare,
-} from "../../graphql/client/mutations/share-mutation";
+import { useUpdateShare } from "../../graphql/client/mutations/share-mutation";
 import { ShareIDContext } from "../../context/ShareIDContext";
 
 const MutationWrapper = () => {
@@ -15,7 +13,7 @@ const MutationWrapper = () => {
 			params: { shareID }
 		}
 	} = useReactRouter<{ shareID: string }>();
-	const [updateShareId, { called, loading }] = useUpdateShare({ shareID });
+	const [updateShareId] = useUpdateShare({ shareID });
 	return <Share shareID={shareID} updateShareId={updateShareId as any} />;
 };
 

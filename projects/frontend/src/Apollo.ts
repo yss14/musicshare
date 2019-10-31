@@ -48,32 +48,6 @@ const authMiddlewareLink = setContext(() => {
 	return headers;
 });
 
-const afterwareLink = new ApolloLink((operation, forward) =>
-	forward
-		? forward(operation).map(response => {
-			const context = operation.getContext();
-			const {
-				response: { headers }
-			} = context;
-
-			if (headers) {
-				const token = headers.get("auth-token");
-				const refreshToken = headers.get("refresh-token");
-
-				if (token) {
-					localStorage.setItem("auth-token", token);
-				}
-
-				if (refreshToken) {
-					localStorage.setItem("refresh-token", refreshToken);
-				}
-			}
-
-			return response;
-		})
-		: null
-);
-
 const errorLink = onError(({ graphQLErrors, networkError }) => {
 	if (graphQLErrors && graphQLErrors.filter(e => e).length > 0)
 		graphQLErrors.map(({ message = "", extensions, locations, path }) => {

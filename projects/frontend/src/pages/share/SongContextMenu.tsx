@@ -6,7 +6,6 @@ import { ContextMenu } from "../../components/modals/contextmenu/ContextMenu";
 import { Menu } from "antd";
 import { useSongUtils } from "../../hooks/use-song-utils";
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist";
-import SubMenu from "antd/lib/menu/SubMenu";
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker";
 
 interface ISongContextMenuProps {

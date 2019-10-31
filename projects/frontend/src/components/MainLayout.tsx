@@ -1,5 +1,5 @@
 import React from 'react'
-import { Icon, Layout, Progress } from "antd";
+import { Layout } from "antd";
 import styled from 'styled-components';
 import { HeaderNavMenu } from './HeaderMenu';
 import { Player } from './Player';

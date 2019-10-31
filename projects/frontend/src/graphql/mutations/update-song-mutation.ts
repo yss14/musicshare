@@ -1,11 +1,8 @@
 import gql from "graphql-tag";
 import { Nullable } from "../../types/Nullable";
 import { shareSongKeys, IBaseSong } from "../types";
-import { Mutation } from '@apollo/react-components'
 import { MutationUpdaterFn } from "apollo-client/core/watchQueryOptions";
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs";
-import { useCallback } from "react";
-import { useMutation } from "react-apollo";
 
 export const UPDATE_SONG = gql`
 	mutation UpdateSong($shareID: String!, $songID: String!, $song: SongUpdateInput!){

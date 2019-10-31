@@ -1,4 +1,4 @@
-import { useContext, useState, useReducer, useEffect } from "react";
+import { useContext, useReducer, useEffect } from "react";
 import { PlayerContext } from "./player-context";
 import { IBaseSongPlayable } from "../graphql/types";
 import { PlayerEvent } from "./player";

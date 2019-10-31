@@ -1,7 +1,6 @@
 import { IPlaylistWithSongs, playlistSongKeys } from "../types";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
-import { QueryResult } from "@apollo/react-common";
 
 export interface IGetPlaylistSongsData {
 	share: {

@@ -1,6 +1,5 @@
 import gql from "graphql-tag";
 import { useMutation } from "@apollo/react-hooks";
-import { InMemoryCache } from "apollo-cache-inmemory";
 import { DataProxy } from "apollo-cache";
 
 export interface ILoginVariables {

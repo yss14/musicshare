@@ -1,5 +1,5 @@
-import React, { useRef, useLayoutEffect, useState } from "react";
-import { Flex, Box } from "./Flex";
+import React, { useRef, useState } from "react";
+import { Flex } from "./Flex";
 import styled from "styled-components";
 import controlPlayImg from '../images/control_play.png';
 import controlPauseImg from '../images/control_pause.png';
