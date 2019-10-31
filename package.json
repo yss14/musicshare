@@ -14,7 +14,7 @@
 		"build:frontend": "lerna run build --stream --scope @musicshare/frontend",
 		"build:cassandra-schema-builder": "lerna run build --stream --scope cassandra-schema-builder",
 		"build:postgres-schema-builder": "lerna run build --stream --scope postgres-schema-builder",
-		"verify": "lerna run verify --stream",
+		"verify": "lerna run verify --stream --ignore cassandra-schema-builder",
 		"verify:backend": "lerna run verify --stream --scope @musicshare/backend",
 		"verify:frontend": "lerna run verify --stream --scope @musicshare/frontend",
 		"verify:cassandra-schema-builder": "lerna run verify --stream --scope cassandra-schema-builder",
