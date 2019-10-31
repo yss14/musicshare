@@ -1,4 +1,3 @@
-import { Query, QueryResult } from "react-apollo";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 

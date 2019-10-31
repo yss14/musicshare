@@ -21,7 +21,7 @@ export const Routing = () => {
 
 			history.push('/login')
 		}
-	}, [error]);
+	}, [error, history]);
 
 	if (loading) {
 		return <Spin />;

@@ -1,5 +1,4 @@
 import gql from "graphql-tag";
-import { Query, QueryResult } from "react-apollo";
 import { IShare } from "../types";
 import { useQuery } from "@apollo/react-hooks";
 

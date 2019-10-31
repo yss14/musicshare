@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { SongTable } from "../../components/song-table/SongTable";
 import { SongModal } from "../../components/modals/song-modal/SongModal";
 import { ISharePlaylistRoute } from "../../interfaces";
@@ -10,13 +10,18 @@ import { IBaseSong } from "../../graphql/types";
 import { usePlayer } from "../../player/player-hook";
 import { useApolloClient } from "@apollo/react-hooks";
 import { getSongMediaURL } from "../../graphql/programmatic/get-song-mediaurl";
+import { useContextMenu } from "../../components/modals/contextmenu/ContextMenu";
+import { SongContextMenu } from "./SongContextMenu";
 
 interface IPlaylistSongsProps {
 	shareID: string;
 }
 
 export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
-	const [editSongID, setEditSongID] = useState<string | null>(null);
+	const [editSong, setEditSong] = useState<IBaseSong | null>(null);
+	const [showSongModal, setShowSongModal] = useState(false)
+	const contextMenuRef = useRef<HTMLDivElement>(null)
+	const { showContextMenu } = useContextMenu(contextMenuRef)
 	const {
 		match: {
 			params: { playlistID }
@@ -31,7 +36,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	const { loading, data, error } = usePlaylist({ playlistID, shareID });
 	const { changeSong, clearQueue, enqueueSongs } = usePlayer();
 
-	const onRowClick = (song: IBaseSong, idx: number) => {
+	const onRowClick = (event: React.MouseEvent, song: IBaseSong, idx: number) => {
 		changeSong(makePlayableSong(shareID)(song));
 
 		if (data) {
@@ -41,7 +46,16 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 			clearQueue();
 			enqueueSongs(followUpSongs.map(makePlayableSong(shareID)));
 		}
+
+		setEditSong(song)
+		setShowSongModal(true)
 	};
+
+	const onRowContextMenu = (event: React.MouseEvent, song: IBaseSong) => {
+		setEditSong(song)
+
+		showContextMenu(event)
+	}
 
 	if (loading) return <Spinner />;
 	if (error || !data) return <div>{error}</div>;
@@ -51,15 +65,16 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	return (
 		<>
 			<SongTableHeader title={data.share.playlist.name} songs={songs} />
-			<SongTable songs={songs} onRowClick={onRowClick} />
-			{editSongID ? (
+			<SongTable songs={songs} onRowClick={onRowClick} onRowContextMenu={onRowContextMenu} />
+			{editSong && showSongModal ? (
 				<SongModal
-					songID={editSongID}
+					songID={editSong.id}
 					shareID={shareID}
-					closeForm={() => setEditSongID(null)}
+					closeForm={() => setEditSong(null)}
 					playlistID={id}
 				/>
 			) : null}
+			<SongContextMenu song={editSong} ref={contextMenuRef} onShowInformation={() => setShowSongModal(true)} />
 		</>
 	);
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Form, Icon, Input, Button, Checkbox } from "antd";
 import { FormComponentProps } from "antd/lib/form";
 import { useLogin } from "../../graphql/mutations/login-mutation";
@@ -10,7 +10,7 @@ const LoginForm = ({
 	...rest
 }: FormComponentProps & RouteComponentProps) => {
 	const { getFieldValue } = form;
-	const [login, logindata] = useLogin({
+	const [login] = useLogin({
 		email: getFieldValue("email"),
 		password: getFieldValue("password")
 	});

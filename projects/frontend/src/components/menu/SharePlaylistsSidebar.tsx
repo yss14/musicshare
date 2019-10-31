@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Menu, Icon, Affix, Button } from "antd";
 import { ClickParam } from "antd/lib/menu";
 import styled from "styled-components";
-import { Link, withRouter, RouteComponentProps, useRouteMatch, useLocation } from "react-router-dom";
+import { Link, useRouteMatch, useLocation } from "react-router-dom";
 import { IShareRoute } from "../../interfaces";
 import { usePlaylists } from "../../graphql/queries/playlists-query";
 import { sortBy } from "lodash";
