@@ -27,7 +27,7 @@ const Share = ({ updateShareId, shareID }: IShareProps) => {
 
 	useEffect(() => {
 		updateShareId(shareID);
-	}, [shareID]);
+	}, [shareID, updateShareId]);
 
 	return (
 		<ShareIDContext.Provider value={shareID}>

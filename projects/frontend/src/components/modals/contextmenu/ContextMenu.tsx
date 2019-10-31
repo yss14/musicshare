@@ -50,7 +50,7 @@ export const useContextMenu = (ref: React.RefObject<HTMLDivElement>) => {
 		}
 
 		return () => undefined
-	}, [ref, isVisible, posX, posY])
+	}, [ref, isVisible, posX, posY, contextMenuElement])
 
 	return { toggleContextMenu, hideContextMenu, showContextMenu, isVisible }
 }
