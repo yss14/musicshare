@@ -2,8 +2,9 @@ import { User } from '../models/UserModel';
 import { IDatabaseClient } from "postgres-schema-builder";
 import { UsersTable } from "../database/schema/tables";
 import { v4 as uuid } from 'uuid';
+import { ForbiddenError } from 'apollo-server-core';
 
-export class UserNotFoundError extends Error {
+export class UserNotFoundError extends ForbiddenError {
 	constructor(filterColumn: string, value: string) {
 		super(`User with ${filterColumn} ${value} not found`);
 	}
