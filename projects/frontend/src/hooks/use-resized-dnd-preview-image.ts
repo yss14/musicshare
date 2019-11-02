@@ -14,5 +14,5 @@ export const useResizedDnDPreviewImage = (imageSrc: string, preview: DragElement
 			img.src = ctx.canvas.toDataURL();
 			preview(img);
 		};
-	}, []);
+	}, [imageSrc, preview]);
 }
