@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Table } from "antd";
-import { IShareSong, IBaseSong } from "../../graphql/types";
+import { IShareSong, IBaseSong, IPlaylist } from "../../graphql/types";
 import { buildSongName } from "../../utils/songname-builder";
 import { formatDuration } from "../../utils/format-duration";
+import { DragNDropItem } from "../../types/DragNDropItems";
+import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd";
+import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist";
+import { useShareID } from "../../hooks/use-share";
+import songDragPreviewImg from '../../images/playlist_add.png'
+import { useResizedDnDPreviewImage } from "../../hooks/use-resized-dnd-preview-image";
 
 const columns = [
 	{
@@ -36,6 +42,36 @@ const columns = [
 	}
 ];
 
+interface ISongTableRowProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLTableRowElement>, HTMLTableRowElement> {
+	song: IBaseSong;
+}
+
+const DragableSongRow = ({ song, ...props }: ISongTableRowProps) => {
+	const addSongsToPlaylist = useAddSongsToPlaylist()
+	const shareID = useShareID()
+	const [, drag, dragPreview] = useDrag({
+		item: { type: DragNDropItem.Song, song },
+		end: (item: { song: IBaseSong } | undefined, monitor: DragSourceMonitor) => {
+			const dragResult = monitor.getDropResult() as { playlist: IPlaylist }
+
+			if (item && dragResult && dragResult.playlist) {
+				addSongsToPlaylist(shareID, dragResult.playlist.id, [song.id])
+			}
+		},
+		collect: monitor => ({
+			isDragging: monitor.isDragging(),
+		}),
+	})
+
+	useResizedDnDPreviewImage(songDragPreviewImg, dragPreview)
+
+	return (<>
+		<DragPreviewImage connect={dragPreview} src={songDragPreviewImg} />
+		<tr {...props} ref={drag} />
+	</>
+	)
+}
+
 interface ISongTableProps {
 	songs: IBaseSong[];
 	onRowClick: (event: React.MouseEvent, song: IBaseSong, index: number) => void;
@@ -65,10 +101,12 @@ export const SongTable = ({ songs, onRowClick, onRowContextMenu }: ISongTablePro
 				rowKey={(record, index) => "song-key-" + index}
 				pagination={false}
 				scroll={{ y: height - 210 }}
-				onRow={(record, index) => ({
+				onRow={(record: IBaseSong, index) => ({
 					onClick: event => onRowClick(event, record, index),
-					onContextMenu: event => onRowContextMenu(event, record)
+					onContextMenu: event => onRowContextMenu(event, record),
+					song: record,
 				})}
+				components={{ body: { row: DragableSongRow } }}
 			/>
 		</>
 	);
