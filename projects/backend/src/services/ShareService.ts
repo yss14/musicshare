@@ -3,8 +3,9 @@ import { Share } from '../models/ShareModel';
 import { IDatabaseClient, SQL } from 'postgres-schema-builder';
 import { CoreTables, SharesTable, UserSharesTable } from '../database/schema/tables';
 import { v4 as uuid } from 'uuid';
+import { ForbiddenError } from 'apollo-server-core';
 
-export class ShareNotFoundError extends Error {
+export class ShareNotFoundError extends ForbiddenError {
 	constructor(shareID: string) {
 		super(`Share with id ${shareID} not found`);
 	}
