@@ -1,6 +1,8 @@
 import { IPlaylistWithSongs, playlistSongKeys } from "../types";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
+import { useHistory } from "react-router-dom";
+import { defaultGraphQLErrorHandler } from "../utils/default-graphql-errorhandler";
 
 export interface IGetPlaylistSongsData {
 	share: {
@@ -31,5 +33,15 @@ export const PLAYLIST_WITH_SONGS = gql`
   	}
 `;
 
-export const usePlaylist = (variables: IGetPlaylistSongsVariables) =>
-	useQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>(PLAYLIST_WITH_SONGS, { variables, fetchPolicy: 'network-only' });
+export const usePlaylist = (variables: IGetPlaylistSongsVariables) => {
+	const history = useHistory()
+
+	return useQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>(
+		PLAYLIST_WITH_SONGS,
+		{
+			variables,
+			fetchPolicy: 'network-only',
+			onError: defaultGraphQLErrorHandler(history),
+		}
+	);
+}

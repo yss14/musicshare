@@ -58,7 +58,8 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	}
 
 	if (loading) return <Spinner />;
-	if (error || !data) return <div>{error}</div>;
+	if (error) return <div>{error.message}</div>;
+	if (!data) return <div>No data</div>
 
 	const { songs, id } = data.share.playlist;
 
