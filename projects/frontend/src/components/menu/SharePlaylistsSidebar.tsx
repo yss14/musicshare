@@ -1,18 +1,15 @@
-import React, { useState, useEffect } from "react";
-import ReactDOM from 'react-dom';
-import { Menu, Icon, Affix, Button } from "antd";
-import { ClickParam } from "antd/lib/menu";
+import React, { useState } from "react";
+import { Button } from "antd";
 import styled from "styled-components";
-import { Link, useRouteMatch, useLocation } from "react-router-dom";
+import { Link, useRouteMatch } from "react-router-dom";
 import { IShareRoute } from "../../interfaces";
 import { usePlaylists } from "../../graphql/queries/playlists-query";
-import { sortBy } from "lodash";
 import { useCreatePlaylist } from "../../graphql/mutations/create-playlist-mutation";
 import { Prompt } from "../modals/promt/Prompt";
 import { Spinner } from "../Spinner";
 import { useDrop } from 'react-dnd'
 import { DragNDropItem } from "../../types/DragNDropItems";
-import { IBaseSong, IPlaylist } from "../../graphql/types";
+import { IPlaylist } from "../../graphql/types";
 
 const Sidebar = styled.div`
 	width: 100%;

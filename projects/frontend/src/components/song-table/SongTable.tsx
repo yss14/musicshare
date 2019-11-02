@@ -4,7 +4,7 @@ import { IShareSong, IBaseSong, IPlaylist } from "../../graphql/types";
 import { buildSongName } from "../../utils/songname-builder";
 import { formatDuration } from "../../utils/format-duration";
 import { DragNDropItem } from "../../types/DragNDropItems";
-import { useDrag, DragSourceMonitor, DragPreviewImage, DragElementWrapper, DragPreviewOptions } from "react-dnd";
+import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd";
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist";
 import { useShareID } from "../../hooks/use-share";
 import songDragPreviewImg from '../../images/playlist_add.png'
@@ -49,7 +49,7 @@ interface ISongTableRowProps extends React.DetailedHTMLProps<React.HTMLAttribute
 const DragableSongRow = ({ song, ...props }: ISongTableRowProps) => {
 	const addSongsToPlaylist = useAddSongsToPlaylist()
 	const shareID = useShareID()
-	const [_, drag, dragPreview] = useDrag({
+	const [, drag, dragPreview] = useDrag({
 		item: { type: DragNDropItem.Song, song },
 		end: (item: { song: IBaseSong } | undefined, monitor: DragSourceMonitor) => {
 			const dragResult = monitor.getDropResult() as { playlist: IPlaylist }
