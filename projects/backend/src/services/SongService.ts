@@ -6,6 +6,7 @@ import moment = require('moment');
 import { ISongDBResult, CoreTables, SongsTable, ShareSongsTable } from '../database/schema/tables';
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError } from 'apollo-server-core';
+import { Share } from '../models/ShareModel';
 
 export class SongNotFoundError extends ForbiddenError {
 	constructor(shareID: string, songID: string) {
@@ -13,9 +14,11 @@ export class SongNotFoundError extends ForbiddenError {
 	}
 }
 
+type ShareLike = Share | { id: string, isLibrary: boolean } | string;
+
 export interface ISongService {
 	getByID(shareID: string, songID: string): Promise<Song>;
-	getByShare(shareID: string): Promise<Song[]>;
+	getByShare(share: ShareLike): Promise<Song[]>;
 	getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]>;
 	create(shareID: string, song: ISongDBResult): Promise<string>;
 	update(shareID: string, songID: string, song: SongUpdateInput): Promise<void>;
@@ -43,14 +46,36 @@ export class SongService implements ISongService {
 
 	}
 
-	public async getByShare(shareID: string): Promise<Song[]> {
+	public async getByShare(share: ShareLike): Promise<Song[]> {
+		if (typeof share === 'string') {
+			return this.getByShares([share])
+		} else if (share.isLibrary) {
+			return this.getByShares([share.id]);
+		} else {
+			const shareLibrariesResult = await this.database.query(
+				SQL.raw<typeof CoreTables.shares>(`
+					SELECT DISTINCt sl.*
+					FROM shares sl, user_shares su, user_shares ul
+					WHERE su.share_id_ref = 'f9d531d3-94f0-4876-af17-deda34194345'
+					AND ul.user_id_ref = su.user_id_ref
+					AND ul.share_id_ref = sl.share_id
+					AND sl.is_library = true
+					AND sl.date_removed IS NULL;				
+				`)
+			);
+
+			return this.getByShares(shareLibrariesResult.map(result => result.share_id));
+		}
+	}
+
+	private async getByShares(shareIDs: string[]): Promise<Song[]> {
 		const dbResults = await this.database.query(
 			SQL.raw<typeof CoreTables.songs>(`
 				SELECT s.* FROM ${SongsTable.name} s
 				INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
-				WHERE ss.share_id_ref = $1 AND s.date_removed IS NULL
+				WHERE ss.share_id_ref = ANY($1) AND s.date_removed IS NULL
 				ORDER BY s.date_added;
-			`, [shareID])
+			`, [shareIDs])
 		);
 
 		return dbResults

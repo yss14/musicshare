@@ -15,7 +15,7 @@ import { Permissions } from '../auth/permissions';
 
 type Users = 'user1' | 'user2';
 type Shares = 'library_user1' | 'library_user2' | 'some_shared_library';
-type Songs = 'song1_library_user1' | 'song2_library_user1' | 'song3_library_user1';
+type Songs = 'song1_library_user1' | 'song2_library_user1' | 'song3_library_user1' | 'song4_library_user2';
 type Playlists = 'playlist1_library_user1' | 'playlist2_library_user1' | 'playlist_some_shared_library' | 'playlist_library_user2';
 
 interface ITestDataSchema {
@@ -96,6 +96,29 @@ const songContactAlastor: ISongDBResult = {
 	date_removed: null,
 }
 
+const songIsItLove: ISongDBResult = {
+	song_id: 'c418f1c4-055c-4768-b834-67aaa03cc3d1',
+	title: 'Is It Love',
+	suffix: null,
+	year: 2019,
+	bpm: 128,
+	date_last_edit: moment().subtract(24, 'hour').toDate(),
+	release_date: null,
+	is_rip: false,
+	artists: ['Above & Beyond'],
+	remixer: ['Gabriel & Dresden'],
+	featurings: [],
+	type: 'Remix',
+	genres: ['Trance'],
+	labels: ['Anjunabeats'],
+	requires_user_action: false,
+	file: makeFileObject('songs', 'isitlove', 'is_it_love_beatport', 'mp3'),
+	duration: 357,
+	tags: [],
+	date_added: moment().subtract(48, 'hour').toDate(),
+	date_removed: null,
+}
+
 const libraryUser1ShareID = 'de35f11a-a748-49cc-8da2-02ef12109ea5';
 const libraryUser2ShareID = 'f02f540b-7db9-4655-b693-b89bb492a369';
 const someShareShareID = 'f9d531d3-94f0-4876-af17-deda34194345';
@@ -154,6 +177,7 @@ export const testData: ITestDataSchema = {
 		song1_library_user1: songZeroOliverSmith,
 		song2_library_user1: songPerthDusky,
 		song3_library_user1: songContactAlastor,
+		song4_library_user2: songIsItLove,
 	},
 	playlists: {
 		playlist1_library_user1: {
@@ -223,8 +247,12 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 					genreService.addGenreToShare(shareByUser.share_id, Genre.fromObject(genre))));
 			}
 
-			for (const song of Object.values(testData.songs)) {
-				await songService.create(libraryUser1ShareID, song);
+			for (const [key, song] of Object.entries(testData.songs)) {
+				if (key.indexOf('user1') > -1) {
+					await songService.create(libraryUser1ShareID, song);
+				} else if (key.indexOf('user2') > -1) {
+					await songService.create(libraryUser2ShareID, song);
+				}
 			}
 
 			for (const playlist of Object.values(testData.playlists)) {

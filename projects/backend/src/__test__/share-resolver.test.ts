@@ -144,11 +144,11 @@ describe('get share by id', () => {
 });
 
 describe('get share songs', () => {
-	test('get all songs of share', async () => {
+	test('get all songs of library', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const share = testData.shares.library_user1;
-		const query = makeShareQuery(share.share_id.toString(), [makeShareSongsQuery()]);
+		const library = testData.shares.library_user1;
+		const query = makeShareQuery(library.share_id.toString(), [makeShareSongsQuery()]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 		const expectedSongs = [
@@ -160,11 +160,11 @@ describe('get share songs', () => {
 		expectedSongs.forEach(expectedSong => includesSong(body.data.share.songs, expectedSong));
 	});
 
-	test('get all songs of share with range query', async () => {
+	test('get all songs of library with range query', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const share = testData.shares.library_user1;
-		const query = makeShareQuery(share.share_id.toString(), [makeShareSongsQuery([1, 2])]);
+		const library = testData.shares.library_user1;
+		const query = makeShareQuery(library.share_id.toString(), [makeShareSongsQuery([1, 2])]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -179,9 +179,9 @@ describe('get share songs', () => {
 	test('get all dirty songs', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const share = testData.shares.library_user1;
+		const library = testData.shares.library_user1;
 		const lastTimestamp = moment().subtract(150, 'minutes').valueOf();
-		const query = makeShareQuery(share.share_id.toString(), [makeShareSongsDirtyQuery(lastTimestamp)]);
+		const query = makeShareQuery(library.share_id.toString(), [makeShareSongsDirtyQuery(lastTimestamp)]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -193,6 +193,23 @@ describe('get share songs', () => {
 		const receivedSongs = body.data.share.songsDirty;
 		expect(receivedSongs.length).toBe(2);
 		expectedSongs.forEach(expectedSong => includesSong(receivedSongs, expectedSong));
+	});
+
+	test('get all songs of a share', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const share = testData.shares.some_shared_library;
+		const query = makeShareQuery(share.share_id.toString(), [makeShareSongsQuery()]);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const expectedSongs = [
+			testData.songs.song1_library_user1,
+			testData.songs.song2_library_user1,
+			testData.songs.song3_library_user1,
+			testData.songs.song4_library_user2,
+		].map(Song.fromDBResult);
+
+		expectedSongs.forEach(expectedSong => includesSong(body.data.share.songs, expectedSong));
 	});
 });
 
