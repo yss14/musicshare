@@ -13,7 +13,6 @@ export const GET_PLAYLIST_ID = gql`
 
 export const usePlaylistID = () => {
 	const { data } = useQuery<IPlaylistIDData, {}>(GET_PLAYLIST_ID)
-	console.log({ data })
 
 	return data ? data.playlistID : null
 }
