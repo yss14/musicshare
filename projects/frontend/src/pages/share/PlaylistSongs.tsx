@@ -13,7 +13,7 @@ import { getSongMediaURL } from "../../graphql/programmatic/get-song-mediaurl";
 import { useContextMenu } from "../../components/modals/contextmenu/ContextMenu";
 import { SongContextMenu } from "./SongContextMenu";
 
-interface IPlaylistSongsProps {
+export interface IPlaylistSongsProps {
 	shareID: string;
 }
 

@@ -48,7 +48,7 @@ const LoggedInRoutes = () => {
 	if (loading) {
 		return <Spin />;
 	}
-	console.log(Share)
+
 	return (
 		<>
 			<Route

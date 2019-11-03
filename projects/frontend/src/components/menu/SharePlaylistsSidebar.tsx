@@ -10,6 +10,7 @@ import { Spinner } from "../Spinner";
 import { useDrop } from 'react-dnd'
 import { DragNDropItem } from "../../types/DragNDropItems";
 import { IPlaylist } from "../../graphql/types";
+import { usePlaylistID } from "../../graphql/client/queries/playlistid-query";
 
 const Sidebar = styled.div`
 	width: 100%;
@@ -27,21 +28,26 @@ const SidebarSection = styled.div`
 	padding: 4px 8px 8px 8px;
 `
 
-const SidebarItem = styled.div`
+interface ISidebarItemProps {
+	selected?: boolean;
+}
+
+const SidebarItem = styled.div<ISidebarItemProps>`
 	&{
 		width: 100%;
 		padding: 4px 12px;
 		box-sizing: border-box;
+		background-color: ${props => props.selected ? 'white' : 'transparent'};
 	}
 
 	&:hover, &:hover *{
-		background-color: #61676b;
-		color: white;
+		background-color: ${props => props.selected ? 'white' : '#61676b'};
+		color: ${props => props.selected ? 'black' : 'white'};
 		cursor: pointer;
 	}
 
 	&, & *{
-		color: #b0b5b9;
+		color: ${props => props.selected ? 'black' : '#b0b5b9'};
 		font-size: 15px;
 		width: 100%;
 	}
@@ -63,7 +69,7 @@ export const SharePlaylistsSidebar = () => {
 	const match = useRouteMatch<IShareRoute>()!
 	const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null);
 	const { shareID } = match.params;
-
+	const playlistID = usePlaylistID()
 	const { loading, error, data } = usePlaylists({ shareID });
 	const [createPlaylist] = useCreatePlaylist({
 		shareID,
@@ -81,11 +87,18 @@ export const SharePlaylistsSidebar = () => {
 	return (
 		<Sidebar>
 			<SidebarSection>General</SidebarSection>
-			<SidebarItem>
+			<SidebarItem selected={playlistID === null}>
 				<Link to={`/shares/${shareID}`}>All songs</Link>
 			</SidebarItem>
 			<SidebarSection>Playlists</SidebarSection>
-			{data.share.playlists.map(playlist => <PlaylistSidebarItem key={playlist.id} shareID={shareID} playlist={playlist} />)}
+			{data.share.playlists.map(playlist => (
+				<PlaylistSidebarItem
+					key={playlist.id}
+					shareID={shareID}
+					playlist={playlist}
+					selected={playlist.id === playlistID}
+				/>
+			))}
 			<SidebarButtonContainer>
 				<Button
 					type="dashed"
@@ -113,9 +126,10 @@ export const SharePlaylistsSidebar = () => {
 interface IPlaylistSidebarItemProps {
 	playlist: IPlaylist;
 	shareID: string;
+	selected: boolean;
 }
 
-export const PlaylistSidebarItem: React.FC<IPlaylistSidebarItemProps> = ({ playlist, shareID }) => {
+export const PlaylistSidebarItem: React.FC<IPlaylistSidebarItemProps> = ({ playlist, shareID, selected }) => {
 	const [{ canDrop, isOver }, drop] = useDrop({
 		accept: DragNDropItem.Song,
 		drop: () => ({ playlist }),
@@ -130,7 +144,7 @@ export const PlaylistSidebarItem: React.FC<IPlaylistSidebarItemProps> = ({ playl
 	}
 
 	return (
-		<SidebarItem ref={drop} style={isOver && canDrop ? isOverStyle : {}}>
+		<SidebarItem ref={drop} style={isOver && canDrop ? isOverStyle : {}} selected={selected}>
 			<Link to={`/shares/${shareID}/playlists/${playlist.id}`}>
 				{playlist.name}
 			</Link>
