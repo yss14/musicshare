@@ -215,4 +215,26 @@ describe('update song mutation', () => {
 			[{ message: `User has insufficient permissions to perform this action!` }]
 		));
 	});
+
+	test('foreign song not permitted', async () => {
+		const { graphQLServer } = await setupTest({});
+		const input: any = {
+			bpm: 140,
+			isRip: false,
+			title: 'Some new title',
+			labels: ['Label A', 'Label B'],
+			artists: ['Some new artist'],
+			tags: ['sometag'],
+		}
+		const shareID = testData.shares.some_shared_library.share_id;
+		const songID = testData.songs.song4_library_user2.song_id;
+		const query = makeUpdateSongMutation(shareID, songID, input);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			{ updateSong: null },
+			[{ message: `Song with id ${songID} not found in share ${shareID}` }]
+		));
+	})
 });
