@@ -20,7 +20,7 @@ export const Routing = () => {
 		if (!authToken) {
 			history.push('/login')
 		}
-	}, [authToken])
+	}, [authToken, history])
 
 	return (
 		<Suspense fallback={<Spin />}>

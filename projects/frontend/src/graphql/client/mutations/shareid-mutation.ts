@@ -21,7 +21,7 @@ export const useUpdateShareID = (shareID: string | null) => {
 				shareID
 			}
 		})
-	}, [shareID])
+	}, [shareID, updateShareID])
 
 	return updateShareID
 }

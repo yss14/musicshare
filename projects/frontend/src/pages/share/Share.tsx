@@ -13,11 +13,11 @@ const UpdatePlaylistID: React.FC = ({ children }) => {
 
 	useEffect(() => {
 		updatePlaylistID(playlistID)
-	}, [playlistID])
+	}, [playlistID, updatePlaylistID])
 
 	useEffect(() => () => {
 		updatePlaylistID(null)
-	}, []);
+	}, [updatePlaylistID]);
 
 	return <>{children}</>
 }
