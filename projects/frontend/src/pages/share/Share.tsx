@@ -28,7 +28,7 @@ export const Share = () => {
 	useUpdateShareID(shareID)
 
 	if (!match) return <Redirect to="/" />
-
+	console.log(match.url)
 	return (
 		<>
 			<Route

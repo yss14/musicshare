@@ -1,12 +1,12 @@
 import React, { Suspense, lazy, useEffect } from "react";
-import { Route, useHistory, Switch } from "react-router-dom";
+import { Route, useHistory, Switch, useRouteMatch } from "react-router-dom";
 import { Spin } from "antd";
 import Login from "../../pages/login/Login";
 import { useUser } from "../../graphql/queries/user-query";
 import { MainLayout } from "../MainLayout";
 import { RedirectToLibrary } from "./RedirectToLibrary";
 import { NotFound } from "./NotFound";
-import { SharePlaylistsSidebar } from "../menu/SharePlaylistsSidebar";
+import { PlaylistSidebar } from "../sidebar/PlaylistsSidebar";
 import { UploadDropzone } from "../upload/UploadDropzone";
 import { useAuthToken } from "../../graphql/client/queries/auth-token-query";
 
@@ -33,6 +33,17 @@ export const Routing = () => {
 	);
 };
 
+const ShareRoute = () => {
+	const match = useRouteMatch()!
+
+	return (
+		<MainLayout
+			content={<UploadDropzone><Share /></UploadDropzone>}
+			sidebarLeft={<PlaylistSidebar merged={match.url.startsWith("/all/")} />}
+		/>
+	)
+}
+
 const LoggedInRoutes = () => {
 	const { data, error, loading } = useUser();
 	const history = useHistory()
@@ -52,13 +63,18 @@ const LoggedInRoutes = () => {
 	return (
 		<>
 			<Route
-				path="/shares/:shareID"
+				path="/all"
+				exact
 				render={() => (
 					<MainLayout
-						content={<UploadDropzone><Share /></UploadDropzone>}
-						sidebarLeft={<SharePlaylistsSidebar />}
+						content={<div>All Songs...</div>}
+						sidebarLeft={<PlaylistSidebar merged={true} />}
 					/>
-				)} />
+				)}
+			/>
+			<Route
+				path={["/shares/:shareID", "/all/shares/:shareID"]}
+				render={() => <ShareRoute />} />
 			{data && <Route exact path="/" render={() => <RedirectToLibrary shares={data.user.shares} />} />}
 		</>
 	)
