@@ -33,6 +33,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 		...song,
 		getMediaURL: () => fetchSongMediaURL(shareID, song.id)
 	});
+	console.log({ playlistID, shareID })
 	const { loading, data, error } = usePlaylist({ playlistID, shareID });
 	const { changeSong, clearQueue, enqueueSongs } = usePlayer();
 

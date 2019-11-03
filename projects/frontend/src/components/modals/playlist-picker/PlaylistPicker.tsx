@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { Modal, Select } from 'antd'
 import { usePlaylists } from '../../../graphql/queries/playlists-query'
-import { useShareID } from '../../../hooks/use-share'
 import { IPlaylist } from '../../../graphql/types';
 import { filterUndefined } from '../../../utils/filter-null';
+import { useShareID } from '../../../graphql/client/queries/shareid-query';
 
 const { Option } = Select;
 

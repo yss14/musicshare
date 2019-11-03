@@ -6,9 +6,9 @@ import { formatDuration } from "../../utils/format-duration";
 import { DragNDropItem } from "../../types/DragNDropItems";
 import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd";
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist";
-import { useShareID } from "../../hooks/use-share";
 import songDragPreviewImg from '../../images/playlist_add.png'
 import { useResizedDnDPreviewImage } from "../../hooks/use-resized-dnd-preview-image";
+import { useShareID } from "../../graphql/client/queries/shareid-query";
 
 const columns = [
 	{

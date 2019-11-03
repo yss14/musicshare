@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from "react";
 import { IBaseSong, IPlaylist } from "../../graphql/types";
 import { usePlayer } from "../../player/player-hook";
-import { useShareID } from "../../hooks/use-share";
 import { ContextMenu } from "../../components/modals/contextmenu/ContextMenu";
 import { Menu } from "antd";
 import { useSongUtils } from "../../hooks/use-song-utils";
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist";
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker";
+import { useShareID } from "../../graphql/client/queries/shareid-query";
 
 interface ISongContextMenuProps {
 	song: IBaseSong | null;

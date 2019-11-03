@@ -6,9 +6,13 @@ export interface IShareData {
 }
 
 export const GET_SHARE_ID = gql`
-  query {
-    shareID @client
-  }
+  	query {
+    	shareID @client
+  	}
 `;
 
-export const useShare = () => useQuery<IShareData, {}>(GET_SHARE_ID);
+export const useShareID = () => {
+	const { data } = useQuery<IShareData, {}>(GET_SHARE_ID)
+
+	return data!.shareID
+}
