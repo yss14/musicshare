@@ -1,5 +1,4 @@
 import { useApolloClient } from "@apollo/react-hooks";
-import { useEffect } from "react";
 
 export const useUpdateplaylistID = () => {
 	const client = useApolloClient()
