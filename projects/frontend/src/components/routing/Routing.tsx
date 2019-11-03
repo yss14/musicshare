@@ -10,7 +10,7 @@ import { SharePlaylistsSidebar } from "../menu/SharePlaylistsSidebar";
 import { UploadDropzone } from "../upload/UploadDropzone";
 import { useAuthToken } from "../../graphql/client/queries/auth-token-query";
 
-const Share = lazy(() => import("../../pages/share/Share"));
+const Share = lazy(() => import("../../pages/share/Share").then(module => ({ default: module.Share })));
 
 export const Routing = () => {
 	const authToken = useAuthToken()
