@@ -110,7 +110,7 @@ export const testData: ITestDataSchema = {
 	users: {
 		user1: {
 			name: 'Yss',
-			email: 'yannick.stachelscheid@musicshare.whatever',
+			email: 'test@musicshare.de',
 			user_id: user1ID,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
