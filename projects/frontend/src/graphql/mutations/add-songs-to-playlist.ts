@@ -4,7 +4,7 @@ import gql from "graphql-tag";
 import { useCallback } from "react";
 import { MutationUpdaterFn } from "apollo-client";
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs";
-import { IGetPlaylistsData, IGetPlaylistsVariables, GET_PLAYLISTS } from "../queries/playlists-query";
+import { IGetPlaylistsData, IGetPlaylistsVariables, GET_SHARE_PLAYLISTS } from "../queries/playlists-query";
 
 export interface IAddSongsToPlaylistVariables {
 	shareID: string;
@@ -29,7 +29,7 @@ export const useAddSongsToPlaylist = () => {
 
 	const updatePlaylistSongsCache = useCallback((shareID: string, playlistID: string): MutationUpdaterFn<IAddSongsToPlaylistData> => (cache, { data }) => {
 		const currentPlaylist = cache.readQuery<IGetPlaylistsData, IGetPlaylistsVariables>({
-			query: GET_PLAYLISTS,
+			query: GET_SHARE_PLAYLISTS,
 			variables: { shareID }
 		})!.share.playlists.find(playlist => playlist.id === playlistID)
 

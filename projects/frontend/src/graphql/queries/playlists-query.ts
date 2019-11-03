@@ -21,7 +21,7 @@ export const playlistKeys = `
 	dateAdded
 `;
 
-export const GET_PLAYLISTS = gql`
+export const GET_SHARE_PLAYLISTS = gql`
 	query getSharePlaylists($shareID: String!){
 		share(shareID: $shareID) {
 			id,
@@ -32,5 +32,5 @@ export const GET_PLAYLISTS = gql`
 	}
 `;
 
-export const usePlaylists = (vars: IGetPlaylistsVariables) =>
-	useQuery<IGetPlaylistsData, IGetPlaylistsVariables>(GET_PLAYLISTS, { variables: vars });
+export const useSharePlaylists = (vars: IGetPlaylistsVariables) =>
+	useQuery<IGetPlaylistsData, IGetPlaylistsVariables>(GET_SHARE_PLAYLISTS, { variables: vars });

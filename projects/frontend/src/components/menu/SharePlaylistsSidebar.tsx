@@ -3,7 +3,7 @@ import { Button } from "antd";
 import styled from "styled-components";
 import { Link, useRouteMatch } from "react-router-dom";
 import { IShareRoute } from "../../interfaces";
-import { usePlaylists } from "../../graphql/queries/playlists-query";
+import { useSharePlaylists } from "../../graphql/queries/playlists-query";
 import { useCreatePlaylist } from "../../graphql/mutations/create-playlist-mutation";
 import { Prompt } from "../modals/promt/Prompt";
 import { Spinner } from "../Spinner";
@@ -70,7 +70,7 @@ export const SharePlaylistsSidebar = () => {
 	const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null);
 	const { shareID } = match.params;
 	const playlistID = usePlaylistID()
-	const { loading, error, data } = usePlaylists({ shareID });
+	const { loading, error, data } = useSharePlaylists({ shareID });
 	const [createPlaylist] = useCreatePlaylist({
 		shareID,
 		name: newPlaylistName || ""
