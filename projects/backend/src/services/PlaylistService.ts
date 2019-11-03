@@ -4,10 +4,11 @@ import { ISongService } from "./SongService";
 import { IPlaylistDBResult, PlaylistsTable, SharePlaylistsTable, PlaylistSongsTable, SongsTable, CoreTables } from "../database/schema/tables";
 import { v4 as uuid } from 'uuid';
 import { Song } from "../models/SongModel";
+import { ForbiddenError } from "apollo-server-core";
 
 export type OrderUpdate = [string, number];
 
-export class PlaylistNotFoundError extends Error {
+export class PlaylistNotFoundError extends ForbiddenError {
 	constructor(playlistID: string) {
 		super(`Playlist with id ${playlistID} not found`);
 	}

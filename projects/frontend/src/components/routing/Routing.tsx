@@ -8,10 +8,32 @@ import { RedirectToLibrary } from "./RedirectToLibrary";
 import { NotFound } from "./NotFound";
 import { SharePlaylistsSidebar } from "../menu/SharePlaylistsSidebar";
 import { UploadDropzone } from "../upload/UploadDropzone";
+import { useAuthToken } from "../../graphql/client/queries/auth-token-query";
 
-const Share = lazy(() => import("../../pages/share/Share"));
+const Share = lazy(() => import("../../pages/share/Share").then(module => ({ default: module.Share })));
 
 export const Routing = () => {
+	const authToken = useAuthToken()
+	const history = useHistory()
+
+	useEffect(() => {
+		if (!authToken) {
+			history.push('/login')
+		}
+	}, [authToken, history])
+
+	return (
+		<Suspense fallback={<Spin />}>
+			<Switch>
+				{authToken && <LoggedInRoutes />}
+				<Route exact path="/login" render={() => <Login />} />
+				<Route render={() => <NotFound />} />
+			</Switch>
+		</Suspense>
+	);
+};
+
+const LoggedInRoutes = () => {
 	const { data, error, loading } = useUser();
 	const history = useHistory()
 
@@ -28,20 +50,16 @@ export const Routing = () => {
 	}
 
 	return (
-		<Suspense fallback={<Spin />}>
-			<Switch>
-				<Route
-					path="/shares/:shareID"
-					render={() => (
-						<MainLayout
-							content={<UploadDropzone><Share /></UploadDropzone>}
-							sidebarLeft={<SharePlaylistsSidebar />}
-						/>
-					)} />
-				<Route exact path="/login" render={() => <Login />} />
-				{data && <Route exact path="/" render={() => <RedirectToLibrary shares={data.user.shares} />} />}
-				<Route render={() => <NotFound />} />
-			</Switch>
-		</Suspense>
-	);
-};
+		<>
+			<Route
+				path="/shares/:shareID"
+				render={() => (
+					<MainLayout
+						content={<UploadDropzone><Share /></UploadDropzone>}
+						sidebarLeft={<SharePlaylistsSidebar />}
+					/>
+				)} />
+			{data && <Route exact path="/" render={() => <RedirectToLibrary shares={data.user.shares} />} />}
+		</>
+	)
+}

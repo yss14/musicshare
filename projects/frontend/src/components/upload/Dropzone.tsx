@@ -6,8 +6,9 @@ import { uploadFile } from "../../utils/upload/uploadFile";
 import { reducer } from "../../utils/upload/upload.reducer";
 import { useConfig } from "../../hooks/use-config";
 import { IUploadItem } from "../../graphql/rest-types";
-import { useShare } from "../../graphql/client/queries/share-query";
 import { useUser } from "../../graphql/queries/user-query";
+import { useParams } from "react-router-dom";
+import { IShareRoute } from "../../interfaces";
 
 const StyledIcon = styled(Icon)`
   font-size: 64px;
@@ -58,9 +59,9 @@ const getPlaylistIDFromUrl = (): string[] => {
 
 export default ({ children }: WrapperProps) => {
 	const user = useUser();
-	const share = useShare();
-	return user.data && user.data.user && share.data ? (
-		<Dropzone userID={user.data.user.id} shareID={share.data.shareID}>
+	const { shareID } = useParams<IShareRoute>()
+	return user.data && user.data.user && shareID ? (
+		<Dropzone userID={user.data.user.id} shareID={shareID}>
 			{state => children(state)}
 		</Dropzone>
 	) : null;

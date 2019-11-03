@@ -8,11 +8,17 @@ export const hasAllPermissions = (requiredPermissions: string[], currentPermissi
 	return !requiredPermissions.some(requiredPermission => !currentPermissions.includes(requiredPermission));
 }
 
+export class NoScopesProvidedError extends Error {
+	constructor(shareID: string) {
+		super(`No scopes provided for share ${shareID}`)
+	}
+}
+
 export const getCurrentPermissionsForShare = (shareID: string, scopes: Scopes) => {
 	const shareScopes = scopes.find(scope => scope.shareID === shareID);
 
 	if (!shareScopes) {
-		throw new Error(`No scopes provided for share ${shareID}`);
+		throw new NoScopesProvidedError(shareID);
 	}
 
 	return shareScopes.permissions;

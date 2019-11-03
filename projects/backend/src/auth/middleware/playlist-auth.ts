@@ -1,9 +1,10 @@
 import { Permissions } from "../permissions";
 import { Middleware } from "type-graphql/dist/interfaces/Middleware";
 import { IGraphQLContext } from "../../types/context";
-import { getPlaylistIDFromRequest, getShareIDFromRequest, hasAllPermissions, getCurrentPermissionsForShare } from "./auth-selectors";
+import { getPlaylistIDFromRequest, getShareIDFromRequest, hasAllPermissions, getCurrentPermissionsForShare, NoScopesProvidedError } from "./auth-selectors";
 import { UseMiddleware } from "type-graphql";
 import { MethodAndPropDecorator } from "type-graphql/dist/decorators/types";
+import { ForbiddenError } from "apollo-server-core";
 
 interface IPlaylistAuthArgs {
 	permissions?: Permissions.Playlist[];
@@ -12,35 +13,43 @@ interface IPlaylistAuthArgs {
 
 export const makePlaylistAuthMiddleware = ({ permissions, checkRef }: IPlaylistAuthArgs): Middleware<IGraphQLContext> =>
 	async ({ args, root, context }, next) => {
-		const { services: { playlistService }, scopes } = context;
-		const playlistID = getPlaylistIDFromRequest({ root, args });
-		const shareID = getShareIDFromRequest({ root, args });
-		const shouldCheckPlaylistRef = checkRef !== undefined ? checkRef : true;
+		try {
+			const { services: { playlistService }, scopes } = context;
+			const playlistID = getPlaylistIDFromRequest({ root, args });
+			const shareID = getShareIDFromRequest({ root, args });
+			const shouldCheckPlaylistRef = checkRef !== undefined ? checkRef : true;
 
-		if (!shareID) {
-			throw new Error('Share reference not found');
-		}
-
-		if (shouldCheckPlaylistRef) {
-			if (!playlistID) {
-				throw new Error('Playlist reference not found');
+			if (!shareID) {
+				throw new Error('Share reference not found');
 			}
 
-			await playlistService.getByID(shareID, playlistID);
-		}
+			if (shouldCheckPlaylistRef) {
+				if (!playlistID) {
+					throw new Error('Playlist reference not found');
+				}
 
-		if (permissions) {
-			const isPermitted = hasAllPermissions(
-				permissions,
-				getCurrentPermissionsForShare(shareID, scopes)
-			);
-
-			if (!isPermitted) {
-				throw new Error(`User has insufficient permissions to perform this action!`);
+				await playlistService.getByID(shareID, playlistID);
 			}
-		}
 
-		return next();
+			if (permissions) {
+				const isPermitted = hasAllPermissions(
+					permissions,
+					getCurrentPermissionsForShare(shareID, scopes)
+				);
+
+				if (!isPermitted) {
+					throw new Error(`User has insufficient permissions to perform this action!`);
+				}
+			}
+
+			return next();
+		} catch (err) {
+			if (err instanceof NoScopesProvidedError) {
+				throw new ForbiddenError(`User has insufficient permissions to perform this action!`);
+			}
+
+			throw err;
+		}
 	};
 
 type PlaylistAuth = {

@@ -13,7 +13,7 @@ import { getSongMediaURL } from "../../graphql/programmatic/get-song-mediaurl";
 import { useContextMenu } from "../../components/modals/contextmenu/ContextMenu";
 import { SongContextMenu } from "./SongContextMenu";
 
-interface IPlaylistSongsProps {
+export interface IPlaylistSongsProps {
 	shareID: string;
 }
 
@@ -33,6 +33,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 		...song,
 		getMediaURL: () => fetchSongMediaURL(shareID, song.id)
 	});
+
 	const { loading, data, error } = usePlaylist({ playlistID, shareID });
 	const { changeSong, clearQueue, enqueueSongs } = usePlayer();
 
@@ -58,7 +59,8 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	}
 
 	if (loading) return <Spinner />;
-	if (error || !data) return <div>{error}</div>;
+	if (error) return <div>{error.message}</div>;
+	if (!data) return <div>No data</div>
 
 	const { songs, id } = data.share.playlist;
 

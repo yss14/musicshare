@@ -5,8 +5,9 @@ import * as snakeCaseObjKeys from 'snakecase-keys';
 import moment = require('moment');
 import { ISongDBResult, CoreTables, SongsTable, ShareSongsTable } from '../database/schema/tables';
 import { v4 as uuid } from 'uuid';
+import { ForbiddenError } from 'apollo-server-core';
 
-export class SongNotFoundError extends Error {
+export class SongNotFoundError extends ForbiddenError {
 	constructor(shareID: string, songID: string) {
 		super(`Song with id ${songID} not found in share ${shareID}`);
 	}

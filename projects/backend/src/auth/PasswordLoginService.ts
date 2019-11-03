@@ -65,7 +65,7 @@ export const PasswordLoginService = ({ authService, database, userService }: IPa
 
 		const user = await userService.getUserByEMail(email);
 
-		const refreshToken = await authService.issueRefreshToken(user);
+		const refreshToken = await authService.issueRefreshToken(user, '90 days');
 
 		return refreshToken;
 	}

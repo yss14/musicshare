@@ -1,12 +1,14 @@
 import { ApolloClient } from "apollo-client";
-import { InMemoryCache } from "apollo-cache-inmemory";
+import { InMemoryCache, NormalizedCacheObject } from "apollo-cache-inmemory";
 import { HttpLink } from "apollo-link-http";
 import { setContext } from "apollo-link-context";
 import { onError } from "apollo-link-error";
-import { ApolloLink } from "apollo-link";
+import { ApolloLink, Observable } from "apollo-link";
 import { resolvers } from "./graphql/client/resolvers";
-
 import { makeConfigFromEnv } from "./config";
+import { ISSUE_AUTH_TOKEN, IIssueAuthTokenData, IIssueAuthTokenVariables } from "./graphql/mutations/issue-auth-token";
+import { getRefreshToken } from "./graphql/client/queries/auth-token-query";
+import { promiseToObservable } from "./graphql/utils/promise-to-observable";
 
 const config = makeConfigFromEnv();
 
@@ -30,58 +32,82 @@ const typeDefs = `
 
 const httpLink = new HttpLink({
 	uri: config.services.musicshare.backendURL,
-	headers: {
-		headers: {
-			authorization: localStorage.getItem("auth-token") || ""
-		}
-	}
 });
+
+interface IHTTPHeader {
+	headers: {
+		[key: string]: string;
+	}
+}
 
 const authMiddlewareLink = setContext(() => {
 	const token = localStorage.getItem("auth-token");
-	const headers = {
+	const headers: IHTTPHeader = {
 		headers: {
-			authorization: token || ""
+
 		}
 	};
+
+	if (token) {
+		headers.headers.authorization = token;
+	}
 
 	return headers;
 });
 
-const errorLink = onError(({ graphQLErrors, networkError }) => {
-	if (graphQLErrors && graphQLErrors.filter(e => e).length > 0)
-		graphQLErrors.map(({ message = "", extensions, locations, path }) => {
-			console.log(
-				`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
-			);
-			if (
-				"Access denied! You need to be authorized to perform this action!" ===
-				message
-			) {
-				console.log(window.location.pathname);
-				if (window.location.pathname !== "/login") {
-					window.location.href = "/login";
+const getNewAuthToken = (client: ApolloClient<NormalizedCacheObject>) => async () => {
+	try {
+		const refreshToken = await getRefreshToken(client)
+
+		const response = await client.mutate<IIssueAuthTokenData, IIssueAuthTokenVariables>({
+			mutation: ISSUE_AUTH_TOKEN,
+			variables: {
+				refreshToken,
+			},
+			context: {
+				headers: {
+					authorization: undefined,
 				}
 			}
-			if ("FORBIDDEN" === message && extensions && extensions.code === 403) {
-				//history.push(`/error-page/403`);
-				window.location.href = "/error-page";
-			}
-			return null;
 		});
-	if (networkError) {
-		// eslint-disable-next-line
-		//window.location.href = "/login";
-		console.warn("UNAUTHORIZED");
-		console.log(`[Network error]: ${networkError}`);
+
+		return response.data ? response.data.issueAuthToken : null
+	} catch (err) {
+		console.error(err)
+
+		return null
 	}
-	if (networkError) {
-		// Do something
-		console.warn("FORBIDDEN");
-	}
-	if (networkError) {
-		// eslint-disable-next-line
-		console.warn("SERVER ERROR");
+}
+
+const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
+	if (!graphQLErrors) return;
+
+	for (const error of graphQLErrors) {
+		if (error.message === 'Access denied! You need to be authorized to perform this action!') {
+			if (window.location.pathname !== "/login") {
+				window.location.href = "/login";
+			}
+		} else if (error.extensions && error.extensions.code === 'UNAUTHENTICATED') {
+			return promiseToObservable(getNewAuthToken(client)())
+				.flatMap((authToken) => {
+					cache.writeData({
+						data: {
+							authToken
+						}
+					})
+					if (authToken) {
+						localStorage.setItem('auth-token', authToken)
+
+						return forward(operation)
+					} else {
+						localStorage.removeItem('auth-token')
+
+						window.location.href = "/login";
+
+						return Observable.of()
+					}
+				})
+		}
 	}
 });
 
