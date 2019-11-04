@@ -26,13 +26,17 @@ export const HeaderNavMenu = () => {
 		return <Spin />;
 	}
 
-	const libraryShare = data ? data.user.shares.find(share => share.isLibrary) : null
-
-	if (error || !data || !libraryShare) {
+	if (error || !data) {
 		if (error) console.log(error);
 
 		return null;
 	}
+
+	const libraryShare = data.user.shares.find(share => share.isLibrary)
+
+	if (!libraryShare) return null
+
+	const otherShares = data.user.shares.filter(share => share.id !== libraryShare.id)
 
 	return (
 		<Menu
@@ -42,9 +46,9 @@ export const HeaderNavMenu = () => {
 			mode="horizontal"
 		>
 			<Item key={libraryShare.id}>
-				<Link to={`/shares/${libraryShare.id}`}>
+				<Link to={`/all`}>
 					<StyledIcon type="profile" />
-					Library
+					All
         		</Link>
 			</Item>
 			<SubMenu
@@ -57,17 +61,25 @@ export const HeaderNavMenu = () => {
           			</span>
 				}
 			>
-				<ItemGroup key="shares:own" title="Own Shares">
-					{data &&
-						data.user.shares.map((share) => (
-							<Menu.Item key={`share:${share.id}`}>
-								<Link to={`/shares/${share.id}`}>
-									<Icon type="share-alt" />
-									{share.name}
-								</Link>
-								)}
+				<ItemGroup key="shares:own" title="Library">
+					<Menu.Item key={`share:${libraryShare.id}`}>
+						<Link to={`/shares/${libraryShare.id}`}>
+							<Icon type="share-alt" />
+							{libraryShare.name}
+						</Link>
+						)}
               				</Menu.Item>
-						))}
+				</ItemGroup>
+				<ItemGroup key="shares:own" title="Own Shares">
+					{otherShares.map((share) => (
+						<Menu.Item key={`share:${share.id}`}>
+							<Link to={`/shares/${share.id}`}>
+								<Icon type="share-alt" />
+								{share.name}
+							</Link>
+							)}
+              				</Menu.Item>
+					))}
 				</ItemGroup>
 			</SubMenu>
 		</Menu>
