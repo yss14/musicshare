@@ -24,19 +24,19 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const onClickPlayNow = useCallback(() => {
 		if (!song) return
 
-		changeSong(makePlayableSong(shareID)(song))
+		changeSong(makePlayableSong(song))
 	}, [song, shareID, makePlayableSong, changeSong])
 
 	const onClickPlayNext = useCallback(() => {
 		if (!song) return
 
-		enqueueSongNext(makePlayableSong(shareID)(song))
+		enqueueSongNext(makePlayableSong(song))
 	}, [song, shareID, makePlayableSong, enqueueSongNext])
 
 	const onClickPlayLater = useCallback(() => {
 		if (!song) return
 
-		enqueueSong(makePlayableSong(shareID)(song))
+		enqueueSong(makePlayableSong(song))
 	}, [song, shareID, makePlayableSong, enqueueSong])
 
 	const onClickAddSongToPlaylist = () => {

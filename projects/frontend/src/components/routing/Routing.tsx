@@ -9,6 +9,7 @@ import { NotFound } from "./NotFound";
 import { PlaylistSidebar } from "../sidebar/PlaylistsSidebar";
 import { UploadDropzone } from "../upload/UploadDropzone";
 import { useAuthToken } from "../../graphql/client/queries/auth-token-query";
+import { MergedSongs } from "../../pages/share/MergedSongs";
 
 const Share = lazy(() => import("../../pages/share/Share").then(module => ({ default: module.Share })));
 
@@ -67,7 +68,7 @@ const LoggedInRoutes = () => {
 				exact
 				render={() => (
 					<MainLayout
-						content={<div>All Songs...</div>}
+						content={<MergedSongs />}
 						sidebarLeft={<PlaylistSidebar merged={true} />}
 					/>
 				)}

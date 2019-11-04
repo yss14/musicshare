@@ -43,6 +43,7 @@ export interface IBaseSong {
 	labels: string[];
 	duration: number;
 	tags: string[];
+	shareID: string;
 }
 
 export interface IBaseSongPlayable extends IBaseSong {

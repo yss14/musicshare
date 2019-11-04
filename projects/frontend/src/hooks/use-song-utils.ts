@@ -7,9 +7,9 @@ export const useSongUtils = () => {
 	const apolloClient = useApolloClient();
 	const fetchSongMediaURL = useMemo(() => getSongMediaURL(apolloClient), [apolloClient]);
 
-	const makePlayableSong = (shareID: string) => (song: IBaseSong) => ({
+	const makePlayableSong = (song: IBaseSong) => ({
 		...song,
-		getMediaURL: () => fetchSongMediaURL(shareID, song.id)
+		getMediaURL: () => fetchSongMediaURL(song.shareID, song.id)
 	});
 
 	return { makePlayableSong }
