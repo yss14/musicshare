@@ -12,7 +12,7 @@ export interface IGenreDBResult extends TableRecord<typeof CoreTables.genres> { 
 export interface IUserLoginCredentialDBResult extends TableRecord<typeof CoreTables.user_login_credentials> { }
 export interface IShareTokenDBResult extends TableRecord<typeof CoreTables.share_tokens> { }
 
-export interface IShareSongDBResult extends ISongDBResult, TableRecord<typeof CoreTables.share_songs> { } { }
+export interface IShareSongDBResult extends ISongDBResult, TableRecord<typeof CoreTables.share_songs> { }
 
 export const UsersTable = Table(CoreTables, 'users');
 export const SharesTable = Table(CoreTables, 'shares');

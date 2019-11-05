@@ -45,7 +45,7 @@ export const SongForm = ({ song, songTypes, genres, artists, closeForm, tags, pl
 				song: makeSongInput(values),
 			},
 		})
-	}, [updateSongMutation])
+	}, [updateSongMutation, song.libraryID, song.id])
 
 	return (
 		<Formik initialValues={song} onSubmit={updateSong} validate={validateSong}>
