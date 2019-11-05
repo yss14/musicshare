@@ -61,7 +61,7 @@ export const HeaderNavMenu = () => {
           			</span>
 				}
 			>
-				<ItemGroup key="shares:own" title="Library">
+				<ItemGroup key="shares:library" title="Library">
 					<Menu.Item key={`share:${libraryShare.id}`}>
 						<Link to={`/shares/${libraryShare.id}`}>
 							<Icon type="share-alt" />

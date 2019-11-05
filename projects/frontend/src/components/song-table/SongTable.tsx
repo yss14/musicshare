@@ -7,7 +7,6 @@ import { DragNDropItem } from "../../types/DragNDropItems";
 import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd";
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist";
 import songDragPreviewImg from '../../images/playlist_add.png'
-import { useResizedDnDPreviewImage } from "../../hooks/use-resized-dnd-preview-image";
 import { useShareID } from "../../graphql/client/queries/shareid-query";
 
 const columns = [
@@ -62,8 +61,6 @@ const DragableSongRow = ({ song, ...props }: ISongTableRowProps) => {
 			isDragging: monitor.isDragging(),
 		}),
 	})
-
-	useResizedDnDPreviewImage(songDragPreviewImg, dragPreview)
 
 	return (<>
 		<DragPreviewImage connect={dragPreview} src={songDragPreviewImg} />
