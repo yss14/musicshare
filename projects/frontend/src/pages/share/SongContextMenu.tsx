@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { IBaseSong, IPlaylist } from "../../graphql/types";
+import { IPlaylist, IScopedSong } from "../../graphql/types";
 import { usePlayer } from "../../player/player-hook";
 import { ContextMenu } from "../../components/modals/contextmenu/ContextMenu";
 import { Menu } from "antd";
@@ -9,7 +9,7 @@ import { PlaylistPicker } from "../../components/modals/playlist-picker/Playlist
 import { useShareID } from "../../graphql/client/queries/shareid-query";
 
 interface ISongContextMenuProps {
-	song: IBaseSong | null;
+	song: IScopedSong | null;
 	onShowInformation: () => void;
 }
 

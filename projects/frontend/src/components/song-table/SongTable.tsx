@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table } from "antd";
-import { IShareSong, IBaseSong, IPlaylist } from "../../graphql/types";
+import { IShareSong, IBaseSong, IPlaylist, IScopedSong } from "../../graphql/types";
 import { buildSongName } from "../../utils/songname-builder";
 import { formatDuration } from "../../utils/format-duration";
 import { DragNDropItem } from "../../types/DragNDropItems";
@@ -73,9 +73,9 @@ const DragableSongRow = ({ song, ...props }: ISongTableRowProps) => {
 }
 
 interface ISongTableProps {
-	songs: IBaseSong[];
-	onRowClick: (event: React.MouseEvent, song: IBaseSong, index: number) => void;
-	onRowContextMenu: (event: React.MouseEvent, song: IBaseSong) => void;
+	songs: IScopedSong[];
+	onRowClick: (event: React.MouseEvent, song: IScopedSong, index: number) => void;
+	onRowContextMenu: (event: React.MouseEvent, song: IScopedSong) => void;
 }
 
 export const SongTable = ({ songs, onRowClick, onRowContextMenu }: ISongTableProps) => {
@@ -101,7 +101,7 @@ export const SongTable = ({ songs, onRowClick, onRowContextMenu }: ISongTablePro
 				rowKey={(record, index) => "song-key-" + index}
 				pagination={false}
 				scroll={{ y: height - 210 }}
-				onRow={(record: IBaseSong, index) => ({
+				onRow={(record: IScopedSong, index) => ({
 					onClick: event => onRowClick(event, record, index),
 					onContextMenu: event => onRowContextMenu(event, record),
 					song: record,

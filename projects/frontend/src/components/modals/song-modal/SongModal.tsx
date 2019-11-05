@@ -5,20 +5,20 @@ import { useSongTypes } from '../../../graphql/queries/song-types';
 import { useArtists } from '../../../graphql/queries/artists-query';
 import { SongForm } from './SongForm';
 import { useTags } from '../../../graphql/queries/tags-query';
+import { IScopedSong } from '../../../graphql/types';
 
 interface ISongModalProps {
-	shareID: string;
-	songID: string;
+	song: IScopedSong;
 	playlistID?: string;
 	closeForm: () => void;
 }
 
-export const SongModal = ({ songID, shareID, closeForm, playlistID }: ISongModalProps) => {
-	const { loading: loadingSong, error: errorSong, data: dataSong } = useSong(shareID, songID)
-	const { loading: loadingGenres, error: errorGenres, data: dataGenres } = useGenres(shareID)
-	const { loading: loadingArtists, error: errorArtists, data: dataArtists } = useArtists(shareID)
-	const { loading: loadingTags, error: errorTags, data: dataTags } = useTags(shareID)
-	const { loading: loadingSongTypes, error: errorSongTypes, data: dataSongTypes } = useSongTypes(shareID)
+export const SongModal = ({ song, closeForm, playlistID }: ISongModalProps) => {
+	const { loading: loadingSong, error: errorSong, data: dataSong } = useSong(song.shareID, song.id)
+	const { loading: loadingGenres, error: errorGenres, data: dataGenres } = useGenres(song.shareID)
+	const { loading: loadingArtists, error: errorArtists, data: dataArtists } = useArtists(song.shareID)
+	const { loading: loadingTags, error: errorTags, data: dataTags } = useTags(song.shareID)
+	const { loading: loadingSongTypes, error: errorSongTypes, data: dataSongTypes } = useSongTypes(song.shareID)
 
 	if (loadingSong || loadingGenres || loadingSongTypes || loadingArtists || loadingTags) {
 		return <div>Loading</div>;
@@ -36,7 +36,7 @@ export const SongModal = ({ songID, shareID, closeForm, playlistID }: ISongModal
 				songTypes={dataSongTypes.share.songTypes}
 				artists={dataArtists.share.artists}
 				closeForm={closeForm}
-				shareID={shareID}
+				shareID={song.shareID}
 				tags={dataTags.share.tags}
 				playlistID={playlistID}
 			/>

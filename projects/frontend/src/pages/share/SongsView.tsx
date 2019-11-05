@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { IBaseSong } from "../../graphql/types";
+import { IBaseSong, IScopedSong } from "../../graphql/types";
 import { useContextMenu } from "../../components/modals/contextmenu/ContextMenu";
 import { useSongUtils } from "../../hooks/use-song-utils";
 import { usePlayer } from "../../player/player-hook";
@@ -10,7 +10,7 @@ import { SongContextMenu } from "./SongContextMenu";
 
 interface ISongsViewProps {
 	title: string;
-	songs: IBaseSong[];
+	songs: IScopedSong[];
 	playlistID?: string;
 }
 
@@ -19,10 +19,10 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID 
 	const { showContextMenu } = useContextMenu(contextMenuRef)
 	const { makePlayableSong } = useSongUtils()
 	const { changeSong, enqueueSongs, clearQueue } = usePlayer();
-	const [editSong, setEditSong] = useState<IBaseSong | null>(null);
+	const [editSong, setEditSong] = useState<IScopedSong | null>(null);
 	const [showSongModal, setShowSongModal] = useState(false)
 
-	const onRowClick = (event: React.MouseEvent, song: IBaseSong, idx: number) => {
+	const onRowClick = (event: React.MouseEvent, song: IScopedSong, idx: number) => {
 		changeSong(makePlayableSong(song));
 
 		if (songs) {
@@ -36,7 +36,7 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID 
 		setShowSongModal(true)
 	}
 
-	const onRowContextMenu = (event: React.MouseEvent, song: IBaseSong) => {
+	const onRowContextMenu = (event: React.MouseEvent, song: IScopedSong) => {
 		setEditSong(song)
 
 		showContextMenu(event)
@@ -48,8 +48,7 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID 
 			<SongTable songs={songs} onRowClick={onRowClick} onRowContextMenu={onRowContextMenu} />
 			{editSong && showSongModal ? (
 				<SongModal
-					songID={editSong.id}
-					shareID={editSong.libraryID}
+					song={editSong}
 					playlistID={playlistID}
 					closeForm={() => setShowSongModal(false)}
 				/>)
