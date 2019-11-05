@@ -3,7 +3,6 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 import { useHistory } from "react-router-dom";
 import { defaultGraphQLErrorHandler } from "../utils/default-graphql-errorhandler";
-import { makeShareSongs } from "../utils/data-transformation";
 
 export interface IGetPlaylistSongsData {
 	share: {
@@ -49,7 +48,7 @@ export const usePlaylist = (variables: IGetPlaylistSongsVariables) => {
 	return {
 		data: data ? {
 			...data.share.playlist,
-			songs: makeShareSongs(data.share.playlist.songs, data.share.playlist.shareID)
+			songs: data.share.playlist.songs,
 		} : undefined,
 		...rest,
 	}

@@ -3,7 +3,6 @@ import { shareSongKeys, IShareSong } from "../types";
 import { useQuery } from "@apollo/react-hooks";
 import { useHistory } from "react-router-dom";
 import { defaultGraphQLErrorHandler } from "../utils/default-graphql-errorhandler";
-import { makeShareSong, makeShareSongs } from "../utils/data-transformation";
 
 export interface IGetShareWithSongsData {
 	share: {
@@ -43,7 +42,7 @@ export const useShareSongs = (shareID: string) => {
 	)
 
 	return {
-		data: data ? makeShareSongs(data.share.songs, shareID) : undefined,
+		data: data ? data.share.songs : undefined,
 		...rest
 	}
 }

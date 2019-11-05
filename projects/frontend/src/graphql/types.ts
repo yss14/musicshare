@@ -78,6 +78,7 @@ const baseSongKeys = `
 	tags
 	duration
 	dateAdded
+	shareID
 `;
 
 export const shareSongKeys = `

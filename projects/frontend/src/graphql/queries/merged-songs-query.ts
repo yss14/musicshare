@@ -1,8 +1,7 @@
 import { IShareSong, shareSongKeys } from "../types";
 import gql from "graphql-tag";
 import { useQuery } from "react-apollo";
-import { flatten, uniqBy } from 'lodash'
-import { makeShareSongs } from "../utils/data-transformation";
+import { flatten } from 'lodash'
 
 export interface IGetMergedSongsData {
 	user: {
@@ -34,13 +33,11 @@ export const useMergedSongs = () => {
 	const { data, ...rest } = useQuery<IGetMergedSongsData, {}>(GET_MERGED_SONGS)
 
 	const mergedData = data
-		? uniqBy(
-			flatten(
-				data.user.shares
-					.map(share => makeShareSongs(share.songs, share.id))
+		?
+		flatten(
+			data.user.shares
+				.map(share => share.songs)
 
-			),
-			song => song.id
 		)
 		: undefined
 
