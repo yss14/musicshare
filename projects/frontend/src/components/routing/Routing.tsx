@@ -10,6 +10,8 @@ import { PlaylistSidebar } from "../sidebar/PlaylistsSidebar";
 import { UploadDropzone } from "../upload/UploadDropzone";
 import { useAuthToken } from "../../graphql/client/queries/auth-token-query";
 import { MergedSongs } from "../../pages/share/MergedSongs";
+import { useUpdateLibraryID } from '../../graphql/client/mutations/libraryid-mutation'
+import { useLibraryID } from "../../graphql/client/queries/libraryid-query";
 
 const Share = lazy(() => import("../../pages/share/Share").then(module => ({ default: module.Share })));
 
@@ -47,6 +49,8 @@ const ShareRoute = () => {
 
 const LoggedInRoutes = () => {
 	const { data, error, loading } = useUser();
+	const updateLibraryID = useUpdateLibraryID()
+	const libraryID = useLibraryID()
 	const history = useHistory()
 
 	useEffect(() => {
@@ -56,6 +60,14 @@ const LoggedInRoutes = () => {
 			history.push('/login')
 		}
 	}, [error, history]);
+
+	useEffect(() => {
+		if (data && !libraryID) {
+			const library = data.user.shares.find(share => share.isLibrary === true);
+
+			updateLibraryID(library ? library.id : null)
+		}
+	}, [data, updateLibraryID, libraryID])
 
 	if (loading) {
 		return <Spin />;

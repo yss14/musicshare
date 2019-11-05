@@ -6,6 +6,7 @@ import { useArtists } from '../../../graphql/queries/artists-query';
 import { SongForm } from './SongForm';
 import { useTags } from '../../../graphql/queries/tags-query';
 import { IScopedSong } from '../../../graphql/types';
+import { useLibraryID } from '../../../graphql/client/queries/libraryid-query';
 
 interface ISongModalProps {
 	song: IScopedSong;
@@ -19,6 +20,7 @@ export const SongModal = ({ song, closeForm, playlistID }: ISongModalProps) => {
 	const { loading: loadingArtists, error: errorArtists, data: dataArtists } = useArtists(song.shareID)
 	const { loading: loadingTags, error: errorTags, data: dataTags } = useTags(song.shareID)
 	const { loading: loadingSongTypes, error: errorSongTypes, data: dataSongTypes } = useSongTypes(song.shareID)
+	const userLibraryID = useLibraryID()
 
 	if (loadingSong || loadingGenres || loadingSongTypes || loadingArtists || loadingTags) {
 		return <div>Loading</div>;
@@ -38,7 +40,7 @@ export const SongModal = ({ song, closeForm, playlistID }: ISongModalProps) => {
 				closeForm={closeForm}
 				tags={dataTags.share.tags}
 				playlistID={playlistID}
-				readOnly={song.libraryID !== song.shareID} // TODO improve
+				readOnly={!userLibraryID || song.libraryID !== userLibraryID}
 			/>
 		)
 	} else {
