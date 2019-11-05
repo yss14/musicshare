@@ -49,7 +49,7 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID 
 			{editSong && showSongModal ? (
 				<SongModal
 					songID={editSong.id}
-					shareID={editSong.shareID}
+					shareID={editSong.libraryID}
 					playlistID={playlistID}
 					closeForm={() => setShowSongModal(false)}
 				/>)

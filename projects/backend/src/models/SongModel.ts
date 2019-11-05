@@ -72,11 +72,11 @@ export class Song implements Nullable<ISong>{
 	public readonly dateAdded!: string;
 
 	@Field(type => String)
-	public readonly shareID!: string;
+	public readonly libraryID!: string;
 
-	public static fromDBResult(row: ISongDBResult, shareID: string): Song;
+	public static fromDBResult(row: ISongDBResult, libraryID: string): Song;
 	public static fromDBResult(row: IShareSongDBResult): Song;
-	public static fromDBResult(row: ISongDBResult | IShareSongDBResult, shareID?: string) {
+	public static fromDBResult(row: ISongDBResult | IShareSongDBResult, libraryID?: string) {
 		return plainToClass(
 			Song,
 			{
@@ -98,7 +98,7 @@ export class Song implements Nullable<ISong>{
 				duration: row.duration,
 				tags: row.tags || [],
 				dateAdded: row.date_added.toISOString(),
-				shareID: isShareSongDBResult(row) ? row.share_id_ref : shareID,
+				libraryID: isShareSongDBResult(row) ? row.share_id_ref : libraryID,
 			}
 		)
 	}

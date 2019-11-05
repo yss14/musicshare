@@ -43,6 +43,14 @@ export interface IBaseSong {
 	labels: string[];
 	duration: number;
 	tags: string[];
+	libraryID: string;
+}
+
+/* 
+	libraryID of IBaseSong represents the share a song is linked from.
+	A scoped song allows to also carry information about the share a song is currently viewed from
+*/
+export interface IScopedSong extends IBaseSong {
 	shareID: string;
 }
 
@@ -78,7 +86,7 @@ const baseSongKeys = `
 	tags
 	duration
 	dateAdded
-	shareID
+	libraryID
 `;
 
 export const shareSongKeys = `

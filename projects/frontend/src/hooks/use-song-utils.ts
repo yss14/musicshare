@@ -9,7 +9,7 @@ export const useSongUtils = () => {
 
 	const makePlayableSong = (song: IBaseSong) => ({
 		...song,
-		getMediaURL: () => fetchSongMediaURL(song.shareID, song.id)
+		getMediaURL: () => fetchSongMediaURL(song.libraryID, song.id)
 	});
 
 	return { makePlayableSong }
