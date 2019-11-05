@@ -3,23 +3,24 @@ import { IDatabaseClient, SQL } from 'postgres-schema-builder';
 import { SongUpdateInput } from '../inputs/SongInput';
 import * as snakeCaseObjKeys from 'snakecase-keys';
 import moment = require('moment');
-import { ISongDBResult, CoreTables, SongsTable, ShareSongsTable } from '../database/schema/tables';
+import { ISongDBResult, CoreTables, SongsTable, ShareSongsTable, SharesTable, UserSharesTable } from '../database/schema/tables';
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError } from 'apollo-server-core';
 import { Share } from '../models/ShareModel';
 import { uniqBy } from 'lodash'
 
 export class SongNotFoundError extends ForbiddenError {
-	constructor(shareID: string, songID: string) {
-		super(`Song with id ${songID} not found in share ${shareID}`);
+	constructor(shareID: string, songID: string, proxied: boolean = false) {
+		super(`Song with id ${songID} not found in share ${shareID}${proxied ? ' via proxy' : ''}`);
 	}
 }
 
 type ShareLike = Share | { id: string, isLibrary: boolean } | string;
 
 export interface ISongService {
-	getByID(shareID: string, songID: string): Promise<Song>;
+	getByID(share: ShareLike, songID: string): Promise<Song>;
 	getByShare(share: ShareLike): Promise<Song[]>;
+	getSongOriginShare(referencedShareID: string, songID: string): Promise<Share | null>;
 	getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]>;
 	create(shareID: string, song: ISongDBResult): Promise<string>;
 	update(shareID: string, songID: string, song: SongUpdateInput): Promise<void>;
@@ -30,22 +31,37 @@ export class SongService implements ISongService {
 		private readonly database: IDatabaseClient,
 	) { }
 
-	public async getByID(shareID: string, songID: string): Promise<Song> {
-		const dbResults = await this.database.query(
-			SQL.raw<typeof CoreTables.songs & typeof CoreTables.share_songs>(`
-				SELECT s.*, ss.share_id_ref
-				FROM ${SongsTable.name} s
-				INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
-				WHERE s.song_id = $1 AND ss.share_id_ref = $2 AND s.date_removed IS NULL;
-			`, [songID, shareID])
-		);
+	public async getByID(share: ShareLike, songID: string): Promise<Song> {
+		const getByShare = async (shareID: string) => {
+			const dbResults = await this.database.query(
+				SQL.raw<typeof CoreTables.songs & typeof CoreTables.share_songs>(`
+					SELECT s.*, ss.share_id_ref
+					FROM ${SongsTable.name} s
+					INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
+					WHERE s.song_id = $1 AND ss.share_id_ref = $2 AND s.date_removed IS NULL;
+				`, [songID, shareID])
+			);
 
-		if (dbResults.length === 0) {
-			throw new SongNotFoundError(shareID, songID);
+			if (dbResults.length === 0) {
+				throw new SongNotFoundError(shareID, songID);
+			}
+
+			return Song.fromDBResult(dbResults[0]);
 		}
 
-		return Song.fromDBResult(dbResults[0]);
+		if (typeof share === 'string') {
+			return getByShare(share);
+		} else if (share.isLibrary) {
+			return getByShare(share.id);
+		} else {
+			const originShare = await this.getSongOriginShare(share.id, songID);
 
+			if (!originShare) {
+				throw new SongNotFoundError(share.id, songID, true);
+			}
+
+			return getByShare(originShare.id);
+		}
 	}
 
 	public async getByShare(share: ShareLike): Promise<Song[]> {
@@ -85,6 +101,29 @@ export class SongService implements ISongService {
 
 		return dbResults
 			.map(Song.fromDBResult);
+	}
+
+	public async getSongOriginShare(referencedShareID: string, songID: string): Promise<Share | null> {
+		const dbResults = await this.database.query(
+			SQL.raw<typeof CoreTables.shares>(`
+				SELECT DISTINCT shares.*
+				FROM ${SongsTable.name} songs
+				INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = songs.song_id
+				INNER JOIN ${SharesTable.name} shares ON shares.share_id = ss.share_id_ref
+				INNER JOIN ${UserSharesTable.name} us1 ON us1.share_id_ref = shares.share_id
+				INNER JOIN ${UserSharesTable.name} us2 ON us2.user_id_ref = us1.user_id_ref
+				WHERE songs.song_id = $1 
+					AND us2.share_id_ref = $2 
+					AND shares.date_deleted IS NULL 
+					AND songs.date_deleted IS NULL;
+			`, [songID, referencedShareID])
+		)
+
+		if (dbResults.length > 0) {
+			return Share.fromDBResult(dbResults[0]);
+		} else {
+			return null;
+		}
 	}
 
 	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]> {

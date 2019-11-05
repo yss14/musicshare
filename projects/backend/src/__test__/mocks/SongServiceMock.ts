@@ -1,6 +1,7 @@
 import { ISongService } from "../../services/SongService";
 import { Song } from "../../models/SongModel";
 import { v4 as uuid } from 'uuid';
+import { Share } from "../../models/ShareModel";
 
 export class SongServiceMock implements ISongService {
 	public async getByID(shareID: string, songID: string): Promise<Song> {
@@ -8,6 +9,10 @@ export class SongServiceMock implements ISongService {
 	}
 
 	public async getByShare(shareID: string): Promise<Song[]> {
+		throw 'Not implemented yet';
+	}
+
+	public async getSongOriginShare(referencedShareID: string, songID: string): Promise<Share | null> {
 		throw 'Not implemented yet';
 	}
 
