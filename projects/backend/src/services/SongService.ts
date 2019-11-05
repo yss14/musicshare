@@ -56,12 +56,12 @@ export class SongService implements ISongService {
 				SQL.raw<typeof CoreTables.shares>(`
 					SELECT DISTINCt sl.*
 					FROM shares sl, user_shares su, user_shares ul
-					WHERE su.share_id_ref = 'f9d531d3-94f0-4876-af17-deda34194345'
+					WHERE su.share_id_ref = $1
 					AND ul.user_id_ref = su.user_id_ref
 					AND ul.share_id_ref = sl.share_id
 					AND sl.is_library = true
 					AND sl.date_removed IS NULL;				
-				`)
+				`, [share.id])
 			);
 
 			return this.getByShares(shareLibrariesResult.map(result => result.share_id));
