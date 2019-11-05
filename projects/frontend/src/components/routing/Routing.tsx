@@ -80,7 +80,7 @@ const LoggedInRoutes = () => {
 				exact
 				render={() => (
 					<MainLayout
-						content={<MergedSongs />}
+						content={<UploadDropzone><MergedSongs /></UploadDropzone>}
 						sidebarLeft={<PlaylistSidebar merged={true} />}
 					/>
 				)}
