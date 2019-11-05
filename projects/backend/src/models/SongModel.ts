@@ -4,8 +4,10 @@ import { Share } from "./ShareModel";
 import { Nullable } from '../types/Nullable';
 import { ISong } from './interfaces/ISong';
 import { plainToClass } from 'class-transformer';
-import { ISongDBResult } from '../database/schema/tables';
+import { IShareSongDBResult, ISongDBResult } from '../database/schema/tables';
 import moment = require('moment');
+
+const isShareSongDBResult = (obj: any): obj is IShareSongDBResult => typeof obj.share_id_ref === 'string';
 
 @ObjectType({ description: 'This represents a song and its properties' })
 export class Song implements Nullable<ISong>{
@@ -69,7 +71,12 @@ export class Song implements Nullable<ISong>{
 	@Field(type => String)
 	public readonly dateAdded!: string;
 
-	public static fromDBResult(row: ISongDBResult) {
+	@Field(type => String)
+	public readonly shareID!: string;
+
+	public static fromDBResult(row: ISongDBResult, shareID: string): Song;
+	public static fromDBResult(row: IShareSongDBResult): Song;
+	public static fromDBResult(row: ISongDBResult | IShareSongDBResult, shareID?: string) {
 		return plainToClass(
 			Song,
 			{
@@ -91,6 +98,7 @@ export class Song implements Nullable<ISong>{
 				duration: row.duration,
 				tags: row.tags || [],
 				dateAdded: row.date_added.toISOString(),
+				shareID: isShareSongDBResult(row) ? row.share_id_ref : shareID,
 			}
 		)
 	}

@@ -211,7 +211,7 @@ describe('add songs to playlist', () => {
 			...song,
 			date_added: new Date(),
 			date_removed: null,
-		}));
+		}, shareID));
 
 		expect(expectedSongs).toBeArrayOfSize(songs.length);
 		expectedSongs.forEach(expectedSong => includesSong(body.data.addSongsToPlaylist, expectedSong));
@@ -239,7 +239,7 @@ describe('add songs to playlist', () => {
 			...song,
 			date_added: new Date(),
 			date_removed: null,
-		}));
+		}, shareID));
 
 		expect(body.data.addSongsToPlaylist).toBeArrayOfSize(songs.length * 2);
 		expectedSongs.forEach(expectedSong => includesSong(body.data.addSongsToPlaylist, expectedSong));

@@ -7,6 +7,7 @@ import { ISongDBResult, CoreTables, SongsTable, ShareSongsTable } from '../datab
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError } from 'apollo-server-core';
 import { Share } from '../models/ShareModel';
+import { uniqBy } from 'lodash'
 
 export class SongNotFoundError extends ForbiddenError {
 	constructor(shareID: string, songID: string) {
@@ -31,8 +32,9 @@ export class SongService implements ISongService {
 
 	public async getByID(shareID: string, songID: string): Promise<Song> {
 		const dbResults = await this.database.query(
-			SQL.raw<typeof CoreTables.songs>(`
-				SELECT s.* FROM ${SongsTable.name} s
+			SQL.raw<typeof CoreTables.songs & typeof CoreTables.share_songs>(`
+				SELECT s.*, ss.share_id_ref
+				FROM ${SongsTable.name} s
 				INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
 				WHERE s.song_id = $1 AND ss.share_id_ref = $2 AND s.date_removed IS NULL;
 			`, [songID, shareID])
@@ -64,14 +66,17 @@ export class SongService implements ISongService {
 				`, [share.id])
 			);
 
-			return this.getByShares(shareLibrariesResult.map(result => result.share_id));
+			const mergedSongs = await this.getByShares(shareLibrariesResult.map(result => result.share_id));
+
+			return uniqBy(mergedSongs, song => song.id);
 		}
 	}
 
 	private async getByShares(shareIDs: string[]): Promise<Song[]> {
 		const dbResults = await this.database.query(
-			SQL.raw<typeof CoreTables.songs>(`
-				SELECT s.* FROM ${SongsTable.name} s
+			SQL.raw<typeof CoreTables.songs & typeof CoreTables.share_songs>(`
+				SELECT s.*, ss.share_id_ref
+				FROM ${SongsTable.name} s
 				INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
 				WHERE ss.share_id_ref = ANY($1) AND s.date_removed IS NULL
 				ORDER BY s.date_added;
