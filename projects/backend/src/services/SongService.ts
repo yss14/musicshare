@@ -114,8 +114,8 @@ export class SongService implements ISongService {
 				INNER JOIN ${UserSharesTable.name} us2 ON us2.user_id_ref = us1.user_id_ref
 				WHERE songs.song_id = $1 
 					AND us2.share_id_ref = $2 
-					AND shares.date_deleted IS NULL 
-					AND songs.date_deleted IS NULL;
+					AND shares.date_removed IS NULL 
+					AND songs.date_removed IS NULL;
 			`, [songID, referencedShareID])
 		)
 

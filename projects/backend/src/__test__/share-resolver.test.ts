@@ -259,6 +259,31 @@ describe('get share song', () => {
 		expect(body.data.share.song).toBeDefined();
 		expect(body.data.share.song.accessUrl).toBeString();
 	});
+
+	test('get share song via proxy from linked share succeeds', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const share = testData.shares.some_shared_library;
+		const song = testData.songs.song4_library_user2;
+		const query = makeShareQuery(share.share_id.toString(), [makeShareSongQuery(song.song_id.toString())]);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.share.song).not.toBeNull();
+		compareSongs(Song.fromDBResult(song, testData.shares.library_user2.share_id), body.data.share.song);
+	})
+
+	test('get share song via proxy from unrelated share fails', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const share = testData.shares.some_unrelated_library;
+		const song = testData.songs.song5_library_user3;
+		const query = makeShareQuery(share.share_id.toString(), [makeShareSongQuery(song.song_id.toString())]);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.errors).toMatchObject([{ message: `Share with id ${share.share_id} not found` }])
+	})
 });
 
 describe('get share related data', () => {
