@@ -13,9 +13,9 @@ import { IServices } from '../services/services';
 import { IConfig } from '../types/config';
 import { Permissions } from '../auth/permissions';
 
-type Users = 'user1' | 'user2';
-type Shares = 'library_user1' | 'library_user2' | 'some_shared_library';
-type Songs = 'song1_library_user1' | 'song2_library_user1' | 'song3_library_user1' | 'song4_library_user2';
+type Users = 'user1' | 'user2' | 'user3';
+type Shares = 'library_user1' | 'library_user2' | 'some_shared_library' | 'some_unrelated_library';
+type Songs = 'song1_library_user1' | 'song2_library_user1' | 'song3_library_user1' | 'song4_library_user2' | 'song5_library_user3';
 type Playlists = 'playlist1_library_user1' | 'playlist2_library_user1' | 'playlist_some_shared_library' | 'playlist_library_user2';
 
 interface ITestDataSchema {
@@ -119,11 +119,36 @@ const songIsItLove: ISongDBResult = {
 	date_removed: null,
 }
 
+const songThunder: ISongDBResult = {
+	song_id: 'fb7c77e1-71c9-43b0-8fb5-4a8a4b112a69',
+	title: 'Thunder',
+	suffix: null,
+	year: 2016,
+	bpm: 109,
+	date_last_edit: moment().subtract(13, 'hour').toDate(),
+	release_date: null,
+	is_rip: false,
+	artists: ['Imagine Dragons'],
+	remixer: [],
+	featurings: [],
+	type: 'Radio Edit',
+	genres: ['Indie Rock'],
+	labels: [],
+	requires_user_action: false,
+	file: makeFileObject('songs', 'thunder_imaginedragins', 'thunder_imaginedragins_yt_downloader', 'mp3'),
+	duration: 234,
+	tags: [],
+	date_added: moment().subtract(14, 'hour').toDate(),
+	date_removed: null,
+}
+
 const libraryUser1ShareID = 'de35f11a-a748-49cc-8da2-02ef12109ea5';
 const libraryUser2ShareID = 'f02f540b-7db9-4655-b693-b89bb492a369';
 const someShareShareID = 'f9d531d3-94f0-4876-af17-deda34194345';
+const libraryUser3ShareID = '947266ea-b75f-4827-ba7e-2293d32e0c71';
 const user1ID = 'f0d8e1f0-aeb1-11e8-a117-43673ffd376b';
 const user2ID = '3ba6fab4-f6ad-4916-9f1d-cdcfe522fd8e';
+const user3ID = 'f8e7ded2-65e2-4348-960d-8abc72146bf9';
 const playlist1LibraryUser1ID = 'c3a21eb2-0cbd-4382-80b4-70925d6fd41d'
 const playlist2LibraryUser1ID = '76ba6247-079f-4700-a711-92a504704213'
 const playlistSomeSharedLibraryID = '8d6fa7cf-f416-408d-b964-d154e256a4cd'
@@ -144,7 +169,14 @@ export const testData: ITestDataSchema = {
 			user_id: user2ID,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
-		}
+		},
+		user3: {
+			name: 'Mariana',
+			email: faker.internet.email(),
+			user_id: user3ID,
+			date_added: moment().subtract(1, 'hours').toDate(),
+			date_removed: null,
+		},
 	},
 	shares: {
 		library_user1: {
@@ -171,6 +203,14 @@ export const testData: ITestDataSchema = {
 			date_added: moment().subtract(1, 'hours').toDate(),
 			date_removed: null,
 			user_ids: [user1ID, user2ID],
+		},
+		some_unrelated_library: {
+			share_id: libraryUser3ShareID,
+			name: 'Some Unrelated Library',
+			is_library: true,
+			date_added: moment().subtract(1, 'hours').toDate(),
+			date_removed: null,
+			user_ids: [user3ID],
 		}
 	},
 	songs: {
@@ -178,6 +218,7 @@ export const testData: ITestDataSchema = {
 		song2_library_user1: songPerthDusky,
 		song3_library_user1: songContactAlastor,
 		song4_library_user2: songIsItLove,
+		song5_library_user3: songThunder,
 	},
 	playlists: {
 		playlist1_library_user1: {
@@ -252,6 +293,8 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 					await songService.create(libraryUser1ShareID, song);
 				} else if (key.indexOf('user2') > -1) {
 					await songService.create(libraryUser2ShareID, song);
+				} else if (key.indexOf('user3') > -1) {
+					await songService.create(libraryUser3ShareID, song);
 				}
 			}
 
