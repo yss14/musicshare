@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import './song-modal.css';
-import { IShareSong, IGenre, ISongType, IArtist, IScopedShareSong, IScopedSong } from '../../../graphql/types';
+import { IGenre, ISongType, IArtist, IScopedSong } from '../../../graphql/types';
 import { Formik } from 'formik';
 import { Form, Input, Row, Col, DatePicker, Switch, Modal } from 'antd';
 import { EditableTagGroup } from '../../form/EditableTagGroup';

@@ -6,7 +6,6 @@ import { Menu } from "antd";
 import { useSongUtils } from "../../hooks/use-song-utils";
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist";
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker";
-import { useShareID } from "../../graphql/client/queries/shareid-query";
 
 interface ISongContextMenuProps {
 	song: IScopedSong | null;
@@ -17,7 +16,6 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const { song, onShowInformation } = props
 	const [showPickPlaylistModal, setShowPickPlaylistModal] = useState(false)
 	const { changeSong, enqueueSong, enqueueSongNext } = usePlayer();
-	const shareID = useShareID()
 	const { makePlayableSong } = useSongUtils()
 	const addSongsToPlaylist = useAddSongsToPlaylist()
 

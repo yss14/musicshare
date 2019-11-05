@@ -7,7 +7,6 @@ import { DragNDropItem } from "../../types/DragNDropItems";
 import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd";
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist";
 import songDragPreviewImg from '../../images/playlist_add.png'
-import { useShareID } from "../../graphql/client/queries/shareid-query";
 
 const columns = [
 	{

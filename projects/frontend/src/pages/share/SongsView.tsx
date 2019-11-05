@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { IBaseSong, IScopedSong } from "../../graphql/types";
+import { IScopedSong } from "../../graphql/types";
 import { useContextMenu } from "../../components/modals/contextmenu/ContextMenu";
 import { useSongUtils } from "../../hooks/use-song-utils";
 import { usePlayer } from "../../player/player-hook";
