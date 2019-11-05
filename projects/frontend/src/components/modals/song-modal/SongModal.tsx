@@ -14,7 +14,7 @@ interface ISongModalProps {
 }
 
 export const SongModal = ({ song, closeForm, playlistID }: ISongModalProps) => {
-	const { loading: loadingSong, error: errorSong, data: dataSong } = useSong(song.shareID, song.id)
+	const { loading: loadingSong, error: errorSong, data: songFromAPI } = useSong(song.shareID, song.id)
 	const { loading: loadingGenres, error: errorGenres, data: dataGenres } = useGenres(song.shareID)
 	const { loading: loadingArtists, error: errorArtists, data: dataArtists } = useArtists(song.shareID)
 	const { loading: loadingTags, error: errorTags, data: dataTags } = useTags(song.shareID)
@@ -28,21 +28,21 @@ export const SongModal = ({ song, closeForm, playlistID }: ISongModalProps) => {
 
 		return null;
 	}
-	if (dataSong && dataGenres && dataSongTypes && dataArtists && dataTags) {
+	if (songFromAPI && dataGenres && dataSongTypes && dataArtists && dataTags) {
 		return (
 			<SongForm
-				song={dataSong.share.song}
+				song={songFromAPI}
 				genres={dataGenres.share.genres}
 				songTypes={dataSongTypes.share.songTypes}
 				artists={dataArtists.share.artists}
 				closeForm={closeForm}
-				shareID={song.shareID}
 				tags={dataTags.share.tags}
 				playlistID={playlistID}
+				readOnly={song.libraryID !== song.shareID} // TODO improve
 			/>
 		)
 	} else {
-		console.error('Some data is invalid', { dataSong, dataGenres, dataSongTypes });
+		console.error('Some data is invalid', { songFromAPI, dataGenres, dataSongTypes });
 
 		closeForm();
 

@@ -46,14 +46,6 @@ export interface IBaseSong {
 	libraryID: string;
 }
 
-/* 
-	libraryID of IBaseSong represents the share a song is linked from.
-	A scoped song allows to also carry information about the share a song is currently viewed from
-*/
-export interface IScopedSong extends IBaseSong {
-	shareID: string;
-}
-
 export interface IBaseSongPlayable extends IBaseSong {
 	getMediaURL: () => Promise<string>;
 }
@@ -67,6 +59,16 @@ export interface IPlaylistSong extends IBaseSong {
 	position: number;
 	dateAdded: string;
 }
+
+/* 
+	libraryID of IBaseSong represents the share a song is linked from.
+	A scoped song allows to also carry information about the share a song is currently viewed from
+*/
+export interface IScopedSong extends IBaseSong {
+	shareID: string;
+}
+
+export interface IScopedShareSong extends IShareSong, IScopedSong { }
 
 const baseSongKeys = `
 	id
