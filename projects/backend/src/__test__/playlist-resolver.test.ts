@@ -255,6 +255,72 @@ describe('add songs to playlist', () => {
 
 		expect(body).toMatchObject(insufficientPermissionsError());
 	});
+
+	test('linked song from share should succeed for own playlist', async () => {
+		const { graphQLServer, playlistService } = await setupTest({});
+		const { id: playlistID } = await playlistService.create(shareID, 'Some new playlist');
+		const songs = [testData.songs.song1_library_user1, testData.songs.song4_library_user2];
+		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, songs.map(song => song.song_id.toString())));
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		const expectedSongs = songs.map((song, idx) => Song.fromDBResult({
+			...song,
+			date_added: new Date(),
+			date_removed: null,
+		}, idx === 0 ? shareID : testData.shares.library_user2.share_id));
+
+		expect(expectedSongs).toBeArrayOfSize(songs.length);
+		expectedSongs.forEach(expectedSong => includesSong(body.data.addSongsToPlaylist, expectedSong));
+	})
+
+	test('linked song from share should succeed for shared playlist', async () => {
+		const shareID = testData.shares.some_shared_library.share_id
+		const { graphQLServer, playlistService } = await setupTest({});
+		const { id: playlistID } = await playlistService.create(shareID, 'Some new shared playlist');
+		const songs = [testData.songs.song1_library_user1, testData.songs.song4_library_user2];
+		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, songs.map(song => song.song_id.toString())));
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		const expectedSongs = songs.map((song, idx) => Song.fromDBResult({
+			...song,
+			date_added: new Date(),
+			date_removed: null,
+		}, idx === 0 ? testData.shares.library_user1.share_id : testData.shares.library_user2.share_id));
+
+		expect(expectedSongs).toBeArrayOfSize(songs.length);
+		expectedSongs.forEach(expectedSong => includesSong(body.data.addSongsToPlaylist, expectedSong));
+	})
+
+	test('foreign song from unrelated library should fail for own playlist', async () => {
+		const { graphQLServer, playlistService } = await setupTest({});
+		const { id: playlistID } = await playlistService.create(shareID, 'Some new playlist');
+		const songs = [testData.songs.song1_library_user1, testData.songs.song5_library_user3];
+		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, songs.map(song => song.song_id.toString())));
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: `User has no permission to add those song ids to a playlist` }]
+		));
+	})
+
+	test('foreign song from unrelated library should fail for shared playlist', async () => {
+		const shareID = testData.shares.some_shared_library.share_id
+		const { graphQLServer, playlistService } = await setupTest({});
+		const { id: playlistID } = await playlistService.create(shareID, 'Some new shared playlist');
+		const songs = [testData.songs.song1_library_user1, testData.songs.song5_library_user3];
+		const query = makeMutation(makeAddSongsQuery(shareID, playlistID, songs.map(song => song.song_id.toString())));
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: `User has no permission to add those song ids to a playlist` }]
+		));
+	})
 });
 
 describe('remove songs from playlist', () => {

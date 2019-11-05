@@ -80,11 +80,8 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 
 	const addSongs = async (shareID: string, playlistID: string, songIDs: string[]) => {
 		const currentSongs = await getSongs(playlistID);
-		const shareSongs = await songService.getByShare(shareID);
-		const shareSongIDs = new Set(shareSongs.map(song => song.id));
 
 		const insertQueries = songIDs
-			.filter(songID => shareSongIDs.has(songID))
 			.map((songID, idx) => PlaylistSongsTable.insertFromObj({
 				playlist_id_ref: playlistID,
 				song_id_ref: songID,

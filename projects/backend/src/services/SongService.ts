@@ -21,6 +21,7 @@ export interface ISongService {
 	getByID(share: ShareLike, songID: string): Promise<Song>;
 	getByShare(share: ShareLike): Promise<Song[]>;
 	getSongOriginShare(referencedShareID: string, songID: string): Promise<Share | null>;
+	hasAccessToSongs(userID: string, songIDs: string[]): Promise<boolean>;
 	getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]>;
 	create(shareID: string, song: ISongDBResult): Promise<string>;
 	update(shareID: string, songID: string, song: SongUpdateInput): Promise<void>;
@@ -124,6 +125,43 @@ export class SongService implements ISongService {
 		} else {
 			return null;
 		}
+	}
+
+	public async hasAccessToSongs(userID: string, songIDs: string[]): Promise<boolean> {
+		const dbResults = await this.database.query(
+			SQL.raw<typeof CoreTables.songs>(`
+				WITH usershares as (
+					SELECT DISTINCT user_shares.share_id_ref as share_id
+					FROM user_shares, shares
+					WHERE user_shares.user_id_ref = $1
+						AND user_shares.share_id_ref = shares.share_id
+						AND shares.date_removed IS NULL
+				),
+				relatedlibraries as (
+				SELECT DISTINCT libraries.share_id
+				FROM shares as libraries, user_shares us1, user_shares us2, usershares
+				WHERE usershares.share_id = us1.share_id_ref
+					AND us1.user_id_ref = us2.user_id_ref
+					AND us2.share_id_ref = libraries.share_id
+					AND libraries.date_removed IS NULL
+				),
+				accessibleshares as (
+					SELECT * FROM usershares
+					UNION DISTINCT
+					SELECT * FROM relatedlibraries
+				)
+				SELECT DISTINCT songs.song_id
+				FROM songs, share_songs, accessibleshares
+				WHERE songs.song_id = share_songs.song_id_ref
+					AND share_songs.share_id_ref = accessibleshares.share_id
+					AND songs.date_removed IS NULL;
+			
+			`, [userID])
+		)
+
+		const accessibleSongIDs = new Set(dbResults.map(result => result.song_id))
+
+		return songIDs.every(songID => accessibleSongIDs.has(songID))
 	}
 
 	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]> {

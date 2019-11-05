@@ -47,14 +47,13 @@ interface ISongTableRowProps extends React.DetailedHTMLProps<React.HTMLAttribute
 
 const DragableSongRow = ({ song, ...props }: ISongTableRowProps) => {
 	const addSongsToPlaylist = useAddSongsToPlaylist()
-	const shareID = useShareID()
 	const [, drag, dragPreview] = useDrag({
 		item: { type: DragNDropItem.Song, song },
 		end: (item: { song: IBaseSong } | undefined, monitor: DragSourceMonitor) => {
 			const dragResult = monitor.getDropResult() as { playlist: IPlaylist }
 
 			if (item && dragResult && dragResult.playlist) {
-				addSongsToPlaylist(shareID, dragResult.playlist.id, [song.id])
+				addSongsToPlaylist(dragResult.playlist.shareID, dragResult.playlist.id, [song.id])
 			}
 		},
 		collect: monitor => ({

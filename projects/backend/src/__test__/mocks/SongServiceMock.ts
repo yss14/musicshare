@@ -16,6 +16,10 @@ export class SongServiceMock implements ISongService {
 		throw 'Not implemented yet';
 	}
 
+	public async hasAccessToSongs(userID: string, songIDs: string[]): Promise<boolean> {
+		throw 'Not implemented yet';
+	}
+
 	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]> {
 		throw 'Not implemented yet';
 	}
