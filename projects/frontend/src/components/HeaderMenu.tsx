@@ -1,9 +1,9 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 import { Menu, Icon, Spin } from "antd";
-import { ClickParam } from "antd/lib/menu";
 import styled from "styled-components";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useRouteMatch } from "react-router-dom";
 import { useShares } from "../graphql/queries/shares-query";
+import { IShareRoute } from "../interfaces";
 
 const { SubMenu, ItemGroup, Item } = Menu;
 
@@ -13,14 +13,9 @@ const StyledIcon = styled(Icon)`
 `;
 
 export const HeaderNavMenu = () => {
-	const { shareID } = useParams()
+	const { shareID } = useParams<IShareRoute>()
+	const match = useRouteMatch()
 	const { data, loading, error } = useShares();
-	const [selectedShareID, setShare] = useState<string>(shareID || '');
-	const submenuRef = useRef(null);
-
-	const onClickShareItem = (event: ClickParam) => {
-		setShare(event.key);
-	};
 
 	if (loading) {
 		return <Spin />;
@@ -38,22 +33,22 @@ export const HeaderNavMenu = () => {
 
 	const otherShares = data.user.shares.filter(share => share.id !== libraryShare.id)
 
+	const selectedKeys = shareID && match && !match.path.startsWith('/all/') ? `shares:${shareID}` : 'shares:all'
+
 	return (
 		<Menu
 			style={{ marginLeft: "200px" }}
-			onClick={onClickShareItem}
-			selectedKeys={[selectedShareID]}
+			selectedKeys={[selectedKeys]}
 			mode="horizontal"
 		>
-			<Item key={libraryShare.id}>
+			<Item key="shares:all">
 				<Link to={`/all`}>
 					<StyledIcon type="profile" />
 					All
         		</Link>
 			</Item>
 			<SubMenu
-				ref={submenuRef}
-				key="shares"
+				key="shares:own"
 				title={
 					<span className="submenu-title-wrapper">
 						<StyledIcon type="share-alt" />
@@ -62,7 +57,7 @@ export const HeaderNavMenu = () => {
 				}
 			>
 				<ItemGroup key="shares:library" title="Library">
-					<Menu.Item key={`share:${libraryShare.id}`}>
+					<Menu.Item key={`shares:${libraryShare.id}`}>
 						<Link to={`/shares/${libraryShare.id}`}>
 							<Icon type="share-alt" />
 							{libraryShare.name}
@@ -72,7 +67,7 @@ export const HeaderNavMenu = () => {
 				</ItemGroup>
 				<ItemGroup key="shares:own" title="Own Shares">
 					{otherShares.map((share) => (
-						<Menu.Item key={`share:${share.id}`}>
+						<Menu.Item key={`shares:${share.id}`}>
 							<Link to={`/shares/${share.id}`}>
 								<Icon type="share-alt" />
 								{share.name}
