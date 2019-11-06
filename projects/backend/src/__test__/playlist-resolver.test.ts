@@ -224,7 +224,10 @@ describe('add songs to playlist', () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
-		expect(body.data.addSongsToPlaylist).toBeArrayOfSize(0);
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: `User has no permission to add those song ids to a playlist` }]
+		));
 	});
 
 	test('duplicates', async () => {
