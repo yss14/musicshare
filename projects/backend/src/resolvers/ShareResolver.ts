@@ -3,7 +3,6 @@ import { Share } from "../models/ShareModel";
 import { Song } from "../models/SongModel";
 import { SongType } from '../models/SongType';
 import { Genre } from '../models/GenreModel';
-import { Artist } from '../models/ArtistModel';
 import { Playlist } from '../models/PlaylistModel';
 import { PlaylistIDArg } from '../args/playlist-args';
 import { ShareAuth } from '../auth/middleware/share-auth';
@@ -74,14 +73,6 @@ export class ShareResolver {
 		@Root() share: Share
 	): Promise<Genre[]> {
 		return this.services.genreService.getGenresForShare(share.id);
-	}
-
-	@Authorized()
-	@FieldResolver(() => [Artist])
-	public async artists(
-		@Root() share: Share
-	): Promise<Artist[]> {
-		return this.services.artistService.getArtistsForShare(share.id);
 	}
 
 	@Authorized()

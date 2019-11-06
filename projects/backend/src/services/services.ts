@@ -48,7 +48,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	const userService = new UserService(database);
 	const songTypeService = new SongTypeService(database);
 	const genreService = new GenreService(database);
-	const artistService = new ArtistService(songService);
+	const artistService = new ArtistService(songService, shareService);
 	const artistExtractor = new ArtistExtractor();
 	const songMetaDataService = new SongMetaDataService([
 		new ID3MetaData(artistExtractor),

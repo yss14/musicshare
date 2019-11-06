@@ -13,6 +13,7 @@ import { Permission } from "../auth/permissions";
 import { Scopes } from "../types/context";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
+import { Artist } from "../models/ArtistModel";
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -303,3 +304,33 @@ describe('update user permissions', () => {
 		expect(body).toMatchObject(insufficientPermissionsError());
 	});
 });
+
+describe('aggregated user related data', () => {
+	const makeUserArtistsQuery = (subQuery: string) => {
+		return `
+			query{
+				viewer{
+					${subQuery}
+				}
+			}
+		`;
+	}
+	const makeShareArtistsQuery = () => `artists{name}`;
+
+	test('get aggregated artists', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const query = makeUserArtistsQuery(makeShareArtistsQuery());
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.viewer.artists).toIncludeAllMembers([
+			'Oliver Smith',
+			'Natalie Holmes',
+			'Kink',
+			'Dusky',
+			'Rue',
+			'Alastor'
+		].map(Artist.fromString));
+	});
+})

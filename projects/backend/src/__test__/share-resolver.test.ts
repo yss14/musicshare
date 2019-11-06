@@ -5,7 +5,6 @@ import { Share } from "../models/ShareModel";
 import { includesSong, compareSongs } from "./utils/compare-songs";
 import { v4 as uuid } from 'uuid';
 import { defaultSongTypes, defaultGenres } from "../database/fixtures";
-import { Artist } from "../models/ArtistModel";
 import { songKeys } from "./fixtures/song-query";
 import moment = require("moment");
 import { makeMockedDatabase } from "./mocks/mock-database";
@@ -289,7 +288,6 @@ describe('get share song', () => {
 describe('get share related data', () => {
 	const makeShareSongTypesQuery = () => `songTypes{name,group,hasArtists,alternativeNames}`;
 	const makeShareGenresQuery = () => `genres{name,group}`;
-	const makeShareArtistsQuery = () => `artists{name}`;
 	const makeSharePermissionsQuery = () => `permissions`;
 	const makeShareTagsQuery = () => 'tags';
 
@@ -313,24 +311,6 @@ describe('get share related data', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.share.genres).toBeArrayOfSize(defaultGenres.length);
-	});
-
-	test('get share artists', async () => {
-		const { graphQLServer } = await setupTest({});
-
-		const shareID = testData.shares.library_user1.share_id.toString();
-		const query = makeShareQuery(shareID, [makeShareArtistsQuery()]);
-
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
-
-		expect(body.data.share.artists).toIncludeAllMembers([
-			'Oliver Smith',
-			'Natalie Holmes',
-			'Kink',
-			'Dusky',
-			'Rue',
-			'Alastor'
-		].map(Artist.fromString));
 	});
 
 	test('get share permissions', async () => {

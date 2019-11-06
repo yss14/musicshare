@@ -11,6 +11,7 @@ import { UserIDArg, PermissionsArg } from '../args/user-args';
 import { ShareIDArg } from '../args/share-args';
 import { ShareAuth } from '../auth/middleware/share-auth';
 import { IServices } from '../services/services';
+import { Artist } from '../models/ArtistModel';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -119,5 +120,13 @@ export class UserResolver {
 		await this.services.permissionService.addPermissionsForUser(shareID, userID, permissions);
 
 		return this.services.permissionService.getPermissionsForUser(shareID, userID);
+	}
+
+	@Authorized()
+	@FieldResolver(() => [Artist])
+	public async artists(
+		@Root() user: User,
+	): Promise<Artist[]> {
+		return this.services.artistService.getAggregatedArtistsForUser(user.id);
 	}
 }
