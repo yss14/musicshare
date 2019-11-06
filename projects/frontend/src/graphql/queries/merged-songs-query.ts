@@ -5,7 +5,7 @@ import { flatten, uniqBy } from 'lodash'
 import { makeScopedSongs } from "../utils/data-transformations";
 
 export interface IGetMergedSongsData {
-	user: {
+	viewer: {
 		id: string;
 		__typename: 'User';
 		shares: {
@@ -18,7 +18,7 @@ export interface IGetMergedSongsData {
 
 export const GET_MERGED_SONGS = gql`
 	query getMergedSongs{
-		user{
+		viewer{
 			id
 			shares{
 				id
@@ -37,7 +37,7 @@ export const useMergedSongs = () => {
 		?
 		uniqBy(
 			flatten(
-				data.user.shares
+				data.viewer.shares
 					.map(share => makeScopedSongs(share.songs, share.id))
 
 			),

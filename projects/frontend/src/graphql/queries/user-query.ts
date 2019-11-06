@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/react-hooks";
 import { IShare } from "../types";
 
 export interface IUserData {
-	user: {
+	viewer: {
 		id: string;
 		shares: IShare[];
 	};
@@ -11,7 +11,7 @@ export interface IUserData {
 
 export const GET_USER = gql`
   query user {
-    user {
+    viewer {
       id
       shares {
         id

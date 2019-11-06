@@ -63,7 +63,7 @@ const LoggedInRoutes = () => {
 
 	useEffect(() => {
 		if (data && !libraryID) {
-			const library = data.user.shares.find(share => share.isLibrary === true);
+			const library = data.viewer.shares.find(share => share.isLibrary === true);
 
 			updateLibraryID(library ? library.id : null)
 		}
@@ -88,7 +88,7 @@ const LoggedInRoutes = () => {
 			<Route
 				path={["/shares/:shareID", "/all/shares/:shareID"]}
 				render={() => <ShareRoute />} />
-			{data && <Route exact path="/" render={() => <RedirectToLibrary shares={data.user.shares} />} />}
+			{data && <Route exact path="/" render={() => <RedirectToLibrary shares={data.viewer.shares} />} />}
 		</>
 	)
 }

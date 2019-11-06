@@ -38,7 +38,7 @@ afterAll(async () => {
 const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => {
 	return `
 		query{
-			user{
+			viewer{
 				id,
 				name,
 				email,
@@ -69,7 +69,7 @@ describe('get user by id', () => {
 		const query = makeUserQuery();
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: users.user1.user_id.toString() });
-		expect(body).toEqual(makeGraphQLResponse({ user: User.fromDBResult(users.user1) }));
+		expect(body).toEqual(makeGraphQLResponse({ viewer: User.fromDBResult(users.user1) }));
 	});
 
 	test('get user by id not existing', async () => {
@@ -81,7 +81,7 @@ describe('get user by id', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
-			{ user: null },
+			{ viewer: null },
 			[{ message: `User with id ${userID} not found` }]
 		));
 	});
@@ -97,7 +97,7 @@ describe('get users shares', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: testUser.user_id.toString() });
 
 		expect(body).toEqual(makeGraphQLResponse({
-			user: {
+			viewer: {
 				...User.fromDBResult(testUser),
 				shares: [testData.shares.library_user1].map(Share.fromDBResult)
 			}
@@ -113,7 +113,7 @@ describe('get users shares', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: testUser.user_id.toString() });
 
 		expect(body).toEqual(makeGraphQLResponse({
-			user: {
+			viewer: {
 				...User.fromDBResult(testUser),
 				shares: [testData.shares.library_user1, testData.shares.some_shared_library].map(Share.fromDBResult)
 			}

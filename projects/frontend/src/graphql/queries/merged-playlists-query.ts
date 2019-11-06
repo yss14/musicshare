@@ -5,7 +5,7 @@ import { useQuery } from "react-apollo";
 import { flatten, uniqBy } from 'lodash'
 
 export interface IGetMergedPlaylistData {
-	user: {
+	viewer: {
 		id: string;
 		__typename: 'User';
 		shares: {
@@ -18,7 +18,7 @@ export interface IGetMergedPlaylistData {
 
 export const GET_MERGED_PLAYLISTS = gql`
 	query getMergedPlaylists{
-		user{
+		viewer {
 			id,
 			shares{
 				id,
@@ -36,7 +36,7 @@ export const useMergedPlaylists = () => {
 	const mergedData = data
 		? uniqBy(
 			flatten(
-				data.user.shares
+				data.viewer.shares
 					.map(share => share.playlists)
 			),
 			playlist => playlist.id

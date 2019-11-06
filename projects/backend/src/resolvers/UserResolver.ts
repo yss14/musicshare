@@ -21,7 +21,7 @@ export class UserResolver {
 
 	@Authorized()
 	@Query(returns => User, { nullable: true })
-	public user(
+	public viewer(
 		@Ctx() ctx: IGraphQLContext,
 	): Promise<User | null> {
 		return this.services.userService.getUserByID(ctx.userID!);

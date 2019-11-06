@@ -27,11 +27,11 @@ export const HeaderNavMenu = () => {
 		return null;
 	}
 
-	const libraryShare = data.user.shares.find(share => share.isLibrary)
+	const libraryShare = data.viewer.shares.find(share => share.isLibrary)
 
 	if (!libraryShare) return null
 
-	const otherShares = data.user.shares.filter(share => share.id !== libraryShare.id)
+	const otherShares = data.viewer.shares.filter(share => share.id !== libraryShare.id)
 
 	const selectedKeys = shareID && match && !match.path.startsWith('/all/') ? `shares:${shareID}` : 'shares:all'
 

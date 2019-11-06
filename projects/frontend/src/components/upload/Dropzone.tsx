@@ -59,8 +59,8 @@ const getPlaylistIDFromUrl = (): string[] => {
 export default ({ children }: WrapperProps) => {
 	const user = useUser();
 	const libraryID = useLibraryID()
-	return user.data && user.data.user && libraryID ? (
-		<Dropzone userID={user.data.user.id} shareID={libraryID}>
+	return user.data && user.data.viewer && libraryID ? (
+		<Dropzone userID={user.data.viewer.id} shareID={libraryID}>
 			{state => children(state)}
 		</Dropzone>
 	) : null;
