@@ -298,9 +298,10 @@ describe('auth selectors', () => {
 
 	describe('song', () => {
 		const song = testData.songs.song1_library_user1;
+		const shareID = testData.shares.library_user1.share_id;
 
 		test('root', () => {
-			const req = { args: {}, root: Song.fromDBResult(song) };
+			const req = { args: {}, root: Song.fromDBResult(song, shareID) };
 			const songID = getSongIDFromRequest(req);
 
 			expect(songID).toBe(song.song_id.toString());

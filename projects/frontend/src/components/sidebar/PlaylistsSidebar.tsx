@@ -3,14 +3,14 @@ import { Button } from "antd";
 import styled from "styled-components";
 import { Link, useRouteMatch } from "react-router-dom";
 import { IShareRoute } from "../../interfaces";
-import { usePlaylists } from "../../graphql/queries/playlists-query";
+import { useSharePlaylists } from "../../graphql/queries/playlists-query";
 import { useCreatePlaylist } from "../../graphql/mutations/create-playlist-mutation";
 import { Prompt } from "../modals/promt/Prompt";
 import { Spinner } from "../Spinner";
-import { useDrop } from 'react-dnd'
-import { DragNDropItem } from "../../types/DragNDropItems";
-import { IPlaylist } from "../../graphql/types";
 import { usePlaylistID } from "../../graphql/client/queries/playlistid-query";
+import { SidebarItem } from "./SidebarItem";
+import { PlaylistSidebarItem } from "./PlaylistSidebarItem";
+import { useMergedPlaylists } from "../../graphql/queries/merged-playlists-query";
 
 const Sidebar = styled.div`
 	width: 100%;
@@ -28,35 +28,6 @@ const SidebarSection = styled.div`
 	padding: 4px 8px 8px 8px;
 `
 
-interface ISidebarItemProps {
-	selected?: boolean;
-}
-
-const SidebarItem = styled.div<ISidebarItemProps>`
-	&{
-		width: 100%;
-		padding: 4px 12px;
-		box-sizing: border-box;
-		background-color: ${props => props.selected ? 'white' : 'transparent'};
-	}
-
-	&:hover, &:hover *{
-		background-color: ${props => props.selected ? 'white' : '#61676b'};
-		color: ${props => props.selected ? 'black' : 'white'};
-		cursor: pointer;
-	}
-
-	&, & *{
-		color: ${props => props.selected ? 'black' : '#b0b5b9'};
-		font-size: 15px;
-		width: 100%;
-	}
-
-	& a{
-		display: block;
-	}
-`
-
 const SidebarButtonContainer = styled.div`
 	width: 100%;
 	display: flex;
@@ -65,12 +36,24 @@ const SidebarButtonContainer = styled.div`
 	padding: 4px 0px;
 `;
 
-export const SharePlaylistsSidebar = () => {
+interface IPlaylistSidebar {
+	merged: boolean;
+}
+
+export const PlaylistSidebar: React.FC<IPlaylistSidebar> = ({ merged }) => {
+	if (merged) {
+		return <MergedPlaylistsSidebar />;
+	} else {
+		return <SharePlaylistsSidebar />
+	}
+}
+
+const SharePlaylistsSidebar = () => {
 	const match = useRouteMatch<IShareRoute>()!
 	const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null);
 	const { shareID } = match.params;
 	const playlistID = usePlaylistID()
-	const { loading, error, data } = usePlaylists({ shareID });
+	const { loading, error, data } = useSharePlaylists({ shareID });
 	const [createPlaylist] = useCreatePlaylist({
 		shareID,
 		name: newPlaylistName || ""
@@ -94,9 +77,9 @@ export const SharePlaylistsSidebar = () => {
 			{data.share.playlists.map(playlist => (
 				<PlaylistSidebarItem
 					key={playlist.id}
-					shareID={shareID}
 					playlist={playlist}
 					selected={playlist.id === playlistID}
+					targetUrl={`/shares/${playlist.shareID}/playlists/${playlist.id}`}
 				/>
 			))}
 			<SidebarButtonContainer>
@@ -123,31 +106,28 @@ export const SharePlaylistsSidebar = () => {
 	);
 };
 
-interface IPlaylistSidebarItemProps {
-	playlist: IPlaylist;
-	shareID: string;
-	selected: boolean;
-}
-
-export const PlaylistSidebarItem: React.FC<IPlaylistSidebarItemProps> = ({ playlist, shareID, selected }) => {
-	const [{ canDrop, isOver }, drop] = useDrop({
-		accept: DragNDropItem.Song,
-		drop: () => ({ playlist }),
-		collect: monitor => ({
-			isOver: monitor.isOver(),
-			canDrop: monitor.canDrop(),
-		}),
-	})
-
-	const isOverStyle: React.CSSProperties = {
-		backgroundColor: '#61676b',
-	}
+const MergedPlaylistsSidebar = () => {
+	const playlistID = usePlaylistID()
+	const { loading, error, data } = useMergedPlaylists()
+	console.log({ loading, error, data })
+	if (loading) return <Spinner />;
+	if (error || !data) return <div>Error loading playlists</div>;
 
 	return (
-		<SidebarItem ref={drop} style={isOver && canDrop ? isOverStyle : {}} selected={selected}>
-			<Link to={`/shares/${shareID}/playlists/${playlist.id}`}>
-				{playlist.name}
-			</Link>
-		</SidebarItem>
+		<Sidebar>
+			<SidebarSection>General</SidebarSection>
+			<SidebarItem selected={playlistID === null}>
+				<Link to={`/all`}>All songs</Link>
+			</SidebarItem>
+			<SidebarSection>Playlists</SidebarSection>
+			{data.map(playlist => (
+				<PlaylistSidebarItem
+					key={playlist.id}
+					playlist={playlist}
+					selected={playlist.id === playlistID}
+					targetUrl={`/all/shares/${playlist.shareID}/playlists/${playlist.id}`}
+				/>
+			))}
+		</Sidebar>
 	)
 }

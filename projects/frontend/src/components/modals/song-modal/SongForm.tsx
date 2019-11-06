@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import './song-modal.css';
-import { IShareSong, IGenre, ISongType, IArtist } from '../../../graphql/types';
+import { IGenre, ISongType, IArtist, IScopedSong } from '../../../graphql/types';
 import { Formik } from 'formik';
 import { Form, Input, Row, Col, DatePicker, Switch, Modal } from 'antd';
 import { EditableTagGroup } from '../../form/EditableTagGroup';
@@ -13,33 +13,42 @@ import { MutationUpdaterFn } from 'apollo-client';
 import { useMutation } from 'react-apollo';
 
 interface ISongFormProps {
-	shareID: string;
-	song: IShareSong;
+	song: IScopedSong;
 	genres: IGenre[];
 	songTypes: ISongType[];
 	artists: IArtist[];
 	tags: string[];
 	playlistID?: string;
 	closeForm: () => void;
+	readOnly?: boolean;
 }
 
-export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm, tags, playlistID }: ISongFormProps) => {
-
+export const SongForm = ({ song, songTypes, genres, artists, closeForm, tags, playlistID, readOnly }: ISongFormProps) => {
 	const artistsDataSource = useMemo(() => artists.map(artist => artist.name), [artists]);
 	const genresDataSource = useMemo(() => genres.map(genre => genre.name), [genres]);
 	const songTypeOptions = useMemo(() => songTypes.map(songType => ({ value: songType.name, label: songType.name })), [songTypes]);
 
-	const updateSongCache = makeUpdateSongCache(shareID, playlistID);
+	const updateSongCache = makeUpdateSongCache(song.libraryID, playlistID);
 
 	const songMutationOnUpdate: MutationUpdaterFn<IUpdateSongData> = (cache, data) => {
 		updateSongCache(cache, data);
 		closeForm();
 	}
 
-	const [updateSong, { loading }] = useMutation(UPDATE_SONG, { update: songMutationOnUpdate })
+	const [updateSongMutation, { loading }] = useMutation(UPDATE_SONG, { update: songMutationOnUpdate })
+
+	const updateSong = useCallback((values: IScopedSong) => {
+		updateSongMutation({
+			variables: {
+				shareID: song.libraryID,
+				songID: song.id,
+				song: makeSongInput(values),
+			},
+		})
+	}, [updateSongMutation, song.libraryID, song.id])
 
 	return (
-		<Formik initialValues={song} onSubmit={(values) => updateSong({ variables: { shareID, songID: song.id, song: makeSongInput(values) } })} validate={validateSong}>
+		<Formik initialValues={song} onSubmit={updateSong} validate={validateSong}>
 			{({
 				values,
 				errors,
@@ -55,7 +64,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 						onCancel={closeForm}
 						onOk={submitForm}
 						width={700}
-						okText="Save"
+						okText={readOnly ? "OK" : "Save"}
 						okButtonProps={{ loading }}
 					>
 						<div id="songmodal">
@@ -70,6 +79,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 										value={values.title}
 										onChange={handleChange}
 										onBlur={handleBlur}
+										readOnly={readOnly}
 									/>
 								</Form.Item>
 								<Form.Item label="Artists">
@@ -78,7 +88,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 										onValuesChange={newValues => setFieldValue('artists', newValues)}
 										placeholder="Add artist"
 										datasource={artistsDataSource}
-
+										readOnly={readOnly}
 									/>
 								</Form.Item>
 								<Form.Item label="Remixer">
@@ -87,6 +97,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 										onValuesChange={newValues => setFieldValue('remixer', newValues)}
 										placeholder="Add remixer"
 										datasource={artistsDataSource}
+										readOnly={readOnly}
 									/>
 								</Form.Item>
 								<Form.Item label="Featurings">
@@ -95,6 +106,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 										onValuesChange={newValues => setFieldValue('featurings', newValues)}
 										placeholder="Add featurings"
 										datasource={artistsDataSource}
+										readOnly={readOnly}
 									/>
 								</Form.Item>
 								<Row>
@@ -105,6 +117,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 												onValuesChange={newValues => setFieldValue('genres', newValues)}
 												placeholder="Add genre"
 												datasource={genresDataSource}
+												readOnly={readOnly}
 											/>
 										</Form.Item>
 									</Col>
@@ -119,6 +132,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 												value={values.suffix || ''}
 												onChange={handleChange}
 												onBlur={handleBlur}
+												readOnly={readOnly}
 											/>
 										</Form.Item>
 									</Col>
@@ -136,6 +150,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 												onChange={handleChange}
 												onBlur={handleBlur}
 												type="number"
+												readOnly={readOnly}
 											/>
 										</Form.Item>
 									</Col>
@@ -151,6 +166,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 												onChange={handleChange}
 												onBlur={handleBlur}
 												type="number"
+												readOnly={readOnly}
 											/>
 										</Form.Item>
 									</Col>
@@ -166,6 +182,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 												value={values.type}
 												options={songTypeOptions}
 												onChange={newSongType => setFieldValue('type', newSongType)}
+												readOnly={readOnly}
 											/>
 										</Form.Item>
 									</Col>
@@ -178,6 +195,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 												value={values.releaseDate ? moment(values.releaseDate) : undefined}
 												onChange={e => setFieldValue('releaseDate', e!.toISOString())}
 												placeholder="Release Date"
+												disabled={readOnly}
 											/>
 										</Form.Item>
 									</Col>
@@ -191,6 +209,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 											<Switch
 												checked={values.isRip}
 												onChange={e => setFieldValue('isRip', e)}
+												disabled={readOnly}
 											/>
 										</Form.Item>
 									</Col>
@@ -203,6 +222,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 												onValuesChange={newValues => setFieldValue('tags', newValues)}
 												placeholder="Add tag"
 												datasource={tags}
+												readOnly={readOnly}
 											/>
 										</Form.Item>
 									</Col>
@@ -212,6 +232,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 												values={values.labels}
 												onValuesChange={newValues => setFieldValue('labels', newValues)}
 												placeholder="Add label"
+												readOnly={readOnly}
 											/>
 										</Form.Item>
 									</Col>
@@ -225,7 +246,7 @@ export const SongForm = ({ song, songTypes, genres, artists, shareID, closeForm,
 	)
 }
 
-const validateSong = (data: IShareSong) => {
+const validateSong = (data: IScopedSong) => {
 	let errors: any = {};
 
 	if (data.title.trim().length === 0) {
@@ -255,8 +276,16 @@ const removeTypename = <O extends {}>(obj: O): O => {
 	return value;
 };
 
-const makeSongInput = (song: IShareSong): Nullable<ISongUpdateInput> => {
-	const { id, requiresUserAction, dateLastEdit, duration, ...songInput } = song;
+const makeSongInput = (song: IScopedSong): Nullable<ISongUpdateInput> => {
+	const allowedProperties = ['title', 'suffix', 'year', 'bpm', 'releaseDate', 'isRip', 'artists', 'remixer', 'featurings', 'type', 'genres', 'labels', 'tags']
+
+	const songInput: Nullable<ISongUpdateInput> = Object.entries(song).reduce((acc, [key, value]) => {
+		if (allowedProperties.includes(key)) {
+			acc[key] = value
+		}
+
+		return acc;
+	}, {})
 
 	return removeTypename(songInput);
 }

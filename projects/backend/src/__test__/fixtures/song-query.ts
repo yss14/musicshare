@@ -17,4 +17,5 @@ export const songKeys = `
 	duration
 	tags
 	dateAdded
+	libraryID
 `;

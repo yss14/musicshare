@@ -5,20 +5,22 @@ import { useSongTypes } from '../../../graphql/queries/song-types';
 import { useArtists } from '../../../graphql/queries/artists-query';
 import { SongForm } from './SongForm';
 import { useTags } from '../../../graphql/queries/tags-query';
+import { IScopedSong } from '../../../graphql/types';
+import { useLibraryID } from '../../../graphql/client/queries/libraryid-query';
 
 interface ISongModalProps {
-	shareID: string;
-	songID: string;
+	song: IScopedSong;
 	playlistID?: string;
 	closeForm: () => void;
 }
 
-export const SongModal = ({ songID, shareID, closeForm, playlistID }: ISongModalProps) => {
-	const { loading: loadingSong, error: errorSong, data: dataSong } = useSong(shareID, songID)
-	const { loading: loadingGenres, error: errorGenres, data: dataGenres } = useGenres(shareID)
-	const { loading: loadingArtists, error: errorArtists, data: dataArtists } = useArtists(shareID)
-	const { loading: loadingTags, error: errorTags, data: dataTags } = useTags(shareID)
-	const { loading: loadingSongTypes, error: errorSongTypes, data: dataSongTypes } = useSongTypes(shareID)
+export const SongModal = ({ song, closeForm, playlistID }: ISongModalProps) => {
+	const { loading: loadingSong, error: errorSong, data: songFromAPI } = useSong(song.shareID, song.id)
+	const { loading: loadingGenres, error: errorGenres, data: dataGenres } = useGenres(song.shareID)
+	const { loading: loadingArtists, error: errorArtists, data: dataArtists } = useArtists(song.shareID)
+	const { loading: loadingTags, error: errorTags, data: dataTags } = useTags(song.shareID)
+	const { loading: loadingSongTypes, error: errorSongTypes, data: dataSongTypes } = useSongTypes(song.shareID)
+	const userLibraryID = useLibraryID()
 
 	if (loadingSong || loadingGenres || loadingSongTypes || loadingArtists || loadingTags) {
 		return <div>Loading</div>;
@@ -28,21 +30,21 @@ export const SongModal = ({ songID, shareID, closeForm, playlistID }: ISongModal
 
 		return null;
 	}
-	if (dataSong && dataGenres && dataSongTypes && dataArtists && dataTags) {
+	if (songFromAPI && dataGenres && dataSongTypes && dataArtists && dataTags) {
 		return (
 			<SongForm
-				song={dataSong.share.song}
+				song={songFromAPI}
 				genres={dataGenres.share.genres}
 				songTypes={dataSongTypes.share.songTypes}
 				artists={dataArtists.share.artists}
 				closeForm={closeForm}
-				shareID={shareID}
 				tags={dataTags.share.tags}
 				playlistID={playlistID}
+				readOnly={!userLibraryID || song.libraryID !== userLibraryID}
 			/>
 		)
 	} else {
-		console.error('Some data is invalid', { dataSong, dataGenres, dataSongTypes });
+		console.error('Some data is invalid', { songFromAPI, dataGenres, dataSongTypes });
 
 		closeForm();
 

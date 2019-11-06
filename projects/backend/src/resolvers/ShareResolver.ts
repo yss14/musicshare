@@ -57,7 +57,7 @@ export class ShareResolver {
 		@Root() share: Share,
 		@Arg('id') id: string
 	): Promise<Song | null> {
-		return this.services.songService.getByID(share.id, id);
+		return this.services.songService.getByID(share, id);
 	}
 
 	@Authorized()

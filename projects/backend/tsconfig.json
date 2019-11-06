@@ -12,7 +12,8 @@
 		"target": "esnext",
 		"outDir": "build/",
 		"skipLibCheck": true,
-		"rootDir": "src"
+		"rootDir": "src",
+		"suppressImplicitAnyIndexErrors": true
 	},
 	"include": [
 		"src/**/*"

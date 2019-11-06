@@ -144,6 +144,8 @@ describe('get share by id', () => {
 });
 
 describe('get share songs', () => {
+	const shareID = testData.shares.library_user1.share_id;
+
 	test('get all songs of library', async () => {
 		const { graphQLServer } = await setupTest({});
 
@@ -155,7 +157,7 @@ describe('get share songs', () => {
 			testData.songs.song1_library_user1,
 			testData.songs.song2_library_user1,
 			testData.songs.song3_library_user1,
-		].map(Song.fromDBResult);
+		].map(result => Song.fromDBResult(result, shareID));
 
 		expectedSongs.forEach(expectedSong => includesSong(body.data.share.songs, expectedSong));
 	});
@@ -171,7 +173,7 @@ describe('get share songs', () => {
 		const expectedSongs = [
 			testData.songs.song1_library_user1,
 			testData.songs.song2_library_user1,
-		].map(Song.fromDBResult);
+		].map(result => Song.fromDBResult(result, shareID));
 
 		expectedSongs.forEach(expectedSong => includesSong(body.data.share.songs, expectedSong));
 	});
@@ -188,7 +190,7 @@ describe('get share songs', () => {
 		const expectedSongs = [
 			testData.songs.song2_library_user1,
 			testData.songs.song3_library_user1,
-		].map(Song.fromDBResult);
+		].map(result => Song.fromDBResult(result, shareID));
 
 		const receivedSongs = body.data.share.songsDirty;
 		expect(receivedSongs.length).toBe(2);
@@ -202,12 +204,18 @@ describe('get share songs', () => {
 		const query = makeShareQuery(share.share_id.toString(), [makeShareSongsQuery()]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const expectedShareIDs = [
+			testData.shares.library_user1.share_id,
+			testData.shares.library_user1.share_id,
+			testData.shares.library_user1.share_id,
+			testData.shares.library_user2.share_id
+		]
 		const expectedSongs = [
 			testData.songs.song1_library_user1,
 			testData.songs.song2_library_user1,
 			testData.songs.song3_library_user1,
 			testData.songs.song4_library_user2,
-		].map(Song.fromDBResult);
+		].map((result, idx) => Song.fromDBResult(result, expectedShareIDs[idx]));
 
 		expectedSongs.forEach(expectedSong => includesSong(body.data.share.songs, expectedSong));
 	});
@@ -223,7 +231,7 @@ describe('get share song', () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
-		compareSongs(Song.fromDBResult(song), body.data.share.song);
+		compareSongs(Song.fromDBResult(song, share.share_id), body.data.share.song);
 	});
 
 	test('get share song by id not existing', async () => {
@@ -251,6 +259,31 @@ describe('get share song', () => {
 		expect(body.data.share.song).toBeDefined();
 		expect(body.data.share.song.accessUrl).toBeString();
 	});
+
+	test('get share song via proxy from linked share succeeds', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const share = testData.shares.some_shared_library;
+		const song = testData.songs.song4_library_user2;
+		const query = makeShareQuery(share.share_id.toString(), [makeShareSongQuery(song.song_id.toString())]);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.share.song).not.toBeNull();
+		compareSongs(Song.fromDBResult(song, testData.shares.library_user2.share_id), body.data.share.song);
+	})
+
+	test('get share song via proxy from unrelated share fails', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const share = testData.shares.some_unrelated_library;
+		const song = testData.songs.song5_library_user3;
+		const query = makeShareQuery(share.share_id.toString(), [makeShareSongQuery(song.song_id.toString())]);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.errors).toMatchObject([{ message: `Share with id ${share.share_id} not found` }])
+	})
 });
 
 describe('get share related data', () => {
@@ -371,7 +404,7 @@ describe('get share playlists', () => {
 			...song,
 			date_added: new Date(),
 			date_removed: null,
-		}));
+		}, shareID));
 
 		expect(receivedSongs).toBeArrayOfSize(testData.playlists.playlist1_library_user1.songs.length);
 		expectedSongs.forEach(expectedSong => includesSong(receivedSongs, expectedSong));

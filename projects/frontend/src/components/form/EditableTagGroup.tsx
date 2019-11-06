@@ -11,6 +11,7 @@ interface IEditableTagGroupProps {
 	onValuesChange: (newValues: string[]) => void;
 	placeholder?: string;
 	datasource?: string[];
+	readOnly?: boolean;
 }
 
 interface IEditableTagGroupState {
@@ -18,7 +19,7 @@ interface IEditableTagGroupState {
 	inputValue: string;
 }
 
-export const EditableTagGroup = ({ values, onValuesChange: onValueChange, placeholder, datasource }: IEditableTagGroupProps) => {
+export const EditableTagGroup = ({ values, onValuesChange: onValueChange, placeholder, datasource, readOnly }: IEditableTagGroupProps) => {
 	const [state, setState] = useState<IEditableTagGroupState>({
 		inputVisible: false,
 		inputValue: '',
@@ -88,7 +89,7 @@ export const EditableTagGroup = ({ values, onValuesChange: onValueChange, placeh
 			{values.map((value, index) => {
 				const isLongValue = value.length > 30;
 				const valueElement = (
-					<Tag key={value} closable={true} onClose={() => handleClose(value)}>
+					<Tag key={value} closable={!readOnly} onClose={() => handleClose(value)}>
 						{isLongValue ? `${value.slice(0, 20)}...` : value}
 					</Tag>
 				);
@@ -111,6 +112,7 @@ export const EditableTagGroup = ({ values, onValuesChange: onValueChange, placeh
 					value={inputValue}
 					size="small"
 					autoFocus
+					disabled={readOnly}
 				>
 					<Input
 						ref={inputRef}
@@ -121,10 +123,11 @@ export const EditableTagGroup = ({ values, onValuesChange: onValueChange, placeh
 						onChange={handleInputChange}
 						onBlur={() => handleInputConfirm()}
 						onPressEnter={() => handleInputConfirm()}
+						readOnly={readOnly}
 					/>
 				</AutoComplete>
 			)}
-			{!inputVisible && (
+			{!inputVisible && !readOnly && (
 				<Tag onClick={showInput} style={{ background: '#fff', borderStyle: 'dashed', cursor: 'pointer' }}>
 					<Icon type="plus" />
 					{placeholder || 'New Tag'}

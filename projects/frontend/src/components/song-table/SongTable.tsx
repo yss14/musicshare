@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Table } from "antd";
-import { IShareSong, IBaseSong, IPlaylist } from "../../graphql/types";
+import { IShareSong, IBaseSong, IPlaylist, IScopedSong } from "../../graphql/types";
 import { buildSongName } from "../../utils/songname-builder";
 import { formatDuration } from "../../utils/format-duration";
 import { DragNDropItem } from "../../types/DragNDropItems";
 import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd";
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist";
 import songDragPreviewImg from '../../images/playlist_add.png'
-import { useResizedDnDPreviewImage } from "../../hooks/use-resized-dnd-preview-image";
-import { useShareID } from "../../graphql/client/queries/shareid-query";
 
 const columns = [
 	{
@@ -48,22 +46,19 @@ interface ISongTableRowProps extends React.DetailedHTMLProps<React.HTMLAttribute
 
 const DragableSongRow = ({ song, ...props }: ISongTableRowProps) => {
 	const addSongsToPlaylist = useAddSongsToPlaylist()
-	const shareID = useShareID()
 	const [, drag, dragPreview] = useDrag({
 		item: { type: DragNDropItem.Song, song },
 		end: (item: { song: IBaseSong } | undefined, monitor: DragSourceMonitor) => {
 			const dragResult = monitor.getDropResult() as { playlist: IPlaylist }
 
 			if (item && dragResult && dragResult.playlist) {
-				addSongsToPlaylist(shareID, dragResult.playlist.id, [song.id])
+				addSongsToPlaylist(dragResult.playlist.shareID, dragResult.playlist.id, [song.id])
 			}
 		},
 		collect: monitor => ({
 			isDragging: monitor.isDragging(),
 		}),
 	})
-
-	useResizedDnDPreviewImage(songDragPreviewImg, dragPreview)
 
 	return (<>
 		<DragPreviewImage connect={dragPreview} src={songDragPreviewImg} />
@@ -73,9 +68,9 @@ const DragableSongRow = ({ song, ...props }: ISongTableRowProps) => {
 }
 
 interface ISongTableProps {
-	songs: IBaseSong[];
-	onRowClick: (event: React.MouseEvent, song: IBaseSong, index: number) => void;
-	onRowContextMenu: (event: React.MouseEvent, song: IBaseSong) => void;
+	songs: IScopedSong[];
+	onRowClick: (event: React.MouseEvent, song: IScopedSong, index: number) => void;
+	onRowContextMenu: (event: React.MouseEvent, song: IScopedSong) => void;
 }
 
 export const SongTable = ({ songs, onRowClick, onRowContextMenu }: ISongTableProps) => {
@@ -101,7 +96,7 @@ export const SongTable = ({ songs, onRowClick, onRowContextMenu }: ISongTablePro
 				rowKey={(record, index) => "song-key-" + index}
 				pagination={false}
 				scroll={{ y: height - 210 }}
-				onRow={(record: IBaseSong, index) => ({
+				onRow={(record: IScopedSong, index) => ({
 					onClick: event => onRowClick(event, record, index),
 					onContextMenu: event => onRowContextMenu(event, record),
 					song: record,

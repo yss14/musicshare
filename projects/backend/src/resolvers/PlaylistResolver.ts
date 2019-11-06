@@ -1,5 +1,5 @@
 import { Playlist } from "../models/PlaylistModel";
-import { Resolver, Authorized, FieldResolver, Root, Arg, Mutation, Args } from "type-graphql";
+import { Resolver, Authorized, FieldResolver, Root, Arg, Mutation, Args, Ctx } from "type-graphql";
 import { OrderUpdate } from "../services/PlaylistService";
 import { Song } from "../models/SongModel";
 import { OrderUpdateScalar } from "../types/scalars/order-update";
@@ -8,6 +8,8 @@ import { ShareIDArg } from "../args/share-args";
 import { SongIDsArg } from "../args/song-args";
 import { PlaylistAuth } from "../auth/middleware/playlist-auth";
 import { IServices } from "../services/services";
+import { IGraphQLContext } from "../types/context";
+import { ForbiddenError } from "apollo-server-core";
 
 @Resolver(of => Playlist)
 export class PlaylistResolver {
@@ -66,7 +68,12 @@ export class PlaylistResolver {
 		@Args() { shareID }: ShareIDArg,
 		@Args() { playlistID }: PlaylistIDArg,
 		@Args() { songIDs }: SongIDsArg,
+		@Ctx() { userID }: IGraphQLContext,
 	): Promise<Song[]> {
+		if (!(await this.services.songService.hasAccessToSongs(userID!, songIDs))) {
+			throw new ForbiddenError('User has no permission to add those song ids to a playlist')
+		}
+
 		await this.services.playlistService.addSongs(shareID, playlistID, songIDs);
 
 		return this.services.playlistService.getSongs(playlistID);

@@ -1,15 +1,14 @@
 import React, { useCallback, useState } from "react";
-import { IBaseSong, IPlaylist } from "../../graphql/types";
+import { IPlaylist, IScopedSong } from "../../graphql/types";
 import { usePlayer } from "../../player/player-hook";
 import { ContextMenu } from "../../components/modals/contextmenu/ContextMenu";
 import { Menu } from "antd";
 import { useSongUtils } from "../../hooks/use-song-utils";
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist";
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker";
-import { useShareID } from "../../graphql/client/queries/shareid-query";
 
 interface ISongContextMenuProps {
-	song: IBaseSong | null;
+	song: IScopedSong | null;
 	onShowInformation: () => void;
 }
 
@@ -17,27 +16,26 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const { song, onShowInformation } = props
 	const [showPickPlaylistModal, setShowPickPlaylistModal] = useState(false)
 	const { changeSong, enqueueSong, enqueueSongNext } = usePlayer();
-	const shareID = useShareID()
 	const { makePlayableSong } = useSongUtils()
 	const addSongsToPlaylist = useAddSongsToPlaylist()
 
 	const onClickPlayNow = useCallback(() => {
 		if (!song) return
 
-		changeSong(makePlayableSong(shareID)(song))
-	}, [song, shareID, makePlayableSong, changeSong])
+		changeSong(makePlayableSong(song))
+	}, [song, makePlayableSong, changeSong])
 
 	const onClickPlayNext = useCallback(() => {
 		if (!song) return
 
-		enqueueSongNext(makePlayableSong(shareID)(song))
-	}, [song, shareID, makePlayableSong, enqueueSongNext])
+		enqueueSongNext(makePlayableSong(song))
+	}, [song, makePlayableSong, enqueueSongNext])
 
 	const onClickPlayLater = useCallback(() => {
 		if (!song) return
 
-		enqueueSong(makePlayableSong(shareID)(song))
-	}, [song, shareID, makePlayableSong, enqueueSong])
+		enqueueSong(makePlayableSong(song))
+	}, [song, makePlayableSong, enqueueSong])
 
 	const onClickAddSongToPlaylist = () => {
 		if (!song) return

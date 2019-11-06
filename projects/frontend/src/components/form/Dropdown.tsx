@@ -12,9 +12,10 @@ interface IDropdownProps {
 	options: IDropdownOption[];
 	onChange: (newValue: string) => void;
 	name?: string;
+	readOnly?: boolean;
 }
 
-export const Dropdown = ({ onChange, options, value, name }: IDropdownProps) => {
+export const Dropdown = ({ onChange, options, value, name, readOnly }: IDropdownProps) => {
 	const onItemClick = (e: ClickParam) => {
 		onChange(e.key);
 	}
@@ -32,7 +33,7 @@ export const Dropdown = ({ onChange, options, value, name }: IDropdownProps) => 
 	const selectedOption = options.find(option => option.value === value);
 
 	return (
-		<DropdownAntd overlay={dropdownItems}>
+		<DropdownAntd overlay={dropdownItems} disabled={readOnly}>
 			<Button name={name}>
 				{selectedOption ? selectedOption.label : 'No selection'} <Icon type="down" />
 			</Button>

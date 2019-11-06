@@ -3,18 +3,7 @@ import { shareSongKeys, IShareSong } from "../types";
 import { useQuery } from "@apollo/react-hooks";
 import { useHistory } from "react-router-dom";
 import { defaultGraphQLErrorHandler } from "../utils/default-graphql-errorhandler";
-
-export const GET_SHARE_WITH_SONGS = gql`
-  query share($shareID: String!) {
-    share(shareID: $shareID) {
-      id
-      name
-      songs {
-        ${shareSongKeys}
-      }
-    }
-  }
-`;
+import { makeScopedSongs } from "../utils/data-transformations";
 
 export interface IGetShareWithSongsData {
 	share: {
@@ -28,10 +17,22 @@ export interface IGetShareWithSongsVariables {
 	shareID: string;
 }
 
+export const GET_SHARE_WITH_SONGS = gql`
+  query share($shareID: String!) {
+    share(shareID: $shareID) {
+      id
+      name
+      songs {
+        ${shareSongKeys}
+      }
+    }
+  }
+`;
+
 export const useShareSongs = (shareID: string) => {
 	const history = useHistory()
 
-	return useQuery<IGetShareWithSongsData, IGetShareWithSongsVariables>(
+	const { data, ...rest } = useQuery<IGetShareWithSongsData, IGetShareWithSongsVariables>(
 		GET_SHARE_WITH_SONGS,
 		{
 			variables: {
@@ -40,4 +41,9 @@ export const useShareSongs = (shareID: string) => {
 			onError: defaultGraphQLErrorHandler(history),
 		}
 	)
+
+	return {
+		data: data ? makeScopedSongs(data.share.songs, shareID) : undefined,
+		...rest
+	}
 }
