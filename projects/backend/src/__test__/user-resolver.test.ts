@@ -14,6 +14,7 @@ import { Scopes } from "../types/context";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 import { Artist } from "../models/ArtistModel";
+import { defaultGenres } from "../database/fixtures";
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -306,7 +307,7 @@ describe('update user permissions', () => {
 });
 
 describe('aggregated user related data', () => {
-	const makeUserArtistsQuery = (subQuery: string) => {
+	const makeUserQuery = (subQuery: string) => {
 		return `
 			query{
 				viewer{
@@ -316,11 +317,12 @@ describe('aggregated user related data', () => {
 		`;
 	}
 	const makeShareArtistsQuery = () => `artists{name}`;
+	const makeShareGenresQuery = () => `genres{name,group}`;
 
 	test('get aggregated artists', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const query = makeUserArtistsQuery(makeShareArtistsQuery());
+		const query = makeUserQuery(makeShareArtistsQuery());
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
@@ -332,5 +334,15 @@ describe('aggregated user related data', () => {
 			'Rue',
 			'Alastor'
 		].map(Artist.fromString));
+	});
+
+	test.only('get share genres', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const query = makeUserQuery(makeShareGenresQuery());
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.viewer.genres).toBeArrayOfSize(defaultGenres.length);
 	});
 })

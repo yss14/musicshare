@@ -4,7 +4,7 @@ import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
 import { Share } from "../models/ShareModel";
 import { includesSong, compareSongs } from "./utils/compare-songs";
 import { v4 as uuid } from 'uuid';
-import { defaultSongTypes, defaultGenres } from "../database/fixtures";
+import { defaultSongTypes } from "../database/fixtures";
 import { songKeys } from "./fixtures/song-query";
 import moment = require("moment");
 import { makeMockedDatabase } from "./mocks/mock-database";
@@ -287,7 +287,6 @@ describe('get share song', () => {
 
 describe('get share related data', () => {
 	const makeShareSongTypesQuery = () => `songTypes{name,group,hasArtists,alternativeNames}`;
-	const makeShareGenresQuery = () => `genres{name,group}`;
 	const makeSharePermissionsQuery = () => `permissions`;
 	const makeShareTagsQuery = () => 'tags';
 
@@ -300,17 +299,6 @@ describe('get share related data', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.share.songTypes).toBeArrayOfSize(defaultSongTypes.length);
-	});
-
-	test('get share genres', async () => {
-		const { graphQLServer } = await setupTest({});
-
-		const shareID = testData.shares.library_user1.share_id.toString();
-		const query = makeShareQuery(shareID, [makeShareGenresQuery()]);
-
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
-
-		expect(body.data.share.genres).toBeArrayOfSize(defaultGenres.length);
 	});
 
 	test('get share permissions', async () => {

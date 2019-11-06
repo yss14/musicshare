@@ -12,6 +12,7 @@ import { ShareIDArg } from '../args/share-args';
 import { ShareAuth } from '../auth/middleware/share-auth';
 import { IServices } from '../services/services';
 import { Artist } from '../models/ArtistModel';
+import { Genre } from '../models/GenreModel';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -128,5 +129,13 @@ export class UserResolver {
 		@Root() user: User,
 	): Promise<Artist[]> {
 		return this.services.artistService.getAggregatedArtistsForUser(user.id);
+	}
+
+	@Authorized()
+	@FieldResolver(() => [Genre])
+	public async genres(
+		@Root() user: User
+	): Promise<Genre[]> {
+		return this.services.genreService.getAggregatedGenresForUser(user.id);
 	}
 }

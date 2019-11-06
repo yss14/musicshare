@@ -2,7 +2,6 @@ import { Resolver, Query, Arg, FieldResolver, Root, Authorized, Args, Ctx, Mutat
 import { Share } from "../models/ShareModel";
 import { Song } from "../models/SongModel";
 import { SongType } from '../models/SongType';
-import { Genre } from '../models/GenreModel';
 import { Playlist } from '../models/PlaylistModel';
 import { PlaylistIDArg } from '../args/playlist-args';
 import { ShareAuth } from '../auth/middleware/share-auth';
@@ -65,14 +64,6 @@ export class ShareResolver {
 		@Root() share: Share
 	): Promise<SongType[]> {
 		return this.services.songTypeService.getSongTypesForShare(share.id);
-	}
-
-	@Authorized()
-	@FieldResolver(() => [Genre])
-	public async genres(
-		@Root() share: Share
-	): Promise<Genre[]> {
-		return this.services.genreService.getGenresForShare(share.id);
 	}
 
 	@Authorized()

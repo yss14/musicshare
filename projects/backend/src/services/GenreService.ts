@@ -1,11 +1,13 @@
 import { Genre } from "../models/GenreModel";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { GenresTable, IGenreDBResult } from "../database/schema/tables";
-import { flatten } from "lodash";
+import { flatten, uniqBy } from "lodash";
+import { IShareService } from "./ShareService";
 
 export interface IGenreService {
 	getGenresForShare(shareID: string): Promise<Genre[]>;
 	getGenresForShares(shareIDs: string[]): Promise<Genre[]>;
+	getAggregatedGenresForUser(userID: string): Promise<Genre[]>;
 
 	addGenreToShare(shareID: string, genre: Genre): Promise<void>;
 	removeGenreFromShare(shareID: string, genre: Genre): Promise<void>;
@@ -23,6 +25,7 @@ const filterNotRemoved = (row: IGenreDBResult) => row.date_removed === null;
 export class GenreService implements IGenreService {
 	constructor(
 		private readonly database: IDatabaseClient,
+		private readonly shareService: IShareService,
 	) { }
 
 	public async getGenresForShare(shareID: string) {
@@ -39,6 +42,13 @@ export class GenreService implements IGenreService {
 		return flatten(dbResults)
 			.filter(filterNotRemoved)
 			.map(Genre.fromDBResult);
+	}
+
+	public async getAggregatedGenresForUser(userID: string): Promise<Genre[]> {
+		const linkedLibraries = await this.shareService.getLinkedLibrariesOfUser(userID)
+		const aggregatedGenres = await this.getGenresForShares(linkedLibraries.map(linkedLibrary => linkedLibrary.id))
+
+		return uniqBy(aggregatedGenres, genre => `${genre.group}-${genre.name}`)
 	}
 
 	public async addGenreToShare(shareID: string, genre: Genre) {
