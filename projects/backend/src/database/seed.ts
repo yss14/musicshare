@@ -12,6 +12,7 @@ import { Genre } from '../models/GenreModel';
 import { IServices } from '../services/services';
 import { IConfig } from '../types/config';
 import { Permissions } from '../auth/permissions';
+import { makeFileSourceJSONType } from '../models/FileSourceModels';
 
 type Users = 'user1' | 'user2' | 'user3';
 type Shares = 'library_user1' | 'library_user2' | 'some_shared_library' | 'some_unrelated_library';
@@ -43,7 +44,7 @@ const songZeroOliverSmith: ISongDBResult = {
 	genres: ['Trance'],
 	labels: null,
 	requires_user_action: false,
-	file: makeFileObject('songs', 'zero', 'zero_somesuffic', 'mp3'),
+	sources: makeFileSourceJSONType(makeFileObject('songs', 'zero', 'zero_somesuffic', 'mp3')),
 	duration: 401,
 	tags: ['Anjuna', 'Progressive'],
 	date_added: moment().subtract(3, 'hours').toDate(),
@@ -66,7 +67,7 @@ const songPerthDusky: ISongDBResult = {
 	genres: ['Deep House'],
 	labels: ['Anjunadeep'],
 	requires_user_action: false,
-	file: makeFileObject('songs', 'perth', 'perth_abgtrip', 'mp3'),
+	sources: makeFileSourceJSONType(makeFileObject('songs', 'perth', 'perth_abgtrip', 'mp3')),
 	duration: 370,
 	tags: ['Anjuna', 'Deep', 'Funky'],
 	date_added: moment().subtract(2, 'hours').toDate(),
@@ -89,7 +90,7 @@ const songContactAlastor: ISongDBResult = {
 	genres: ['Progressive House'],
 	labels: ['Anjunadeep'],
 	requires_user_action: false,
-	file: makeFileObject('songs', 'contact', 'contact_rue_alastor', 'mp3'),
+	sources: makeFileSourceJSONType(makeFileObject('songs', 'contact', 'contact_rue_alastor', 'mp3')),
 	duration: 248,
 	tags: ['Dark', 'Party Chill'],
 	date_added: moment().subtract(1, 'hour').toDate(),
@@ -112,7 +113,7 @@ const songIsItLove: ISongDBResult = {
 	genres: ['Trance'],
 	labels: ['Anjunabeats'],
 	requires_user_action: false,
-	file: makeFileObject('songs', 'isitlove', 'is_it_love_beatport', 'mp3'),
+	sources: makeFileSourceJSONType(makeFileObject('songs', 'isitlove', 'is_it_love_beatport', 'mp3')),
 	duration: 357,
 	tags: [],
 	date_added: moment().subtract(48, 'hour').toDate(),
@@ -135,7 +136,9 @@ const songThunder: ISongDBResult = {
 	genres: ['Indie Rock'],
 	labels: [],
 	requires_user_action: false,
-	file: makeFileObject('songs', 'thunder_imaginedragins', 'thunder_imaginedragins_yt_downloader', 'mp3'),
+	sources: makeFileSourceJSONType(
+		makeFileObject('songs', 'thunder_imaginedragins', 'thunder_imaginedragins_yt_downloader', 'mp3')
+	),
 	duration: 234,
 	tags: ['Good Mood'],
 	date_added: moment().subtract(14, 'hour').toDate(),
@@ -328,7 +331,9 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 					genres: ['Some Genre'],
 					labels: null,
 					requires_user_action: false,
-					file: makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3'),
+					sources: makeFileSourceJSONType(
+						makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3')
+					),
 					duration: 120 + Math.floor(Math.random() * 400),
 					tags: [],
 					date_added: new Date(),

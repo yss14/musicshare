@@ -1,4 +1,5 @@
 import { IBaseSongPlayable } from "../graphql/types";
+import { ISongMediaUrl } from "../graphql/queries/song-mediaurl-query";
 
 const PlayerDeck = () => {
 	const audio = document.createElement('audio');
@@ -91,6 +92,16 @@ export const Player = (): IPlayer => {
 	const changeVolume = (newVolume: number) => primaryDeck.volume = newVolume;
 	const seek = (newCurrentTime: number) => primaryDeck.currentTime = newCurrentTime;
 
+	const pickMediaUrl = (mediaUrls: ISongMediaUrl[]) => {
+		const fileUploadMedia = mediaUrls.find(mediaUrl => mediaUrl.__typename === 'FileUpload')
+
+		if (fileUploadMedia) {
+			return fileUploadMedia.accessUrl
+		}
+
+		return null
+	}
+
 	const next = () => {
 		const nextSong = songQueue.shift();
 		isBufferingNextSong = false;
@@ -98,11 +109,17 @@ export const Player = (): IPlayer => {
 
 		if (!nextSong) return false;
 
-		nextSong.getMediaURL().then(mediaURL => {
+		nextSong.getMediaURL().then(songMediaUrls => {
 			dispatch(setSong(nextSong));
 
-			primaryDeck.src = mediaURL;
-			primaryDeck.play();
+			const mediaUrl = pickMediaUrl(songMediaUrls)
+
+			if (mediaUrl) {
+				primaryDeck.src = mediaUrl
+				primaryDeck.play();
+			} else {
+				console.warn(`Cannot get a media url of song ${nextSong.id}`)
+			}
 		});
 
 		return true;
@@ -113,9 +130,15 @@ export const Player = (): IPlayer => {
 
 		if (!prevSong) return;
 
-		prevSong.getMediaURL().then(mediaURL => {
-			primaryDeck.src = mediaURL;
-			primaryDeck.play();
+		prevSong.getMediaURL().then(songMediaUrls => {
+			const mediaUrl = pickMediaUrl(songMediaUrls)
+
+			if (mediaUrl) {
+				primaryDeck.src = mediaUrl;
+				primaryDeck.play();
+			} else {
+				console.warn(`Cannot get a media url of song ${prevSong.id}`)
+			}
 		});
 	}
 
@@ -178,8 +201,14 @@ export const Player = (): IPlayer => {
 			isBufferingNextSong = true;
 			console.log('Start buffering next song');
 
-			nextSong.getMediaURL().then(mediaURL => {
-				bufferingDeck.src = mediaURL;
+			nextSong.getMediaURL().then(songMediaUrls => {
+				const mediaUrl = pickMediaUrl(songMediaUrls)
+
+				if (mediaUrl) {
+					bufferingDeck.src = mediaUrl;
+				} else {
+					console.warn(`Cannot get a media url of song ${nextSong.id}`)
+				}
 			})
 		}
 	}

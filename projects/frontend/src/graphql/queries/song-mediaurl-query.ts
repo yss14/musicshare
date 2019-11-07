@@ -1,9 +1,14 @@
 import gql from "graphql-tag";
 
+export interface ISongMediaUrl {
+	__typename: string;
+	accessUrl: string;
+}
+
 export interface ISongMediaURLData {
 	share: {
 		song: {
-			accessUrl: string;
+			sources: ISongMediaUrl[];
 		};
 	}
 }
@@ -19,7 +24,12 @@ export const GET_SONG_MEDIAURL = gql`
 			id,
       		song(id: $songID){
 				id,
-				accessUrl,
+				sources {
+					__typename
+            		... on FileUpload{
+						accessUrl
+					}
+				}
 			}
 		}
 	}

@@ -15,6 +15,7 @@ import { Permissions } from "../../auth/permissions";
 import { isMockedDatabase } from "../mocks/mock-database";
 import { configFromEnv } from "../../types/config";
 import { initServices } from "../../services/services";
+import { FileUploadResolver } from "../../resolvers/FileUploadResolver";
 
 export interface SetupTestEnvArgs {
 	database: IDatabaseClient;
@@ -39,11 +40,13 @@ export const setupTestEnv = async ({ seedDatabase, database }: SetupTestEnvArgs)
 	const songResolver = new SongResolver(services);
 	const userResolver = new UserResolver(services);
 	const playlistResolver = new PlaylistResolver(services);
+	const fileUploadResolver = new FileUploadResolver(services);
 
 	Container.of(testID).set(ShareResolver, shareResolver);
 	Container.of(testID).set(SongResolver, songResolver);
 	Container.of(testID).set(UserResolver, userResolver);
 	Container.of(testID).set(PlaylistResolver, playlistResolver);
+	Container.of(testID).set(FileUploadResolver, fileUploadResolver);
 
 	const seed = makeDatabaseSeed({ database, services });
 

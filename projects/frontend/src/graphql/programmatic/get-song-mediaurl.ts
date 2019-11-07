@@ -1,7 +1,7 @@
 import ApolloClient from "apollo-client";
-import { GET_SONG_MEDIAURL, ISongMediaURLData, ISongMediaURLVariables } from "../queries/song-mediaurl-query";
+import { GET_SONG_MEDIAURL, ISongMediaURLData, ISongMediaURLVariables, ISongMediaUrl } from "../queries/song-mediaurl-query";
 
-export const getSongMediaURL = (client: ApolloClient<unknown>) => async (shareID: string, songID: string): Promise<string> => {
+export const getSongMediaUrls = (client: ApolloClient<unknown>) => async (shareID: string, songID: string): Promise<ISongMediaUrl[]> => {
 	const response = await client.query<ISongMediaURLData, ISongMediaURLVariables>({
 		query: GET_SONG_MEDIAURL,
 		variables: {
@@ -12,7 +12,7 @@ export const getSongMediaURL = (client: ApolloClient<unknown>) => async (shareID
 	});
 
 	if (!response.errors) {
-		return response.data.share.song.accessUrl;
+		return response.data.share.song.sources;
 	}
 
 	throw `Cannot fetch media url for song ${songID}`;
