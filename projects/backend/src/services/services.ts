@@ -46,9 +46,9 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	const songService = new SongService(database);
 	const shareService = new ShareService(database);
 	const userService = new UserService(database);
-	const songTypeService = new SongTypeService(database);
-	const genreService = new GenreService(database);
-	const artistService = new ArtistService(songService);
+	const songTypeService = new SongTypeService(database, shareService);
+	const genreService = new GenreService(database, shareService);
+	const artistService = new ArtistService(songService, shareService);
 	const artistExtractor = new ArtistExtractor();
 	const songMetaDataService = new SongMetaDataService([
 		new ID3MetaData(artistExtractor),
@@ -60,7 +60,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
 	const invalidAuthTokenStore = AuthTokenStore({ database, tokenGroup: 'authtoken' });
 	const permissionService = PermissionService({ database });
-	const tagService = TagService({ songService });
+	const tagService = TagService({ songService, shareService });
 
 	return {
 		songFileService,

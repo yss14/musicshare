@@ -3,18 +3,14 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 
 export interface IGetArtistsData {
-	share: {
+	viewer: {
 		artists: IArtist[];
 	}
 }
 
-export interface IGetArtistsVariables {
-	shareID: string;
-}
-
 export const GET_ARTISTS = gql`
-	query genres($shareID: String!){
-		share(shareID: $shareID) {
+	query genres {
+		viewer {
 			id,
 			artists{
 				name
@@ -23,5 +19,11 @@ export const GET_ARTISTS = gql`
 	}
 `;
 
-export const useArtists = (shareID: string) =>
-	useQuery<IGetArtistsData, IGetArtistsVariables>(GET_ARTISTS, { variables: { shareID } });
+export const useArtists = () => {
+	const { data, ...rest } = useQuery<IGetArtistsData>(GET_ARTISTS)
+
+	return {
+		data: data ? data.viewer.artists : undefined,
+		...rest,
+	}
+}

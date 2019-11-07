@@ -80,3 +80,6 @@ azurite*/
 
 # custom scripts
 scripts
+
+# ts incremental build meta
+*.tsbuildinfo

@@ -13,6 +13,8 @@ import { Permission } from "../auth/permissions";
 import { Scopes } from "../types/context";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
+import { Artist } from "../models/ArtistModel";
+import { defaultGenres, defaultSongTypes } from "../database/fixtures";
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -38,7 +40,7 @@ afterAll(async () => {
 const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => {
 	return `
 		query{
-			user{
+			viewer{
 				id,
 				name,
 				email,
@@ -69,7 +71,7 @@ describe('get user by id', () => {
 		const query = makeUserQuery();
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: users.user1.user_id.toString() });
-		expect(body).toEqual(makeGraphQLResponse({ user: User.fromDBResult(users.user1) }));
+		expect(body).toEqual(makeGraphQLResponse({ viewer: User.fromDBResult(users.user1) }));
 	});
 
 	test('get user by id not existing', async () => {
@@ -81,7 +83,7 @@ describe('get user by id', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID });
 
 		expect(body).toMatchObject(makeGraphQLResponse(
-			{ user: null },
+			{ viewer: null },
 			[{ message: `User with id ${userID} not found` }]
 		));
 	});
@@ -97,7 +99,7 @@ describe('get users shares', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: testUser.user_id.toString() });
 
 		expect(body).toEqual(makeGraphQLResponse({
-			user: {
+			viewer: {
 				...User.fromDBResult(testUser),
 				shares: [testData.shares.library_user1].map(Share.fromDBResult)
 			}
@@ -113,7 +115,7 @@ describe('get users shares', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: testUser.user_id.toString() });
 
 		expect(body).toEqual(makeGraphQLResponse({
-			user: {
+			viewer: {
 				...User.fromDBResult(testUser),
 				shares: [testData.shares.library_user1, testData.shares.some_shared_library].map(Share.fromDBResult)
 			}
@@ -303,3 +305,66 @@ describe('update user permissions', () => {
 		expect(body).toMatchObject(insufficientPermissionsError());
 	});
 });
+
+describe('aggregated user related data', () => {
+	const makeUserQuery = (subQuery: string) => {
+		return `
+			query{
+				viewer{
+					${subQuery}
+				}
+			}
+		`;
+	}
+	const makeShareArtistsQuery = () => `artists{name}`;
+	const makeShareGenresQuery = () => `genres{name,group}`;
+	const makeShareSongTypesQuery = () => `songTypes{name,group,hasArtists,alternativeNames}`;
+	const makeShareTagsQuery = () => 'tags';
+
+	test('get aggregated artists', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const query = makeUserQuery(makeShareArtistsQuery());
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.viewer.artists).toIncludeAllMembers([
+			'Oliver Smith',
+			'Natalie Holmes',
+			'Kink',
+			'Dusky',
+			'Rue',
+			'Alastor'
+		].map(Artist.fromString));
+	});
+
+	test('get aggregated genres', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const query = makeUserQuery(makeShareGenresQuery());
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.viewer.genres).toBeArrayOfSize(defaultGenres.length);
+	});
+
+	test('get aggregated song types', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const query = makeUserQuery(makeShareSongTypesQuery());
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.viewer.songTypes).toBeArrayOfSize(defaultSongTypes.length);
+	});
+
+	test('get aggregated tags', async () => {
+		const { graphQLServer } = await setupTest({});
+		const query = makeUserQuery(makeShareTagsQuery());
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const expectedTags = ["Anjuna", "Progressive", "Deep", "Funky", "Dark", "Party Chill"].sort();
+
+		expect(body.data.viewer.tags.sort()).toEqual(expectedTags);
+	});
+})

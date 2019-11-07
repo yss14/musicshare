@@ -11,6 +11,9 @@ import { UserIDArg, PermissionsArg } from '../args/user-args';
 import { ShareIDArg } from '../args/share-args';
 import { ShareAuth } from '../auth/middleware/share-auth';
 import { IServices } from '../services/services';
+import { Artist } from '../models/ArtistModel';
+import { Genre } from '../models/GenreModel';
+import { SongType } from '../models/SongType';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -21,7 +24,7 @@ export class UserResolver {
 
 	@Authorized()
 	@Query(returns => User, { nullable: true })
-	public user(
+	public viewer(
 		@Ctx() ctx: IGraphQLContext,
 	): Promise<User | null> {
 		return this.services.userService.getUserByID(ctx.userID!);
@@ -119,5 +122,37 @@ export class UserResolver {
 		await this.services.permissionService.addPermissionsForUser(shareID, userID, permissions);
 
 		return this.services.permissionService.getPermissionsForUser(shareID, userID);
+	}
+
+	@Authorized()
+	@FieldResolver(() => [Artist])
+	public async artists(
+		@Root() user: User,
+	): Promise<Artist[]> {
+		return this.services.artistService.getAggregatedArtistsForUser(user.id);
+	}
+
+	@Authorized()
+	@FieldResolver(() => [Genre])
+	public async genres(
+		@Root() user: User
+	): Promise<Genre[]> {
+		return this.services.genreService.getAggregatedGenresForUser(user.id);
+	}
+
+	@Authorized()
+	@FieldResolver(() => [SongType])
+	public async songTypes(
+		@Root() user: User
+	): Promise<SongType[]> {
+		return this.services.songTypeService.getAggregatedSongTypesForUser(user.id);
+	}
+
+	@Authorized()
+	@FieldResolver(() => [String])
+	public async tags(
+		@Root() user: User
+	): Promise<string[]> {
+		return this.services.tagService.getAggregatedTagsForUser(user.id);
 	}
 }

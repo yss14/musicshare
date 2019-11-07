@@ -14,6 +14,7 @@ export class ShareNotFoundError extends ForbiddenError {
 export interface IShareService {
 	getSharesOfUser(userID: string): Promise<Share[]>;
 	getShareByID(shareID: string, userID: string): Promise<Share>;
+	getLinkedLibrariesOfUser(userID: string): Promise<Share[]>;
 	create(ownerUserID: string, name: string, isLib: boolean, shareID?: string): Promise<Share>;
 	addUser(shareID: string, userID: string, permissions: Permission[]): Promise<void>;
 }
@@ -48,6 +49,32 @@ export class ShareService implements IShareService {
 		}
 
 		return Share.fromDBResult(dbResults[0]);
+	}
+
+	public async getLinkedLibrariesOfUser(userID: string): Promise<Share[]> {
+		const dbResults = await this.database.query(
+			SQL.raw<typeof CoreTables.shares>(`
+				WITH usershares as (
+					SELECT DISTINCT user_shares.share_id_ref as share_id
+					FROM user_shares, shares
+					WHERE user_shares.user_id_ref = $1
+						AND user_shares.share_id_ref = shares.share_id
+						AND shares.date_removed IS NULL
+				),
+				relatedlibraries as (
+					SELECT DISTINCT libraries.*
+					FROM shares as libraries, user_shares us1, user_shares us2, usershares
+					WHERE usershares.share_id = us1.share_id_ref
+						AND us1.user_id_ref = us2.user_id_ref
+						AND us2.share_id_ref = libraries.share_id
+						AND libraries.date_removed IS NULL
+						AND libraries.is_library = true
+				)
+				SELECT * FROM relatedlibraries;
+			`, [userID])
+		)
+
+		return dbResults.map(Share.fromDBResult)
 	}
 
 	public async create(ownerUserID: string, name: string, isLib: boolean, shareID?: string): Promise<Share> {

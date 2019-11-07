@@ -2,15 +2,18 @@ import { Artist } from "../models/ArtistModel";
 import { ISongService } from "./SongService";
 import { Song } from "../models/SongModel";
 import { flatten } from "lodash";
+import { IShareService } from "./ShareService";
 
 export interface IArtistService {
 	getArtistsForShare(shareID: string): Promise<Artist[]>;
 	getArtistsForShares(shareIDs: string[]): Promise<Artist[]>;
+	getAggregatedArtistsForUser(userID: string): Promise<Artist[]>;
 }
 
 export class ArtistService implements IArtistService {
 	constructor(
 		private readonly songService: ISongService,
+		private readonly shareService: IShareService,
 	) { }
 
 	public async getArtistsForShare(shareID: string) {
@@ -23,6 +26,16 @@ export class ArtistService implements IArtistService {
 		const shareSongs = await Promise.all(shareIDs.map((shareID) => this.songService.getByShare(shareID)));
 
 		return this.fromSongArray(flatten(shareSongs));
+	}
+
+	public async getAggregatedArtistsForUser(userID: string): Promise<Artist[]> {
+		const linkedLibraries = await this.shareService.getLinkedLibrariesOfUser(userID)
+
+		const aggregatedSongs = flatten(
+			await Promise.all(linkedLibraries.map(linkedLibrary => this.songService.getByShare(linkedLibrary.id)))
+		)
+
+		return this.fromSongArray(aggregatedSongs)
 	}
 
 	private fromSongArray(songs: Song[]): Artist[] {
