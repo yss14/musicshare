@@ -60,7 +60,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
 	const invalidAuthTokenStore = AuthTokenStore({ database, tokenGroup: 'authtoken' });
 	const permissionService = PermissionService({ database });
-	const tagService = TagService({ songService });
+	const tagService = TagService({ songService, shareService });
 
 	return {
 		songFileService,

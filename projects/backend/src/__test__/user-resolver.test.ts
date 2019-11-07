@@ -319,6 +319,7 @@ describe('aggregated user related data', () => {
 	const makeShareArtistsQuery = () => `artists{name}`;
 	const makeShareGenresQuery = () => `genres{name,group}`;
 	const makeShareSongTypesQuery = () => `songTypes{name,group,hasArtists,alternativeNames}`;
+	const makeShareTagsQuery = () => 'tags';
 
 	test('get aggregated artists', async () => {
 		const { graphQLServer } = await setupTest({});
@@ -355,5 +356,15 @@ describe('aggregated user related data', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.viewer.songTypes).toBeArrayOfSize(defaultSongTypes.length);
+	});
+
+	test('get aggregated tags', async () => {
+		const { graphQLServer } = await setupTest({});
+		const query = makeUserQuery(makeShareTagsQuery());
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const expectedTags = ["Anjuna", "Progressive", "Deep", "Funky", "Dark", "Party Chill"].sort();
+
+		expect(body.data.viewer.tags.sort()).toEqual(expectedTags);
 	});
 })

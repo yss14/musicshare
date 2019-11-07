@@ -286,7 +286,6 @@ describe('get share song', () => {
 
 describe('get share related data', () => {
 	const makeSharePermissionsQuery = () => `permissions`;
-	const makeShareTagsQuery = () => 'tags';
 
 	test('get share permissions', async () => {
 		const database = makeMockedDatabase();
@@ -298,17 +297,6 @@ describe('get share related data', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.share.permissions).toEqual(Permissions.ALL);
-	});
-
-	test('get share tags', async () => {
-		const { graphQLServer } = await setupTest({});
-		const shareID = testData.shares.library_user1.share_id.toString();
-		const query = makeShareQuery(shareID, [makeShareTagsQuery()]);
-
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
-		const expectedTags = ["Anjuna", "Progressive", "Deep", "Funky", "Dark", "Party Chill"].sort();
-
-		expect(body.data.share.tags.sort()).toEqual(expectedTags);
 	});
 });
 

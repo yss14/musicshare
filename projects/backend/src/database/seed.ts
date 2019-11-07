@@ -137,7 +137,7 @@ const songThunder: ISongDBResult = {
 	requires_user_action: false,
 	file: makeFileObject('songs', 'thunder_imaginedragins', 'thunder_imaginedragins_yt_downloader', 'mp3'),
 	duration: 234,
-	tags: [],
+	tags: ['Good Mood'],
 	date_added: moment().subtract(14, 'hour').toDate(),
 	date_removed: null,
 }

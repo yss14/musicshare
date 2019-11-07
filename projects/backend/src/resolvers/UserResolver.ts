@@ -147,4 +147,12 @@ export class UserResolver {
 	): Promise<SongType[]> {
 		return this.services.songTypeService.getAggregatedSongTypesForUser(user.id);
 	}
+
+	@Authorized()
+	@FieldResolver(() => [String])
+	public async tags(
+		@Root() user: User
+	): Promise<string[]> {
+		return this.services.tagService.getAggregatedTagsForUser(user.id);
+	}
 }
