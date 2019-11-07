@@ -4,7 +4,7 @@ import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
 import { Share } from "../models/ShareModel";
 import { includesSong, compareSongs } from "./utils/compare-songs";
 import { v4 as uuid } from 'uuid';
-import { songKeys } from "./fixtures/song-query";
+import { songKeys, songKeysFileSources, songKeysFileSourceUpload } from "./fixtures/song-query";
 import moment = require("moment");
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { Permissions } from "../auth/permissions";
@@ -250,12 +250,19 @@ describe('get share song', () => {
 
 		const share = testData.shares.library_user1;
 		const song = testData.songs.song2_library_user1;
-		const query = makeShareQuery(share.share_id.toString(), [makeShareSongQuery(song.song_id.toString(), ['fileUploadAccessUrl'])]);
+		const query = makeShareQuery(share.share_id.toString(), [
+			makeShareSongQuery(song.song_id.toString(), [
+				songKeysFileSources([
+					songKeysFileSourceUpload('accessUrl')
+				])
+			])
+		])
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.share.song).toBeDefined();
-		expect(body.data.share.song.fileUploadAccessUrl).toBeString();
+		expect(body.data.share.song.sources).toBeArrayOfSize(1);
+		expect(body.data.share.song.sources[0].accessUrl).toBeString();
 	});
 
 	test('get share song via proxy from linked share succeeds', async () => {
@@ -268,7 +275,7 @@ describe('get share song', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.share.song).not.toBeNull();
-		compareSongs(Song.fromDBResult(song, testData.shares.library_user2.share_id), body.data.share.song);
+		compareSongs(body.data.share.song, Song.fromDBResult(song, testData.shares.library_user2.share_id));
 	})
 
 	test('get share song via proxy from unrelated share fails', async () => {

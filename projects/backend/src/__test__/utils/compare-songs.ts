@@ -1,8 +1,8 @@
 import { Song } from "../../models/SongModel";
 
 export const compareSongs = <S extends Song>(lhs: S, rhs: S) => {
-	const { artists: lArtists, remixer: lRemixer, featurings: lFeaturings, genres: lGenres, releaseDate: lReleaseDate, ...lRest } = lhs;
-	const { artists: rArtists, remixer: rRemixer, featurings: rFeaturings, genres: rGenres, releaseDate: rReleaseDate, ...rRest } = rhs;
+	const { artists: lArtists, remixer: lRemixer, featurings: lFeaturings, genres: lGenres, releaseDate: lReleaseDate, sources: lSources, ...lRest } = lhs;
+	const { artists: rArtists, remixer: rRemixer, featurings: rFeaturings, genres: rGenres, releaseDate: rReleaseDate, sources: rSources, ...rRest } = rhs;
 
 	// need to be sorted, otherwise order is compared by jest
 	expect(lArtists.sort()).toEqual(rArtists.sort());
@@ -17,6 +17,10 @@ export const compareSongs = <S extends Song>(lhs: S, rhs: S) => {
 		expect(lRestWithoutDate).toEqual(rRestWithoutDate);
 	} else {
 		expect(lRest).toEqual(rRest);
+	}
+
+	if (lSources && rSources) {
+		expect(lSources).toMatchObject(rSources)
 	}
 }
 
