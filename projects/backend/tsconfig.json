@@ -13,7 +13,8 @@
 		"outDir": "build/",
 		"skipLibCheck": true,
 		"rootDir": "src",
-		"suppressImplicitAnyIndexErrors": true
+		"suppressImplicitAnyIndexErrors": true,
+		"incremental": true
 	},
 	"include": [
 		"src/**/*"
