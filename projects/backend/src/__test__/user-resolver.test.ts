@@ -14,7 +14,7 @@ import { Scopes } from "../types/context";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 import { Artist } from "../models/ArtistModel";
-import { defaultGenres } from "../database/fixtures";
+import { defaultGenres, defaultSongTypes } from "../database/fixtures";
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -318,6 +318,7 @@ describe('aggregated user related data', () => {
 	}
 	const makeShareArtistsQuery = () => `artists{name}`;
 	const makeShareGenresQuery = () => `genres{name,group}`;
+	const makeShareSongTypesQuery = () => `songTypes{name,group,hasArtists,alternativeNames}`;
 
 	test('get aggregated artists', async () => {
 		const { graphQLServer } = await setupTest({});
@@ -336,7 +337,7 @@ describe('aggregated user related data', () => {
 		].map(Artist.fromString));
 	});
 
-	test.only('get share genres', async () => {
+	test('get aggregated genres', async () => {
 		const { graphQLServer } = await setupTest({});
 
 		const query = makeUserQuery(makeShareGenresQuery());
@@ -344,5 +345,15 @@ describe('aggregated user related data', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.viewer.genres).toBeArrayOfSize(defaultGenres.length);
+	});
+
+	test('get aggregated song types', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const query = makeUserQuery(makeShareSongTypesQuery());
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.viewer.songTypes).toBeArrayOfSize(defaultSongTypes.length);
 	});
 })

@@ -13,6 +13,7 @@ import { ShareAuth } from '../auth/middleware/share-auth';
 import { IServices } from '../services/services';
 import { Artist } from '../models/ArtistModel';
 import { Genre } from '../models/GenreModel';
+import { SongType } from '../models/SongType';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -137,5 +138,13 @@ export class UserResolver {
 		@Root() user: User
 	): Promise<Genre[]> {
 		return this.services.genreService.getAggregatedGenresForUser(user.id);
+	}
+
+	@Authorized()
+	@FieldResolver(() => [SongType])
+	public async songTypes(
+		@Root() user: User
+	): Promise<SongType[]> {
+		return this.services.songTypeService.getAggregatedSongTypesForUser(user.id);
 	}
 }

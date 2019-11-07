@@ -1,7 +1,6 @@
 import { Resolver, Query, Arg, FieldResolver, Root, Authorized, Args, Ctx, Mutation } from "type-graphql";
 import { Share } from "../models/ShareModel";
 import { Song } from "../models/SongModel";
-import { SongType } from '../models/SongType';
 import { Playlist } from '../models/PlaylistModel';
 import { PlaylistIDArg } from '../args/playlist-args';
 import { ShareAuth } from '../auth/middleware/share-auth';
@@ -56,14 +55,6 @@ export class ShareResolver {
 		@Arg('id') id: string
 	): Promise<Song | null> {
 		return this.services.songService.getByID(share, id);
-	}
-
-	@Authorized()
-	@FieldResolver(() => [SongType])
-	public async songTypes(
-		@Root() share: Share
-	): Promise<SongType[]> {
-		return this.services.songTypeService.getSongTypesForShare(share.id);
 	}
 
 	@Authorized()
