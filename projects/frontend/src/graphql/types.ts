@@ -1,3 +1,5 @@
+import { ISongMediaUrl } from "./queries/song-mediaurl-query";
+
 export interface IShareVariables {
 	shareID: string;
 }
@@ -47,7 +49,7 @@ export interface IBaseSong {
 }
 
 export interface IBaseSongPlayable extends IBaseSong {
-	getMediaURL: () => Promise<string>;
+	getMediaURL: () => Promise<ISongMediaUrl[]>;
 }
 
 export interface IShareSong extends IBaseSong {
