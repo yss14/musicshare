@@ -19,6 +19,7 @@ import { PlaylistResolver } from "./resolvers/PlaylistResolver";
 import { configFromEnv } from "./types/config";
 import { connectAndSetupDatabase } from "./database/core-database";
 import { initServices } from "./services/services";
+import { FileUploadResolver } from "./resolvers/FileUploadResolver";
 
 require('source-map-support').install();
 
@@ -44,11 +45,13 @@ if (!isProductionEnvironment()) {
 	const songResolver = new SongResolver(services);
 	const userResolver = new UserResolver(services);
 	const playlistResolver = new PlaylistResolver(services);
+	const fileUploadResolver = new FileUploadResolver(services);
 
 	Container.set(ShareResolver, shareResolver);
 	Container.set(SongResolver, songResolver);
 	Container.set(UserResolver, userResolver);
 	Container.set(PlaylistResolver, playlistResolver);
+	Container.set(FileUploadResolver, fileUploadResolver);
 
 	await services.songFileService.createContainerIfNotExists();
 	console.info('FileStorage connected');

@@ -250,12 +250,12 @@ describe('get share song', () => {
 
 		const share = testData.shares.library_user1;
 		const song = testData.songs.song2_library_user1;
-		const query = makeShareQuery(share.share_id.toString(), [makeShareSongQuery(song.song_id.toString(), ['accessUrl'])]);
+		const query = makeShareQuery(share.share_id.toString(), [makeShareSongQuery(song.song_id.toString(), ['fileUploadAccessUrl'])]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.share.song).toBeDefined();
-		expect(body.data.share.song.accessUrl).toBeString();
+		expect(body.data.share.song.fileUploadAccessUrl).toBeString();
 	});
 
 	test('get share song via proxy from linked share succeeds', async () => {

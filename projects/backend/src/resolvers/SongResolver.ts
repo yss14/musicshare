@@ -1,7 +1,6 @@
 import { Song } from '../models/SongModel';
 import { Resolver, FieldResolver, Root, ResolverInterface, Mutation, Arg, Authorized } from "type-graphql";
-import { File } from '../models/FileModel';
-import moment = require('moment');
+import { FileSource } from '../models/FileSourceModels';
 import { SongUpdateInput } from '../inputs/SongInput';
 import { SongAuth } from '../auth/middleware/song-auth';
 import { IServices } from '../services/services';
@@ -14,22 +13,8 @@ export class SongResolver implements ResolverInterface<Song>{
 
 	@Authorized()
 	@FieldResolver()
-	public file(@Root() song: Song): File {
-		return song.file;
-	}
-
-	@Authorized()
-	@FieldResolver(() => String)
-	public accessUrl(@Root() song: Song): Promise<string> {
-		/* istanbul ignore else */
-		if (song.file) {
-			return this.services.songFileService.getLinkToFile({
-				filenameRemote: song.file.blob,
-				expireDate: moment().add(song.duration, 'seconds').add(5, 'minutes')
-			})
-		} else {
-			throw new Error(`Song ${song.id} has no file attached`);
-		}
+	public sources(@Root() song: Song): FileSource[] {
+		return song.sources;
 	}
 
 	@Authorized()

@@ -1,5 +1,5 @@
 import { TableSchema, ColumnType, PArray, NativeFunction, ForeignKeyUpdateDeleteRule, JSONType } from 'postgres-schema-builder';
-import { IFile } from '../../models/interfaces/IFile';
+import { IFileSourceJSONType } from '../../models/FileSourceModels';
 
 export namespace DatabaseV1 {
 	const baseSchema = TableSchema({
@@ -44,7 +44,7 @@ export namespace DatabaseV1 {
 		type: { type: ColumnType.Varchar },
 		genres: { type: PArray(ColumnType.Varchar) },
 		labels: { type: PArray(ColumnType.Varchar) },
-		file: { type: JSONType<IFile>() },
+		sources: { type: JSONType<IFileSourceJSONType>(), nullable: false },
 		duration: { type: ColumnType.Integer, nullable: false },
 		tags: { type: PArray(ColumnType.Varchar) },
 		requires_user_action: { type: ColumnType.Boolean, nullable: false, default: false },

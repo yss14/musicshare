@@ -7,6 +7,7 @@ import bind from 'bind-decorator';
 import { v4 as uuid } from 'uuid';
 import { ISongTypeService } from '../services/SongTypeService';
 import { IPlaylistService } from '../services/PlaylistService';
+import { makeFileSourceJSONType } from '../models/FileSourceModels';
 
 export interface ISongProcessingQueuePayload {
 	file: IFile;
@@ -81,7 +82,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 				genres: [...(songMeta.genres || [])],
 				labels: songMeta.labels || [],
 				requires_user_action: !songMeta.title || songMeta.title.trim().length === 0 || !songMeta.artists || songMeta.artists.length === 0,
-				file: uploadMeta.file,
+				sources: makeFileSourceJSONType(uploadMeta.file),
 				duration: songMeta.duration || 0,
 				tags: [],
 				date_added: new Date(),

@@ -1,4 +1,4 @@
-import { File } from './FileModel';
+import { FileSource, FileUpload } from './FileSourceModels';
 import { ObjectType, Field } from "type-graphql";
 import { Share } from "./ShareModel";
 import { Nullable } from '../types/Nullable';
@@ -6,8 +6,25 @@ import { ISong } from './interfaces/ISong';
 import { plainToClass } from 'class-transformer';
 import { IShareSongDBResult, ISongDBResult } from '../database/schema/tables';
 import moment = require('moment');
+import { filterNull } from '../utils/array/filter-null'
 
 const isShareSongDBResult = (obj: any): obj is IShareSongDBResult => typeof obj.share_id_ref === 'string';
+
+const mapFileSourceModel = (entry: FileSource): FileSource | null => {
+	if (entry.fileExtension && entry.blob && entry.container) {
+		return plainToClass(
+			FileUpload,
+			{
+				container: entry.container,
+				blob: entry.blob,
+				fileExtension: entry.fileExtension,
+				originalFilename: entry.originalFilename,
+			}
+		)
+	}
+
+	return null
+}
 
 @ObjectType({ description: 'This represents a song and its properties' })
 export class Song implements Nullable<ISong>{
@@ -56,11 +73,11 @@ export class Song implements Nullable<ISong>{
 	@Field(() => Share)
 	public readonly share!: Share;
 
-	@Field(() => File)
-	public readonly file!: File;
+	@Field(() => [FileSource])
+	public readonly sources!: FileSource[];
 
 	@Field()
-	public readonly accessUrl!: string;
+	public readonly fileUploadAccessUrl!: string;
 
 	@Field()
 	public readonly duration!: number;
@@ -94,7 +111,9 @@ export class Song implements Nullable<ISong>{
 				type: row.type,
 				genres: row.genres || [],
 				labels: row.labels || [],
-				file: row.file,
+				sources: row.sources.data
+					.map(mapFileSourceModel)
+					.filter(filterNull),
 				duration: row.duration,
 				tags: row.tags || [],
 				dateAdded: row.date_added.toISOString(),

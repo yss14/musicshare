@@ -173,8 +173,9 @@ export class SongService implements ISongService {
 	public async create(shareID: string, song: ISongDBResult): Promise<string> {
 		// istanbul ignore next
 		let id = song.song_id || uuid();
+		const sources = { data: song.sources.data || [] };
 
-		await this.database.query(SongsTable.insertFromObj(song));
+		await this.database.query(SongsTable.insertFromObj({ ...song, sources: sources }));
 		await this.database.query(ShareSongsTable.insertFromObj({ share_id_ref: shareID, song_id_ref: id }));
 
 		return id.toString();
