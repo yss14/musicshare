@@ -14,6 +14,8 @@ import { IServices } from '../services/services';
 import { Artist } from '../models/ArtistModel';
 import { Genre } from '../models/GenreModel';
 import { SongType } from '../models/SongType';
+import { Song } from '../models/SongModel';
+import { SongSearchInput, SongSearchMatcher } from '../inputs/SongSearchInput';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -154,5 +156,18 @@ export class UserResolver {
 		@Root() user: User
 	): Promise<string[]> {
 		return this.services.tagService.getAggregatedTagsForUser(user.id);
+	}
+
+	@Authorized()
+	@FieldResolver(() => [Song])
+	public async searchSongs(
+		@Root() user: User,
+		@Args() { query, matcher }: SongSearchInput,
+	): Promise<Song[]> {
+		return this.services.songService.searchSongs(
+			user.id,
+			query,
+			matcher || Object.values(SongSearchMatcher)
+		)
 	}
 }

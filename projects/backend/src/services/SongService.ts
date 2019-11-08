@@ -8,6 +8,7 @@ import { v4 as uuid } from 'uuid';
 import { ForbiddenError } from 'apollo-server-core';
 import { Share } from '../models/ShareModel';
 import { uniqBy } from 'lodash'
+import { SongSearchMatcher } from '../inputs/SongSearchInput';
 
 export class SongNotFoundError extends ForbiddenError {
 	constructor(shareID: string, songID: string, proxied: boolean = false) {
@@ -17,6 +18,38 @@ export class SongNotFoundError extends ForbiddenError {
 
 type ShareLike = Share | { id: string, isLibrary: boolean } | string;
 
+const tokenizeQuery = (query: string) => query
+	.trim()
+	.toLowerCase()
+	.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '')
+	.split(' ')
+	.map(token => token.trim())
+	.filter(token => token.length > 0)
+
+const sqlFragements = {
+	accessableShares: `
+		WITH usershares as (
+			SELECT DISTINCT user_shares.share_id_ref as share_id
+			FROM user_shares, shares
+			WHERE user_shares.user_id_ref = $1
+				AND user_shares.share_id_ref = shares.share_id
+				AND shares.date_removed IS NULL
+		),
+		relatedlibraries as (
+			SELECT DISTINCT libraries.share_id
+			FROM shares as libraries, user_shares us1, user_shares us2, usershares
+			WHERE usershares.share_id = us1.share_id_ref
+				AND us1.user_id_ref = us2.user_id_ref
+				AND us2.share_id_ref = libraries.share_id
+				AND libraries.date_removed IS NULL
+		),
+		accessibleshares as (
+			SELECT * FROM usershares
+			UNION DISTINCT
+			SELECT * FROM relatedlibraries
+		)`,
+}
+
 export interface ISongService {
 	getByID(share: ShareLike, songID: string): Promise<Song>;
 	getByShare(share: ShareLike): Promise<Song[]>;
@@ -25,6 +58,7 @@ export interface ISongService {
 	getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]>;
 	create(shareID: string, song: ISongDBResult): Promise<string>;
 	update(shareID: string, songID: string, song: SongUpdateInput): Promise<void>;
+	searchSongs(userID: string, query: string, matcher: SongSearchMatcher[]): Promise<Song[]>;
 }
 
 export class SongService implements ISongService {
@@ -130,26 +164,7 @@ export class SongService implements ISongService {
 	public async hasAccessToSongs(userID: string, songIDs: string[]): Promise<boolean> {
 		const dbResults = await this.database.query(
 			SQL.raw<typeof CoreTables.songs>(`
-				WITH usershares as (
-					SELECT DISTINCT user_shares.share_id_ref as share_id
-					FROM user_shares, shares
-					WHERE user_shares.user_id_ref = $1
-						AND user_shares.share_id_ref = shares.share_id
-						AND shares.date_removed IS NULL
-				),
-				relatedlibraries as (
-				SELECT DISTINCT libraries.share_id
-				FROM shares as libraries, user_shares us1, user_shares us2, usershares
-				WHERE usershares.share_id = us1.share_id_ref
-					AND us1.user_id_ref = us2.user_id_ref
-					AND us2.share_id_ref = libraries.share_id
-					AND libraries.date_removed IS NULL
-				),
-				accessibleshares as (
-					SELECT * FROM usershares
-					UNION DISTINCT
-					SELECT * FROM relatedlibraries
-				)
+				${sqlFragements.accessableShares}
 				SELECT DISTINCT songs.song_id
 				FROM songs, share_songs, accessibleshares
 				WHERE songs.song_id = share_songs.song_id_ref
@@ -195,5 +210,65 @@ export class SongService implements ISongService {
 			SongsTable.update(Object.keys(baseSong) as any, ['song_id'])
 				(Object.values(baseSong), [songID])
 		);
+	}
+
+	public async searchSongs(userID: string, query: string, matchers: SongSearchMatcher[]): Promise<Song[]> {
+		const tokenizedQuery = tokenizeQuery(query)
+		const columnNames = matchers.map(columnName => columnName === 'title' ? columnName : `${columnName}_flatten`)
+
+		const mapColumnToCondition = (columnName: string) => tokenizedQuery.map(token => `lower(${columnName}) LIKE '%${token}%'`)
+		const mapColumnToTokenizedQuery = (columnName: string) => `(
+			${mapColumnToCondition(columnName)
+				.join(' OR ')}
+		)`
+		const unnestStatements = matchers
+			.filter(columnName => columnName !== 'title')
+			.map(columnName => `unnest(${columnName}) ${columnName}_flatten`).join(',')
+		const where = columnNames.map(mapColumnToTokenizedQuery).join(' OR ')
+
+		const sql = `
+			${sqlFragements.accessableShares},
+			matchedsongs as (
+				SELECT DISTINCT ON (songs.song_id) songs.*, share_songs.share_id_ref as share_id
+				FROM songs, share_songs, accessibleshares${unnestStatements.length > 0 ? ', ' : ''} ${unnestStatements}
+				WHERE songs.song_id = share_songs.song_id_ref
+					AND share_songs.share_id_ref = accessibleshares.share_id
+					AND songs.date_removed IS NULL
+					AND (${where})
+			)
+			SELECT matchedsongs.*
+			FROM matchedsongs;
+		`
+		console.log(sql)
+
+		const dbResults = await this.database.query(
+			SQL.raw<typeof CoreTables.songs & typeof CoreTables.share_songs>(sql, [userID])
+		)
+
+		const sum = (acc: number, value: number) => acc + value
+		const containmentScores: { [key: string]: number } = dbResults.reduce((dict, result) => {
+			let score = 0
+
+			for (const matcher of matchers) {
+				for (const token of tokenizedQuery) {
+					const value = result[matcher]
+
+					if (Array.isArray(value)) {
+						score += value.map(val => Number(val.toLowerCase().indexOf(token) > -1 ? 1 : 0))
+							.reduce(sum)
+					} else if (typeof value === 'string' && value.toLowerCase().indexOf(token) > -1) {
+						score += 1
+					}
+				}
+			}
+
+			dict[result.song_id] = score
+
+			return dict
+		}, {})
+
+		return dbResults
+			.map(Song.fromDBResult)
+			.sort((lhs, rhs) => containmentScores[rhs.id] - containmentScores[lhs.id])
 	}
 }
