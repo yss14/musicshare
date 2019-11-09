@@ -28,7 +28,7 @@ interface ITestDataSchema {
 
 export const testPassword = 'test1234';
 
-const songZeroOliverSmith: ISongDBResult = {
+export const songZeroOliverSmith: ISongDBResult = {
 	song_id: 'b5c143b5-0eb2-40d2-b098-8bd9a09a4492',
 	title: 'Zero',
 	suffix: null,
@@ -51,7 +51,7 @@ const songZeroOliverSmith: ISongDBResult = {
 	date_removed: null,
 }
 
-const songPerthDusky: ISongDBResult = {
+export const songPerthDusky: ISongDBResult = {
 	song_id: '7adb2fdc-35fa-4490-9d43-5b1a178902d8',
 	title: 'Perth',
 	suffix: null,
@@ -74,7 +74,7 @@ const songPerthDusky: ISongDBResult = {
 	date_removed: null,
 }
 
-const songContactAlastor: ISongDBResult = {
+export const songContactAlastor: ISongDBResult = {
 	song_id: 'a1cc61af-000e-49b2-86c6-6ff23060238b',
 	title: 'Contact',
 	suffix: null,
@@ -97,7 +97,7 @@ const songContactAlastor: ISongDBResult = {
 	date_removed: null,
 }
 
-const songIsItLove: ISongDBResult = {
+export const songIsItLove: ISongDBResult = {
 	song_id: 'c418f1c4-055c-4768-b834-67aaa03cc3d1',
 	title: 'Is It Love',
 	suffix: null,
@@ -120,7 +120,7 @@ const songIsItLove: ISongDBResult = {
 	date_removed: null,
 }
 
-const songThunder: ISongDBResult = {
+export const songThunder: ISongDBResult = {
 	song_id: 'fb7c77e1-71c9-43b0-8fb5-4a8a4b112a69',
 	title: 'Thunder',
 	suffix: null,
