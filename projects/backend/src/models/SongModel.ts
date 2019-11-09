@@ -7,6 +7,7 @@ import { plainToClass } from 'class-transformer';
 import { IShareSongDBResult, ISongDBResult } from '../database/schema/tables';
 import moment = require('moment');
 import { filterNull } from '../utils/array/filter-null'
+import { connectionTypes } from '../relay/relay';
 
 const isShareSongDBResult = (obj: any): obj is IShareSongDBResult => typeof obj.share_id_ref === 'string';
 
@@ -122,3 +123,8 @@ export class Song implements Nullable<ISong>{
 		)
 	}
 }
+
+const { Connection, Edge } = connectionTypes('Song', Song)
+
+export const SongConnection = Connection
+export const SongEdge = Edge

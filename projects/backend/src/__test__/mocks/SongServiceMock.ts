@@ -2,6 +2,7 @@ import { ISongService } from "../../services/SongService";
 import { Song } from "../../models/SongModel";
 import { v4 as uuid } from 'uuid';
 import { Share } from "../../models/ShareModel";
+import { SongSearchMatcher } from "../../inputs/SongSearchInput";
 
 export class SongServiceMock implements ISongService {
 	public async getByID(shareID: string, songID: string): Promise<Song> {
@@ -29,6 +30,10 @@ export class SongServiceMock implements ISongService {
 	}
 
 	public async update() {
+		throw 'Not implemented yet';
+	}
+
+	public async searchSongs(userID: string, query: string, matcher: SongSearchMatcher[]): Promise<Song[]> {
 		throw 'Not implemented yet';
 	}
 }
