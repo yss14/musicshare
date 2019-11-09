@@ -4,25 +4,25 @@ import { ConnectionCursor } from "graphql-relay"
 import * as Relay from 'graphql-relay'
 import { PageInfo } from "../args/pagination-args"
 
-
 export function connectionTypes<T extends TypeValue>(name: string, nodeType: T) {
 	@ObjectType(`${name}Edge`)
 	class Edge implements Relay.Edge<T> {
 		@Field(() => nodeType)
-		node!: T
+		public readonly node!: T
 
 		@Field({ description: 'Used in `before` and `after` args' })
-		cursor!: ConnectionCursor
+		public readonly cursor!: ConnectionCursor
 	}
 
 	@ObjectType(`${name}Connection`)
 	class Connection implements Relay.Connection<T> {
 		@Field(() => PageInfo)
-		pageInfo!: PageInfo
+		public readonly pageInfo!: PageInfo
 
 		@Field(() => [Edge])
-		edges!: Edge[]
+		public readonly edges!: Edge[]
 	}
+
 	return {
 		Connection,
 		Edge,

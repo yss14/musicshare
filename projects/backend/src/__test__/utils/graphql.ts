@@ -60,8 +60,8 @@ export const makeGraphQLResponse = <T>(expectedData: T, expectedErrors?: any[]) 
 	return response;
 };
 
-export const argumentValidationError = (): IGraphQLResponse<never> => ({
-	errors: [{ message: 'Argument Validation Error' }]
+export const argumentValidationError = (message: string = 'Argument Validation Error'): IGraphQLResponse<never> => ({
+	errors: [{ message }]
 });
 
 export const insufficientPermissionsError = (): IGraphQLResponse<never> => ({

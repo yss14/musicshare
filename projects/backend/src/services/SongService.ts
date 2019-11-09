@@ -5,9 +5,9 @@ import * as snakeCaseObjKeys from 'snakecase-keys';
 import moment = require('moment');
 import { ISongDBResult, CoreTables, SongsTable, ShareSongsTable, SharesTable, UserSharesTable } from '../database/schema/tables';
 import { v4 as uuid } from 'uuid';
-import { ForbiddenError } from 'apollo-server-core';
+import { ForbiddenError, ValidationError } from 'apollo-server-core';
 import { Share } from '../models/ShareModel';
-import { uniqBy } from 'lodash'
+import { uniqBy, flatten } from 'lodash'
 import { SongSearchMatcher } from '../inputs/SongSearchInput';
 
 export class SongNotFoundError extends ForbiddenError {
@@ -214,32 +214,50 @@ export class SongService implements ISongService {
 
 	public async searchSongs(userID: string, query: string, matchers: SongSearchMatcher[]): Promise<Song[]> {
 		const tokenizedQuery = tokenizeQuery(query)
-		const columnNames = matchers.map(columnName => columnName === 'title' ? columnName : `${columnName}_flatten`)
+
+		if (tokenizedQuery.length === 0) {
+			throw new ValidationError('Search query is empty. Only special chars are not a valid search query.')
+		}
+
+		const finalMatchers = flatten(
+			matchers.map(matcher => {
+				switch (matcher) {
+					case SongSearchMatcher.Title: return [matcher, 'type']
+					case SongSearchMatcher.Artists: return [matcher, 'remixer', 'featurings']
+					default: return matcher
+				}
+			})
+		)
+		const columnNames = flatten(
+			finalMatchers.map(columnName => {
+				switch (columnName) {
+					case SongSearchMatcher.Title:
+					case 'type': return [columnName, 'type']
+					default: return `${columnName}_flatten`
+				}
+			})
+		)
 
 		const mapColumnToCondition = (columnName: string) => tokenizedQuery.map(token => `lower(${columnName}) LIKE '%${token}%'`)
 		const mapColumnToTokenizedQuery = (columnName: string) => `(
 			${mapColumnToCondition(columnName)
 				.join(' OR ')}
 		)`
-		const unnestStatements = matchers
-			.filter(columnName => columnName !== 'title')
-			.map(columnName => `unnest(${columnName}) ${columnName}_flatten`).join(',')
+		const unnestStatements = finalMatchers
+			.filter(columnName => columnName !== 'title' && columnName !== 'type')
+			.map(columnName => `LEFT JOIN LATERAL unnest(${columnName}) as ${columnName}_flatten ON true`).join('\n')
 		const where = columnNames.map(mapColumnToTokenizedQuery).join(' OR ')
 
 		const sql = `
-			${sqlFragements.accessableShares},
-			matchedsongs as (
-				SELECT DISTINCT ON (songs.song_id) songs.*, share_songs.share_id_ref as share_id
-				FROM songs, share_songs, accessibleshares${unnestStatements.length > 0 ? ', ' : ''} ${unnestStatements}
-				WHERE songs.song_id = share_songs.song_id_ref
-					AND share_songs.share_id_ref = accessibleshares.share_id
-					AND songs.date_removed IS NULL
-					AND (${where})
-			)
-			SELECT matchedsongs.*
-			FROM matchedsongs;
+			${sqlFragements.accessableShares}
+			SELECT DISTINCT ON (songs.song_id) songs.*, share_songs.share_id_ref
+			FROM songs, share_songs, accessibleshares
+			${unnestStatements}
+			WHERE songs.song_id = share_songs.song_id_ref
+				AND share_songs.share_id_ref = accessibleshares.share_id
+				AND songs.date_removed IS NULL
+				AND (${where});
 		`
-		console.log(sql)
 
 		const dbResults = await this.database.query(
 			SQL.raw<typeof CoreTables.songs & typeof CoreTables.share_songs>(sql, [userID])
@@ -249,13 +267,13 @@ export class SongService implements ISongService {
 		const containmentScores: { [key: string]: number } = dbResults.reduce((dict, result) => {
 			let score = 0
 
-			for (const matcher of matchers) {
+			for (const matcher of finalMatchers) {
 				for (const token of tokenizedQuery) {
 					const value = result[matcher]
 
 					if (Array.isArray(value)) {
 						score += value.map(val => Number(val.toLowerCase().indexOf(token) > -1 ? 1 : 0))
-							.reduce(sum)
+							.reduce(sum, 0)
 					} else if (typeof value === 'string' && value.toLowerCase().indexOf(token) > -1) {
 						score += 1
 					}

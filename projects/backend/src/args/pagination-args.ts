@@ -6,23 +6,23 @@ export type ConnectionCursor = Relay.ConnectionCursor
 @ObjectType()
 export class PageInfo implements Relay.PageInfo {
 	@Field()
-	hasNextPage!: boolean
+	public readonly hasNextPage!: boolean
 	@Field()
-	hasPreviousPage!: boolean
+	public readonly hasPreviousPage!: boolean
 	@Field()
-	startCursor?: ConnectionCursor
+	public readonly startCursor?: ConnectionCursor
 	@Field()
-	endCursor?: ConnectionCursor
+	public readonly endCursor?: ConnectionCursor
 }
 
 @ArgsType()
 export class ConnectionArgs implements Relay.ConnectionArguments {
 	@Field({ nullable: true, description: 'Paginate before opaque cursor' })
-	before?: ConnectionCursor
+	public readonly before?: ConnectionCursor
 	@Field({ nullable: true, description: 'Paginate after opaque cursor' })
-	after?: ConnectionCursor
+	public readonly after?: ConnectionCursor
 	@Field({ nullable: true, description: 'Paginate first' })
-	first?: number
+	public readonly first?: number
 	@Field({ nullable: true, description: 'Paginate last' })
-	last?: number
+	public readonly last?: number
 }
