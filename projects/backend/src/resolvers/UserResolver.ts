@@ -162,12 +162,13 @@ export class UserResolver {
 	@FieldResolver(() => [Song])
 	public async searchSongs(
 		@Root() user: User,
-		@Args() { query, matcher }: SongSearchInput,
+		@Args() { query, matcher, limit }: SongSearchInput,
 	): Promise<Song[]> {
 		return this.services.songService.searchSongs(
 			user.id,
 			query,
-			matcher || Object.values(SongSearchMatcher)
+			matcher || Object.values(SongSearchMatcher),
+			limit,
 		)
 	}
 }

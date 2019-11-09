@@ -7,7 +7,7 @@ import { ISongDBResult, CoreTables, SongsTable, ShareSongsTable, SharesTable, Us
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError, ValidationError } from 'apollo-server-core';
 import { Share } from '../models/ShareModel';
-import { uniqBy, flatten } from 'lodash'
+import { uniqBy, flatten, take } from 'lodash'
 import { SongSearchMatcher } from '../inputs/SongSearchInput';
 
 export class SongNotFoundError extends ForbiddenError {
@@ -21,7 +21,7 @@ type ShareLike = Share | { id: string, isLibrary: boolean } | string;
 const tokenizeQuery = (query: string) => query
 	.trim()
 	.toLowerCase()
-	.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '')
+	.replace(/[&\/\\#,+()$~%.'":*?<>{}!]/g, '')
 	.split(' ')
 	.map(token => token.trim())
 	.filter(token => token.length > 0)
@@ -58,7 +58,7 @@ export interface ISongService {
 	getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]>;
 	create(shareID: string, song: ISongDBResult): Promise<string>;
 	update(shareID: string, songID: string, song: SongUpdateInput): Promise<void>;
-	searchSongs(userID: string, query: string, matcher: SongSearchMatcher[]): Promise<Song[]>;
+	searchSongs(userID: string, query: string, matcher: SongSearchMatcher[], limit?: number): Promise<Song[]>;
 }
 
 export class SongService implements ISongService {
@@ -212,7 +212,7 @@ export class SongService implements ISongService {
 		);
 	}
 
-	public async searchSongs(userID: string, query: string, matchers: SongSearchMatcher[]): Promise<Song[]> {
+	public async searchSongs(userID: string, query: string, matchers: SongSearchMatcher[], limit: number = 20): Promise<Song[]> {
 		const tokenizedQuery = tokenizeQuery(query)
 
 		if (tokenizedQuery.length === 0) {
@@ -285,8 +285,11 @@ export class SongService implements ISongService {
 			return dict
 		}, {})
 
-		return dbResults
-			.map(Song.fromDBResult)
-			.sort((lhs, rhs) => containmentScores[rhs.id] - containmentScores[lhs.id])
+		return take(
+			dbResults
+				.map(Song.fromDBResult)
+				.sort((lhs, rhs) => containmentScores[rhs.id] - containmentScores[lhs.id])
+			, limit // cannot use limit in sql query because scoring happens in code
+		)
 	}
 }

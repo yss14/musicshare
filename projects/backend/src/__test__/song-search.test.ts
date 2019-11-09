@@ -74,6 +74,19 @@ describe('service', () => {
 		expectedSongs.forEach(expectedSong => includesSong(songs, expectedSong))
 	})
 
+	test('all matchers four token query with limit', async () => {
+		const { songService } = await setupTest({})
+
+		const songs = await songService.searchSongs(userID, 'Zero Oliver Smith Anjuna', allMatchers, 2)
+		const expectedSongs = [
+			Song.fromDBResult(songZeroOliverSmith, shareID),
+			Song.fromDBResult(songPerthDusky, shareID),
+		]
+
+		expect(songs).toBeArrayOfSize(expectedSongs.length)
+		expectedSongs.forEach(expectedSong => includesSong(songs, expectedSong))
+	})
+
 	test('single matchers two token query', async () => {
 		const { songService } = await setupTest({})
 
@@ -92,7 +105,7 @@ describe('service', () => {
 	})
 })
 
-describe.only('resolver', () => {
+describe('resolver', () => {
 	const makeSearchQuery = (query: string, matchers: string[] = allMatcherKeys) => `
 		query {
 			viewer {

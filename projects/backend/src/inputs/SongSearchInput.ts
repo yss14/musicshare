@@ -1,5 +1,5 @@
-import { Field, registerEnumType, ArgsType } from "type-graphql";
-import { MinLength } from "class-validator";
+import { Field, registerEnumType, ArgsType, Int } from "type-graphql";
+import { MinLength, Min, Max } from "class-validator";
 
 export enum SongSearchMatcher {
 	Title = 'title',
@@ -23,4 +23,9 @@ export class SongSearchInput {
 
 	@Field(type => [SongSearchMatcher], { nullable: true })
 	public readonly matcher!: SongSearchMatcher[] | null;
+
+	@Field(() => Int, { defaultValue: 20 })
+	@Min(1)
+	@Max(50)
+	public readonly limit!: number;
 }
