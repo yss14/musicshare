@@ -1,17 +1,28 @@
 import React from 'react';
 import { Typography } from 'antd';
-import { IBaseSong } from '../../graphql/types';
+import { IBaseSong, IScopedSong } from '../../graphql/types';
 import styled from 'styled-components';
 import { formatDuration } from '../../utils/format-duration';
+import { SongSearch } from './search/SongSearch';
+import { usePlayer } from '../../player/player-hook';
+import { useSongUtils } from '../../hooks/use-song-utils';
 
 const { Title, Text } = Typography;
 
-const Wrapper = styled.div`
+const SongTableHeaderFlexContainer = styled.div`
+	display: flex;
+	flex-direction: row;
 	width: 100%;
 	padding: 8px;
 	box-sizing: border-box;
 	background-color: white;
 `;
+
+const MetaInfoContainer = styled.div`
+	display: flex;
+	flex: 1 1 0px;
+	flex-direction: column;
+`
 
 interface ISongTableHeaderProps {
 	songs: IBaseSong[];
@@ -19,12 +30,23 @@ interface ISongTableHeaderProps {
 }
 
 export const SongTableHeader = ({ songs, title }: ISongTableHeaderProps) => {
+	const { changeSong } = usePlayer()
+	const { makePlayableSong } = useSongUtils()
+
 	const durationSum = songs.reduce((acc, song) => acc + song.duration, 0);
 
+	const onClickSong = (song: IScopedSong) => {
+		console.log(song)
+		changeSong(makePlayableSong(song))
+	}
+
 	return (
-		<Wrapper>
-			<Title level={4} style={{ marginBottom: 0 }}>{title}</Title>
-			<Text>{songs.length} songs | {formatDuration(durationSum)}</Text>
-		</Wrapper>
+		<SongTableHeaderFlexContainer>
+			<MetaInfoContainer>
+				<Title level={4} style={{ marginBottom: 0 }}>{title}</Title>
+				<Text>{songs.length} songs | {formatDuration(durationSum)}</Text>
+			</MetaInfoContainer>
+			<SongSearch onClickSong={onClickSong} />
+		</SongTableHeaderFlexContainer>
 	);
 }
