@@ -101,7 +101,7 @@ export class ShareResolver {
 	}
 
 	@Authorized()
-	@ShareAuth()
+	@ShareAuth({ permissions: ["share:owner"] })
 	@Mutation(() => Share)
 	public async renameShare(
 		@Args() { shareID }: ShareIDArg,
@@ -114,7 +114,7 @@ export class ShareResolver {
 	}
 
 	@Authorized()
-	@ShareAuth()
+	@ShareAuth({ permissions: ["share:owner"] })
 	@Mutation(() => Boolean)
 	public async deleteShare(
 		@Args() { shareID }: ShareIDArg,
