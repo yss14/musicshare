@@ -81,17 +81,17 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 			search(debouncedQuery, searchOptions.matcher)
 			toggleSearching()
 		}
-	}, [debouncedQuery, prevDebouncedQuery, searchOptions.matcher])
+	}, [debouncedQuery, prevDebouncedQuery, searchOptions.matcher, search, toggleSearching])
 
 	useEffect(() => {
 		if (!loading) {
 			resetSearching()
 		}
-	}, [loading])
+	}, [loading, resetSearching])
 
 	useEffect(() => {
 		onSearchFilterChange({ mode: searchOptions.mode, query: debouncedQuery, matcher: searchOptions.matcher })
-	}, [searchOptions, debouncedQuery])
+	}, [searchOptions, debouncedQuery, onSearchFilterChange])
 
 	let options = (songs || []).map(song => (
 		<SongSearchItem

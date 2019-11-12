@@ -43,7 +43,7 @@ export const SongSearchOptionsPopover: React.FC<ISongSearchOptionsPopoverProps> 
 		})
 	}
 
-	useEffect(() => onOptionChange({ matcher: matching.checkedList, mode }), [matching.checkedList, mode])
+	useEffect(() => onOptionChange({ matcher: matching.checkedList, mode }), [matching.checkedList, mode, onOptionChange])
 
 	const content = (
 		<Form>
