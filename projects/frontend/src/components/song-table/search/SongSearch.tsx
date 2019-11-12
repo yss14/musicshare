@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react'
-import { Icon, Input, AutoComplete } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react'
+import { Icon, Input } from 'antd';
 import { useDebounce } from 'use-debounce';
 import { useSongSearch } from '../../../graphql/queries/song-search';
 import { buildSongName } from '../../../utils/songname-builder';
 import styled from 'styled-components';
 import { IScopedSong, IBaseSong, IPlaylist } from '../../../graphql/types';
-import { SelectValue } from 'antd/lib/select';
 import { usePrevValue } from '../../../hooks/use-prev-value';
 import { useDeferedFlag } from '../../../hooks/use-defered-flag';
 import { ISongSearchOptions, allMatchingOptions, ISongSearchFilter } from './search-types';
@@ -58,24 +57,24 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 	const [debouncedQuery] = useDebounce(query, 150)
 	const prevDebouncedQuery = usePrevValue(debouncedQuery)
 	const [isSearching, toggleSearching, resetSearching] = useDeferedFlag(500)
-	const { data: songs, loading, error, search } = useSongSearch()
+	const { data: songs, loading, search } = useSongSearch()
 	const [showResults, setShowResults] = useState(false)
 	const [isDraggingSong, setIsDraggingSong] = useState(false)
 	const [isClickingSong, setIsClickingSong] = useResettingState(false, 1000)
 
-	const onInputBlur = () => {
+	const onInputBlur = useCallback(() => {
 		setTimeout(() => {
 			if (!isDraggingSong && !isClickingSong) {
 				setShowResults(false)
 			}
 		}, 100)
-	}
+	}, [isDraggingSong, isClickingSong, setShowResults])
 
-	const onSongClick = (song: IScopedSong) => {
+	const onSongClick = useCallback((song: IScopedSong) => {
 		setIsClickingSong(true)
 
 		onClickSong(song)
-	}
+	}, [setIsClickingSong, onClickSong])
 
 	useEffect(() => {
 		if (debouncedQuery) {

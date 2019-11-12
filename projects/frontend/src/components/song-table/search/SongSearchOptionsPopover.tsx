@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react"
+import React, { useEffect, useState } from "react"
 import Checkbox, { CheckboxChangeEvent } from "antd/lib/checkbox"
 import CheckboxGroup, { CheckboxValueType } from "antd/lib/checkbox/Group"
 import styled from "styled-components"

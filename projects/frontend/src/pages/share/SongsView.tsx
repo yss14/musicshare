@@ -8,7 +8,6 @@ import { SongTable } from "../../components/song-table/SongTable";
 import { SongModal } from "../../components/modals/song-modal/SongModal";
 import { SongContextMenu } from "./SongContextMenu";
 import { ISongSearchFilter, allMatchingOptions } from "../../components/song-table/search/search-types";
-import { buildSongName } from "../../utils/songname-builder";
 
 const tokenizeQuery = (query: string) => query
 	.trim()

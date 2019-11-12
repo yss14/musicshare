@@ -1,8 +1,8 @@
 import { shareSongKeys, IScopedSong } from "../types";
 import gql from "graphql-tag";
-import { useQuery, useLazyQuery } from "react-apollo";
+import { useLazyQuery } from "react-apollo";
 import { useCallback, useState } from "react";
-import { makeScopedSongs, makeScopedSong } from "../utils/data-transformations";
+import { makeScopedSong } from "../utils/data-transformations";
 
 export interface ISongSearchData {
 	viewer: {
