@@ -11,6 +11,7 @@ import { Permissions } from "../auth/permissions";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 import { Song } from "../models/SongModel";
+import { ShareNotFoundError } from "../services/ShareService";
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -87,16 +88,6 @@ const makeSharePlaylistQuery = (playlistID: string, fields: string[] = []) => `
 		shareID,
 		dateAdded,
 		${fields.join(',\n')}
-	}
-`;
-
-const makeCreateShareMutation = (name: string) => `
-	mutation{
-		createShare(name: "${name}"){
-			id,
-			name,
-			permissions
-		}
 	}
 `;
 
@@ -378,6 +369,16 @@ describe('get user permissions', () => {
 });
 
 describe('create share', () => {
+	const makeCreateShareMutation = (name: string) => `
+		mutation{
+			createShare(name: "${name}"){
+				id,
+				name,
+				permissions
+			}
+		}
+	`;
+
 	test('valid share', async () => {
 		const { graphQLServer } = await setupTest({});
 
@@ -396,7 +397,90 @@ describe('create share', () => {
 		const query = makeCreateShareMutation("");
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
-		expect(body.data.createShare).toBe(null);
+		expect(body.data).toBe(null);
 		expect(body.errors).toMatchObject([{ message: "Argument Validation Error" }])
 	});
 });
+
+describe('rename share', () => {
+	const makeRenameShareMutation = (shareID: string, name: string) => `
+		mutation{
+			renameShare(shareID: "${shareID}" name: "${name}"){
+				id
+				name
+			}
+		}
+	`;
+	const shareID = testData.shares.library_user1.share_id
+
+	test('valid name', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const newShareName = "New Share";
+		const query = makeRenameShareMutation(shareID, newShareName);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.renameShare).toEqual({
+			id: shareID,
+			name: newShareName,
+		});
+	});
+
+	test('invalid name', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const query = makeRenameShareMutation(shareID, "");
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data).toBeNull()
+		expect(body.errors).toMatchObject([{ message: "Argument Validation Error" }])
+	});
+
+	test('forbidden share', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const shareID = testData.shares.library_user2.share_id
+		const query = makeRenameShareMutation(shareID, "New Share");
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data).toBeNull()
+		expect(body.errors).toMatchObject([{ message: `Share with id ${shareID} not found` }])
+	});
+});
+
+describe('delete share', () => {
+	const makeDeleteShareMutation = (shareID: string) => `
+		mutation{
+			deleteShare(shareID: "${shareID}")
+		}
+	`;
+	const shareID = testData.shares.library_user1.share_id
+
+	test('existing share', async () => {
+		const { graphQLServer, shareService } = await setupTest({});
+
+		const userID = testData.users.user1.user_id
+		const query = makeDeleteShareMutation(shareID);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.deleteShare).toBeTrue()
+
+		await expect(shareService.getShareByID(shareID, userID)).rejects.toThrowError(ShareNotFoundError)
+
+		const userShares = await shareService.getSharesOfUser(userID)
+		expect(userShares.map(share => share.id)).not.toContain(shareID)
+	});
+
+	test('forbidden share', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const shareID = testData.shares.library_user2.share_id
+		const query = makeDeleteShareMutation(shareID);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data).toBeNull()
+		expect(body.errors).toMatchObject([{ message: `Share with id ${shareID} not found` }])
+	});
+})
