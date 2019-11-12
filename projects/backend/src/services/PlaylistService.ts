@@ -1,7 +1,7 @@
 import { IDatabaseClient, SQL } from "postgres-schema-builder";
 import { Playlist } from "../models/PlaylistModel";
 import { ISongService } from "./SongService";
-import { IPlaylistDBResult, PlaylistsTable, SharePlaylistsTable, PlaylistSongsTable, SongsTable, CoreTables, ShareSongsTable } from "../database/schema/tables";
+import { IPlaylistDBResult, PlaylistsTable, SharePlaylistsTable, PlaylistSongsTable, SongsTable, CoreTables } from "../database/schema/tables";
 import { v4 as uuid } from 'uuid';
 import { Song } from "../models/SongModel";
 import { ForbiddenError } from "apollo-server-core";
@@ -113,11 +113,10 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 	}
 
 	const getSongs = async (playlistID: string): Promise<Song[]> => {
-		const songQuery = SQL.raw<typeof CoreTables.songs & typeof CoreTables.share_songs>(`
-			SELECT s.*, ss.share_id_ref
+		const songQuery = SQL.raw<typeof CoreTables.songs>(`
+			SELECT s.*
 			FROM ${SongsTable.name} s
 			INNER JOIN ${PlaylistSongsTable.name} ps ON ps.song_id_ref = s.song_id
-			INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
 			WHERE ps.playlist_id_ref = $1
 			ORDER BY ps.position ASC;
 		`, [playlistID]);
@@ -126,7 +125,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 
 		return songs
 			.filter(song => song.date_removed === null)
-			.map(Song.fromDBResult);
+			.map(result => Song.fromDBResult(result));
 	};
 
 	const updateOrder = async (shareID: string, playlistID: string, orderUpdates: OrderUpdate[]) => {

@@ -3,7 +3,7 @@ import { IDatabaseClient, SQL } from 'postgres-schema-builder';
 import { SongUpdateInput } from '../inputs/SongInput';
 import * as snakeCaseObjKeys from 'snakecase-keys';
 import moment = require('moment');
-import { ISongDBResult, CoreTables, SongsTable, ShareSongsTable, SharesTable, UserSharesTable } from '../database/schema/tables';
+import { ISongDBResult, CoreTables, SongsTable, SharesTable, UserSharesTable } from '../database/schema/tables';
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError, ValidationError } from 'apollo-server-core';
 import { Share } from '../models/ShareModel';
@@ -69,11 +69,10 @@ export class SongService implements ISongService {
 	public async getByID(share: ShareLike, songID: string): Promise<Song> {
 		const getByShare = async (shareID: string) => {
 			const dbResults = await this.database.query(
-				SQL.raw<typeof CoreTables.songs & typeof CoreTables.share_songs>(`
-					SELECT s.*, ss.share_id_ref
+				SQL.raw<typeof CoreTables.songs>(`
+					SELECT s.*
 					FROM ${SongsTable.name} s
-					INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
-					WHERE s.song_id = $1 AND ss.share_id_ref = $2 AND s.date_removed IS NULL;
+					WHERE s.song_id = $1 AND s.share_id_ref = $2 AND s.date_removed IS NULL;
 				`, [songID, shareID])
 			);
 
@@ -125,17 +124,16 @@ export class SongService implements ISongService {
 
 	private async getByShares(shareIDs: string[]): Promise<Song[]> {
 		const dbResults = await this.database.query(
-			SQL.raw<typeof CoreTables.songs & typeof CoreTables.share_songs>(`
-				SELECT s.*, ss.share_id_ref
+			SQL.raw<typeof CoreTables.songs>(`
+				SELECT s.*
 				FROM ${SongsTable.name} s
-				INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
-				WHERE ss.share_id_ref = ANY($1) AND s.date_removed IS NULL
+				WHERE s.share_id_ref = ANY($1) AND s.date_removed IS NULL
 				ORDER BY s.date_added;
 			`, [shareIDs])
 		);
 
 		return dbResults
-			.map(Song.fromDBResult);
+			.map(result => Song.fromDBResult(result));
 	}
 
 	public async getSongOriginShare(referencedShareID: string, songID: string): Promise<Share | null> {
@@ -143,8 +141,7 @@ export class SongService implements ISongService {
 			SQL.raw<typeof CoreTables.shares>(`
 				SELECT DISTINCT shares.*
 				FROM ${SongsTable.name} songs
-				INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = songs.song_id
-				INNER JOIN ${SharesTable.name} shares ON shares.share_id = ss.share_id_ref
+				INNER JOIN ${SharesTable.name} shares ON shares.share_id = songs.share_id_ref
 				INNER JOIN ${UserSharesTable.name} us1 ON us1.share_id_ref = shares.share_id
 				INNER JOIN ${UserSharesTable.name} us2 ON us2.user_id_ref = us1.user_id_ref
 				WHERE songs.song_id = $1 
@@ -166,9 +163,8 @@ export class SongService implements ISongService {
 			SQL.raw<typeof CoreTables.songs>(`
 				${sqlFragements.accessableShares}
 				SELECT DISTINCT songs.song_id
-				FROM songs, share_songs, accessibleshares
-				WHERE songs.song_id = share_songs.song_id_ref
-					AND share_songs.share_id_ref = accessibleshares.share_id
+				FROM songs, accessibleshares
+				WHERE songs.share_id_ref = accessibleshares.share_id
 					AND songs.date_removed IS NULL;
 			
 			`, [userID])
@@ -190,8 +186,7 @@ export class SongService implements ISongService {
 		let id = song.song_id || uuid();
 		const sources = { data: song.sources.data || [] };
 
-		await this.database.query(SongsTable.insertFromObj({ ...song, sources: sources }));
-		await this.database.query(ShareSongsTable.insertFromObj({ share_id_ref: shareID, song_id_ref: id }));
+		await this.database.query(SongsTable.insertFromObj({ ...song, sources: sources, share_id_ref: shareID }));
 
 		return id.toString();
 	}
@@ -250,17 +245,16 @@ export class SongService implements ISongService {
 
 		const sql = `
 			${sqlFragements.accessableShares}
-			SELECT DISTINCT ON (songs.song_id) songs.*, share_songs.share_id_ref
-			FROM songs, share_songs, accessibleshares
+			SELECT DISTINCT ON (songs.song_id) songs.*
+			FROM songs, accessibleshares
 			${unnestStatements}
-			WHERE songs.song_id = share_songs.song_id_ref
-				AND share_songs.share_id_ref = accessibleshares.share_id
+			WHERE songs.share_id_ref = accessibleshares.share_id
 				AND songs.date_removed IS NULL
 				AND (${where});
 		`
 
 		const dbResults = await this.database.query(
-			SQL.raw<typeof CoreTables.songs & typeof CoreTables.share_songs>(sql, [userID])
+			SQL.raw<typeof CoreTables.songs>(sql, [userID])
 		)
 
 		const sum = (acc: number, value: number) => acc + value
@@ -287,7 +281,7 @@ export class SongService implements ISongService {
 
 		return take(
 			dbResults
-				.map(Song.fromDBResult)
+				.map(result => Song.fromDBResult(result))
 				.sort((lhs, rhs) => containmentScores[rhs.id] - containmentScores[lhs.id])
 			, limit // cannot use limit in sql query because scoring happens in code
 		)

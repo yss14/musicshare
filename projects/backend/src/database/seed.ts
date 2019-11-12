@@ -28,6 +28,18 @@ interface ITestDataSchema {
 
 export const testPassword = 'test1234';
 
+const libraryUser1ShareID = 'de35f11a-a748-49cc-8da2-02ef12109ea5';
+const libraryUser2ShareID = 'f02f540b-7db9-4655-b693-b89bb492a369';
+const someShareShareID = 'f9d531d3-94f0-4876-af17-deda34194345';
+const libraryUser3ShareID = '947266ea-b75f-4827-ba7e-2293d32e0c71';
+const user1ID = 'f0d8e1f0-aeb1-11e8-a117-43673ffd376b';
+const user2ID = '3ba6fab4-f6ad-4916-9f1d-cdcfe522fd8e';
+const user3ID = 'f8e7ded2-65e2-4348-960d-8abc72146bf9';
+const playlist1LibraryUser1ID = 'c3a21eb2-0cbd-4382-80b4-70925d6fd41d'
+const playlist2LibraryUser1ID = '76ba6247-079f-4700-a711-92a504704213'
+const playlistSomeSharedLibraryID = '8d6fa7cf-f416-408d-b964-d154e256a4cd'
+const playlist1LibraryUser2ID = '7d25fbd2-aaac-4730-b5a3-2e77e4166607'
+
 export const songZeroOliverSmith: ISongDBResult = {
 	song_id: 'b5c143b5-0eb2-40d2-b098-8bd9a09a4492',
 	title: 'Zero',
@@ -49,6 +61,7 @@ export const songZeroOliverSmith: ISongDBResult = {
 	tags: ['Anjuna', 'Progressive'],
 	date_added: moment().subtract(3, 'hours').toDate(),
 	date_removed: null,
+	share_id_ref: libraryUser1ShareID,
 }
 
 export const songPerthDusky: ISongDBResult = {
@@ -72,6 +85,7 @@ export const songPerthDusky: ISongDBResult = {
 	tags: ['Anjuna', 'Deep', 'Funky'],
 	date_added: moment().subtract(2, 'hours').toDate(),
 	date_removed: null,
+	share_id_ref: libraryUser1ShareID,
 }
 
 export const songContactAlastor: ISongDBResult = {
@@ -95,6 +109,7 @@ export const songContactAlastor: ISongDBResult = {
 	tags: ['Dark', 'Party Chill'],
 	date_added: moment().subtract(1, 'hour').toDate(),
 	date_removed: null,
+	share_id_ref: libraryUser1ShareID,
 }
 
 export const songIsItLove: ISongDBResult = {
@@ -118,6 +133,7 @@ export const songIsItLove: ISongDBResult = {
 	tags: [],
 	date_added: moment().subtract(48, 'hour').toDate(),
 	date_removed: null,
+	share_id_ref: libraryUser2ShareID,
 }
 
 export const songThunder: ISongDBResult = {
@@ -143,19 +159,8 @@ export const songThunder: ISongDBResult = {
 	tags: ['Good Mood'],
 	date_added: moment().subtract(14, 'hour').toDate(),
 	date_removed: null,
+	share_id_ref: libraryUser3ShareID,
 }
-
-const libraryUser1ShareID = 'de35f11a-a748-49cc-8da2-02ef12109ea5';
-const libraryUser2ShareID = 'f02f540b-7db9-4655-b693-b89bb492a369';
-const someShareShareID = 'f9d531d3-94f0-4876-af17-deda34194345';
-const libraryUser3ShareID = '947266ea-b75f-4827-ba7e-2293d32e0c71';
-const user1ID = 'f0d8e1f0-aeb1-11e8-a117-43673ffd376b';
-const user2ID = '3ba6fab4-f6ad-4916-9f1d-cdcfe522fd8e';
-const user3ID = 'f8e7ded2-65e2-4348-960d-8abc72146bf9';
-const playlist1LibraryUser1ID = 'c3a21eb2-0cbd-4382-80b4-70925d6fd41d'
-const playlist2LibraryUser1ID = '76ba6247-079f-4700-a711-92a504704213'
-const playlistSomeSharedLibraryID = '8d6fa7cf-f416-408d-b964-d154e256a4cd'
-const playlist1LibraryUser2ID = '7d25fbd2-aaac-4730-b5a3-2e77e4166607'
 
 export const testData: ITestDataSchema = {
 	users: {
@@ -293,11 +298,11 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 
 			for (const [key, song] of Object.entries(testData.songs)) {
 				if (key.indexOf('user1') > -1) {
-					await songService.create(libraryUser1ShareID, song);
+					await songService.create(libraryUser1ShareID, { ...song, share_id_ref: libraryUser1ShareID });
 				} else if (key.indexOf('user2') > -1) {
-					await songService.create(libraryUser2ShareID, song);
+					await songService.create(libraryUser2ShareID, { ...song, share_id_ref: libraryUser2ShareID });
 				} else if (key.indexOf('user3') > -1) {
-					await songService.create(libraryUser3ShareID, song);
+					await songService.create(libraryUser3ShareID, { ...song, share_id_ref: libraryUser3ShareID });
 				}
 			}
 
@@ -338,6 +343,7 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 					tags: [],
 					date_added: new Date(),
 					date_removed: null,
+					share_id_ref: libraryUser1ShareID,
 				}));
 
 			await Promise.all(songInserts.map(song => songService.create(libraryUser1ShareID, song)));
