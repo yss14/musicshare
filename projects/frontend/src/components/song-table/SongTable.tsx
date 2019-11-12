@@ -55,15 +55,13 @@ const DragableSongRow = ({ song, ...props }: ISongTableRowProps) => {
 				addSongsToPlaylist(dragResult.playlist.shareID, dragResult.playlist.id, [song.id])
 			}
 		},
-		collect: monitor => ({
-			isDragging: monitor.isDragging(),
-		}),
 	})
 
-	return (<>
-		<DragPreviewImage connect={dragPreview} src={songDragPreviewImg} />
-		<tr {...props} ref={drag} />
-	</>
+	return (
+		<>
+			<DragPreviewImage connect={dragPreview} src={songDragPreviewImg} />
+			<tr {...props} ref={drag} />
+		</>
 	)
 }
 
