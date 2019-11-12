@@ -11,6 +11,7 @@ import { Permissions } from "../auth/permissions";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 import { Song } from "../models/SongModel";
+import { ShareNotFoundError } from "../services/ShareService";
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -396,7 +397,7 @@ describe('create share', () => {
 		const query = makeCreateShareMutation("");
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
-		expect(body.data.createShare).toBe(null);
+		expect(body.data).toBe(null);
 		expect(body.errors).toMatchObject([{ message: "Argument Validation Error" }])
 	});
 });
@@ -447,3 +448,39 @@ describe('rename share', () => {
 		expect(body.errors).toMatchObject([{ message: `Share with id ${shareID} not found` }])
 	});
 });
+
+describe('delete share', () => {
+	const makeDeleteShareMutation = (shareID: string) => `
+		mutation{
+			deleteShare(shareID: "${shareID}")
+		}
+	`;
+	const shareID = testData.shares.library_user1.share_id
+
+	test('existing share', async () => {
+		const { graphQLServer, shareService } = await setupTest({});
+
+		const userID = testData.users.user1.user_id
+		const query = makeDeleteShareMutation(shareID);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.deleteShare).toBeTrue()
+
+		await expect(shareService.getShareByID(shareID, userID)).rejects.toThrowError(ShareNotFoundError)
+
+		const userShares = await shareService.getSharesOfUser(userID)
+		expect(userShares.map(share => share.id)).not.toContain(shareID)
+	});
+
+	test('forbidden share', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const shareID = testData.shares.library_user2.share_id
+		const query = makeDeleteShareMutation(shareID);
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data).toBeNull()
+		expect(body.errors).toMatchObject([{ message: `Share with id ${shareID} not found` }])
+	});
+})

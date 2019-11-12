@@ -101,6 +101,7 @@ export class ShareResolver {
 	}
 
 	@Authorized()
+	@ShareAuth()
 	@Mutation(() => Share)
 	public async renameShare(
 		@Args() { shareID }: ShareIDArg,
@@ -110,5 +111,16 @@ export class ShareResolver {
 		await this.services.shareService.rename(shareID, name)
 
 		return this.services.shareService.getShareByID(shareID, ctx.userID!)
+	}
+
+	@Authorized()
+	@ShareAuth()
+	@Mutation(() => Boolean)
+	public async deleteShare(
+		@Args() { shareID }: ShareIDArg,
+	): Promise<boolean> {
+		await this.services.shareService.delete(shareID)
+
+		return true
 	}
 }
