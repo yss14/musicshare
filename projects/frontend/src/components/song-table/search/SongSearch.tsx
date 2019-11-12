@@ -4,18 +4,44 @@ import { useDebounce } from 'use-debounce';
 import { useSongSearch } from '../../../graphql/queries/song-search';
 import { buildSongName } from '../../../utils/songname-builder';
 import styled from 'styled-components';
-import { IScopedSong } from '../../../graphql/types';
+import { IScopedSong, IBaseSong, IPlaylist } from '../../../graphql/types';
 import { SelectValue } from 'antd/lib/select';
 import { usePrevValue } from '../../../hooks/use-prev-value';
 import { useDeferedFlag } from '../../../hooks/use-defered-flag';
 import { ISongSearchOptions, allMatchingOptions, ISongSearchFilter } from './search-types';
 import { SongSearchOptionsPopover } from './SongSearchOptionsPopover';
-
-const { Option } = AutoComplete;
+import { useDrag, DragSourceMonitor, DragPreviewImage } from 'react-dnd';
+import { DragNDropItem } from '../../../types/DragNDropItems';
+import { useResettingState } from '../../../hooks/use-resetting-state';
+import { useAddSongsToPlaylist } from '../../../graphql/mutations/add-songs-to-playlist';
+import songDragPreviewImg from '../../../images/playlist_add.png'
 
 const SongSearchContainer = styled.div`
 	align-self: flex-end;
 	width: 300px;
+	position: relative;
+`
+
+const SearchResults = styled.div`
+	width: 100%;
+	box-sizing: border-box;
+	position: absolute;
+	background-color: white;
+	z-index: 10;
+	box-shadow: 0 4px 15px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .1);
+	margin-top: 8px;
+	border-radius: 4px;
+`
+
+const SearchResultItem = styled.div`
+	width: 100%;
+	box-sizing: border-box;
+	padding: 4px 6px;
+
+	&:hover{
+		background-color: #f0f2f5;
+		cursor: pointer;
+	}
 `
 
 interface ISongSearchProps {
@@ -33,14 +59,22 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 	const prevDebouncedQuery = usePrevValue(debouncedQuery)
 	const [isSearching, toggleSearching, resetSearching] = useDeferedFlag(500)
 	const { data: songs, loading, error, search } = useSongSearch()
+	const [showResults, setShowResults] = useState(false)
+	const [isDraggingSong, setIsDraggingSong] = useState(false)
+	const [isClickingSong, setIsClickingSong] = useResettingState(false, 1000)
 
-	const onInputChange = (newQuery: string) => setQuery(newQuery)
-	const onSelect = (value: SelectValue) => {
-		if (!songs || !(typeof value === 'string')) return
+	const onInputBlur = () => {
+		setTimeout(() => {
+			if (!isDraggingSong && !isClickingSong) {
+				setShowResults(false)
+			}
+		}, 100)
+	}
 
-		const song = songs.find(song => song.id === value)
+	const onSongClick = (song: IScopedSong) => {
+		setIsClickingSong(true)
 
-		if (song) onClickSong(song)
+		onClickSong(song)
 	}
 
 	useEffect(() => {
@@ -61,39 +95,66 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 	}, [searchOptions, debouncedQuery])
 
 	let options = (songs || []).map(song => (
-		<Option key={song.id} value={song.id} title={buildSongName(song)}>
-			{buildSongName(song) + ' - ' + song.artists.join(', ')}
-		</Option>
+		<SongSearchItem
+			key={song.id}
+			song={song}
+			onClick={() => onSongClick(song)}
+			onDrag={setIsDraggingSong}
+		/>
 	))
 
 	if (options.length === 0 && query.length > 1) {
 		options = [
-			<Option key="placeholder">
+			<SearchResultItem key="placeholder">
 				No songs found
-			</Option>
+			</SearchResultItem>
 		]
 	}
 
 	return (
 		<SongSearchContainer>
-			<AutoComplete
-				dropdownMatchSelectWidth={false}
-				dropdownStyle={{ width: 300 }}
-				size="default"
-				style={{ width: '100%' }}
-				dataSource={query.length > 1 ? options : []}
-				placeholder="Search songs..."
-				optionLabelProp="title"
-				onSearch={onInputChange}
-				onSelect={onSelect}
-				value={query}
-			>
-
-				<Input
-					suffix={<Icon type={isSearching ? 'loading' : 'search'} className="certain-category-icon" />}
-					addonAfter={<SongSearchOptionsPopover onOptionChange={setSearchOptions} />}
-				/>
-			</AutoComplete>
+			<Input
+				suffix={<Icon type={isSearching ? 'loading' : 'search'} className="certain-category-icon" />}
+				addonAfter={<SongSearchOptionsPopover onOptionChange={setSearchOptions} />}
+				onChange={e => setQuery(e.target.value)}
+				onFocus={() => setShowResults(true)}
+				onBlur={onInputBlur}
+			/>
+			<SearchResults style={{ display: options.length > 0 && showResults && debouncedQuery.length > 1 ? 'block' : 'none' }}>
+				{options}
+			</SearchResults>
 		</SongSearchContainer>
+	)
+}
+
+interface ISongSearchItemProps {
+	song: IScopedSong;
+	onClick: () => any;
+	onDrag?: (isDragging: boolean) => any;
+}
+
+const SongSearchItem: React.FC<ISongSearchItemProps> = ({ song, onClick, onDrag }) => {
+	const addSongsToPlaylist = useAddSongsToPlaylist()
+	const [, drag, dragPreview] = useDrag({
+		item: { type: DragNDropItem.Song, song },
+		begin: () => onDrag ? onDrag(true) : undefined,
+		end: (item: { song: IBaseSong } | undefined, monitor: DragSourceMonitor) => {
+			if (onDrag) onDrag(false)
+
+			const dragResult = monitor.getDropResult() as { playlist: IPlaylist }
+
+			if (item && dragResult && dragResult.playlist) {
+				addSongsToPlaylist(dragResult.playlist.shareID, dragResult.playlist.id, [song.id])
+			}
+		},
+	})
+
+	return (
+		<>
+			<DragPreviewImage connect={dragPreview} src={songDragPreviewImg} />
+			<SearchResultItem onClick={onClick} ref={drag}>
+				{buildSongName(song) + ' - ' + song.artists.join(', ')}
+			</SearchResultItem>
+		</>
 	)
 }

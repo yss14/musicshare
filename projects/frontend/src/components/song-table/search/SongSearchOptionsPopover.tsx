@@ -4,7 +4,6 @@ import CheckboxGroup, { CheckboxValueType } from "antd/lib/checkbox/Group"
 import styled from "styled-components"
 import { ISongSearchOptions, SearchMode, allMatchingOptions } from "./search-types"
 import { Radio, Icon, Popover, Form } from "antd"
-import ReactDOM from "react-dom"
 
 export const Section = styled.div`
 	width: 100%;
@@ -19,10 +18,6 @@ interface ISongSearchOptionsPopoverProps {
 }
 
 export const SongSearchOptionsPopover: React.FC<ISongSearchOptionsPopoverProps> = ({ onOptionChange }) => {
-	const radioButtonSearchRef = useRef<HTMLElement>()
-	const radioButtonBothRef = useRef<HTMLElement>()
-	const radioButtonFilterRef = useRef<HTMLElement>()
-
 	const [mode, setMode] = useState<SearchMode>('both')
 	const [matching, setMatching] = useState({
 		checkedList: allMatchingOptions,
