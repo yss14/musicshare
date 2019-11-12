@@ -3,7 +3,7 @@ import Checkbox, { CheckboxChangeEvent } from "antd/lib/checkbox"
 import CheckboxGroup, { CheckboxValueType } from "antd/lib/checkbox/Group"
 import styled from "styled-components"
 import { ISongSearchOptions, SearchMode, allMatchingOptions } from "./search-types"
-import { Radio, Icon } from "antd"
+import { Radio, Icon, Popover } from "antd"
 import Search from "antd/lib/input/Search"
 
 export const Section = styled.div`
@@ -50,7 +50,7 @@ export const SongSearchOptionsPopover: React.FC<ISongSearchOptionsPopoverProps> 
 		<div>
 			<Section>
 				<h5>Mode</h5>
-				<Radio.Group value={mode} onChange={e => setMode(e.target.value)}>
+				<Radio.Group value={mode} onChange={e => { console.log(e); setMode(e.target.value) }}>
 					<Radio.Button value="search">Search</Radio.Button>
 					<Radio.Button value="both">{'Search & Filter'}</Radio.Button>
 					<Radio.Button value="filter">Filter</Radio.Button>

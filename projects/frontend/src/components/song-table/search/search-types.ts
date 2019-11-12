@@ -6,3 +6,7 @@ export interface ISongSearchOptions {
 	matcher: string[];
 	mode: SearchMode;
 }
+
+export interface ISongSearchFilter extends ISongSearchOptions {
+	query: string;
+}

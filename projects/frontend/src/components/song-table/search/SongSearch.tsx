@@ -8,7 +8,7 @@ import { IScopedSong } from '../../../graphql/types';
 import { SelectValue } from 'antd/lib/select';
 import { usePrevValue } from '../../../hooks/use-prev-value';
 import { useDeferedFlag } from '../../../hooks/use-defered-flag';
-import { ISongSearchOptions, allMatchingOptions } from './search-types';
+import { ISongSearchOptions, allMatchingOptions, ISongSearchFilter } from './search-types';
 import { SongSearchOptionsPopover } from './SongSearchOptionsPopover';
 
 const { Option } = AutoComplete;
@@ -20,9 +20,10 @@ const SongSearchContainer = styled.div`
 
 interface ISongSearchProps {
 	onClickSong: (song: IScopedSong) => any;
+	onSearchFilterChange: (newFilter: ISongSearchFilter) => any;
 }
 
-export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong }) => {
+export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFilterChange }) => {
 	const [searchOptions, setSearchOptions] = useState<ISongSearchOptions>({
 		matcher: allMatchingOptions,
 		mode: 'both',
@@ -54,6 +55,10 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong }) => {
 			resetSearching()
 		}
 	}, [loading])
+
+	useEffect(() => {
+		onSearchFilterChange({ mode: searchOptions.mode, query: debouncedQuery, matcher: searchOptions.matcher })
+	}, [searchOptions, debouncedQuery])
 
 	let options = (songs || []).map(song => (
 		<Option key={song.id} value={song.id} title={buildSongName(song)}>

@@ -6,6 +6,7 @@ import { formatDuration } from '../../utils/format-duration';
 import { SongSearch } from './search/SongSearch';
 import { usePlayer } from '../../player/player-hook';
 import { useSongUtils } from '../../hooks/use-song-utils';
+import { ISongSearchFilter } from './search/search-types';
 
 const { Title, Text } = Typography;
 
@@ -27,9 +28,10 @@ const MetaInfoContainer = styled.div`
 interface ISongTableHeaderProps {
 	songs: IBaseSong[];
 	title: string;
+	onSearchFilterChange: (newFilter: ISongSearchFilter) => any;
 }
 
-export const SongTableHeader = ({ songs, title }: ISongTableHeaderProps) => {
+export const SongTableHeader = ({ songs, title, onSearchFilterChange }: ISongTableHeaderProps) => {
 	const { changeSong } = usePlayer()
 	const { makePlayableSong } = useSongUtils()
 
@@ -46,7 +48,7 @@ export const SongTableHeader = ({ songs, title }: ISongTableHeaderProps) => {
 				<Title level={4} style={{ marginBottom: 0 }}>{title}</Title>
 				<Text>{songs.length} songs | {formatDuration(durationSum)}</Text>
 			</MetaInfoContainer>
-			<SongSearch onClickSong={onClickSong} />
+			<SongSearch onClickSong={onClickSong} onSearchFilterChange={onSearchFilterChange} />
 		</SongTableHeaderFlexContainer>
 	);
 }
