@@ -6,7 +6,7 @@ import { PlaylistIDArg } from '../args/playlist-args';
 import { ShareAuth } from '../auth/middleware/share-auth';
 import { IGraphQLContext } from '../types/context';
 import { IServices } from '../services/services';
-import { ShareNameArg } from "../args/share-args";
+import { ShareNameArg, ShareIDArg } from "../args/share-args";
 
 @Resolver(of => Share)
 export class ShareResolver {
@@ -92,11 +92,23 @@ export class ShareResolver {
 	}
 
 	@Authorized()
-	@Mutation(() => Share, { nullable: true })
+	@Mutation(() => Share)
 	public async createShare(
 		@Args() { name }: ShareNameArg,
 		@Ctx() ctx: IGraphQLContext
-	): Promise<Share | null> {
+	): Promise<Share> {
 		return this.services.shareService.create(ctx.userID!, name, false);
+	}
+
+	@Authorized()
+	@Mutation(() => Share)
+	public async renameShare(
+		@Args() { shareID }: ShareIDArg,
+		@Args() { name }: ShareNameArg,
+		@Ctx() ctx: IGraphQLContext
+	): Promise<Share> {
+		await this.services.shareService.rename(shareID, name)
+
+		return this.services.shareService.getShareByID(shareID, ctx.userID!)
 	}
 }

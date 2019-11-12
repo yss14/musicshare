@@ -16,6 +16,7 @@ export interface IShareService {
 	getShareByID(shareID: string, userID: string): Promise<Share>;
 	getLinkedLibrariesOfUser(userID: string): Promise<Share[]>;
 	create(ownerUserID: string, name: string, isLib: boolean, shareID?: string): Promise<Share>;
+	rename(shareID: string, name: string): Promise<void>;
 	addUser(shareID: string, userID: string, permissions: Permission[]): Promise<void>;
 }
 
@@ -103,5 +104,11 @@ export class ShareService implements IShareService {
 				date_removed: null,
 			})
 		);
+	}
+
+	public async rename(shareID: string, name: string): Promise<void> {
+		await this.database.query(
+			SharesTable.update(['name'], ['share_id'])([name], [shareID])
+		)
 	}
 }

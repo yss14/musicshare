@@ -90,16 +90,6 @@ const makeSharePlaylistQuery = (playlistID: string, fields: string[] = []) => `
 	}
 `;
 
-const makeCreateShareMutation = (name: string) => `
-	mutation{
-		createShare(name: "${name}"){
-			id,
-			name,
-			permissions
-		}
-	}
-`;
-
 describe('get share by id', () => {
 	test('get share by id', async () => {
 		const { graphQLServer } = await setupTest({});
@@ -378,6 +368,16 @@ describe('get user permissions', () => {
 });
 
 describe('create share', () => {
+	const makeCreateShareMutation = (name: string) => `
+		mutation{
+			createShare(name: "${name}"){
+				id,
+				name,
+				permissions
+			}
+		}
+	`;
+
 	test('valid share', async () => {
 		const { graphQLServer } = await setupTest({});
 
@@ -398,5 +398,52 @@ describe('create share', () => {
 
 		expect(body.data.createShare).toBe(null);
 		expect(body.errors).toMatchObject([{ message: "Argument Validation Error" }])
+	});
+});
+
+describe('rename share', () => {
+	const makeRenameShareMutation = (shareID: string, name: string) => `
+		mutation{
+			renameShare(shareID: "${shareID}" name: "${name}"){
+				id
+				name
+			}
+		}
+	`;
+	const shareID = testData.shares.library_user1.share_id
+
+	test('valid name', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const newShareName = "New Share";
+		const query = makeRenameShareMutation(shareID, newShareName);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.renameShare).toEqual({
+			id: shareID,
+			name: newShareName,
+		});
+	});
+
+	test('invalid name', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const query = makeRenameShareMutation(shareID, "");
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data).toBeNull()
+		expect(body.errors).toMatchObject([{ message: "Argument Validation Error" }])
+	});
+
+	test('forbidden share', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const shareID = testData.shares.library_user2.share_id
+		const query = makeRenameShareMutation(shareID, "New Share");
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data).toBeNull()
+		expect(body.errors).toMatchObject([{ message: `Share with id ${shareID} not found` }])
 	});
 });
