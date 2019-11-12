@@ -4,12 +4,10 @@ import { Share } from "./ShareModel";
 import { Nullable } from '../types/Nullable';
 import { ISong } from './interfaces/ISong';
 import { plainToClass } from 'class-transformer';
-import { IShareSongDBResult, ISongDBResult } from '../database/schema/tables';
+import { ISongDBResult } from '../database/schema/tables';
 import moment = require('moment');
 import { filterNull } from '../utils/array/filter-null'
 import { connectionTypes } from '../relay/relay';
-
-const isShareSongDBResult = (obj: any): obj is IShareSongDBResult => typeof obj.share_id_ref === 'string';
 
 const mapFileSourceModel = (entry: FileSource): FileSource | null => {
 	if (entry.fileExtension && entry.blob && entry.container) {
@@ -92,9 +90,7 @@ export class Song implements Nullable<ISong>{
 	@Field(type => String)
 	public readonly libraryID!: string;
 
-	public static fromDBResult(row: ISongDBResult, libraryID: string): Song;
-	public static fromDBResult(row: IShareSongDBResult): Song;
-	public static fromDBResult(row: ISongDBResult | IShareSongDBResult, libraryID?: string) {
+	public static fromDBResult(row: ISongDBResult, libraryID?: string): Song {
 		return plainToClass(
 			Song,
 			{
@@ -118,7 +114,7 @@ export class Song implements Nullable<ISong>{
 				duration: row.duration,
 				tags: row.tags || [],
 				dateAdded: row.date_added.toISOString(),
-				libraryID: isShareSongDBResult(row) ? row.share_id_ref : libraryID,
+				libraryID: libraryID ? libraryID : row.share_id_ref,
 			}
 		)
 	}
