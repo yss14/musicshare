@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import Checkbox, { CheckboxChangeEvent } from "antd/lib/checkbox"
 import CheckboxGroup, { CheckboxValueType } from "antd/lib/checkbox/Group"
 import styled from "styled-components"
 import { ISongSearchOptions, SearchMode, allMatchingOptions } from "./search-types"
-import { Radio, Icon, Popover } from "antd"
-import Search from "antd/lib/input/Search"
+import { Radio, Icon, Popover, Form } from "antd"
+import ReactDOM from "react-dom"
 
 export const Section = styled.div`
 	width: 100%;
@@ -19,11 +19,15 @@ interface ISongSearchOptionsPopoverProps {
 }
 
 export const SongSearchOptionsPopover: React.FC<ISongSearchOptionsPopoverProps> = ({ onOptionChange }) => {
+	const radioButtonSearchRef = useRef<HTMLElement>()
+	const radioButtonBothRef = useRef<HTMLElement>()
+	const radioButtonFilterRef = useRef<HTMLElement>()
+
 	const [mode, setMode] = useState<SearchMode>('both')
 	const [matching, setMatching] = useState({
 		checkedList: allMatchingOptions,
-		indeterminate: true,
-		checkAll: false,
+		indeterminate: false,
+		checkAll: true,
 	})
 
 	const onChangeMatching = (checkedList: CheckboxValueType[]) => {
@@ -47,13 +51,13 @@ export const SongSearchOptionsPopover: React.FC<ISongSearchOptionsPopoverProps> 
 	useEffect(() => onOptionChange({ matcher: matching.checkedList, mode }), [matching.checkedList, mode])
 
 	const content = (
-		<div>
+		<Form>
 			<Section>
 				<h5>Mode</h5>
-				<Radio.Group value={mode} onChange={e => { console.log(e); setMode(e.target.value) }}>
-					<Radio.Button value="search">Search</Radio.Button>
-					<Radio.Button value="both">{'Search & Filter'}</Radio.Button>
-					<Radio.Button value="filter">Filter</Radio.Button>
+				<Radio.Group value={mode} onChange={e => setMode(e.target.value)}>
+					<Radio value="search">Search</Radio>
+					<Radio value="both">{'Search & Filter'}</Radio>
+					<Radio value="filter">Filter</Radio>
 				</Radio.Group>
 			</Section>
 			<Section>
@@ -74,7 +78,7 @@ export const SongSearchOptionsPopover: React.FC<ISongSearchOptionsPopoverProps> 
 					onChange={onChangeMatching}
 				/>
 			</Section>
-		</div>
+		</Form>
 	);
 
 	return (
