@@ -6,6 +6,7 @@ import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
 import { ISongService } from '../services/SongService';
 import { IShareService } from '../services/ShareService';
 import { IServices } from '../services/services';
+import { Share } from '../models/ShareModel';
 
 export interface IBaseContext {
 	userID: string | null;
@@ -21,7 +22,8 @@ export interface IGraphQLContext extends IBaseContext {
 		playlistService: IPlaylistService;
 		songService: ISongService;
 		shareService: IShareService;
-	}
+	},
+	share?: Share;
 }
 
 export interface IShareScope {

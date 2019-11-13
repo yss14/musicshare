@@ -7,6 +7,10 @@ import { ShareAuth } from '../auth/middleware/share-auth';
 import { IGraphQLContext } from '../types/context';
 import { IServices } from '../services/services';
 import { ShareNameArg, ShareIDArg } from "../args/share-args";
+import { InviteToShareInput } from "../inputs/InviteToShareInput";
+import { ForbiddenError } from "apollo-server-core";
+import { UserNotFoundError } from "../services/UserService";
+import { Permissions } from "../auth/permissions";
 
 @Resolver(of => Share)
 export class ShareResolver {
@@ -118,9 +122,39 @@ export class ShareResolver {
 	@Mutation(() => Boolean)
 	public async deleteShare(
 		@Args() { shareID }: ShareIDArg,
+
 	): Promise<boolean> {
 		await this.services.shareService.delete(shareID)
 
 		return true
+	}
+
+	@Authorized()
+	@ShareAuth({ permissions: ["share:owner"] })
+	@Mutation(() => String, { nullable: true, description: 'Returns an invitation link or null if user already existed and has been added to the share' })
+	public async inviteToShare(
+		@Arg('input') { shareID, email }: InviteToShareInput,
+		@Ctx() { userID, share }: IGraphQLContext,
+	): Promise<string | null> {
+		if (!share || share.isLibrary === true) {
+			throw new ForbiddenError('Invitations to user libraries is not possible')
+		}
+
+		try {
+			const user = await this.services.userService.getUserByEMail(email)
+			const userShares = await this.services.shareService.getSharesOfUser(user.id)
+
+			if (userShares.some(share => share.id === shareID)) {
+				throw new ForbiddenError('User already member of share')
+			}
+
+			await this.services.shareService.addUser(shareID, user.id, Permissions.NEW_MEMBER)
+
+			return null
+		} catch (err) {
+			if (!(err instanceof UserNotFoundError)) throw err
+		}
+
+		return this.services.userService.inviteToShare(shareID, userID!, email)
 	}
 }

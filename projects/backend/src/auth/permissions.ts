@@ -10,8 +10,8 @@ export namespace Permissions {
 	export type Share = (typeof sharePermissions)[number];
 
 	export const ALL = [...songPermissions, ...playlistPermissions, ...sharePermissions];
-
 	export const NONE = [];
+	export const NEW_MEMBER = [...songPermissions, ...playlistPermissions]
 
 	export const isPermission = (obj: any): obj is Permission => ALL.includes(obj);
 }

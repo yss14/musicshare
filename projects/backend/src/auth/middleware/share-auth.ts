@@ -23,7 +23,7 @@ export const makeShareAuthMiddleware = ({ permissions, checkRef }: IShareAuthArg
 			}
 
 			if (shouldCheckShareRef) {
-				await shareService.getShareByID(shareID, userID!);
+				context.share = await shareService.getShareByID(shareID, userID!);
 			}
 
 			if (permissions) {

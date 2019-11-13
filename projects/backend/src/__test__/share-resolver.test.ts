@@ -484,3 +484,90 @@ describe('delete share', () => {
 		expect(body.errors).toMatchObject([{ message: `Share with id ${shareID} not found` }])
 	});
 })
+
+describe.only('invite to share', () => {
+	const makeInviteToShareMutation = (shareID: string, email: string) => `
+		mutation{
+			inviteToShare(input: {shareID: "${shareID}", email: "${email}"})
+		}
+	`;
+	const shareID = testData.shares.some_shared_library.share_id
+
+	test('not existing email succeeds', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const query = makeInviteToShareMutation(shareID, 'test@gmail.com')
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.inviteToShare).toBeString()
+	})
+
+	test('email of already user not member succeeds', async () => {
+		const { graphQLServer, services } = await setupTest({});
+
+		const email = testData.users.user3.email
+		const query = makeInviteToShareMutation(shareID, email)
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse({
+			inviteToShare: null,
+		}))
+
+		const userShares = await services.shareService.getSharesOfUser(testData.users.user3.user_id)
+		expect(userShares.map(share => share.id)).toContain(shareID)
+	})
+
+	test('email of already existing member fails', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const email = testData.users.user1.email
+		const query = makeInviteToShareMutation(shareID, email)
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse({
+			inviteToShare: null,
+		}, [{
+			message: `User already member of share`
+		}]))
+	})
+
+	test('invalid email fails', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const query = makeInviteToShareMutation(shareID, 'test%gmail.com')
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			{ inviteToShare: null },
+			[{ message: 'Argument Validation Error' }]
+		))
+	})
+
+	test('library is rejected', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const shareID = testData.shares.library_user1.share_id
+		const query = makeInviteToShareMutation(shareID, 'test@gmail.com')
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse({
+			inviteToShare: null
+		}, [{
+			message: 'Invitations to user libraries is not possible'
+		}]))
+	});
+
+	test('forbidden share is rejected', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const shareID = testData.shares.some_unrelated_library.share_id
+		const query = makeInviteToShareMutation(shareID, 'test@gmail.com')
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse({
+			inviteToShare: null
+		}, [{
+			message: `Share with id ${shareID} not found`
+		}]))
+	});
+})

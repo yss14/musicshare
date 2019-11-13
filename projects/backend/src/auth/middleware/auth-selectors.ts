@@ -37,6 +37,10 @@ export const getShareIDFromRequest = ({ args, root }: { args: ArgsDictionary, ro
 		return args.shareID;
 	}
 
+	if (typeof args.input === 'object' && typeof args.input.shareID === 'string') {
+		return args.input.shareID;
+	}
+
 	return null;
 }
 

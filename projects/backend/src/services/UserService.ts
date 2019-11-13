@@ -3,6 +3,9 @@ import { IDatabaseClient } from "postgres-schema-builder";
 import { UsersTable } from "../database/schema/tables";
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError } from 'apollo-server-core';
+import { IConfig } from '../types/config';
+import { InvitationPayload } from '../types/InvitationPayload';
+import * as JWT from 'jsonwebtoken';
 
 export class UserNotFoundError extends ForbiddenError {
 	constructor(filterColumn: string, value: string) {
@@ -15,11 +18,13 @@ export interface IUserService {
 	getUserByEMail(email: string): Promise<User>;
 	getAll(): Promise<User[]>;
 	create(name: string, email: string): Promise<User>;
+	inviteToShare(shareID: string, inviterID: string, email: string): Promise<string>;
 }
 
 export class UserService implements IUserService {
 	constructor(
 		private readonly database: IDatabaseClient,
+		private readonly config: IConfig,
 	) { }
 
 	public async getUserByID(id: string): Promise<User> {
@@ -54,7 +59,7 @@ export class UserService implements IUserService {
 			UsersTable.insert(['user_id', 'name', 'email', 'date_added'])([id, name, email, date])
 		);
 
-		return User.fromDBResult({ user_id: id, name, email, date_added: date, date_removed: null });
+		return User.fromDBResult({ user_id: id, name, email, date_added: date, date_removed: null, invitation_token: null });
 	}
 
 	public async getAll(): Promise<User[]> {
@@ -63,5 +68,28 @@ export class UserService implements IUserService {
 		);
 
 		return dbResults.map(User.fromDBResult);
+	}
+
+	public async inviteToShare(shareID: string, inviterID: string, email: string): Promise<string> {
+		const invitationToken = uuid()
+		const userID = uuid();
+		const name = `Invited User ${inviterID}`
+		const payload: InvitationPayload = {
+			shareID,
+			inviterID,
+			email,
+			invitationToken,
+		}
+
+		const payloadEncrypted = JWT.sign(payload, this.config.jwt.secret, { expiresIn: '90 days' })
+
+		await this.database.query(
+			UsersTable.insert(['user_id', 'name', 'email', 'date_added', 'invitation_token'])
+				([userID, name, email, new Date(), invitationToken])
+		);
+
+		const invitationLink = `${this.config.frontend.baseUrl}/invitation/${payloadEncrypted}`
+
+		return invitationLink;
 	}
 }

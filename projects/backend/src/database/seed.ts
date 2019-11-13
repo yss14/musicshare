@@ -170,6 +170,7 @@ export const testData: ITestDataSchema = {
 			user_id: user1ID,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
+			invitation_token: null,
 		},
 		user2: {
 			name: 'Simon',
@@ -177,6 +178,7 @@ export const testData: ITestDataSchema = {
 			user_id: user2ID,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
+			invitation_token: null,
 		},
 		user3: {
 			name: 'Mariana',
@@ -184,6 +186,7 @@ export const testData: ITestDataSchema = {
 			user_id: user3ID,
 			date_added: moment().subtract(1, 'hours').toDate(),
 			date_removed: null,
+			invitation_token: null,
 		},
 	},
 	shares: {
@@ -194,7 +197,6 @@ export const testData: ITestDataSchema = {
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
 			user_ids: [user1ID],
-
 		},
 		library_user2: {
 			share_id: libraryUser2ShareID,
