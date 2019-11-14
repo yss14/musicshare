@@ -148,7 +148,7 @@ export class UserService implements IUserService, IService {
 			return this.getUserByID(user.id)
 		} catch (err) {
 			if (err instanceof UserNotFoundError) throw err
-			console.error(err)
+
 			throw new ValidationError('invitationToken is invalid')
 		}
 	}
