@@ -15,7 +15,7 @@ import { Permissions } from '../auth/permissions';
 import { makeFileSourceJSONType } from '../models/FileSourceModels';
 
 type Users = 'user1' | 'user2' | 'user3';
-type Shares = 'library_user1' | 'library_user2' | 'some_shared_library' | 'some_unrelated_library';
+type Shares = 'library_user1' | 'library_user2' | 'some_shared_library' | 'some_unrelated_library' | 'some_unrelated_share';
 type Songs = 'song1_library_user1' | 'song2_library_user1' | 'song3_library_user1' | 'song4_library_user2' | 'song5_library_user3';
 type Playlists = 'playlist1_library_user1' | 'playlist2_library_user1' | 'playlist_some_shared_library' | 'playlist_library_user2';
 
@@ -32,6 +32,7 @@ const libraryUser1ShareID = 'de35f11a-a748-49cc-8da2-02ef12109ea5';
 const libraryUser2ShareID = 'f02f540b-7db9-4655-b693-b89bb492a369';
 const someShareShareID = 'f9d531d3-94f0-4876-af17-deda34194345';
 const libraryUser3ShareID = '947266ea-b75f-4827-ba7e-2293d32e0c71';
+const someUnrelatedShareID = 'afb266ea-b75f-4827-ba7e-2293d32e0c71';
 const user1ID = 'f0d8e1f0-aeb1-11e8-a117-43673ffd376b';
 const user2ID = '3ba6fab4-f6ad-4916-9f1d-cdcfe522fd8e';
 const user3ID = 'f8e7ded2-65e2-4348-960d-8abc72146bf9';
@@ -170,6 +171,7 @@ export const testData: ITestDataSchema = {
 			user_id: user1ID,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
+			invitation_token: null,
 		},
 		user2: {
 			name: 'Simon',
@@ -177,6 +179,7 @@ export const testData: ITestDataSchema = {
 			user_id: user2ID,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
+			invitation_token: null,
 		},
 		user3: {
 			name: 'Mariana',
@@ -184,6 +187,7 @@ export const testData: ITestDataSchema = {
 			user_id: user3ID,
 			date_added: moment().subtract(1, 'hours').toDate(),
 			date_removed: null,
+			invitation_token: null,
 		},
 	},
 	shares: {
@@ -194,7 +198,6 @@ export const testData: ITestDataSchema = {
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
 			user_ids: [user1ID],
-
 		},
 		library_user2: {
 			share_id: libraryUser2ShareID,
@@ -217,6 +220,14 @@ export const testData: ITestDataSchema = {
 			name: 'Some Unrelated Library',
 			is_library: true,
 			date_added: moment().subtract(1, 'hours').toDate(),
+			date_removed: null,
+			user_ids: [user3ID],
+		},
+		some_unrelated_share: {
+			share_id: someUnrelatedShareID,
+			name: 'Some Unrelated Share',
+			is_library: false,
+			date_added: moment().subtract(30, 'minutes').toDate(),
 			date_removed: null,
 			user_ids: [user3ID],
 		}

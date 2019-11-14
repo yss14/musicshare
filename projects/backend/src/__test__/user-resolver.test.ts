@@ -41,9 +41,10 @@ const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => 
 	return `
 		query{
 			viewer{
-				id,
-				name,
-				email,
+				id
+				name
+				email
+				status
 				${withShares ? `shares(libOnly: ${libOnly}){
 					id,
 					name,
@@ -272,7 +273,7 @@ describe('update user permissions', () => {
 	test('valid permission list', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const permissions: Permission[] = ['playlist:create', 'share:members'];
+		const permissions: Permission[] = ['playlist:create', 'share:owner'];
 		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -282,7 +283,7 @@ describe('update user permissions', () => {
 
 	test('invalid permission list', async () => {
 		const { graphQLServer } = await setupTest({ database: database });
-		const permissions: any[] = ['playlist:createe', 'share:members'];
+		const permissions: any[] = ['playlist:createe', 'share:owner'];
 
 		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions);
 
@@ -296,7 +297,7 @@ describe('update user permissions', () => {
 
 	test('insufficient permissions', async () => {
 		const { graphQLServer } = await setupTest({ database: database });
-		const permissions: Permission[] = ['playlist:create', 'share:members'];
+		const permissions: Permission[] = ['playlist:create', 'share:owner'];
 		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions);
 		const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:modify'] }];
 

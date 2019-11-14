@@ -34,6 +34,9 @@ export interface IConfig {
 			accessKey: string;
 			secretKey: string;
 		}
+	},
+	frontend: {
+		baseUrl: string;
 	}
 }
 
@@ -86,6 +89,9 @@ export const configFromEnv = (): IConfig => {
 		fileStorage: {
 			provider: processFileStorageProvider(process.env[CustomEnv.FILE_STORAGE_PROVIDER]) || 'awss3',
 			s3: s3Config
+		},
+		frontend: {
+			baseUrl: process.env[CustomEnv.FRONTEND_BASEURL] || 'http://localhost:3000',
 		}
 	}
 }

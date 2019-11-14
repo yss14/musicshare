@@ -1,4 +1,4 @@
-import { ArgsType, Field } from "type-graphql";
+import { ArgsType, Field, InputType } from "type-graphql";
 import { Length, IsIn } from "class-validator";
 import { Permission, Permissions } from "../auth/permissions";
 
@@ -14,4 +14,11 @@ export class PermissionsArg {
 	@IsIn(Permissions.ALL, { each: true })
 	@Field(() => [String])
 	public readonly permissions!: Permission[];
+}
+
+@InputType()
+export class UserIDInput {
+	@Length(36, 36)
+	@Field(() => String)
+	public readonly userID!: string;
 }

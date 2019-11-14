@@ -12,6 +12,7 @@ export namespace DatabaseV1 {
 		user_id: { type: ColumnType.UUID, primaryKey: true, unique: true },
 		name: { type: ColumnType.Varchar, nullable: false },
 		email: { type: ColumnType.Varchar, nullable: false },
+		invitation_token: { type: ColumnType.Varchar, nullable: true },
 	});
 
 	export const shares = TableSchema({

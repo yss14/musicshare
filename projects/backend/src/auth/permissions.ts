@@ -6,12 +6,12 @@ export namespace Permissions {
 	const playlistPermissions = ['playlist:create', 'playlist:modify', 'playlist:mutate_songs'] as const;
 	export type Playlist = (typeof playlistPermissions)[number];
 
-	const sharePermissions = ['share:members'] as const;
+	const sharePermissions = ['share:owner'] as const;
 	export type Share = (typeof sharePermissions)[number];
 
 	export const ALL = [...songPermissions, ...playlistPermissions, ...sharePermissions];
-
 	export const NONE = [];
+	export const NEW_MEMBER = [...songPermissions, ...playlistPermissions]
 
 	export const isPermission = (obj: any): obj is Permission => ALL.includes(obj);
 }
