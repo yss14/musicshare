@@ -11,6 +11,8 @@ import { InviteToShareInput } from "../inputs/InviteToShareInput";
 import { ForbiddenError } from "apollo-server-core";
 import { UserNotFoundError } from "../services/UserService";
 import { Permissions } from "../auth/permissions";
+import { User } from "../models/UserModel";
+import { AcceptInvitationInput } from "../inputs/AcceptInvitationInput";
 
 @Resolver(of => Share)
 export class ShareResolver {
@@ -156,5 +158,12 @@ export class ShareResolver {
 		}
 
 		return this.services.userService.inviteToShare(shareID, userID!, email)
+	}
+
+	@Mutation(() => User)
+	public async acceptInvitation(
+		@Arg('input') { invitationToken, name, password }: AcceptInvitationInput,
+	): Promise<User> {
+		return await this.services.userService.acceptInvitation(invitationToken, name, password)
 	}
 }

@@ -32,4 +32,8 @@ export class UserServiceMock implements IUserService {
 	public async inviteToShare(shareID: string, inviterID: string, email: string): Promise<string> {
 		throw 'Not implemented yet';
 	}
+
+	public async acceptInvitation(invitationToken: string, name: string, password: string): Promise<User> {
+		throw 'Not implemented yet';
+	}
 }

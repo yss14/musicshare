@@ -571,3 +571,51 @@ describe.only('invite to share', () => {
 		}]))
 	});
 })
+
+describe('accept invitation', () => {
+	const makeAcceptInvitationMutation = (invitationToken: string, name: string, password: string) => `
+		mutation{
+			acceptInvitation(input: {invitationToken: "${invitationToken}", name: "${name}", password: "${password}"}){
+				id
+				name
+				email
+			}
+		}
+	`;
+	const shareID = testData.shares.some_shared_library.share_id
+	const inviterID = testData.users.user1.user_id
+	const email = 'inviteme@gmail.com'
+
+	test('valid token succeeds', async () => {
+		const { graphQLServer, userService, passwordLoginService } = await setupTest({});
+
+		const invitationLink = await userService.inviteToShare(shareID, inviterID, email)
+		const invitationToken = invitationLink.split('/')[invitationLink.split('/').length - 1]
+
+		const query = makeAcceptInvitationMutation(invitationToken, '1337 User', 'password')
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.acceptInvitation).toMatchObject({
+			id: expect.toBeString(),
+			name: '1337 User',
+			email,
+		})
+
+		const refreshToken = await passwordLoginService.login(email, 'password')
+
+		expect(refreshToken).toBeString()
+	})
+
+	test('invalid token fails', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const invitationToken = 'jnklcjnaaksnnnasjnnnjkasd=='
+
+		const query = makeAcceptInvitationMutation(invitationToken, '1337 User', 'password')
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{
+			message: 'invitationToken is invalid'
+		}]))
+	})
+})

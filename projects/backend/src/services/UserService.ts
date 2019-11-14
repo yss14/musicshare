@@ -2,10 +2,11 @@ import { User } from '../models/UserModel';
 import { IDatabaseClient } from "postgres-schema-builder";
 import { UsersTable } from "../database/schema/tables";
 import { v4 as uuid } from 'uuid';
-import { ForbiddenError } from 'apollo-server-core';
+import { ForbiddenError, ValidationError } from 'apollo-server-core';
 import { IConfig } from '../types/config';
-import { InvitationPayload } from '../types/InvitationPayload';
+import { IInvitationPayload, isInvitationPayload } from '../types/InvitationPayload';
 import * as JWT from 'jsonwebtoken';
+import { IService, IServices } from './services';
 
 export class UserNotFoundError extends ForbiddenError {
 	constructor(filterColumn: string, value: string) {
@@ -19,9 +20,12 @@ export interface IUserService {
 	getAll(): Promise<User[]>;
 	create(name: string, email: string): Promise<User>;
 	inviteToShare(shareID: string, inviterID: string, email: string): Promise<string>;
+	acceptInvitation(invitationToken: string, name: string, password: string): Promise<User>;
 }
 
-export class UserService implements IUserService {
+export class UserService implements IUserService, IService {
+	public readonly services!: IServices;
+
 	constructor(
 		private readonly database: IDatabaseClient,
 		private readonly config: IConfig,
@@ -74,7 +78,7 @@ export class UserService implements IUserService {
 		const invitationToken = uuid()
 		const userID = uuid();
 		const name = `Invited User ${inviterID}`
-		const payload: InvitationPayload = {
+		const payload: IInvitationPayload = {
 			shareID,
 			inviterID,
 			email,
@@ -91,5 +95,39 @@ export class UserService implements IUserService {
 		const invitationLink = `${this.config.frontend.baseUrl}/invitation/${payloadEncrypted}`
 
 		return invitationLink;
+	}
+
+	public async acceptInvitation(token: string, name: string, password: string): Promise<User> {
+		try {
+			const tokenDecoded = JWT.verify(token, this.config.jwt.secret)
+
+			if (!isInvitationPayload(tokenDecoded)) throw new ValidationError('invitationToken\'s payload is not an object')
+
+			const payload: IInvitationPayload = tokenDecoded
+			const user = await this.getUserByInvitationToken(payload.invitationToken)
+
+			await this.database.query(
+				UsersTable.update(['name', 'invitation_token'], ['user_id'])([name, null], [user.id])
+			)
+			await this.services.passwordLoginService.register({ userID: user.id, password })
+
+			return this.getUserByID(user.id)
+		} catch (err) {
+			if (err instanceof UserNotFoundError) throw err
+			console.error(err)
+			throw new ValidationError('invitationToken is invalid')
+		}
+	}
+
+	private async getUserByInvitationToken(token: string): Promise<User> {
+		const dbResults = await this.database.query(
+			UsersTable.select('*', ['invitation_token'])([token])
+		)
+
+		if (dbResults.length === 1 && dbResults[0].date_removed === null) {
+			return User.fromDBResult(dbResults[0])
+		}
+
+		throw new UserNotFoundError('invitation_token', token);
 	}
 }

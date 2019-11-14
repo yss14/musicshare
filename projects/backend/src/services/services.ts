@@ -41,6 +41,10 @@ export interface IServices {
 	tagService: ITagService;
 }
 
+export interface IService {
+	readonly services: IServices;
+}
+
 export const initServices = (config: IConfig, database: IDatabaseClient): IServices => {
 	const songFileService = initFileStore(config, 'songs');
 	const songService = new SongService(database);
@@ -62,7 +66,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	const permissionService = PermissionService({ database });
 	const tagService = TagService({ songService, shareService });
 
-	return {
+	const services = {
 		songFileService,
 		songService,
 		shareService,
@@ -79,7 +83,13 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 		invalidAuthTokenStore,
 		permissionService,
 		tagService,
-	};
+	}
+
+	for (const service of Object.values(services)) {
+		(service as any).services = services
+	}
+
+	return services
 }
 
 const initFileStore = (config: IConfig, container: string): IFileService => {
