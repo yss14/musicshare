@@ -41,9 +41,10 @@ const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => 
 	return `
 		query{
 			viewer{
-				id,
-				name,
-				email,
+				id
+				name
+				email
+				status
 				${withShares ? `shares(libOnly: ${libOnly}){
 					id,
 					name,
