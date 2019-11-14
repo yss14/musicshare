@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Input } from 'antd';
+import { Modal, Input, Form } from 'antd';
 
 interface IPromptProps {
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -8,11 +8,13 @@ interface IPromptProps {
 	okText?: string;
 	cancelText?: string;
 	title: string;
+	label?: string;
 	placeholder?: string;
 	value: string;
+	validationError?: string;
 }
 
-export const Prompt = ({ onSubmit, onCancel, okText, cancelText, title, placeholder, onChange, value }: IPromptProps) => (
+export const Prompt = ({ onSubmit, onCancel, okText, cancelText, title, placeholder, onChange, value, label, validationError }: IPromptProps) => (
 	<Modal
 		title={title}
 		visible={true}
@@ -21,11 +23,19 @@ export const Prompt = ({ onSubmit, onCancel, okText, cancelText, title, placehol
 		okText={okText}
 		cancelText={cancelText}
 	>
-		<Input
-			value={value}
-			type="text"
-			onChange={onChange}
-			placeholder={placeholder}
-		/>
+		<Form>
+			<Form.Item
+				label={label}
+				validateStatus={validationError ? 'error' : 'success'}
+			>
+				<Input
+					value={value}
+					type="text"
+					onChange={onChange}
+					placeholder={placeholder}
+
+				/>
+			</Form.Item>
+		</Form>
 	</Modal>
 );

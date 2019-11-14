@@ -10,6 +10,7 @@ export interface IShareData {
 
 export interface IShare {
 	id: string;
+	__typename: 'Share';
 	name: string;
 	userID: string;
 	isLibrary: boolean;
@@ -100,6 +101,12 @@ export const shareSongKeys = `
 export const playlistSongKeys = `
 	${baseSongKeys}
 `;
+
+export const shareKeys = `
+	id
+	name
+	isLibrary
+`
 
 export interface IFile {
 	readonly container: string;
