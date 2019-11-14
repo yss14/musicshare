@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
-import { IShare } from "../types";
+import { IShare, shareKeys } from "../types";
 
 export interface IUserData {
 	viewer: {
@@ -14,9 +14,7 @@ export const GET_USER = gql`
     viewer {
       id
       shares {
-        id
-        name
-        isLibrary
+        ${shareKeys}
       }
     }
   }

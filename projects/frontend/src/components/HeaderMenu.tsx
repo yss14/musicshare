@@ -5,6 +5,8 @@ import { Link, useParams, useRouteMatch } from "react-router-dom";
 import { useShares } from "../graphql/queries/shares-query";
 import { IShareRoute } from "../interfaces";
 import { CreateShareModal } from "./modals/CreateShareModal";
+import { ShareSettings } from "./modals/share-settings/ShareSettings";
+import { IShare } from "../graphql/types";
 
 const { SubMenu, ItemGroup, Item } = Menu;
 
@@ -18,6 +20,7 @@ export const HeaderNavMenu = () => {
 	const match = useRouteMatch()
 	const { data, loading, error } = useShares();
 	const [showCreateShare, setShowCreateShare] = useState(false)
+	const [shareSettings, setShareSettings] = useState<IShare | null>(null)
 	const [sharesSubmenuHovered, setSharesSubmenuHovered] = useState(false)
 
 	if (loading) {
@@ -80,7 +83,7 @@ export const HeaderNavMenu = () => {
 									<span style={{ color: 'rgba(0, 0, 0, 0.65)' }}>{share.name}</span>
 								</Link>
 							}>
-								<Menu.Item key="share:submenu:edit">Settings</Menu.Item>
+								<Menu.Item key="share:submenu:edit" onClick={() => setShareSettings(share)}>Settings</Menu.Item>
 							</SubMenu>
 						))}
 					</ItemGroup>
@@ -93,6 +96,7 @@ export const HeaderNavMenu = () => {
 				</SubMenu>
 			</Menu>
 			{showCreateShare && <CreateShareModal onSubmit={() => setShowCreateShare(false)} onCancel={() => setShowCreateShare(false)} />}
+			{shareSettings && <ShareSettings share={shareSettings} onClose={() => setShareSettings(null)} />}
 		</>
 	);
 };
