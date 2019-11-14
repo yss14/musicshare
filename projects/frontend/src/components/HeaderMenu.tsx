@@ -18,6 +18,7 @@ export const HeaderNavMenu = () => {
 	const match = useRouteMatch()
 	const { data, loading, error } = useShares();
 	const [showCreateShare, setShowCreateShare] = useState(false)
+	const [sharesSubmenuHovered, setSharesSubmenuHovered] = useState(false)
 
 	if (loading) {
 		return <Spin />;
@@ -56,8 +57,11 @@ export const HeaderNavMenu = () => {
 						<span className="submenu-title-wrapper">
 							<StyledIcon type="share-alt" />
 							Shares
-          			</span>
+          				</span>
 					}
+					style={{ width: sharesSubmenuHovered ? 250 : 140 }}
+					onTitleMouseEnter={() => setSharesSubmenuHovered(true)}
+					onTitleMouseLeave={() => setSharesSubmenuHovered(false)}
 				>
 					<ItemGroup key="shares:library" title="Library">
 						<Menu.Item key={`shares:${libraryShare.id}`}>
@@ -70,13 +74,14 @@ export const HeaderNavMenu = () => {
 					</ItemGroup>
 					<ItemGroup key="shares:own" title="Own Shares">
 						{otherShares.map((share) => (
-							<Menu.Item key={`shares:${share.id}`}>
+							<SubMenu key={`shares:${share.id}`} title={
 								<Link to={`/shares/${share.id}`}>
 									<Icon type="share-alt" />
-									{share.name}
+									<span style={{ color: 'rgba(0, 0, 0, 0.65)' }}>{share.name}</span>
 								</Link>
-								)}
-              				</Menu.Item>
+							}>
+								<Menu.Item key="share:submenu:edit">Settings</Menu.Item>
+							</SubMenu>
 						))}
 					</ItemGroup>
 					<ItemGroup key="shares:create" title="Create share">

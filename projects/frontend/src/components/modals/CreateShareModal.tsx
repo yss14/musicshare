@@ -2,6 +2,8 @@ import React, { useCallback, useState } from 'react'
 import { Modal } from 'antd'
 import { useCreateShare } from '../../graphql/mutations/create-share-mutation'
 import { Prompt } from './promt/Prompt'
+import { useHistory } from 'react-router-dom'
+import { IShare } from '../../graphql/types'
 
 interface ICreateShareModalProps {
 	onSubmit: () => void;
@@ -9,8 +11,13 @@ interface ICreateShareModalProps {
 }
 
 export const CreateShareModal: React.FC<ICreateShareModalProps> = ({ onSubmit, onCancel }) => {
+	const history = useHistory()
+	const onShareCreated = useCallback((share: IShare) => {
+		history.push(`/shares/${share.id}`)
+		onSubmit()
+	}, [history])
 	const [createShare] = useCreateShare({
-		onCompleted: onSubmit,
+		onCompleted: data => onShareCreated(data.createShare),
 	})
 	const [name, setName] = useState('')
 
