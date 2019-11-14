@@ -1,4 +1,4 @@
-import { IUserService, UserNotFoundError } from "../../services/UserService";
+import { IUserService, UserNotFoundError, IInviteToShareReturnType } from "../../services/UserService";
 import { User } from "../../models/UserModel";
 
 export class UserServiceMock implements IUserService {
@@ -29,11 +29,19 @@ export class UserServiceMock implements IUserService {
 		throw 'Not implemented yet';
 	}
 
-	public async inviteToShare(shareID: string, inviterID: string, email: string): Promise<string> {
+	public async getUsersOfShare(shareID: string): Promise<User[]> {
+		throw 'Not implemented yet';
+	}
+
+	public async inviteToShare(shareID: string, inviterID: string, email: string): Promise<IInviteToShareReturnType> {
 		throw 'Not implemented yet';
 	}
 
 	public async acceptInvitation(invitationToken: string, name: string, password: string): Promise<User> {
+		throw 'Not implemented yet';
+	}
+
+	public async revokeInvitation(userID: string): Promise<void> {
 		throw 'Not implemented yet';
 	}
 }

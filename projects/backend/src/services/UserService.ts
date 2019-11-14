@@ -1,12 +1,13 @@
-import { User } from '../models/UserModel';
-import { IDatabaseClient } from "postgres-schema-builder";
-import { UsersTable } from "../database/schema/tables";
+import { User, UserStatus } from '../models/UserModel';
+import { IDatabaseClient, SQL } from "postgres-schema-builder";
+import { UsersTable, UserSharesTable, CoreTables } from "../database/schema/tables";
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError, ValidationError } from 'apollo-server-core';
 import { IConfig } from '../types/config';
 import { IInvitationPayload, isInvitationPayload } from '../types/InvitationPayload';
 import * as JWT from 'jsonwebtoken';
 import { IService, IServices } from './services';
+import { Permissions } from '../auth/permissions';
 
 export class UserNotFoundError extends ForbiddenError {
 	constructor(filterColumn: string, value: string) {
@@ -14,13 +15,20 @@ export class UserNotFoundError extends ForbiddenError {
 	}
 }
 
+export interface IInviteToShareReturnType {
+	invitationLink: string;
+	createdUser: User;
+}
+
 export interface IUserService {
 	getUserByID(id: string): Promise<User>;
 	getUserByEMail(email: string): Promise<User>;
 	getAll(): Promise<User[]>;
+	getUsersOfShare(shareID: string): Promise<User[]>;
 	create(name: string, email: string): Promise<User>;
-	inviteToShare(shareID: string, inviterID: string, email: string): Promise<string>;
+	inviteToShare(shareID: string, inviterID: string, email: string): Promise<IInviteToShareReturnType>;
 	acceptInvitation(invitationToken: string, name: string, password: string): Promise<User>;
+	revokeInvitation(userID: string): Promise<void>;
 }
 
 export class UserService implements IUserService, IService {
@@ -74,9 +82,24 @@ export class UserService implements IUserService, IService {
 		return dbResults.map(User.fromDBResult);
 	}
 
-	public async inviteToShare(shareID: string, inviterID: string, email: string): Promise<string> {
+	public async getUsersOfShare(shareID: string): Promise<User[]> {
+		const dbResults = await this.database.query(
+			SQL.raw<typeof CoreTables.users>(`
+				SELECT u.*
+				FROM ${UsersTable.name} u
+				INNER JOIN ${UserSharesTable.name} us ON us.user_id_ref = u.user_id
+				WHERE us.share_id_ref = $1
+					AND u.date_removed IS NULL;
+			`, [shareID])
+		)
+
+		return dbResults.map(User.fromDBResult)
+	}
+
+	public async inviteToShare(shareID: string, inviterID: string, email: string): Promise<IInviteToShareReturnType> {
 		const invitationToken = uuid()
-		const userID = uuid();
+		const userID = uuid()
+		const dateAdded = new Date()
 		const name = `Invited User ${inviterID}`
 		const payload: IInvitationPayload = {
 			shareID,
@@ -89,12 +112,23 @@ export class UserService implements IUserService, IService {
 
 		await this.database.query(
 			UsersTable.insert(['user_id', 'name', 'email', 'date_added', 'invitation_token'])
-				([userID, name, email, new Date(), invitationToken])
+				([userID, name, email, dateAdded, invitationToken])
 		);
+		await this.services.shareService.addUser(shareID, userID, Permissions.NEW_MEMBER)
 
 		const invitationLink = `${this.config.frontend.baseUrl}/invitation/${payloadEncrypted}`
 
-		return invitationLink;
+		return {
+			invitationLink,
+			createdUser: User.fromDBResult({
+				user_id: userID,
+				date_added: dateAdded,
+				date_removed: null,
+				email,
+				invitation_token: inviterID,
+				name
+			})
+		};
 	}
 
 	public async acceptInvitation(token: string, name: string, password: string): Promise<User> {
@@ -129,5 +163,20 @@ export class UserService implements IUserService, IService {
 		}
 
 		throw new UserNotFoundError('invitation_token', token);
+	}
+
+	public async revokeInvitation(userID: string): Promise<void> {
+		const user = await this.getUserByID(userID)
+
+		if (user.status === UserStatus.Accepted) {
+			throw new ForbiddenError('User has already accepted invitation')
+		}
+
+		await this.database.query(
+			SQL.raw(`
+				DELETE FROM ${UsersTable.name}
+				WHERE user_id = $1 AND invitation_token IS NOT NULL AND date_removed IS NULL;
+			`, [userID])
+		)
 	}
 }

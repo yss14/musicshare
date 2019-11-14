@@ -13,6 +13,7 @@ import { UserNotFoundError } from "../services/UserService";
 import { Permissions } from "../auth/permissions";
 import { User } from "../models/UserModel";
 import { AcceptInvitationInput } from "../inputs/AcceptInvitationInput";
+import { RevokeInvitationInput } from "../inputs/RevokeInvitationInput";
 
 @Resolver(of => Share)
 export class ShareResolver {
@@ -157,7 +158,9 @@ export class ShareResolver {
 			if (!(err instanceof UserNotFoundError)) throw err
 		}
 
-		return this.services.userService.inviteToShare(shareID, userID!, email)
+		const { invitationLink } = await this.services.userService.inviteToShare(shareID, userID!, email)
+
+		return invitationLink
 	}
 
 	@Mutation(() => User)
@@ -165,5 +168,15 @@ export class ShareResolver {
 		@Arg('input') { invitationToken, name, password }: AcceptInvitationInput,
 	): Promise<User> {
 		return await this.services.userService.acceptInvitation(invitationToken, name, password)
+	}
+
+	@Mutation(() => Boolean)
+	@ShareAuth({ permissions: ["share:owner"] })
+	public async revokeInvitation(
+		@Arg('input') { userID }: RevokeInvitationInput,
+	): Promise<boolean> {
+		await this.services.userService.revokeInvitation(userID)
+
+		return true
 	}
 }

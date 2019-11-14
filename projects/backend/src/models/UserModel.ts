@@ -1,7 +1,17 @@
 import { Share } from './ShareModel';
-import { ObjectType, Field } from "type-graphql";
+import { ObjectType, Field, registerEnumType } from "type-graphql";
 import { IUserDBResult } from '../database/schema/tables';
 import { plainToClass } from 'class-transformer';
+
+export enum UserStatus {
+	Pending = 'pending',
+	Accepted = 'accepted',
+}
+
+registerEnumType(UserStatus, {
+	name: 'UserStatus',
+	description: 'Specifies whether a user already accepted an invitation or is still pending',
+})
 
 @ObjectType({ description: "Object representing a user" })
 export class User {
@@ -14,6 +24,9 @@ export class User {
 	@Field()
 	public readonly email!: string;
 
+	@Field()
+	public readonly status!: UserStatus;
+
 	@Field(type => [Share])
 	public readonly shares!: Share[];
 
@@ -23,7 +36,8 @@ export class User {
 			{
 				id: dbResult.user_id.toString(),
 				name: dbResult.name,
-				email: dbResult.email
+				email: dbResult.email,
+				status: dbResult.invitation_token === null ? UserStatus.Accepted : UserStatus.Pending,
 			}
 		);
 	}
