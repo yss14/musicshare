@@ -9,6 +9,7 @@ import { useInviteToShare } from '../../../graphql/mutations/invite-to-share-mut
 import { Typography } from 'antd';
 import { ApolloError } from 'apollo-client'
 import { useRevokeInvitation } from '../../../graphql/mutations/revoke-invitation-mutation'
+import { useRenameShare } from '../../../graphql/mutations/rename-share-mutation'
 
 const { Text } = Typography;
 
@@ -31,20 +32,26 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 			width={800}
 		>
 			<Form>
-				{canChangeName && <ChangeSongName name={share.name} />}
+				{canChangeName && <ChangeSongName share={share} />}
 				{canInvite && <ShareUsers shareID={share.id} />}
 			</Form>
 		</Modal>
 	)
 }
 
-const ChangeSongName: React.FC<{ name: string }> = ({ name }) => {
+const ChangeSongName: React.FC<{ share: IShare}> = ({ share: {name, id} }) => {
 	const [shareName, setShareName] = useState(name)
 	const [debouncedShareName] = useDebounce(shareName, 1000)
+	const [renameShare] = useRenameShare()
 
 	useEffect(() => {
-		console.log('Change name')
-	}, [debouncedShareName])
+		renameShare({
+			variables: {
+				shareID: id,
+				name: debouncedShareName,
+			}
+		})
+	}, [debouncedShareName, id])
 
 	return (
 		<Form.Item
