@@ -28,6 +28,16 @@ const typeDefs = `
 		label: String
 		tags: [String!]
 	}
+
+	type InviteToShareInput {
+		shareID: String!
+		email: String!
+	}
+
+	type RevokeInvitationInput {
+		shareID: String!
+		userID: String!
+	}
 `;
 
 const httpLink = new HttpLink({

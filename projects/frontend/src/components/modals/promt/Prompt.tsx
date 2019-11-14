@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, Input, Form } from 'antd';
 
 interface IPromptProps {
-	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	onSubmit: () => any;
 	onCancel: () => any;
 	okText?: string;
