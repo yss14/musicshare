@@ -12,6 +12,7 @@ import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 import { Song } from "../models/SongModel";
 import { ShareNotFoundError } from "../services/ShareService";
+import { UserStatus } from "../models/UserModel";
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -352,6 +353,28 @@ describe('get share playlists', () => {
 	});
 });
 
+describe('get share users', () => {
+	const shareID = testData.shares.some_shared_library.share_id
+
+	test('accepted, pending, deleted users', async () => {
+		const { graphQLServer, userService } = await setupTest({});
+
+		const inviterID = testData.users.user2.user_id
+		const { createdUser: createdUserPending } = await userService.inviteToShare(shareID, inviterID, 'user1@gmail.com')
+		const { createdUser: createdUserRevoked } = await userService.inviteToShare(shareID, inviterID, 'user2@gmail.com')
+		await userService.revokeInvitation(createdUserRevoked.id)
+
+		const query = makeShareQuery(shareID, ['users{id, status}'])
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.share.users).toEqual([
+			{ id: testData.users.user1.user_id, status: UserStatus.Accepted },
+			{ id: testData.users.user2.user_id, status: UserStatus.Accepted },
+			{ id: createdUserPending.id, status: UserStatus.Pending },
+		])
+	})
+})
+
 describe('get user permissions', () => {
 	const makeGetUserPermissionsQuery = () => `userPermissions`;
 
@@ -620,7 +643,7 @@ describe('accept invitation', () => {
 	})
 })
 
-describe.only('revoke invitation', () => {
+describe('revoke invitation', () => {
 	const makeRevokeInvitationMutation = (shareID: string, userID: string) => `
 		mutation{
 			revokeInvitation(input: {shareID: "${shareID}", userID: "${userID}"})

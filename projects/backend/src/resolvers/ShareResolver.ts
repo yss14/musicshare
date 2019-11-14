@@ -82,6 +82,14 @@ export class ShareResolver {
 	}
 
 	@Authorized()
+	@FieldResolver(() => [User])
+	public async users(
+		@Root() share: Share,
+	): Promise<User[]> {
+		return this.services.userService.getUsersOfShare(share.id);
+	}
+
+	@Authorized()
 	@FieldResolver(() => [String])
 	public async permissions(
 		@Root() share: Share
