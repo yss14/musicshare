@@ -145,7 +145,7 @@ describe('express middleware', () => {
 });
 
 describe('native type-graphql auth middleware', () => {
-	const executeTestRequests = async (expressApp: express.Application, authToken: string | undefined, protectedSuccess?: boolean) => {
+	const executeTestRequests = async (expressApp: express.Application, authToken: string | undefined, protectedSuccess?: boolean, message?: string) => {
 		const publicQuery = `
 			query{
 				publicQuery(from: 1){message}
@@ -166,7 +166,7 @@ describe('native type-graphql auth middleware', () => {
 		} else {
 			expect(responseProtected.body).toMatchObject(makeGraphQLResponse(
 				null,
-				[{ message: `Access denied! You need to be authorized to perform this action!` }]
+				[{ message: message || `Access denied! You need to be authorized to perform this action!` }]
 			));
 		}
 
@@ -197,7 +197,7 @@ describe('native type-graphql auth middleware', () => {
 		const authTokenDecoded = await authService.verifyToken(authToken);
 		invalidAuthTokenStore.invalidate(authTokenDecoded.tokenID);
 
-		await executeTestRequests(expressApp, authToken, false);
+		await executeTestRequests(expressApp, authToken, false, 'AuthToken invalid');
 	});
 
 	test('no token', async () => {
