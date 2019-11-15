@@ -84,8 +84,6 @@ if (!isProductionEnvironment()) {
 		UserResolver, ShareResolver, SongResolver
 	);
 
-	const a = 5
-
 	const server = HTTPServer({
 		graphQLServer,
 		songFileService: services.songFileService,
