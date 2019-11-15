@@ -35,5 +35,10 @@
 	],
 	"preset": "ts-jest",
 	"testMatch": null,
-	"runner": "jest-runner-concurrent"
+	"runner": "jest-runner-concurrent",
+	"globals": {
+		"ts-jest": {
+			"isolatedModules": true
+		}
+	}
 }
