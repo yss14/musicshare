@@ -5,19 +5,21 @@ import Login from "../../pages/login/Login";
 import { useUser } from "../../graphql/queries/user-query";
 import { MainLayout } from "../MainLayout";
 import { RedirectToLibrary } from "./RedirectToLibrary";
-import { NotFound } from "./NotFound";
+import { NotFound } from "../../pages/status/NotFound";
 import { PlaylistSidebar } from "../sidebar/PlaylistsSidebar";
 import { UploadDropzone } from "../upload/UploadDropzone";
 import { useAuthToken } from "../../graphql/client/queries/auth-token-query";
 import { MergedSongs } from "../../pages/share/MergedSongs";
 import { useUpdateLibraryID } from '../../graphql/client/mutations/libraryid-mutation'
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query";
+import { Offline } from "../../pages/status/Offline";
 
 const Share = lazy(() => import("../../pages/share/Share").then(module => ({ default: module.Share })));
 
 export const Routing = () => {
 	const authToken = useAuthToken()
 	const history = useHistory()
+	const match = useRouteMatch()
 
 	useEffect(() => {
 		if (!authToken) {
@@ -28,8 +30,10 @@ export const Routing = () => {
 	return (
 		<Suspense fallback={<Spin />}>
 			<Switch>
-				{authToken && <LoggedInRoutes />}
 				<Route exact path="/login" render={() => <Login />} />
+				<Route exact path="/404" render={() => <NotFound />} />
+				<Route path="/offline" render={() => <Offline />} />
+				{authToken && <LoggedInRoutes />}
 				<Route render={() => <NotFound />} />
 			</Switch>
 		</Suspense>
