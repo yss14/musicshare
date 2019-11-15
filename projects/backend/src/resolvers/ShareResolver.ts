@@ -137,6 +137,7 @@ export class ShareResolver {
 	@Mutation(() => Boolean)
 	public async deleteShare(
 		@Args() { shareID }: ShareIDArg,
+		@Ctx() ctx: IGraphQLContext,
 	): Promise<boolean> {
 		await this.services.shareService.delete(shareID)
 		await expireAuthToken(ctx)
