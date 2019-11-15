@@ -109,7 +109,7 @@ const SharePlaylistsSidebar = () => {
 const MergedPlaylistsSidebar = () => {
 	const playlistID = usePlaylistID()
 	const { loading, error, data } = useMergedPlaylists()
-	console.log({ loading, error, data })
+
 	if (loading) return <Spinner />;
 	if (error || !data) return <div>Error loading playlists</div>;
 
