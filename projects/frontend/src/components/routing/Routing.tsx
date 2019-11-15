@@ -19,7 +19,6 @@ const Share = lazy(() => import("../../pages/share/Share").then(module => ({ def
 export const Routing = () => {
 	const authToken = useAuthToken()
 	const history = useHistory()
-	const match = useRouteMatch()
 
 	useEffect(() => {
 		if (!authToken) {
