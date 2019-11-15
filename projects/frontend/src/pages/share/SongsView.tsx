@@ -12,7 +12,7 @@ import { ISongSearchFilter, allMatchingOptions } from "../../components/song-tab
 const tokenizeQuery = (query: string) => query
 	.trim()
 	.toLowerCase()
-	.replace(/[&\/\\#,+()$~%.'":*?<>{}!]/g, '')
+	.replace(/[&/#,+()$~%.'":*?<>{}!]/g, '')
 	.split(' ')
 	.map(token => token.trim())
 	.filter(token => token.length > 0)

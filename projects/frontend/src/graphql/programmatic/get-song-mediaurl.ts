@@ -15,5 +15,5 @@ export const getSongMediaUrls = (client: ApolloClient<unknown>) => async (shareI
 		return response.data.share.song.sources;
 	}
 
-	throw `Cannot fetch media url for song ${songID}`;
+	throw new Error(`Cannot fetch media url for song ${songID}`);
 }

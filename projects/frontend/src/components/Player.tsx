@@ -133,7 +133,7 @@ const PlayerSlider: React.FC<IPlayerSliderProps> = ({ progresses, onClick, progr
 	);
 }
 
-export const Player = ({ }) => {
+export const Player = () => {
 	const { play, pause, next, prev, volume, changeVolume, playing, currentSong, playpackProgress, duration, seek, bufferingProgress } = usePlayer();
 
 	const handleClickMute = () => {

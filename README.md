@@ -23,7 +23,7 @@ We are working hard to release the first version of MusicShare. See the [roadmap
 1. Clone this repo
 2. Run `npm install` or `yarn install` to install and bootstrap dependencies
 3. Create local configurations for `frontend` and `backend` by copying the sample `.env` files (`cp projects/backend/config/development_sample.env projects/backend/development.env && cp projects/frontend/config/sample.env projects/frontend/.env`)
-4. Create and run `cassandra` database with docker (`docker-compose up`)
+4. Create and start `PostgreSQL` database with docker (`docker-compose up`)
 5. Run everything in `dev` mode by `npm run dev` or `yarn dev`
 
 If you want to run parts of the project seperatly, have a look at the provided scripts of the root [package.json](package.json).
@@ -33,12 +33,19 @@ To execute the test cases, you need to create a separate `test.env`, for both th
 project (`cp projects/backend/config/development_sample.env projects/backend/test.env && cp projects/backend/config/development_sample.env projects/cassandra-schema-builder/test.env`), 
 and adjust the database connection variables accordingly.
 
+**Important notes**
+
+* Be sure to always run tsc in watch mode (e.g. via `dev:backend` npm script) when writing test cases since `ts-jest` is configured to skip type checking
+* When calling `executeGraphQLQuery` function in integration tests, the default *logged-in* user is `testData.users.user1`
+
 ## Contributing
 We are always happy welcoming new people contributing to this project. [Here's](https://github.com/yss14/musicshare/wiki/Contributing) a little guide to get started!
 
 ## Contributors
 * Yannick Stachelscheid ([@yss14](https://github.com/yss14))
 * Felix Wohnhaas ([@fewhnhouse](https://github.com/fewhnhouse))
+* Tobias Klesel ([@tobi12345](https://github.com/tobi12345))
+* Christian Diemers ([@Freshchris01](https://github.com/Freshchris01))
 
 ## License
 This project is licensed under the [AGPL](LICENSE) license.
