@@ -44,6 +44,8 @@ We are always happy welcoming new people contributing to this project. [Here's](
 ## Contributors
 * Yannick Stachelscheid ([@yss14](https://github.com/yss14))
 * Felix Wohnhaas ([@fewhnhouse](https://github.com/fewhnhouse))
+* Tobias Klesel ([@tobi12345](https://github.com/tobi12345))
+* Christian Diemers ([@Freshchris01](https://github.com/Freshchris01))
 
 ## License
 This project is licensed under the [AGPL](LICENSE) license.
