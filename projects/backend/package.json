@@ -23,5 +23,7 @@
 	"author": "Yannick Stachelscheid",
 	"license": "UNLICENSED",
 	"devDependencies": {},
-	"dependencies": {}
+	"dependencies": {
+		"postgres-schema-builder": "*"
+	}
 }
