@@ -15,6 +15,14 @@ const StyledIcon = styled(Icon)`
   font-weight: 600;
 `;
 
+const CurrentShareItem = styled(Item)`
+	width: 200px;
+	font-weight: bold;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+`
+
 export const HeaderNavMenu = () => {
 	const { shareID } = useParams<IShareRoute>()
 	const match = useRouteMatch()
@@ -34,20 +42,43 @@ export const HeaderNavMenu = () => {
 	}
 
 	const libraryShare = data.viewer.shares.find(share => share.isLibrary)
+	const otherShares = data.viewer.shares
+		.filter(share => libraryShare === undefined ? false : share.id !== libraryShare.id)
+	const currentShareName = (() => {
+		if (match) {
+			if (!match.path.endsWith('/all')) {
+				if (shareID) {
+					const currentShare = data.viewer.shares.find(share => share.id === shareID)
 
-	if (!libraryShare) return null
+					if (currentShare) {
+						if (match.path.startsWith('/all/')) {
+							return `All - ${currentShare.name}`
+						}
 
-	const otherShares = data.viewer.shares.filter(share => share.id !== libraryShare.id)
+						return currentShare.name
+					}
+				}
+			} else {
+				return 'All Shares'
+			}
+		}
+
+		return 'N/A'
+	})()
+
+	if (!libraryShare || !otherShares) return null
 
 	const selectedKeys = shareID && match && !match.path.startsWith('/all/') ? `shares:${shareID}` : 'shares:all'
 
 	return (
 		<>
 			<Menu
-				style={{ marginLeft: "200px" }}
 				selectedKeys={[selectedKeys]}
 				mode="horizontal"
 			>
+				<CurrentShareItem key="share:current" disabled>
+					<span style={{ color: 'black', fontSize: 16 }}>{currentShareName}</span>
+				</CurrentShareItem>
 				<Item key="shares:all">
 					<Link to={`/all`}>
 						<StyledIcon type="profile" />
