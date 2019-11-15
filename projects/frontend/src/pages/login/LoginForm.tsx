@@ -55,9 +55,9 @@ const LoginForm = ({
 					valuePropName: "checked",
 					initialValue: true
 				})(<Checkbox>Remember me</Checkbox>)}
-				<a className="login-form-forgot" href="">
+				<Button type="link">
 					Forgot password
-        </a>
+        		</Button>
 			</Form.Item>
 			<Form.Item>
 				<Button

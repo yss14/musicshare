@@ -19,7 +19,7 @@ interface IWindowWithEnv extends Window {
 	_env_: IEnvLike;
 }
 
-const isWindowWithEnv = (obj: Window): obj is IWindowWithEnv => typeof (<any>obj)._env_ === 'object';
+const isWindowWithEnv = (obj: Window): obj is IWindowWithEnv => typeof (obj as any)._env_ === 'object';
 
 const getEnvValue = (name: string): string => isWindowWithEnv(window)
 	? window['_env_'][name]

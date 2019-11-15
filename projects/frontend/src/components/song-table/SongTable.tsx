@@ -13,7 +13,7 @@ const columns = [
 		title: "Title",
 		width: 200,
 		key: "title",
-		render: (song: IShareSong) => <a href="#">{buildSongName(song)}</a>
+		render: (song: IShareSong) => <span>{buildSongName(song)}</span>
 	},
 	{
 		title: "Time",
