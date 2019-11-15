@@ -190,7 +190,7 @@ describe('get share songs', () => {
 	test('get all songs of a share', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const share = testData.shares.some_shared_library;
+		const share = testData.shares.some_share;
 		const query = makeShareQuery(share.share_id.toString(), [makeShareSongsQuery()]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -260,7 +260,7 @@ describe('get share song', () => {
 	test('get share song via proxy from linked share succeeds', async () => {
 		const { graphQLServer } = await setupTest({});
 
-		const share = testData.shares.some_shared_library;
+		const share = testData.shares.some_share;
 		const song = testData.songs.song4_library_user2;
 		const query = makeShareQuery(share.share_id.toString(), [makeShareSongQuery(song.song_id.toString())]);
 
@@ -354,7 +354,7 @@ describe('get share playlists', () => {
 });
 
 describe('get share users', () => {
-	const shareID = testData.shares.some_shared_library.share_id
+	const shareID = testData.shares.some_share.share_id
 
 	test('accepted, pending, deleted users', async () => {
 		const { graphQLServer, userService } = await setupTest({});
@@ -514,7 +514,7 @@ describe('invite to share', () => {
 			inviteToShare(input: {shareID: "${shareID}", email: "${email}"})
 		}
 	`;
-	const shareID = testData.shares.some_shared_library.share_id
+	const shareID = testData.shares.some_share.share_id
 
 	test('not existing email succeeds', async () => {
 		const { graphQLServer } = await setupTest({});
@@ -605,7 +605,7 @@ describe('accept invitation', () => {
 			}
 		}
 	`;
-	const shareID = testData.shares.some_shared_library.share_id
+	const shareID = testData.shares.some_share.share_id
 	const inviterID = testData.users.user1.user_id
 	const email = 'inviteme@gmail.com'
 
@@ -649,7 +649,7 @@ describe('revoke invitation', () => {
 			revokeInvitation(input: {shareID: "${shareID}", userID: "${userID}"})
 		}
 	`;
-	const shareID = testData.shares.some_shared_library.share_id
+	const shareID = testData.shares.some_share.share_id
 	const inviterID = testData.users.user1.user_id
 
 	test('invited user not yet accepted succeeds', async () => {
@@ -688,6 +688,41 @@ describe('revoke invitation', () => {
 		const inviterID = testData.users.user3.user_id
 		const { createdUser } = await userService.inviteToShare(shareID, inviterID, 'some@gmail.com')
 		const query = makeRevokeInvitationMutation(shareID, createdUser.id)
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse(null, [
+			{ message: `Share with id ${shareID} not found` }
+		]))
+	})
+})
+
+describe('leave share', () => {
+	const makeLeaveShareMutation = (shareID: string) => `
+		mutation{
+			leaveShare(input: {shareID: "${shareID}"})
+		}
+	`;
+
+	test('user is member succeeds', async () => {
+		const { graphQLServer, userService } = await setupTest({});
+
+		const shareID = testData.shares.some_share.share_id
+		const query = makeLeaveShareMutation(shareID)
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.leaveShare).toBeTrue()
+
+		const shareUsers = await userService.getUsersOfShare(shareID)
+		expect(shareUsers.map(user => user.id)).not.toContain(testData.users.user1.user_id)
+	})
+
+	test('user is not member fails', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const shareID = testData.shares.some_unrelated_share.share_id
+		const query = makeLeaveShareMutation(shareID)
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 

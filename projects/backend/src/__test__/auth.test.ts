@@ -401,7 +401,7 @@ describe('auth middleware', () => {
 
 describe('get permission from scope', () => {
 	const shareID1 = testData.shares.library_user1.share_id.toString();
-	const shareID2 = testData.shares.some_shared_library.share_id.toString();
+	const shareID2 = testData.shares.some_share.share_id.toString();
 	const shareID3 = testData.shares.library_user2.share_id.toString();
 	const scopes: Scopes = [
 		{ shareID: shareID1, permissions: ['playlist:create', 'playlist:modify', 'song:modify'] },

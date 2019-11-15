@@ -15,6 +15,7 @@ import { User } from "../models/UserModel";
 import { AcceptInvitationInput } from "../inputs/AcceptInvitationInput";
 import { RevokeInvitationInput } from "../inputs/RevokeInvitationInput";
 import { expireAuthToken } from "../auth/auth-middleware";
+import { ShareIDInput } from "../inputs/ShareIDInput";
 
 @Resolver(of => Share)
 export class ShareResolver {
@@ -189,6 +190,17 @@ export class ShareResolver {
 		@Arg('input') { userID }: RevokeInvitationInput,
 	): Promise<boolean> {
 		await this.services.userService.revokeInvitation(userID)
+
+		return true
+	}
+
+	@Mutation(() => Boolean)
+	@ShareAuth()
+	public async leaveShare(
+		@Arg('input') { shareID }: ShareIDInput,
+		@Ctx() { userID }: IGraphQLContext,
+	): Promise<boolean> {
+		await this.services.shareService.removeUser(shareID, userID!)
 
 		return true
 	}

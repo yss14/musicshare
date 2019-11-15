@@ -278,7 +278,7 @@ describe('add songs to playlist', () => {
 	})
 
 	test('linked song from share should succeed for shared playlist', async () => {
-		const shareID = testData.shares.some_shared_library.share_id
+		const shareID = testData.shares.some_share.share_id
 		const { graphQLServer, playlistService } = await setupTest({});
 		const { id: playlistID } = await playlistService.create(shareID, 'Some new shared playlist');
 		const songs = [testData.songs.song1_library_user1, testData.songs.song4_library_user2];
@@ -311,7 +311,7 @@ describe('add songs to playlist', () => {
 	})
 
 	test('foreign song from unrelated library should fail for shared playlist', async () => {
-		const shareID = testData.shares.some_shared_library.share_id
+		const shareID = testData.shares.some_share.share_id
 		const { graphQLServer, playlistService } = await setupTest({});
 		const { id: playlistID } = await playlistService.create(shareID, 'Some new shared playlist');
 		const songs = [testData.songs.song1_library_user1, testData.songs.song5_library_user3];

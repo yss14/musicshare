@@ -19,6 +19,7 @@ export interface IShareService {
 	rename(shareID: string, name: string): Promise<void>;
 	delete(shareID: string): Promise<void>;
 	addUser(shareID: string, userID: string, permissions: Permission[]): Promise<void>;
+	removeUser(shareID: string, userID: string): Promise<void>;
 }
 
 export class ShareService implements IShareService {
@@ -106,6 +107,12 @@ export class ShareService implements IShareService {
 				date_removed: null,
 			})
 		);
+	}
+
+	public async removeUser(shareID: string, userID: string): Promise<void> {
+		await this.database.query(
+			UserSharesTable.delete(['share_id_ref', 'user_id_ref'])([shareID, userID])
+		)
 	}
 
 	public async rename(shareID: string, name: string): Promise<void> {

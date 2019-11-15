@@ -118,7 +118,7 @@ describe('get users shares', () => {
 		expect(body).toEqual(makeGraphQLResponse({
 			viewer: {
 				...User.fromDBResult(testUser),
-				shares: [testData.shares.library_user1, testData.shares.some_shared_library].map(Share.fromDBResult)
+				shares: [testData.shares.library_user1, testData.shares.some_share].map(Share.fromDBResult)
 			}
 		}));
 	});

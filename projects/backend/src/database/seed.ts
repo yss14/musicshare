@@ -15,7 +15,7 @@ import { Permissions } from '../auth/permissions';
 import { makeFileSourceJSONType } from '../models/FileSourceModels';
 
 type Users = 'user1' | 'user2' | 'user3';
-type Shares = 'library_user1' | 'library_user2' | 'some_shared_library' | 'some_unrelated_library' | 'some_unrelated_share';
+type Shares = 'library_user1' | 'library_user2' | 'some_share' | 'some_unrelated_library' | 'some_unrelated_share';
 type Songs = 'song1_library_user1' | 'song2_library_user1' | 'song3_library_user1' | 'song4_library_user2' | 'song5_library_user3';
 type Playlists = 'playlist1_library_user1' | 'playlist2_library_user1' | 'playlist_some_shared_library' | 'playlist_library_user2';
 
@@ -207,7 +207,7 @@ export const testData: ITestDataSchema = {
 			date_removed: null,
 			user_ids: [user2ID],
 		},
-		some_shared_library: {
+		some_share: {
 			share_id: someShareShareID,
 			name: 'Some Shared Library',
 			is_library: false,
