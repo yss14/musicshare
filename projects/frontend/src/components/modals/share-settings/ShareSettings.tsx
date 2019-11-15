@@ -1,9 +1,8 @@
-import React, { useState, useDebugValue, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { Modal, Form, Input, Table, Button, Alert, Popconfirm, Icon } from 'antd'
 import { IShare, IUser } from '../../../graphql/types'
 import { useDebounce } from 'use-debounce/lib'
 import { useShareUsers } from '../../../graphql/queries/share-users-query'
-import { ColumnProps } from 'antd/lib/table'
 import Column from 'antd/lib/table/Column'
 import { useInviteToShare } from '../../../graphql/mutations/invite-to-share-mutation'
 import { Typography } from 'antd';
@@ -37,7 +36,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 		} else {
 			leaveShare(share.id)
 		}
-	}, [isOwner, share.id])
+	}, [isOwner, share.id, deleteShare, leaveShare])
 
 	const cancelButton = (
 		<Popconfirm
@@ -82,7 +81,7 @@ const ChangeSongName: React.FC<{ share: IShare }> = ({ share: { name, id } }) =>
 				name: debouncedShareName,
 			}
 		})
-	}, [debouncedShareName, id])
+	}, [debouncedShareName, id, renameShare])
 
 	return (
 		<Form.Item

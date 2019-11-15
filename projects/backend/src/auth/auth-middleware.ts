@@ -32,6 +32,7 @@ export const makeAuthExtractor = (authService: IAuthenticationService, invalidAu
 		} catch (err) {
 			if (err.name === 'TokenExpiredError') {
 				req.context.error = { statusCode: HTTPStatusCodes.UNAUTHORIZED, message: 'AuthToken expired' };
+
 				return next();
 			}
 			// istanbul ignore next

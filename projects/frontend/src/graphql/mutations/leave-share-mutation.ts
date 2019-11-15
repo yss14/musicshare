@@ -49,7 +49,7 @@ export const useLeaveShare = (opts?: IMutationOptions<ILeaveShareData>) => {
 			variables: { input: { shareID } },
 			update: makeUpdateSharesCache(shareID),
 		})
-	}, [leaveShareMutation, opts])
+	}, [leaveShareMutation, makeUpdateSharesCache])
 
 	return [leaveShare, other] as [(shareID: string) => void, MutationResult<ILeaveShareData>]
 }
