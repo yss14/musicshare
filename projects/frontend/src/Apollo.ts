@@ -95,34 +95,40 @@ const getNewAuthToken = (client: ApolloClient<NormalizedCacheObject>) => async (
 }
 
 const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
-	if (!graphQLErrors) return;
+	if (graphQLErrors) {
+		for (const error of graphQLErrors) {
+			if (error.message === 'Access denied! You need to be authorized to perform this action!') {
+				if (window.location.pathname !== "/login") {
+					history.push("/login")
+				}
+			} else if (error.extensions && error.extensions.code === 'UNAUTHENTICATED') {
+				return promiseToObservable(getNewAuthToken(client)())
+					.flatMap((authToken) => {
+						cache.writeData({
+							data: {
+								authToken
+							}
+						})
+						if (authToken) {
+							localStorage.setItem('auth-token', authToken)
 
-	for (const error of graphQLErrors) {
-		if (error.message === 'Access denied! You need to be authorized to perform this action!') {
-			if (window.location.pathname !== "/login") {
-				history.push("/login")
-			}
-		} else if (error.extensions && error.extensions.code === 'UNAUTHENTICATED') {
-			return promiseToObservable(getNewAuthToken(client)())
-				.flatMap((authToken) => {
-					cache.writeData({
-						data: {
-							authToken
+							return forward(operation)
+						} else {
+							localStorage.removeItem('auth-token')
+
+							history.push("/login")
+
+							return Observable.of()
 						}
 					})
-					if (authToken) {
-						localStorage.setItem('auth-token', authToken)
-
-						return forward(operation)
-					} else {
-						localStorage.removeItem('auth-token')
-
-						history.push("/login")
-
-						return Observable.of()
-					}
-				})
+			}
 		}
+	}
+
+	if (networkError) {
+		console.error(networkError)
+
+		history.push('/offline')
 	}
 });
 
