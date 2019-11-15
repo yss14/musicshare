@@ -11,6 +11,7 @@ import { ApolloError } from 'apollo-client'
 import { useRevokeInvitation } from '../../../graphql/mutations/revoke-invitation-mutation'
 import { useRenameShare } from '../../../graphql/mutations/rename-share-mutation'
 import { useDeleteShare } from '../../../graphql/mutations/delete-share-mutation'
+import { useLeaveShare } from '../../../graphql/mutations/leave-share-mutation'
 
 const { Text } = Typography;
 
@@ -23,6 +24,9 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 	const [deleteShare] = useDeleteShare({
 		onCompleted: () => onClose(),
 	})
+	const [leaveShare] = useLeaveShare({
+		onCompleted: () => onClose(),
+	})
 	const isOwner = useMemo(() => share.userPermissions.includes('share:owner'), [share.userPermissions])
 	const canChangeName = isOwner
 	const canInvite = isOwner
@@ -31,9 +35,9 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 		if (isOwner) {
 			deleteShare(share.id)
 		} else {
-			// TODO, requires leaveShare backend mutation
+			leaveShare(share.id)
 		}
-	}, [isOwner])
+	}, [isOwner, share.id])
 
 	const cancelButton = (
 		<Popconfirm
@@ -43,8 +47,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 		>
 			<Button
 				type="danger"
-				style={{ display: isOwner ? 'inline-block' : 'none' }}
-			>{isOwner ? 'Delete Share' : 'Leavle Share'}</Button>
+			>{isOwner ? 'Delete Share' : 'Leave Share'}</Button>
 		</Popconfirm>
 	)
 

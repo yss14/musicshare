@@ -175,7 +175,7 @@ export const testData: ITestDataSchema = {
 		},
 		user2: {
 			name: 'Simon',
-			email: faker.internet.email(),
+			email: 'simon@musicshare.de',
 			user_id: user2ID,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
@@ -297,7 +297,13 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 				await shareService.create(shareByUser.user_ids[0], shareByUser.name, shareByUser.is_library, shareByUser.share_id);
 
 				for (const shareUserID of shareByUser.user_ids.slice(1)) {
-					await shareService.addUser(shareByUser.share_id, shareUserID, Permissions.ALL);
+					let permissions = Permissions.ALL;
+
+					if (shareByUser.share_id === someShareShareID && shareUserID === user2ID) {
+						permissions = Permissions.NEW_MEMBER;
+					}
+
+					await shareService.addUser(shareByUser.share_id, shareUserID, permissions);
 				}
 
 				await Promise.all(defaultSongTypes.map(songType =>

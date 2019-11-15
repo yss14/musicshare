@@ -39,6 +39,10 @@ const typeDefs = `
 		shareID: String!
 		userID: String!
 	}
+
+	type ShareIDInput {
+		shareID: String!
+	}
 `;
 
 const httpLink = new HttpLink({

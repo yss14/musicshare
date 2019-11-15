@@ -39,13 +39,13 @@ export const useDeleteShare = (opts?: IMutationOptions<IDeleteShareData>) => {
 		})
 	}, [])
 
-	const [deleteShareMutation, other] = useMutation<IDeleteShareData, IDeleteShareVariables>(DELETE_SHARE)
+	const [deleteShareMutation, other] = useMutation<IDeleteShareData, IDeleteShareVariables>(DELETE_SHARE, opts)
 
 	const deleteShare = useCallback((shareID: string) => {
+
 		deleteShareMutation({
 			variables: { shareID },
 			update: makeUpdateSharesCache(shareID),
-			...(opts || {}),
 		})
 	}, [deleteShareMutation, opts])
 
