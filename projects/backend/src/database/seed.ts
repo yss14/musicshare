@@ -193,7 +193,7 @@ export const testData: ITestDataSchema = {
 	shares: {
 		library_user1: {
 			share_id: libraryUser1ShareID,
-			name: 'Share Yss',
+			name: 'Library Yss',
 			is_library: true,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,

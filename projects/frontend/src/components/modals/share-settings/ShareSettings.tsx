@@ -1,5 +1,5 @@
-import React, { useState, useDebugValue, useEffect, useCallback } from 'react'
-import { Modal, Form, Input, Table, Button, Alert } from 'antd'
+import React, { useState, useDebugValue, useEffect, useCallback, useMemo } from 'react'
+import { Modal, Form, Input, Table, Button, Alert, Popconfirm, Icon } from 'antd'
 import { IShare, IUser } from '../../../graphql/types'
 import { useDebounce } from 'use-debounce/lib'
 import { useShareUsers } from '../../../graphql/queries/share-users-query'
@@ -10,6 +10,7 @@ import { Typography } from 'antd';
 import { ApolloError } from 'apollo-client'
 import { useRevokeInvitation } from '../../../graphql/mutations/revoke-invitation-mutation'
 import { useRenameShare } from '../../../graphql/mutations/rename-share-mutation'
+import { useDeleteShare } from '../../../graphql/mutations/delete-share-mutation'
 
 const { Text } = Typography;
 
@@ -19,27 +20,54 @@ interface IShareSettingsProps {
 }
 
 export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose }) => {
-	const canChangeName = share.userPermissions.includes('share:owner')
-	const canInvite = share.userPermissions.includes('share:owner')
+	const [deleteShare] = useDeleteShare({
+		onCompleted: () => onClose(),
+	})
+	const isOwner = useMemo(() => share.userPermissions.includes('share:owner'), [share.userPermissions])
+	const canChangeName = isOwner
+	const canInvite = isOwner
+
+	const onLeaveDeleteClick = useCallback(() => {
+		if (isOwner) {
+			deleteShare(share.id)
+		} else {
+			// TODO, requires leaveShare backend mutation
+		}
+	}, [isOwner])
+
+	const cancelButton = (
+		<Popconfirm
+			title="Are you sure? This action cannot be undone!"
+			icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
+			onConfirm={onLeaveDeleteClick}
+		>
+			<Button
+				type="danger"
+				style={{ display: isOwner ? 'inline-block' : 'none' }}
+			>{isOwner ? 'Delete Share' : 'Leavle Share'}</Button>
+		</Popconfirm>
+	)
 
 	return (
 		<Modal
+			title="Share Settings"
 			okText="OK"
-			cancelButtonProps={{ style: { display: 'none' } }}
+			cancelText={cancelButton}
 			onOk={onClose}
-			onCancel={onClose}
 			visible={true}
 			width={800}
+			cancelButtonProps={{ style: { border: 'none', padding: '0px' } }}
 		>
 			<Form>
 				{canChangeName && <ChangeSongName share={share} />}
 				{canInvite && <ShareUsers shareID={share.id} />}
+				{!isOwner && <div>You've missing the required permission to edit share settings</div>}
 			</Form>
 		</Modal>
 	)
 }
 
-const ChangeSongName: React.FC<{ share: IShare}> = ({ share: {name, id} }) => {
+const ChangeSongName: React.FC<{ share: IShare }> = ({ share: { name, id } }) => {
 	const [shareName, setShareName] = useState(name)
 	const [debouncedShareName] = useDebounce(shareName, 1000)
 	const [renameShare] = useRenameShare()
@@ -119,7 +147,6 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 					<Column title="Name" dataIndex="name" key="name" />
 					<Column title="E-Mail" dataIndex="email" key="email" />
 					<Column title="Status" dataIndex="status" key="status" />
-					<Column title="Permissions" dataIndex="permissions" key="permission" />
 					<Column title="Actions" key="actions" render={(text, user: IUser) => (
 						<>
 							{user.status === 'pending' && <Button type="link" onClick={() => onRevokeInvitationClick(user.id)}>Revoke</Button>}
