@@ -10,13 +10,13 @@ export const makeAuthExtractor = (authService: IAuthenticationService, invalidAu
 		req.context = { userID: null, scopes: [] };
 
 		try {
-			const authHeader = req.headers.authorization;
+			const authToken = req.headers.authorization;
 
-			if (authHeader === undefined) {
+			if (authToken === undefined) {
 				return next();
 			}
 
-			const tokenDecoded = await authService.verifyToken(authHeader);
+			const tokenDecoded = await authService.verifyToken(authToken);
 
 			if (invalidAuthTokenStore.isInvalid(tokenDecoded.tokenID)) {
 				req.context.error = { statusCode: HTTPStatusCodes.UNAUTHORIZED, message: 'AuthToken invalid' };
@@ -26,13 +26,12 @@ export const makeAuthExtractor = (authService: IAuthenticationService, invalidAu
 
 			const { userID, scopes } = tokenDecoded;
 
-			req.context = { userID, scopes };
+			req.context = { userID, scopes, authToken };
 
 			next();
 		} catch (err) {
 			if (err.name === 'TokenExpiredError') {
 				req.context.error = { statusCode: HTTPStatusCodes.UNAUTHORIZED, message: 'AuthToken expired' };
-
 				return next();
 			}
 			// istanbul ignore next
@@ -62,7 +61,7 @@ export const auth: CustomRequestHandler = (req, res, next) => {
 }
 
 export const graphQLAuthChecker: AuthChecker<IGraphQLContext> = ({ context: { userID, error }, root, args }, permissions = []) => {
-	if (error && error.message === 'AuthToken expired') {
+	if (error && (error.message === 'AuthToken expired' || error.message === 'AuthToken invalid')) {
 		// throw this error so we can distiguish whether authToken expired
 		throw new AuthenticationError(error.message);
 	}
@@ -77,3 +76,15 @@ export const graphQLAuthChecker: AuthChecker<IGraphQLContext> = ({ context: { us
 
 	return true;
 };
+
+export const expireAuthToken = async (context: IGraphQLContext) => {
+	if (!context.authToken) {
+		context.error = { statusCode: HTTPStatusCodes.UNAUTHORIZED, message: 'AuthToken invalid' };
+
+		return
+	}
+
+	const tokenDecoded = await context.services.authService.verifyToken(context.authToken);
+
+	context.services.invalidAuthTokenStore.invalidate(tokenDecoded.tokenID)
+}

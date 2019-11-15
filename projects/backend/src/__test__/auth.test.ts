@@ -326,7 +326,7 @@ describe('auth selectors', () => {
 describe('auth middleware', () => {
 	const makeContext = (context?: Partial<IGraphQLContext>): IGraphQLContext => ({
 		scopes: [],
-		services: { playlistService: null as any, shareService: null as any, songService: null as any },
+		services: {} as any,
 		userID: null,
 		...(context || {}),
 	});
