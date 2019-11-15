@@ -14,6 +14,8 @@ import { Permissions } from "../auth/permissions";
 import { User } from "../models/UserModel";
 import { AcceptInvitationInput } from "../inputs/AcceptInvitationInput";
 import { RevokeInvitationInput } from "../inputs/RevokeInvitationInput";
+import { expireAuthToken } from "../auth/auth-middleware";
+import { ShareIDInput } from "../inputs/ShareIDInput";
 
 @Resolver(of => Share)
 export class ShareResolver {
@@ -112,7 +114,10 @@ export class ShareResolver {
 		@Args() { name }: ShareNameArg,
 		@Ctx() ctx: IGraphQLContext
 	): Promise<Share> {
-		return this.services.shareService.create(ctx.userID!, name, false);
+		const createdShare = await this.services.shareService.create(ctx.userID!, name, false)
+		await expireAuthToken(ctx)
+
+		return createdShare
 	}
 
 	@Authorized()
@@ -133,9 +138,10 @@ export class ShareResolver {
 	@Mutation(() => Boolean)
 	public async deleteShare(
 		@Args() { shareID }: ShareIDArg,
-
+		@Ctx() ctx: IGraphQLContext,
 	): Promise<boolean> {
 		await this.services.shareService.delete(shareID)
+		await expireAuthToken(ctx)
 
 		return true
 	}
@@ -184,6 +190,17 @@ export class ShareResolver {
 		@Arg('input') { userID }: RevokeInvitationInput,
 	): Promise<boolean> {
 		await this.services.userService.revokeInvitation(userID)
+
+		return true
+	}
+
+	@Mutation(() => Boolean)
+	@ShareAuth()
+	public async leaveShare(
+		@Arg('input') { shareID }: ShareIDInput,
+		@Ctx() { userID }: IGraphQLContext,
+	): Promise<boolean> {
+		await this.services.shareService.removeUser(shareID, userID!)
 
 		return true
 	}

@@ -1,7 +1,7 @@
 import React from "react";
 import { ApolloProvider } from "react-apollo";
 import { ApolloProvider as ApolloProviderHooks } from "@apollo/react-hooks";
-import { BrowserRouter as Router } from "react-router-dom";
+import { Router } from "react-router-dom";
 import { client, cache } from "./Apollo";
 import { DndProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
@@ -13,6 +13,7 @@ import { Routing } from "./components/routing/Routing";
 import { PlayerContext } from "./player/player-context";
 import { Player } from "./player/player";
 import { IPrimaryTheme } from "./types/Theme";
+import { history } from "./components/routing/history";
 
 const config = makeConfigFromEnv();
 
@@ -56,7 +57,7 @@ const App = () => {
 					<ConfigContext.Provider value={config}>
 						<PlayerContext.Provider value={player}>
 							<DndProvider backend={HTML5Backend}>
-								<Router>
+								<Router history={history}>
 									<Routing />
 								</Router>
 							</DndProvider>

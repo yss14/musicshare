@@ -29,7 +29,7 @@ afterAll(async () => {
 test('get genres for multiple shares', async () => {
 	const { genreService } = await setupTest({});
 
-	const shareIDs = [testData.shares.library_user1.share_id.toString(), testData.shares.some_shared_library.share_id.toString()];
+	const shareIDs = [testData.shares.library_user1.share_id.toString(), testData.shares.some_share.share_id.toString()];
 	const result = await genreService.getGenresForShares(shareIDs);
 
 	expect(result).toBeArrayOfSize(defaultGenres.length * 2);

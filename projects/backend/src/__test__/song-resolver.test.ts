@@ -226,7 +226,7 @@ describe('update song mutation', () => {
 			artists: ['Some new artist'],
 			tags: ['sometag'],
 		}
-		const shareID = testData.shares.some_shared_library.share_id;
+		const shareID = testData.shares.some_share.share_id;
 		const songID = testData.songs.song4_library_user2.song_id;
 		const query = makeUpdateSongMutation(shareID, songID, input);
 

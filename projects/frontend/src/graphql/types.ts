@@ -10,19 +10,32 @@ export interface IShareData {
 
 export interface IShare {
 	id: string;
+	__typename: 'Share';
 	name: string;
 	userID: string;
 	isLibrary: boolean;
+	userPermissions: string[];
 }
 
-export interface IUserData {
+export interface IUser {
+	id: string;
+	name: string;
+	email: string;
+	status: 'accepted' | 'pending';
+}
+
+export interface IUserWithShares extends IUser {
 	user: {
 		shares: IShare[];
-		id: string;
-		name: string;
-		emails: string[];
 	};
 }
+
+export const userKeys = `
+	id
+	name
+	email
+	status
+`
 
 export interface IUserVariables {
 	id: string;
@@ -100,6 +113,13 @@ export const shareSongKeys = `
 export const playlistSongKeys = `
 	${baseSongKeys}
 `;
+
+export const shareKeys = `
+	id
+	name
+	isLibrary
+	userPermissions
+`
 
 export interface IFile {
 	readonly container: string;

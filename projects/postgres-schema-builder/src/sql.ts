@@ -83,6 +83,15 @@ export namespace SQL {
 		return cql;
 	}
 
+	export const deleteEntry = (tableName: string, where: string[]) => {
+		const cql = `DELETE`
+			+ ` FROM ${tableName}`
+			+ ` WHERE ${where.map((column, i) => `("${column}" = $${i + 1})`).join(' AND ')}`
+			+ `;`;
+
+		return cql;
+	}
+
 	export const dropTable = (tableName: string) => `DROP TABLE ${tableName};`;
 
 	export const createIndex = (unique: boolean, name: string, column: string): string => {

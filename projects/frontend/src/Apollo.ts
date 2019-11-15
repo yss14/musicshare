@@ -9,6 +9,7 @@ import { makeConfigFromEnv } from "./config";
 import { ISSUE_AUTH_TOKEN, IIssueAuthTokenData, IIssueAuthTokenVariables } from "./graphql/mutations/issue-auth-token";
 import { getRefreshToken } from "./graphql/client/queries/auth-token-query";
 import { promiseToObservable } from "./graphql/utils/promise-to-observable";
+import { history } from "./components/routing/history";
 
 const config = makeConfigFromEnv();
 
@@ -27,6 +28,20 @@ const typeDefs = `
 		genres: [String!]
 		label: String
 		tags: [String!]
+	}
+
+	type InviteToShareInput {
+		shareID: String!
+		email: String!
+	}
+
+	type RevokeInvitationInput {
+		shareID: String!
+		userID: String!
+	}
+
+	type ShareIDInput {
+		shareID: String!
 	}
 `;
 
@@ -85,7 +100,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
 	for (const error of graphQLErrors) {
 		if (error.message === 'Access denied! You need to be authorized to perform this action!') {
 			if (window.location.pathname !== "/login") {
-				window.location.href = "/login";
+				history.push("/login")
 			}
 		} else if (error.extensions && error.extensions.code === 'UNAUTHENTICATED') {
 			return promiseToObservable(getNewAuthToken(client)())
@@ -102,7 +117,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
 					} else {
 						localStorage.removeItem('auth-token')
 
-						window.location.href = "/login";
+						history.push("/login")
 
 						return Observable.of()
 					}

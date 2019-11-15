@@ -15,7 +15,7 @@ import { Permissions } from '../auth/permissions';
 import { makeFileSourceJSONType } from '../models/FileSourceModels';
 
 type Users = 'user1' | 'user2' | 'user3';
-type Shares = 'library_user1' | 'library_user2' | 'some_shared_library' | 'some_unrelated_library' | 'some_unrelated_share';
+type Shares = 'library_user1' | 'library_user2' | 'some_share' | 'some_unrelated_library' | 'some_unrelated_share';
 type Songs = 'song1_library_user1' | 'song2_library_user1' | 'song3_library_user1' | 'song4_library_user2' | 'song5_library_user3';
 type Playlists = 'playlist1_library_user1' | 'playlist2_library_user1' | 'playlist_some_shared_library' | 'playlist_library_user2';
 
@@ -175,7 +175,7 @@ export const testData: ITestDataSchema = {
 		},
 		user2: {
 			name: 'Simon',
-			email: faker.internet.email(),
+			email: 'simon@musicshare.de',
 			user_id: user2ID,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
@@ -193,7 +193,7 @@ export const testData: ITestDataSchema = {
 	shares: {
 		library_user1: {
 			share_id: libraryUser1ShareID,
-			name: 'Share Yss',
+			name: 'Library Yss',
 			is_library: true,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
@@ -207,7 +207,7 @@ export const testData: ITestDataSchema = {
 			date_removed: null,
 			user_ids: [user2ID],
 		},
-		some_shared_library: {
+		some_share: {
 			share_id: someShareShareID,
 			name: 'Some Shared Library',
 			is_library: false,
@@ -297,7 +297,13 @@ export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs):
 				await shareService.create(shareByUser.user_ids[0], shareByUser.name, shareByUser.is_library, shareByUser.share_id);
 
 				for (const shareUserID of shareByUser.user_ids.slice(1)) {
-					await shareService.addUser(shareByUser.share_id, shareUserID, Permissions.ALL);
+					let permissions = Permissions.ALL;
+
+					if (shareByUser.share_id === someShareShareID && shareUserID === user2ID) {
+						permissions = Permissions.NEW_MEMBER;
+					}
+
+					await shareService.addUser(shareByUser.share_id, shareUserID, permissions);
 				}
 
 				await Promise.all(defaultSongTypes.map(songType =>

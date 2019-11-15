@@ -145,7 +145,7 @@ describe('express middleware', () => {
 });
 
 describe('native type-graphql auth middleware', () => {
-	const executeTestRequests = async (expressApp: express.Application, authToken: string | undefined, protectedSuccess?: boolean) => {
+	const executeTestRequests = async (expressApp: express.Application, authToken: string | undefined, protectedSuccess?: boolean, message?: string) => {
 		const publicQuery = `
 			query{
 				publicQuery(from: 1){message}
@@ -166,7 +166,7 @@ describe('native type-graphql auth middleware', () => {
 		} else {
 			expect(responseProtected.body).toMatchObject(makeGraphQLResponse(
 				null,
-				[{ message: `Access denied! You need to be authorized to perform this action!` }]
+				[{ message: message || `Access denied! You need to be authorized to perform this action!` }]
 			));
 		}
 
@@ -197,7 +197,7 @@ describe('native type-graphql auth middleware', () => {
 		const authTokenDecoded = await authService.verifyToken(authToken);
 		invalidAuthTokenStore.invalidate(authTokenDecoded.tokenID);
 
-		await executeTestRequests(expressApp, authToken, false);
+		await executeTestRequests(expressApp, authToken, false, 'AuthToken invalid');
 	});
 
 	test('no token', async () => {
@@ -326,7 +326,7 @@ describe('auth selectors', () => {
 describe('auth middleware', () => {
 	const makeContext = (context?: Partial<IGraphQLContext>): IGraphQLContext => ({
 		scopes: [],
-		services: { playlistService: null as any, shareService: null as any, songService: null as any },
+		services: {} as any,
 		userID: null,
 		...(context || {}),
 	});
@@ -401,7 +401,7 @@ describe('auth middleware', () => {
 
 describe('get permission from scope', () => {
 	const shareID1 = testData.shares.library_user1.share_id.toString();
-	const shareID2 = testData.shares.some_shared_library.share_id.toString();
+	const shareID2 = testData.shares.some_share.share_id.toString();
 	const shareID3 = testData.shares.library_user2.share_id.toString();
 	const scopes: Scopes = [
 		{ shareID: shareID1, permissions: ['playlist:create', 'playlist:modify', 'song:modify'] },

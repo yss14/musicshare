@@ -151,6 +151,7 @@ export interface ITable<C extends Columns> {
 	select<Subset extends Keys<C>, Where extends Keys<C>>(subset: Subset | "*", where: Where, allowFiltering?: boolean):
 		(conditions: ColumnValues<C, Where>) => IQuery<Pick<C, Extract<Subset[number], string>>>;
 	drop(): IQuery<{}>;
+	delete<Where extends Keys<C>>(where: Where): (conditions: ColumnValues<C, Where>) => IQuery<{}>;
 }
 
 export const Table =
@@ -202,5 +203,13 @@ export const Table =
 			drop: () => ({
 				sql: SQL.dropTable(table)
 			}),
+			delete: (where) => {
+				const sql = SQL.deleteEntry(table, where.filter(isString))
+
+				return (values) => ({
+					sql,
+					values,
+				})
+			}
 		}
 	}
