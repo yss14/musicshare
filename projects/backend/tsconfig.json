@@ -14,7 +14,8 @@
 		"skipLibCheck": true,
 		"rootDir": "src",
 		"suppressImplicitAnyIndexErrors": true,
-		"incremental": true
+		"incremental": true,
+		"noUnusedLocals": false
 	},
 	"include": [
 		"src/**/*"
