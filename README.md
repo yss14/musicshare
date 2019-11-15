@@ -33,6 +33,11 @@ To execute the test cases, you need to create a separate `test.env`, for both th
 project (`cp projects/backend/config/development_sample.env projects/backend/test.env && cp projects/backend/config/development_sample.env projects/cassandra-schema-builder/test.env`), 
 and adjust the database connection variables accordingly.
 
+**Important notes**
+
+* Be sure to always run tsc in watch mode (e.g. via `dev:backend` npm script) when writing test cases since `ts-jest` is configured to skip type checking
+* When calling `executeGraphQLQuery` function in integration tests, the default *logged-in* user is `testData.users.user1`
+
 ## Contributing
 We are always happy welcoming new people contributing to this project. [Here's](https://github.com/yss14/musicshare/wiki/Contributing) a little guide to get started!
 
