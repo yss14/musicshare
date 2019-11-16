@@ -15,7 +15,7 @@
 		"rootDir": "src",
 		"suppressImplicitAnyIndexErrors": true,
 		"incremental": true,
-		"noUnusedLocals": false
+		"noUnusedLocals": false,
 	},
 	"include": [
 		"src/**/*"
@@ -24,5 +24,10 @@
 		"node_modules",
 		"build",
 		"azurite"
+	],
+	"references": [
+		{
+			"path": "../shared-types/"
+		}
 	]
 }

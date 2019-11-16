@@ -1,0 +1,19 @@
+{
+	"name": "@musicshare/shared-types",
+	"version": "1.0.0",
+	"description": "Types and artefacts which are shared between backend and frontend",
+	"main": "build/index",
+	"private": true,
+	"scripts": {
+		"build": "tsc --project tsconfig.json --noUnusedLocals",
+		"build:watch": "tsc --watch --preserveWatchOutput",
+		"lint": "tslint --project tsconfig.json",
+		"lint:fix": "tslint --fix --project tsconfig.json",
+		"verify": "tsc --noEmit --noUnusedLocals",
+		"tsc:version": "tsc -v && pwd"
+	},
+	"author": "Yannick Stachelscheid",
+	"license": "UNLICENSED",
+	"devDependencies": {},
+	"dependencies": {}
+}

@@ -2,7 +2,6 @@
 	"name": "@musicshare/frontend",
 	"version": "1.0.1",
 	"private": true,
-	"dependencies": {},
 	"scripts": {
 		"start": "react-app-rewired start",
 		"dev": "npm run start",
@@ -21,5 +20,8 @@
 		"not ie <= 11",
 		"not op_mini all"
 	],
+	"dependencies": {
+		"@musicshare/shared-types": "*"
+	},
 	"devDependencies": {}
 }
