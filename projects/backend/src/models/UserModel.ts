@@ -2,11 +2,7 @@ import { Share } from './ShareModel';
 import { ObjectType, Field, registerEnumType } from "type-graphql";
 import { IUserDBResult } from '../database/schema/tables';
 import { plainToClass } from 'class-transformer';
-
-export enum UserStatus {
-	Pending = 'pending',
-	Accepted = 'accepted',
-}
+import { UserStatus } from '@musicshare/shared-types'
 
 registerEnumType(UserStatus, {
 	name: 'UserStatus',

@@ -12,7 +12,7 @@ import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 import { Song } from "../models/SongModel";
 import { ShareNotFoundError } from "../services/ShareService";
-import { UserStatus } from "../models/UserModel";
+import { UserStatus } from '@musicshare/shared-types'
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;

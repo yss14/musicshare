@@ -1,5 +1,5 @@
 import { ISongMediaUrl } from "./queries/song-mediaurl-query";
-import { Permission } from '@musicshare/shared-types'
+import { Permission, UserStatus } from '@musicshare/shared-types'
 
 export interface IShareVariables {
 	shareID: string;
@@ -22,7 +22,7 @@ export interface IUser {
 	id: string;
 	name: string;
 	email: string;
-	status: 'accepted' | 'pending';
+	status: UserStatus;
 }
 
 export interface IUserWithShares extends IUser {

@@ -1,4 +1,5 @@
-import { User, UserStatus } from '../models/UserModel';
+import { User } from '../models/UserModel';
+import { UserStatus } from '@musicshare/shared-types'
 import { IDatabaseClient, SQL } from "postgres-schema-builder";
 import { UsersTable, UserSharesTable, CoreTables } from "../database/schema/tables";
 import { v4 as uuid } from 'uuid';
