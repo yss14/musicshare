@@ -9,7 +9,7 @@ import * as argon2 from 'argon2';
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { User } from "../models/UserModel";
 import { plainToClass } from "class-transformer";
-import { Permission } from "../auth/permissions";
+import { Permission } from '@musicshare/shared-types';
 import { Scopes } from "../types/context";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";

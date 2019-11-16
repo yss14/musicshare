@@ -1,4 +1,4 @@
-import { Permissions, Permission } from './../auth/permissions';
+import { Permission, Permissions } from '@musicshare/shared-types';
 import { Share } from '../models/ShareModel';
 import { IDatabaseClient, SQL } from 'postgres-schema-builder';
 import { CoreTables, SharesTable, UserSharesTable } from '../database/schema/tables';

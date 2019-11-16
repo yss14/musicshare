@@ -11,7 +11,7 @@ import { Resolver, Authorized, Query, ObjectType, Field, Arg } from 'type-graphq
 import { makeGraphQLServer } from '../server/GraphQLServer';
 import { makeGraphQLResponse } from './utils/graphql';
 import { makeGraphQLContextProvider, Scopes, IGraphQLContext } from "../types/context";
-import { Permission } from "../auth/permissions";
+import { Permission } from '@musicshare/shared-types';
 import { makeAllScopes } from "./utils/setup-test-env";
 import { hasAllPermissions, getShareIDFromRequest, getPlaylistIDFromRequest, getSongIDFromRequest, getCurrentPermissionsForShare } from "../auth/middleware/auth-selectors";
 import { Share } from "../models/ShareModel";

@@ -11,6 +11,7 @@ import { useRevokeInvitation } from '../../../graphql/mutations/revoke-invitatio
 import { useRenameShare } from '../../../graphql/mutations/rename-share-mutation'
 import { useDeleteShare } from '../../../graphql/mutations/delete-share-mutation'
 import { useLeaveShare } from '../../../graphql/mutations/leave-share-mutation'
+import { Permissions } from '@musicshare/shared-types'
 
 const { Text } = Typography;
 
@@ -26,7 +27,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 	const [leaveShare] = useLeaveShare({
 		onCompleted: () => onClose(),
 	})
-	const isOwner = useMemo(() => share.userPermissions.includes('share:owner'), [share.userPermissions])
+	const isOwner = useMemo(() => share.userPermissions.includes(Permissions.SHARE_OWNER), [share.userPermissions])
 	const canChangeName = isOwner
 	const canInvite = isOwner
 
