@@ -1,8 +1,8 @@
 import { Share } from './ShareModel';
 import { ObjectType, Field, registerEnumType } from "type-graphql";
 import { IUserDBResult } from '../database/schema/tables';
-import { plainToClass } from 'class-transformer';
 import { UserStatus } from '@musicshare/shared-types'
+import { plainToClass } from 'class-transformer';
 
 registerEnumType(UserStatus, {
 	name: 'UserStatus',
@@ -20,7 +20,7 @@ export class User {
 	@Field()
 	public readonly email!: string;
 
-	@Field()
+	@Field(type => UserStatus)
 	public readonly status!: UserStatus;
 
 	@Field(type => [Share])
