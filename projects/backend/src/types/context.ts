@@ -1,5 +1,5 @@
 import * as Express from 'express';
-import { Permission } from '../auth/permissions';
+import { Permission } from '@musicshare/shared-types';
 import { ContextFunction } from 'apollo-server-core';
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
 import { IServices } from '../services/services';

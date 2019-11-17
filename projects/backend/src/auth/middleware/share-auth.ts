@@ -1,4 +1,4 @@
-import { Permissions } from "../permissions";
+import { Permissions } from '@musicshare/shared-types';
 import { Middleware } from "type-graphql/dist/interfaces/Middleware";
 import { IGraphQLContext } from "../../types/context";
 import { getShareIDFromRequest, hasAllPermissions, getCurrentPermissionsForShare, NoScopesProvidedError } from "./auth-selectors";

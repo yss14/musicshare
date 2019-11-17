@@ -11,7 +11,7 @@ import { makeDatabaseSchema } from "../../database/schema/make-database-schema";
 import uuid = require("uuid");
 import { PlaylistResolver } from "../../resolvers/PlaylistResolver";
 import { makeGraphQLContextProvider, Scopes } from "../../types/context";
-import { Permissions } from "../../auth/permissions";
+import { Permissions } from '@musicshare/shared-types';
 import { isMockedDatabase } from "../mocks/mock-database";
 import { configFromEnv } from "../../types/config";
 import { initServices } from "../../services/services";

@@ -1,6 +1,6 @@
 import { ArgsType, Field, InputType } from "type-graphql";
 import { Length, IsIn } from "class-validator";
-import { Permission, Permissions } from "../auth/permissions";
+import { Permission, Permissions } from '@musicshare/shared-types';
 
 @ArgsType()
 export class UserIDArg {

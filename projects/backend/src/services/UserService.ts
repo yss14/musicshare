@@ -1,4 +1,5 @@
-import { User, UserStatus } from '../models/UserModel';
+import { User } from '../models/UserModel';
+import { UserStatus } from '@musicshare/shared-types'
 import { IDatabaseClient, SQL } from "postgres-schema-builder";
 import { UsersTable, UserSharesTable, CoreTables } from "../database/schema/tables";
 import { v4 as uuid } from 'uuid';
@@ -7,7 +8,7 @@ import { IConfig } from '../types/config';
 import { IInvitationPayload, isInvitationPayload } from '../types/InvitationPayload';
 import * as JWT from 'jsonwebtoken';
 import { IService, IServices } from './services';
-import { Permissions } from '../auth/permissions';
+import { Permissions } from '@musicshare/shared-types';
 
 export class UserNotFoundError extends ForbiddenError {
 	constructor(filterColumn: string, value: string) {

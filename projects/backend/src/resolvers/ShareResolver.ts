@@ -10,7 +10,7 @@ import { ShareNameArg, ShareIDArg } from "../args/share-args";
 import { InviteToShareInput } from "../inputs/InviteToShareInput";
 import { ForbiddenError } from "apollo-server-core";
 import { UserNotFoundError } from "../services/UserService";
-import { Permissions } from "../auth/permissions";
+import { Permissions } from '@musicshare/shared-types';
 import { User } from "../models/UserModel";
 import { AcceptInvitationInput } from "../inputs/AcceptInvitationInput";
 import { RevokeInvitationInput } from "../inputs/RevokeInvitationInput";

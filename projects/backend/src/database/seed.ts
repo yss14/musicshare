@@ -11,7 +11,7 @@ import { SongType } from '../models/SongType';
 import { Genre } from '../models/GenreModel';
 import { IServices } from '../services/services';
 import { IConfig } from '../types/config';
-import { Permissions } from '../auth/permissions';
+import { Permissions } from '@musicshare/shared-types';
 import { makeFileSourceJSONType } from '../models/FileSourceModels';
 
 type Users = 'user1' | 'user2' | 'user3';
