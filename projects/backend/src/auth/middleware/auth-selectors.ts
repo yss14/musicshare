@@ -65,5 +65,9 @@ export const getSongIDFromRequest = ({ args, root }: { args: ArgsDictionary, roo
 		return args.songID;
 	}
 
+	if (typeof args.input === 'object' && typeof args.input.songID === 'string') {
+		return args.input.songID;
+	}
+
 	return null;
 }

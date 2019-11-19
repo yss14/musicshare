@@ -1,9 +1,12 @@
 import { Song } from '../models/SongModel';
-import { Resolver, FieldResolver, Root, ResolverInterface, Mutation, Arg, Authorized } from "type-graphql";
+import { Resolver, FieldResolver, Root, ResolverInterface, Mutation, Arg, Authorized, Ctx } from "type-graphql";
 import { FileSource } from '../models/FileSourceModels';
 import { SongUpdateInput } from '../inputs/SongInput';
 import { SongAuth } from '../auth/middleware/song-auth';
 import { IServices } from '../services/services';
+import { RemoveSongFromLibraryInput } from '../inputs/RemoveSongFromLibraryInput';
+import { ShareAuth } from '../auth/middleware/share-auth';
+import { Permissions } from '@musicshare/shared-types';
 
 @Resolver(of => Song)
 export class SongResolver implements ResolverInterface<Song>{
@@ -18,7 +21,7 @@ export class SongResolver implements ResolverInterface<Song>{
 	}
 
 	@Authorized()
-	@SongAuth(['song:modify'])
+	@SongAuth([Permissions.SONG_MODIFY])
 	@Mutation(() => Song, { nullable: true })
 	public async updateSong(
 		@Arg('songID') songID: string,
@@ -41,5 +44,17 @@ export class SongResolver implements ResolverInterface<Song>{
 
 		// istanbul ignore next
 		throw new Error('Song input is not valid');
+	}
+
+	@Authorized()
+	@SongAuth([Permissions.SONG_MODIFY])
+	@ShareAuth([Permissions.SHARE_OWNER])
+	@Mutation(() => Boolean, { nullable: true })
+	public async removeSongFromLibrary(
+		@Arg('input') { shareID, songID }: RemoveSongFromLibraryInput,
+	): Promise<boolean> {
+		await this.services.songService.removeSong(shareID, songID)
+
+		return true
 	}
 }

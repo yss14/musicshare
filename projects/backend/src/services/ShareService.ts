@@ -15,6 +15,7 @@ export interface IShareService {
 	getSharesOfUser(userID: string): Promise<Share[]>;
 	getShareByID(shareID: string, userID: string): Promise<Share>;
 	getLinkedLibrariesOfUser(userID: string): Promise<Share[]>;
+	getLinkedLibrariesOfShare(shareID: string): Promise<Share[]>;
 	create(ownerUserID: string, name: string, isLib: boolean, shareID?: string): Promise<Share>;
 	rename(shareID: string, name: string): Promise<void>;
 	delete(shareID: string): Promise<void>;
@@ -76,6 +77,24 @@ export class ShareService implements IShareService {
 				)
 				SELECT * FROM relatedlibraries;
 			`, [userID])
+		)
+
+		return dbResults.map(Share.fromDBResult)
+	}
+
+	public async getLinkedLibrariesOfShare(shareID: string): Promise<Share[]> {
+		const dbResults = await this.database.query(
+			SQL.raw<typeof CoreTables.shares>(`
+				SELECT l.*
+				FROM shares s
+				INNER JOIN user_shares us1 ON us1.share_id_ref = s.share_id
+				INNER JOIN user_shares us2 ON us1.user_id_ref = us2.user_id_ref
+				INNER JOIN shares l ON l.share_id = us2.share_id_ref
+				WHERE s.date_removed IS NULL
+					AND l.date_removed IS NULL
+					AND l.is_library = true
+					AND s.share_id = $1;
+			`, [shareID])
 		)
 
 		return dbResults.map(Share.fromDBResult)

@@ -5,7 +5,7 @@ import { Share } from "../../models/ShareModel";
 import { SongSearchMatcher } from "../../inputs/SongSearchInput";
 
 export class SongServiceMock implements ISongService {
-	public async getByID(shareID: string, songID: string): Promise<Song> {
+	public async getByID(): Promise<Song> {
 		throw 'Not implemented yet';
 	}
 
@@ -13,7 +13,7 @@ export class SongServiceMock implements ISongService {
 		throw 'Not implemented yet';
 	}
 
-	public async getSongOriginShare(referencedShareID: string, songID: string): Promise<Share | null> {
+	public async getSongOriginLibrary(songID: string): Promise<Share | null> {
 		throw 'Not implemented yet';
 	}
 
@@ -34,6 +34,10 @@ export class SongServiceMock implements ISongService {
 	}
 
 	public async searchSongs(userID: string, query: string, matcher: SongSearchMatcher[]): Promise<Song[]> {
+		throw 'Not implemented yet';
+	}
+
+	public async removeSong(libraryID: string, songID: string): Promise<void> {
 		throw 'Not implemented yet';
 	}
 }

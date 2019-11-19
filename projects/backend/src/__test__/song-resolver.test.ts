@@ -238,3 +238,66 @@ describe('update song mutation', () => {
 		));
 	})
 });
+
+describe('remove song from library', () => {
+	const makeRemoveSongFromLibraryMutation = (libraryID: string, songID: string) => `
+		mutation {
+			removeSongFromLibrary(input: {shareID: "${libraryID}", songID: "${songID}"})
+		}
+	`
+
+	test('deeply linked song is successfully copied and referenced', async () => {
+		const { graphQLServer, songService, playlistService } = await setupTest({})
+
+		const song = testData.songs.song2_library_user1
+		const shareID = testData.shares.library_user1.share_id
+		const query = makeRemoveSongFromLibraryMutation(shareID, song.song_id)
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body.data.removeSongFromLibrary).toBeTrue()
+
+		const ownLibrarySongs = await songService.getByShare(shareID)
+		expect(ownLibrarySongs.map(song => song.id)).not.toContain(song.song_id)
+
+		const playlistID = testData.playlists.playlist1_library_user1.playlist_id
+		const playlistSongs = await playlistService.getSongs(playlistID)
+		expect(playlistSongs.map(song => song.id)).not.toContain(song.song_id)
+
+		const foreignLibrarySongs = await songService.getByShare(testData.shares.library_user2.share_id)
+		expect(foreignLibrarySongs.map(song => song.title)).toContain(song.title)
+
+		const someSharePlaylistSongs = await playlistService.getSongs(testData.playlists.playlist_some_shared_library.playlist_id)
+		expect(someSharePlaylistSongs.map(song => song.title)).toContain(song.title)
+	})
+
+	test('song of linked library not permitted', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const songID = testData.songs.song4_library_user2.song_id
+		const shareID = testData.shares.library_user2.share_id
+		const query = makeRemoveSongFromLibraryMutation(shareID, songID)
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			{ removeSongFromLibrary: null },
+			[{ message: `User has insufficient permissions to perform this action!` }]
+		));
+	})
+
+	test('song of foreign library not permitted', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const songID = testData.songs.song5_library_user3.song_id
+		const shareID = testData.shares.some_unrelated_library.share_id
+		const query = makeRemoveSongFromLibraryMutation(shareID, songID)
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			{ removeSongFromLibrary: null },
+			[{ message: `User has insufficient permissions to perform this action!` }]
+		));
+	})
+})
