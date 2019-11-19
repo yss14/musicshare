@@ -1,5 +1,5 @@
 import { Song } from '../models/SongModel';
-import { Resolver, FieldResolver, Root, ResolverInterface, Mutation, Arg, Authorized, Ctx } from "type-graphql";
+import { Resolver, FieldResolver, Root, ResolverInterface, Mutation, Arg, Authorized } from "type-graphql";
 import { FileSource } from '../models/FileSourceModels';
 import { SongUpdateInput } from '../inputs/SongInput';
 import { SongAuth } from '../auth/middleware/song-auth';
