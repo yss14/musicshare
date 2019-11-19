@@ -13,4 +13,3 @@
 **/azurite
 **/azurite_test
 projects/backend/*.env
-projects/cassandra-schema-builder/*.env

@@ -33,9 +33,7 @@ jobs:
   include:
     - stage: Build and Test
       script:
-        - npm run build:postgres-schema-builder
         - npm run build:backend
-        - npm run verify:postgres-schema-builder
         - npm run verify:backend
         - npm run lint
         - npm run test:ci

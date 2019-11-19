@@ -24,7 +24,6 @@
 	"license": "UNLICENSED",
 	"devDependencies": {},
 	"dependencies": {
-		"postgres-schema-builder": "*",
 		"@musicshare/shared-types": "*"
 	}
 }
