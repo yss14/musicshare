@@ -51,9 +51,8 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID 
 	}
 
 	const onRowContextMenu = (event: React.MouseEvent, song: IScopedSong) => {
-		setEditSong(song)
-
 		showContextMenu(event)
+		setEditSong(song)
 	}
 
 	const songFilter = useCallback((song: IBaseSong) => {
@@ -96,7 +95,12 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID 
 					closeForm={() => setShowSongModal(false)}
 				/>)
 				: null}
-			<SongContextMenu song={editSong} ref={contextMenuRef} onShowInformation={() => setShowSongModal(true)} />
+			<SongContextMenu
+				song={editSong}
+				playlistID={playlistID}
+				ref={contextMenuRef}
+				onShowInformation={() => setShowSongModal(true)}
+			/>
 		</>
 	);
 }
