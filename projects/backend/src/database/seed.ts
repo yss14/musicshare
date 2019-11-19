@@ -268,7 +268,7 @@ export const testData: ITestDataSchema = {
 			playlist_id: playlist1LibraryUser2ID,
 			name: 'Playlist1 of Simon',
 			date_removed: null,
-			songs: [],
+			songs: [songPerthDusky],
 			date_added: moment().subtract(3, 'hours').toDate(),
 			share_id: libraryUser2ShareID,
 		}

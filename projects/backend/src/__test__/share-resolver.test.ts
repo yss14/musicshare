@@ -270,6 +270,20 @@ describe('get share song', () => {
 		compareSongs(body.data.share.song, Song.fromDBResult(song, testData.shares.library_user2.share_id));
 	})
 
+	test('get share song via proxy from linked library succeeds', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const userID = testData.users.user2.user_id
+		const share = testData.shares.library_user2;
+		const song = testData.songs.song2_library_user1;
+		const query = makeShareQuery(share.share_id.toString(), [makeShareSongQuery(song.song_id.toString())]);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID });
+
+		expect(body.data.share.song).not.toBeNull();
+		compareSongs(body.data.share.song, Song.fromDBResult(song, testData.shares.library_user1.share_id));
+	})
+
 	test('get share song via proxy from unrelated share fails', async () => {
 		const { graphQLServer } = await setupTest({});
 

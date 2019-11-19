@@ -61,9 +61,10 @@ export class ShareResolver {
 	@FieldResolver()
 	public song(
 		@Root() share: Share,
-		@Arg('id') id: string
+		@Arg('id') id: string,
+		@Ctx() { userID }: IGraphQLContext,
 	): Promise<Song | null> {
-		return this.services.songService.getByID(share, id);
+		return this.services.songService.getByID(share, id, userID!);
 	}
 
 	@Authorized()
