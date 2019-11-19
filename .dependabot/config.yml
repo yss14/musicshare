@@ -4,10 +4,6 @@ update_configs:
   - package_manager: "javascript"
     directory: "./"
     update_schedule: "live"
-    
-    ignored_updates:
-      - match:
-          dependency_name: "cassandra-schema-builder"
 
     automerged_updates:
       - match:

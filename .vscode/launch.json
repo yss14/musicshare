@@ -23,24 +23,5 @@
 				"program": "${workspaceFolder}/node_modules/jest/bin/jest",
 			}
 		},
-		{
-			"type": "node",
-			"request": "launch",
-			"name": "Debug Jest File Cassandra Schema Builder",
-			"program": "${workspaceFolder}/node_modules/.bin/jest",
-			"cwd": "${workspaceFolder}/projects/cassandra-schema-builder/",
-			"args": [
-				"--config=jest.json",
-				"${file}"
-			],
-			"env": {
-				"NODE_ENV": "test"
-			},
-			"console": "integratedTerminal",
-			"internalConsoleOptions": "neverOpen",
-			"windows": {
-				"program": "${workspaceFolder}/node_modules/jest/bin/jest",
-			}
-		}
 	]
 }

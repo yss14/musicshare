@@ -29,8 +29,8 @@ We are working hard to release the first version of MusicShare. See the [roadmap
 If you want to run parts of the project seperatly, have a look at the provided scripts of the root [package.json](package.json).
 
 ### Testing
-To execute the test cases, you need to create a separate `test.env`, for both the `backend` and `cassandra-schema-builder` 
-project (`cp projects/backend/config/development_sample.env projects/backend/test.env && cp projects/backend/config/development_sample.env projects/cassandra-schema-builder/test.env`), 
+To execute the test cases, you need to create a separate `test.env` for the `backend`
+project (`cp projects/backend/config/development_sample.env projects/backend/test.env`),
 and adjust the database connection variables accordingly.
 
 **Important notes**
