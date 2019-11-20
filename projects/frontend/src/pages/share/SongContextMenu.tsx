@@ -6,18 +6,25 @@ import { Menu } from "antd";
 import { useSongUtils } from "../../hooks/use-song-utils";
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist";
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker";
+import { useLibraryID } from "../../graphql/client/queries/libraryid-query";
+import { useRemoveSongFromLibrary } from "../../graphql/mutations/remove-song-from-library-mutation";
+import { useRemoveSongsFromPlaylist } from "../../graphql/mutations/remove-songs-from-playlist-mutation";
 
 interface ISongContextMenuProps {
 	song: IScopedSong | null;
+	playlistID?: string;
 	onShowInformation: () => void;
 }
 
 export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenuProps>((props, ref) => {
-	const { song, onShowInformation } = props
+	const { song, onShowInformation, playlistID } = props
 	const [showPickPlaylistModal, setShowPickPlaylistModal] = useState(false)
 	const { changeSong, enqueueSong, enqueueSongNext } = usePlayer();
 	const { makePlayableSong } = useSongUtils()
 	const addSongsToPlaylist = useAddSongsToPlaylist()
+	const [removeSongFromLibrary] = useRemoveSongFromLibrary()
+	const [removeSongsFromPlaylist] = useRemoveSongsFromPlaylist()
+	const userLibraryID = useLibraryID()
 
 	const onClickPlayNow = useCallback(() => {
 		if (!song) return
@@ -37,19 +44,31 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 		enqueueSong(makePlayableSong(song))
 	}, [song, makePlayableSong, enqueueSong])
 
-	const onClickAddSongToPlaylist = () => {
+	const onClickAddSongToPlaylist = useCallback(() => {
 		if (!song) return
 
 		setShowPickPlaylistModal(true)
-	}
+	}, [song, setShowPickPlaylistModal])
 
-	const onSubmitPickPlaylists = (playlists: IPlaylist[]) => {
+	const onSubmitPickPlaylists = useCallback((playlists: IPlaylist[]) => {
 		if (!song) return
 
 		setShowPickPlaylistModal(false)
-		console.log(playlists)
+
 		playlists.map(playlist => addSongsToPlaylist(playlist.shareID, playlist.id, [song.id]))
-	}
+	}, [song, setShowPickPlaylistModal, addSongsToPlaylist])
+
+	const onRemoveFromLibrary = useCallback(() => {
+		if (!song) return
+
+		removeSongFromLibrary(song.libraryID, song.id)
+	}, [song, removeSongFromLibrary])
+
+	const onRemoveFromPlaylist = useCallback(() => {
+		if (!song || !playlistID) return
+
+		removeSongsFromPlaylist(song.shareID, playlistID, [song.id])
+	}, [song, playlistID, removeSongsFromPlaylist])
 
 	return (
 		<>
@@ -57,21 +76,32 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 				<Menu>
 					<Menu.Item key="information" onClick={onShowInformation}>
 						Information
-				</Menu.Item>
+					</Menu.Item>
 					<Menu.Divider />
 					<Menu.Item key="playnow" onClick={onClickPlayNow}>
 						Play now
-    			</Menu.Item>
+    				</Menu.Item>
 					<Menu.Item key="playnext" onClick={onClickPlayNext}>
 						Play next
-    			</Menu.Item>
+    				</Menu.Item>
 					<Menu.Item key="playlater" onClick={onClickPlayLater}>
 						Play later
-    			</Menu.Item>
+    				</Menu.Item>
 					<Menu.Divider />
 					<Menu.Item key="addtoplaylist" onClick={onClickAddSongToPlaylist}>
 						Add to playlist
-				</Menu.Item>
+					</Menu.Item>
+					<Menu.Divider />
+					{!playlistID && song && song.libraryID === userLibraryID && (
+						<Menu.Item key="removefromlibrary" onClick={onRemoveFromLibrary}>
+							Remove from library
+						</Menu.Item>
+					)}
+					{playlistID && (
+						<Menu.Item key="removefromplaylist" onClick={onRemoveFromPlaylist}>
+							Remove from playlist
+						</Menu.Item>
+					)}
 				</Menu>
 			</ContextMenu>
 			<PlaylistPicker visible={showPickPlaylistModal} onSubmit={onSubmitPickPlaylists} />

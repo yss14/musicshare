@@ -43,6 +43,11 @@ const typeDefs = `
 	type ShareIDInput {
 		shareID: String!
 	}
+
+	type RemoveSongFromLibraryInput {
+		shareID: String!
+		songID: String!
+	}
 `;
 
 const httpLink = new HttpLink({
