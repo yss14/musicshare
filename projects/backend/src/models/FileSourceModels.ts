@@ -15,6 +15,10 @@ export class FileUpload {
 	public readonly originalFilename!: string;
 }
 
+export const isFileUpload = (obj: any): obj is FileUpload => typeof obj === 'object' &&
+	typeof obj.container === 'string' && typeof obj.blob === 'string' &&
+	typeof obj.fileExtension === 'string' && typeof obj.originalFilename === 'string'
+
 export const FileSource = createUnionType({
 	name: "FileSource",
 	types: [FileUpload],

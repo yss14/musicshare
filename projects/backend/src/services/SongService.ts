@@ -11,6 +11,7 @@ import { uniqBy, flatten, take } from 'lodash'
 import { SongSearchMatcher } from '../inputs/SongSearchInput';
 import { IService, IServices } from './services';
 import { SongIDUpdate } from '../return-types/SongIDUpdate';
+import { isFileUpload } from '../models/FileSourceModels';
 
 export class SongNotFoundError extends ForbiddenError {
 	constructor(shareID: string, songID: string) {
@@ -316,7 +317,13 @@ export class SongService implements ISongService, IService {
 
 		for (const affectedLibraryID of affectedLibraryIDs) {
 			const newSongID = uuid()
-			await this.create(affectedLibraryID, { ...songResult, song_id: newSongID })
+			await this.create(affectedLibraryID, {
+				...songResult,
+				song_id: newSongID,
+				sources: {
+					data: songResult.sources.data.filter(source => !isFileUpload(source)),
+				}
+			})
 
 			const playlistIDs = new Set(
 				affectedLibraryPlaylists.filter(result => result.share_id === affectedLibraryID)
