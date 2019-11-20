@@ -10,6 +10,7 @@ import { Share } from '../models/ShareModel';
 import { uniqBy, flatten, take } from 'lodash'
 import { SongSearchMatcher } from '../inputs/SongSearchInput';
 import { IService, IServices } from './services';
+import { SongIDUpdate } from '../return-types/SongIDUpdate';
 
 export class SongNotFoundError extends ForbiddenError {
 	constructor(shareID: string, songID: string) {
@@ -61,7 +62,7 @@ export interface ISongService {
 	create(shareID: string, song: ISongDBResult): Promise<string>;
 	update(shareID: string, songID: string, song: SongUpdateInput): Promise<void>;
 	searchSongs(userID: string, query: string, matcher: SongSearchMatcher[], limit?: number): Promise<Song[]>;
-	removeSong(libraryID: string, songID: string): Promise<void>;
+	removeSongFromLibrary(libraryID: string, songID: string): Promise<SongIDUpdate[]>;
 }
 
 export class SongService implements ISongService, IService {
@@ -290,7 +291,7 @@ export class SongService implements ISongService, IService {
 		)
 	}
 
-	public async removeSong(libraryID: string, songID: string): Promise<void> {
+	public async removeSongFromLibrary(libraryID: string, songID: string): Promise<SongIDUpdate[]> {
 		const affectedPlaylists = await this.database.query(
 			SQL.raw<typeof CoreTables.playlists & typeof CoreTables.shares>(`
 				SELECT playlists.playlist_id, playlists.name, shares.share_id, shares.is_library
@@ -332,6 +333,8 @@ export class SongService implements ISongService, IService {
 		}
 
 		// try to find a referencing library which has this song and update songID to new songID
+		const songIDUpdates: SongIDUpdate[] = []
+
 		for (const affectedSharePlaylist of affectedSharePlaylists) {
 			const linkedLibrariesOfShare = await this.services.shareService.getLinkedLibrariesOfShare(affectedSharePlaylist.share_id)
 			const linkedLibraryWithSong = linkedLibrariesOfShare.find(linkedLibrary => affectedLibraryIDs.has(linkedLibrary.id))
@@ -345,10 +348,22 @@ export class SongService implements ISongService, IService {
 			await this.database.query(SQL.raw(`
 					UPDATE playlist_songs SET song_id_ref = $1 WHERE playlist_id_ref = $2 AND song_id_ref = $3;
 				`, [newSongID, affectedSharePlaylist.playlist_id, songID]))
+
+			songIDUpdates.push(
+				SongIDUpdate.create(
+					affectedSharePlaylist.share_id,
+					affectedSharePlaylist.playlist_id,
+					songID,
+					newSongID,
+					linkedLibraryWithSong.id
+				)
+			)
 		}
 
 		await this.database.query(
 			SongsTable.update(['date_removed'], ['song_id'])([new Date()], [songID])
 		)
+
+		return songIDUpdates
 	}
 }

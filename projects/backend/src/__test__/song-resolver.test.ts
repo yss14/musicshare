@@ -8,6 +8,7 @@ import { makeMockedDatabase } from "./mocks/mock-database";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/schema/make-database-schema";
 import moment = require("moment");
+import { SongIDUpdate } from "../return-types/SongIDUpdate";
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -242,7 +243,13 @@ describe('update song mutation', () => {
 describe('remove song from library', () => {
 	const makeRemoveSongFromLibraryMutation = (libraryID: string, songID: string) => `
 		mutation {
-			removeSongFromLibrary(input: {shareID: "${libraryID}", songID: "${songID}"})
+			removeSongFromLibrary(input: {shareID: "${libraryID}", songID: "${songID}"}){
+				shareID
+				playlistID
+				oldSongID
+				newSongID
+				newLibraryID
+			}
 		}
 	`
 
@@ -255,7 +262,17 @@ describe('remove song from library', () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body.data.removeSongFromLibrary).toBeTrue()
+		const expectedSongIDUpdates: Partial<SongIDUpdate>[] = [
+			{
+				newLibraryID: testData.shares.library_user2.share_id,
+				newSongID: expect.toBeString(),
+				oldSongID: song.song_id,
+				playlistID: testData.playlists.playlist_some_shared_library.playlist_id,
+				shareID: testData.shares.some_share.share_id,
+			}
+		]
+
+		expect(body.data.removeSongFromLibrary).toEqual(expectedSongIDUpdates)
 
 		const ownLibrarySongs = await songService.getByShare(shareID)
 		expect(ownLibrarySongs.map(song => song.id)).not.toContain(song.song_id)
@@ -281,7 +298,7 @@ describe('remove song from library', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		expect(body).toMatchObject(makeGraphQLResponse(
-			{ removeSongFromLibrary: null },
+			null,
 			[{ message: `User has insufficient permissions to perform this action!` }]
 		));
 	})
@@ -296,7 +313,7 @@ describe('remove song from library', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		expect(body).toMatchObject(makeGraphQLResponse(
-			{ removeSongFromLibrary: null },
+			null,
 			[{ message: `User has insufficient permissions to perform this action!` }]
 		));
 	})

@@ -7,6 +7,7 @@ import { IServices } from '../services/services';
 import { RemoveSongFromLibraryInput } from '../inputs/RemoveSongFromLibraryInput';
 import { ShareAuth } from '../auth/middleware/share-auth';
 import { Permissions } from '@musicshare/shared-types';
+import { SongIDUpdate } from '../return-types/SongIDUpdate';
 
 @Resolver(of => Song)
 export class SongResolver implements ResolverInterface<Song>{
@@ -49,12 +50,13 @@ export class SongResolver implements ResolverInterface<Song>{
 	@Authorized()
 	@SongAuth([Permissions.SONG_MODIFY])
 	@ShareAuth([Permissions.SHARE_OWNER])
-	@Mutation(() => Boolean, { nullable: true })
+	@Mutation(() => [SongIDUpdate], {
+		description: 'Removes a song from a library. If the song is referenced by entities from other shares, '
+			+ 'the song is copied to a linked library an referenced from there.'
+	})
 	public async removeSongFromLibrary(
 		@Arg('input') { shareID, songID }: RemoveSongFromLibraryInput,
-	): Promise<boolean> {
-		await this.services.songService.removeSong(shareID, songID)
-
-		return true
+	): Promise<SongIDUpdate[]> {
+		return this.services.songService.removeSongFromLibrary(shareID, songID)
 	}
 }

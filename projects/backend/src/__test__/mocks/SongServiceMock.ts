@@ -37,7 +37,7 @@ export class SongServiceMock implements ISongService {
 		throw 'Not implemented yet';
 	}
 
-	public async removeSong(libraryID: string, songID: string): Promise<void> {
+	public async removeSongFromLibrary(): Promise<any> {
 		throw 'Not implemented yet';
 	}
 }
