@@ -8,6 +8,7 @@ import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-play
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker";
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query";
 import { useRemoveSongFromLibrary } from "../../graphql/mutations/remove-song-from-library-mutation";
+import { useRemoveSongsFromPlaylist } from "../../graphql/mutations/remove-songs-from-playlist-mutation";
 
 interface ISongContextMenuProps {
 	song: IScopedSong | null;
@@ -22,6 +23,7 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const { makePlayableSong } = useSongUtils()
 	const addSongsToPlaylist = useAddSongsToPlaylist()
 	const [removeSongFromLibrary] = useRemoveSongFromLibrary()
+	const [removeSongsFromPlaylist] = useRemoveSongsFromPlaylist()
 	const userLibraryID = useLibraryID()
 
 	const onClickPlayNow = useCallback(() => {
@@ -63,8 +65,10 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	}, [song, removeSongFromLibrary])
 
 	const onRemoveFromPlaylist = useCallback(() => {
-		if (!song) return
-	}, [song])
+		if (!song || !playlistID) return
+
+		removeSongsFromPlaylist(song.shareID, playlistID, [song.id])
+	}, [song, playlistID, removeSongsFromPlaylist])
 
 	return (
 		<>
