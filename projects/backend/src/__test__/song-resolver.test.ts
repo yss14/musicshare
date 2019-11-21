@@ -6,7 +6,7 @@ import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql";
 import { HTTPStatusCodes } from "../types/http-status-codes";
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { IDatabaseClient } from "postgres-schema-builder";
-import { clearTables } from "../database/schema/make-database-schema";
+import { clearTables } from "../database/database";
 import moment = require("moment");
 import { SongIDUpdate } from "../return-types/SongIDUpdate";
 

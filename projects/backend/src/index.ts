@@ -11,13 +11,12 @@ import { ShareResolver } from "./resolvers/ShareResolver";
 import { SongResolver } from "./resolvers/SongResolver";
 import { makeGraphQLServer } from "./server/GraphQLServer";
 import { __DEV__, __PROD__ } from "./utils/env/env-constants";
-import { makeDatabaseSchemaWithSeed, makeDatabaseSchema } from "./database/schema/make-database-schema";
-import { makeDatabaseSeed, insertProductionSetupSeed } from "./database/seed";
+import { seedDatabase, insertProductionSetupSeed } from "./database/seed";
 import { graphQLAuthChecker, makeAuthExtractor } from "./auth/auth-middleware";
 import { IGraphQLContext, makeGraphQLContextProvider } from "./types/context";
 import { PlaylistResolver } from "./resolvers/PlaylistResolver";
 import { configFromEnv } from "./types/config";
-import { connectAndSetupDatabase } from "./database/core-database";
+import { connectAndSetupDatabase } from "./database/database";
 import { initServices } from "./services/services";
 import { FileUploadResolver } from "./resolvers/FileUploadResolver";
 
@@ -35,9 +34,9 @@ if (!isProductionEnvironment()) {
 
 (async () => {
 	const config = configFromEnv();
-	const database = await connectAndSetupDatabase(config);
+	const { database, schema } = await connectAndSetupDatabase(config);
 
-	console.info('Database connected');
+	console.info(`Database connected and initialized (v${schema.getVersion()})`)
 
 	const services = initServices(config, database);
 
@@ -56,20 +55,19 @@ if (!isProductionEnvironment()) {
 	await services.songFileService.createContainerIfNotExists();
 	console.info('FileStorage connected');
 
-	const clearDatabase = __DEV__ || config.setup.seed.dbCleanInit;
-	const seedDatabase = __DEV__ || config.setup.seed.dbSeed;
+	if (config.database.seed === true) {
+		await seedDatabase({ database, services });
 
-	if (seedDatabase) {
-		const seed = await makeDatabaseSeed({ database, services });
-		await makeDatabaseSchemaWithSeed(database, seed, { databaseUser: config.database.user!, clear: clearDatabase });
-	} else {
-		await makeDatabaseSchema(database, { databaseUser: config.database.user! });
+		console.info('Database seeded with dev/test seed');
 	}
 
 	if (__PROD__) {
-		await insertProductionSetupSeed({ config, services });
+		const seeded = await insertProductionSetupSeed({ config, services });
+
+		if (seeded) {
+			console.info('Database seeded with production seed');
+		}
 	}
-	console.info('Database schema created');
 
 	await services.invalidAuthTokenStore.load();
 	setTimeout(async () => {

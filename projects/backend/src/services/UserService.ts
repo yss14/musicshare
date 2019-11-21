@@ -1,7 +1,7 @@
 import { User } from '../models/UserModel';
 import { UserStatus } from '@musicshare/shared-types'
 import { IDatabaseClient, SQL } from "postgres-schema-builder";
-import { UsersTable, UserSharesTable, CoreTables } from "../database/schema/tables";
+import { UsersTable, UserSharesTable, Tables } from "../database/tables";
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError, ValidationError } from 'apollo-server-core';
 import { IConfig } from '../types/config';
@@ -85,7 +85,7 @@ export class UserService implements IUserService, IService {
 
 	public async getUsersOfShare(shareID: string): Promise<User[]> {
 		const dbResults = await this.database.query(
-			SQL.raw<typeof CoreTables.users>(`
+			SQL.raw<typeof Tables.users>(`
 				SELECT u.*
 				FROM ${UsersTable.name} u
 				INNER JOIN ${UserSharesTable.name} us ON us.user_id_ref = u.user_id

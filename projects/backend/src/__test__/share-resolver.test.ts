@@ -9,7 +9,7 @@ import moment = require("moment");
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { Permissions } from '@musicshare/shared-types';
 import { IDatabaseClient } from "postgres-schema-builder";
-import { clearTables } from "../database/schema/make-database-schema";
+import { clearTables } from "../database/database";
 import { Song } from "../models/SongModel";
 import { ShareNotFoundError } from "../services/ShareService";
 import { UserStatus } from '@musicshare/shared-types'

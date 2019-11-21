@@ -3,7 +3,7 @@ import { testData } from "../database/seed";
 import { defaultSongTypes } from "../database/fixtures";
 import { SongType } from "../models/SongType";
 import { IDatabaseClient } from "postgres-schema-builder";
-import { clearTables } from "../database/schema/make-database-schema";
+import { clearTables } from "../database/database";
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;

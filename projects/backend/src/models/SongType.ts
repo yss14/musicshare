@@ -1,6 +1,6 @@
 import { ISongType } from "./interfaces/SongType";
 import { ObjectType, Field } from "type-graphql";
-import { ISongTypeDBResult } from "../database/schema/tables";
+import { ISongTypeDBResult } from "../database/tables";
 import { plainToClass } from "class-transformer";
 
 @ObjectType({ description: 'This represents a song song' })

@@ -4,7 +4,7 @@ import { __PROD__, __DEV__, __TEST__ } from '../utils/env/env-constants';
 import { makeFileObject } from '../models/interfaces/IFile';
 import moment = require('moment');
 import { v4 as uuid } from 'uuid';
-import { UsersTable, IUserDBResult, IShareDBResult, ISongDBResult, IPlaylistDBResult } from './schema/tables';
+import { UsersTable, IUserDBResult, IShareDBResult, ISongDBResult, IPlaylistDBResult } from './tables';
 import { IDatabaseClient } from 'postgres-schema-builder';
 import { defaultSongTypes, defaultGenres } from './fixtures';
 import { SongType } from '../models/SongType';
@@ -275,97 +275,95 @@ export const testData: ITestDataSchema = {
 	}
 }
 
-export type DatabaseSeed = () => Promise<void>;
-
 interface IMakeDatabaseSeedArgs {
 	database: IDatabaseClient;
 	services: IServices;
 }
 
-export const makeDatabaseSeed = ({ database, services }: IMakeDatabaseSeedArgs): DatabaseSeed =>
-	async (): Promise<void> => {
-		const { songService, songTypeService, genreService, passwordLoginService, playlistService, shareService } = services;
+export const seedDatabase = async ({ database, services }: IMakeDatabaseSeedArgs) => {
+	const { songService, songTypeService, genreService, passwordLoginService, playlistService, shareService } = services;
 
-		if (!__PROD__) {
-			for (const user of Object.values(testData.users)) {
-				await database.query(UsersTable.insertFromObj(user));
+	if (!__PROD__) {
+		for (const user of Object.values(testData.users)) {
+			await database.query(UsersTable.insertFromObj(user));
 
-				await passwordLoginService.register({ userID: user.user_id.toString(), password: testPassword });
-			}
+			await passwordLoginService.register({ userID: user.user_id.toString(), password: testPassword });
+		}
 
-			for (const shareByUser of Object.values(testData.shares)) {
-				await shareService.create(shareByUser.user_ids[0], shareByUser.name, shareByUser.is_library, shareByUser.share_id);
+		for (const shareByUser of Object.values(testData.shares)) {
+			await shareService.create(shareByUser.user_ids[0], shareByUser.name, shareByUser.is_library, shareByUser.share_id);
 
-				for (const shareUserID of shareByUser.user_ids.slice(1)) {
-					let permissions = Permissions.ALL;
+			for (const shareUserID of shareByUser.user_ids.slice(1)) {
+				let permissions = Permissions.ALL;
 
-					if (shareByUser.share_id === someShareShareID && shareUserID === user2ID) {
-						permissions = Permissions.NEW_MEMBER;
-					}
-
-					await shareService.addUser(shareByUser.share_id, shareUserID, permissions);
+				if (shareByUser.share_id === someShareShareID && shareUserID === user2ID) {
+					permissions = Permissions.NEW_MEMBER;
 				}
 
-				await Promise.all(defaultSongTypes.map(songType =>
-					songTypeService.addSongTypeToShare(shareByUser.share_id, SongType.fromObject(songType))));
-
-				await Promise.all(defaultGenres.map(genre =>
-					genreService.addGenreToShare(shareByUser.share_id, Genre.fromObject(genre))));
+				await shareService.addUser(shareByUser.share_id, shareUserID, permissions);
 			}
 
-			for (const [key, song] of Object.entries(testData.songs)) {
-				if (key.indexOf('user1') > -1) {
-					await songService.create(libraryUser1ShareID, { ...song, share_id_ref: libraryUser1ShareID });
-				} else if (key.indexOf('user2') > -1) {
-					await songService.create(libraryUser2ShareID, { ...song, share_id_ref: libraryUser2ShareID });
-				} else if (key.indexOf('user3') > -1) {
-					await songService.create(libraryUser3ShareID, { ...song, share_id_ref: libraryUser3ShareID });
-				}
-			}
+			await Promise.all(defaultSongTypes.map(songType =>
+				songTypeService.addSongTypeToShare(shareByUser.share_id, SongType.fromObject(songType))));
 
-			for (const playlist of Object.values(testData.playlists)) {
-				await playlistService.create(playlist.share_id, playlist.name, playlist.playlist_id.toString());
+			await Promise.all(defaultGenres.map(genre =>
+				genreService.addGenreToShare(shareByUser.share_id, Genre.fromObject(genre))));
+		}
 
-				await playlistService.addSongs(
-					playlist.share_id,
-					playlist.playlist_id,
-					playlist.songs.map(song => song.song_id.toString())
-				);
+		for (const [key, song] of Object.entries(testData.songs)) {
+			if (key.indexOf('user1') > -1) {
+				await songService.create(libraryUser1ShareID, { ...song, share_id_ref: libraryUser1ShareID });
+			} else if (key.indexOf('user2') > -1) {
+				await songService.create(libraryUser2ShareID, { ...song, share_id_ref: libraryUser2ShareID });
+			} else if (key.indexOf('user3') > -1) {
+				await songService.create(libraryUser3ShareID, { ...song, share_id_ref: libraryUser3ShareID });
 			}
 		}
 
-		if (__DEV__) {
-			const prefilledArray = createPrefilledArray(100, {});
-			const songInserts = prefilledArray
-				.map((_, idx): Required<ISongDBResult> => ({
-					song_id: uuid(),
-					title: faker.name.findName(),
-					suffix: null,
-					year: null,
-					bpm: null,
-					date_last_edit: new Date(),
-					release_date: null,
-					is_rip: false,
-					artists: [faker.name.firstName(), faker.name.lastName()],
-					remixer: [],
-					featurings: [],
-					type: 'Remix',
-					genres: ['Some Genre'],
-					labels: null,
-					requires_user_action: false,
-					sources: makeFileSourceJSONType(
-						makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3')
-					),
-					duration: 120 + Math.floor(Math.random() * 400),
-					tags: [],
-					date_added: new Date(),
-					date_removed: null,
-					share_id_ref: libraryUser1ShareID,
-				}));
+		for (const playlist of Object.values(testData.playlists)) {
+			await playlistService.create(playlist.share_id, playlist.name, playlist.playlist_id.toString());
 
-			await Promise.all(songInserts.map(song => songService.create(libraryUser1ShareID, song)));
+			await playlistService.addSongs(
+				playlist.share_id,
+				playlist.playlist_id,
+				playlist.songs.map(song => song.song_id.toString())
+			);
 		}
 	}
+
+	if (__DEV__) {
+		const prefilledArray = createPrefilledArray(100, {});
+		const songInserts = prefilledArray
+			.map((_, idx): Required<ISongDBResult> => ({
+				song_id: uuid(),
+				title: faker.name.findName(),
+				suffix: null,
+				year: null,
+				bpm: null,
+				date_last_edit: new Date(),
+				release_date: null,
+				is_rip: false,
+				artists: [faker.name.firstName(), faker.name.lastName()],
+				remixer: [],
+				featurings: [],
+				type: 'Remix',
+				genres: ['Some Genre'],
+				labels: null,
+				requires_user_action: false,
+				sources: makeFileSourceJSONType(
+					makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3')
+				),
+				duration: 120 + Math.floor(Math.random() * 400),
+				tags: [],
+				date_added: new Date(),
+				date_removed: null,
+				share_id_ref: libraryUser1ShareID,
+			}));
+
+		await Promise.all(songInserts.map(song => songService.create(libraryUser1ShareID, song)));
+	}
+}
+
 
 interface IInsertProductionSetupSeed {
 	config: IConfig;
@@ -377,7 +375,7 @@ export const insertProductionSetupSeed = async ({ config, services, }: IInsertPr
 
 	const allUsers = await services.userService.getAll();
 
-	if (allUsers.length > 0) return;
+	if (allUsers.length > 0) return false;
 
 	const user = await services.userService.create(username, email);
 	await services.passwordLoginService.register({ password, userID: user.id });
@@ -389,4 +387,6 @@ export const insertProductionSetupSeed = async ({ config, services, }: IInsertPr
 		console.info(`Created setup user with name ${username} and email ${email}`);
 		console.info(`Created initial share ${shareName} with ${username} as owner`);
 	}
+
+	return true
 }

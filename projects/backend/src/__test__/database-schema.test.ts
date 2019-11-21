@@ -1,6 +1,6 @@
 import { makeTestDatabase, IDatabaseClient } from 'postgres-schema-builder';
-import { clearDatabase, makeDatabaseSchema, clearTables } from "../database/schema/make-database-schema";
-import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from './utils/setup-test-env';
+import { clearDatabase, clearTables } from "../database/database";
+import { setupTestEnv, setupTestSuite, SetupTestEnvArgs, initDatabaseSchema } from './utils/setup-test-env';
 import { configFromEnv, IConfig } from '../types/config';
 import { insertProductionSetupSeed } from '../database/seed';
 import { Share } from '../models/ShareModel';
@@ -29,27 +29,30 @@ afterAll(async () => {
 	await Promise.all(cleanupHooks.map(hook => hook()));
 });
 
-test('clear keyspace', async () => {
+test('clear database schema', async () => {
 	const { database, clientConfig, cleanupHook } = await makeTestDatabase();
 	cleanupHooks.push(cleanupHook);
 
-	await makeDatabaseSchema(database, { databaseUser: clientConfig.user! });
+	await initDatabaseSchema(database)
 	await clearDatabase(database, clientConfig.user!);
 });
 
 test('insertProductionSetupSeed', async () => {
-	const { services, userService, passwordLoginService, shareService } = await setupTest({ seedDatabase: false });
-
+	const { services, userService, passwordLoginService, shareService } = await setupTest({ seed: false });
+	const defaultConfig = configFromEnv()
 	const config: IConfig = {
-		...configFromEnv(),
+		...defaultConfig,
+		database: {
+			...defaultConfig.database,
+			clear: false,
+			seed: false,
+		},
 		setup: {
 			seed: {
 				name: 'Some Testuser',
 				password: 'password1234',
 				email: 'donotreply@musicshare.rocks',
 				shareName: 'Some Share',
-				dbCleanInit: false,
-				dbSeed: false,
 			}
 		}
 	}

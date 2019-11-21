@@ -1,4 +1,4 @@
-import { clearTables } from "../database/schema/make-database-schema";
+import { clearTables } from "../database/database";
 import { setupTestSuite, SetupTestEnvArgs, setupTestEnv } from "./utils/setup-test-env";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { SongSearchMatcher } from "../inputs/SongSearchInput";

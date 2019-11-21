@@ -1,5 +1,5 @@
 import { IDatabaseClient } from "postgres-schema-builder";
-import { ShareTokensTable } from "../database/schema/tables";
+import { ShareTokensTable } from "../database/tables";
 
 export interface ITokenStore {
 	addToken(token: string): void;

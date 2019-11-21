@@ -1,5 +1,5 @@
 import { ObjectType, Field } from "type-graphql";
-import { IPlaylistDBResult } from "../database/schema/tables";
+import { IPlaylistDBResult } from "../database/tables";
 import { plainToClass } from "class-transformer";
 
 @ObjectType({ description: 'This represents a playlist' })
