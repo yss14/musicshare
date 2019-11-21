@@ -1,5 +1,5 @@
 import * as argon2 from 'argon2';
-import { UserLoginCredentialsTable, CoreTables, UsersTable } from '../database/schema/tables';
+import { UserLoginCredentialsTable, Tables, UsersTable } from '../database/tables';
 import { IDatabaseClient, SQL } from 'postgres-schema-builder';
 import { IAuthenticationService } from './AuthenticationService';
 import { IUserService } from '../services/UserService';
@@ -45,7 +45,7 @@ export const PasswordLoginService = ({ authService, database, userService }: IPa
 	}
 
 	const login = async (email: string, password: string) => {
-		const getUserCredentialsQuery = SQL.raw<typeof CoreTables.user_login_credentials>(`
+		const getUserCredentialsQuery = SQL.raw<typeof Tables.user_login_credentials>(`
 			SELECT uc.* FROM ${UserLoginCredentialsTable.name} uc
 			INNER JOIN ${UsersTable.name} u ON u.user_id = uc.user_id_ref
 			WHERE u.email = $1 AND uc.date_removed IS NULL;

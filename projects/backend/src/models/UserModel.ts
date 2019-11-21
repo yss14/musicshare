@@ -1,6 +1,6 @@
 import { Share } from './ShareModel';
 import { ObjectType, Field, registerEnumType } from "type-graphql";
-import { IUserDBResult } from '../database/schema/tables';
+import { IUserDBResult } from '../database/tables';
 import { UserStatus } from '@musicshare/shared-types'
 import { plainToClass } from 'class-transformer';
 

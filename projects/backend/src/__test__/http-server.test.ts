@@ -3,7 +3,7 @@ import { HTTPServer } from "../server/HTTPServer";
 import { findFreePort } from "./utils/find-free-port";
 import { CustomRequestHandler } from "../types/context";
 import { IDatabaseClient } from "postgres-schema-builder";
-import { clearTables } from "../database/schema/make-database-schema";
+import { clearTables } from "../database/database";
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -29,7 +29,7 @@ afterAll(async () => {
 const mockedAuthExtractor: CustomRequestHandler = (req, res, next) => next();
 
 test('start http server', async () => {
-	const { graphQLServer, songFileService, songProcessingQueue } = await setupTest({ seedDatabase: false });
+	const { graphQLServer, songFileService, songProcessingQueue } = await setupTest({ seed: false });
 
 	const httpServer = HTTPServer({ graphQLServer, songFileService, uploadProcessingQueue: songProcessingQueue, authExtractor: mockedAuthExtractor });
 	const port = await findFreePort();
@@ -40,7 +40,7 @@ test('start http server', async () => {
 });
 
 test('start http server with graphql playground', async () => {
-	const { graphQLServer, songFileService, songProcessingQueue } = await setupTest({ seedDatabase: false });
+	const { graphQLServer, songFileService, songProcessingQueue } = await setupTest({ seed: false });
 
 	const httpServer = HTTPServer({ graphQLServer, songFileService, uploadProcessingQueue: songProcessingQueue, authExtractor: mockedAuthExtractor });
 	const port = await findFreePort();

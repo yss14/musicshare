@@ -1,6 +1,6 @@
 import { Genre } from "../models/GenreModel";
 import { IDatabaseClient } from "postgres-schema-builder";
-import { GenresTable, IGenreDBResult } from "../database/schema/tables";
+import { GenresTable, IGenreDBResult } from "../database/tables";
 import { flatten, uniqBy } from "lodash";
 import { IShareService } from "./ShareService";
 

@@ -1,7 +1,7 @@
 import { IDatabaseClient } from "postgres-schema-builder";
 import { SongType } from "../models/SongType";
 import { flatten, uniqBy } from 'lodash';
-import { SongTypesTable, ISongTypeDBResult } from "../database/schema/tables";
+import { SongTypesTable, ISongTypeDBResult } from "../database/tables";
 import { IShareService } from "./ShareService";
 
 export interface ISongTypeService {

@@ -9,7 +9,7 @@ import { sortBy } from 'lodash';
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { Scopes } from "../types/context";
 import { IDatabaseClient } from "postgres-schema-builder";
-import { clearTables } from "../database/schema/make-database-schema";
+import { clearTables } from "../database/database";
 import { Song } from "../models/SongModel";
 import { v4 as uuid } from 'uuid';
 

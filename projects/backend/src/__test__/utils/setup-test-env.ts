@@ -5,9 +5,8 @@ import { makeGraphQLServer } from "../../server/GraphQLServer";
 import { ShareResolver } from "../../resolvers/ShareResolver";
 import { SongResolver } from "../../resolvers/SongResolver";
 import { UserResolver } from "../../resolvers/UserResolver";
-import { makeTestDatabase, IDatabaseClient } from "postgres-schema-builder";
-import { makeDatabaseSeed, testData } from "../../database/seed";
-import { makeDatabaseSchema } from "../../database/schema/make-database-schema";
+import { makeTestDatabase, IDatabaseClient, DatabaseSchema, composeCreateTableStatements } from "postgres-schema-builder";
+import { seedDatabase, testData } from "../../database/seed";
 import uuid = require("uuid");
 import { PlaylistResolver } from "../../resolvers/PlaylistResolver";
 import { makeGraphQLContextProvider, Scopes } from "../../types/context";
@@ -16,20 +15,22 @@ import { isMockedDatabase } from "../mocks/mock-database";
 import { configFromEnv } from "../../types/config";
 import { initServices } from "../../services/services";
 import { FileUploadResolver } from "../../resolvers/FileUploadResolver";
+import { migrations } from '../../database/migrations'
+import { Tables } from "../../database/tables";
 
 export interface SetupTestEnvArgs {
 	database: IDatabaseClient;
-	seedDatabase?: boolean;
+	seed?: boolean;
 }
 
 // tslint:disable:no-parameter-reassignment
-export const setupTestEnv = async ({ seedDatabase, database }: SetupTestEnvArgs) => {
-	seedDatabase = seedDatabase === undefined ? true : seedDatabase;
+export const setupTestEnv = async ({ seed, database }: SetupTestEnvArgs) => {
+	let shouldSeedDatabase = seed === undefined ? true : seed;
 
 	const config = configFromEnv();
 
 	if (isMockedDatabase(database)) {
-		seedDatabase = false;
+		shouldSeedDatabase = false;
 	}
 
 	const testID = uuid();
@@ -48,10 +49,8 @@ export const setupTestEnv = async ({ seedDatabase, database }: SetupTestEnvArgs)
 	Container.of(testID).set(PlaylistResolver, playlistResolver);
 	Container.of(testID).set(FileUploadResolver, fileUploadResolver);
 
-	const seed = makeDatabaseSeed({ database, services });
-
-	if (seedDatabase) {
-		await seed();
+	if (shouldSeedDatabase) {
+		await seedDatabase({ database, services });
 	}
 
 	const authChecker = () => true;
@@ -75,6 +74,18 @@ export const setupTestEnv = async ({ seedDatabase, database }: SetupTestEnvArgs)
 	};
 }
 
+export const initDatabaseSchema = async (database: IDatabaseClient) => {
+	const schema = DatabaseSchema({
+		client: database,
+		name: 'MusicShare',
+		createStatements: composeCreateTableStatements(Tables),
+		migrations,
+	})
+
+	await schema.init()
+	await schema.migrateLatest()
+}
+
 export const setupTestSuite = () => {
 	let database: IDatabaseClient | null = null;
 	let databaseCleanUp: () => Promise<void> = () => Promise.resolve();
@@ -86,7 +97,7 @@ export const setupTestSuite = () => {
 			database = testDatabaseEnv.database;
 			databaseCleanUp = testDatabaseEnv.cleanupHook;
 
-			await makeDatabaseSchema(database, { databaseUser: testDatabaseEnv.clientConfig.user! });
+			await initDatabaseSchema(database)
 		}
 
 		return database;
@@ -102,4 +113,4 @@ export const setupTestSuite = () => {
 export const makeAllScopes = (): Scopes => [
 	{ shareID: testData.shares.library_user1.share_id.toString(), permissions: Permissions.ALL },
 	{ shareID: testData.shares.some_share.share_id.toString(), permissions: Permissions.ALL },
-];
+]

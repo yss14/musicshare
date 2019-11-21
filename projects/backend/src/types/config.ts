@@ -8,8 +8,10 @@ export interface IConfig {
 		host: string;
 		port: number;
 		database: string;
-		user?: string;
+		user: string;
 		password?: string;
+		clear?: boolean;
+		seed?: boolean;
 	},
 	jwt: {
 		secret: string;
@@ -23,8 +25,6 @@ export interface IConfig {
 			password: string;
 			email: string;
 			shareName: string;
-			dbCleanInit: boolean;
-			dbSeed: boolean;
 		}
 	},
 	fileStorage: {
@@ -68,7 +68,9 @@ export const configFromEnv = (): IConfig => {
 			port: getInteger(process.env[CustomEnv.POSTGRES_PORT]) || 5432,
 			database: process.env[CustomEnv.POSTGRES_DATABASE] || 'musicshare',
 			password: process.env[CustomEnv.POSTGRES_PASSWORD],
-			user: process.env[CustomEnv.POSTGRES_USER],
+			user: process.env[CustomEnv.POSTGRES_USER] || 'postgres',
+			clear: getBoolean(process.env[CustomEnv.CLEAR_DATABASE]) || false,
+			seed: getBoolean(process.env[CustomEnv.SEED_DATABASE]) || false,
 		},
 		jwt: {
 			secret: process.env[CustomEnv.JWT_SECRET]!
@@ -82,8 +84,6 @@ export const configFromEnv = (): IConfig => {
 				password: process.env[CustomEnv.SETUP_PASSWORD] || 'ILoveMusic',
 				email: process.env[CustomEnv.SETUP_EMAIL] || 'donotreply@musicshare.rocks',
 				shareName: process.env[CustomEnv.SETUP_SHARE_NAME] || 'MyShare',
-				dbCleanInit: getBoolean(process.env[CustomEnv.SETUP_CLEAN_INIT]) || false,
-				dbSeed: getBoolean(process.env[CustomEnv.SETUP_SEED_DATABASE]) || false,
 			}
 		},
 		fileStorage: {

@@ -1,7 +1,7 @@
 import { Permission, Permissions } from '@musicshare/shared-types';
 import { Share } from '../models/ShareModel';
 import { IDatabaseClient, SQL } from 'postgres-schema-builder';
-import { CoreTables, SharesTable, UserSharesTable } from '../database/schema/tables';
+import { Tables, SharesTable, UserSharesTable } from '../database/tables';
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError } from 'apollo-server-core';
 
@@ -29,7 +29,7 @@ export class ShareService implements IShareService {
 	) { }
 
 	public async getSharesOfUser(userID: string): Promise<Share[]> {
-		const userSharesQuery = SQL.raw<typeof CoreTables.shares>(`
+		const userSharesQuery = SQL.raw<typeof Tables.shares>(`
 			SELECT s.* 
 			FROM ${SharesTable.name} s
 			INNER JOIN ${UserSharesTable.name} us ON us.share_id_ref = s.share_id
@@ -43,7 +43,7 @@ export class ShareService implements IShareService {
 	}
 
 	public async getShareByID(shareID: string, userID: string): Promise<Share> {
-		const dbResults = await this.database.query(SQL.raw<typeof CoreTables.shares>(`
+		const dbResults = await this.database.query(SQL.raw<typeof Tables.shares>(`
 			SELECT s.* FROM ${SharesTable.name} s
 			INNER JOIN ${UserSharesTable.name} us ON us.share_id_ref = s.share_id
 			WHERE s.share_id = $1 AND us.user_id_ref = $2 AND s.date_removed IS NULL;
@@ -58,7 +58,7 @@ export class ShareService implements IShareService {
 
 	public async getLinkedLibrariesOfUser(userID: string): Promise<Share[]> {
 		const dbResults = await this.database.query(
-			SQL.raw<typeof CoreTables.shares>(`
+			SQL.raw<typeof Tables.shares>(`
 				WITH usershares as (
 					SELECT DISTINCT user_shares.share_id_ref as share_id
 					FROM user_shares, shares
@@ -84,7 +84,7 @@ export class ShareService implements IShareService {
 
 	public async getLinkedLibrariesOfShare(shareID: string): Promise<Share[]> {
 		const dbResults = await this.database.query(
-			SQL.raw<typeof CoreTables.shares>(`
+			SQL.raw<typeof Tables.shares>(`
 				SELECT l.*
 				FROM shares s
 				INNER JOIN user_shares us1 ON us1.share_id_ref = s.share_id

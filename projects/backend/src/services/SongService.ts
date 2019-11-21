@@ -3,7 +3,7 @@ import { IDatabaseClient, SQL } from 'postgres-schema-builder';
 import { SongUpdateInput } from '../inputs/SongInput';
 import * as snakeCaseObjKeys from 'snakecase-keys';
 import moment = require('moment');
-import { ISongDBResult, CoreTables, SongsTable, SharesTable } from '../database/schema/tables';
+import { ISongDBResult, Tables, SongsTable, SharesTable } from '../database/tables';
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError, ValidationError } from 'apollo-server-core';
 import { Share } from '../models/ShareModel';
@@ -76,7 +76,7 @@ export class SongService implements ISongService, IService {
 	public async getByID(share: ShareLike, songID: string, userID?: string): Promise<Song> {
 		const getByShare = async (shareID: string) => {
 			const dbResults = await this.database.query(
-				SQL.raw<typeof CoreTables.songs>(`
+				SQL.raw<typeof Tables.songs>(`
 					SELECT s.*
 					FROM ${SongsTable.name} s
 					WHERE s.song_id = $1 AND s.share_id_ref = $2 AND s.date_removed IS NULL;
@@ -113,7 +113,7 @@ export class SongService implements ISongService, IService {
 			return this.getByShares([share.id]);
 		} else {
 			const shareLibrariesResult = await this.database.query(
-				SQL.raw<typeof CoreTables.shares>(`
+				SQL.raw<typeof Tables.shares>(`
 					SELECT DISTINCt sl.*
 					FROM shares sl, user_shares su, user_shares ul
 					WHERE su.share_id_ref = $1
@@ -132,7 +132,7 @@ export class SongService implements ISongService, IService {
 
 	private async getByShares(shareIDs: string[]): Promise<Song[]> {
 		const dbResults = await this.database.query(
-			SQL.raw<typeof CoreTables.songs>(`
+			SQL.raw<typeof Tables.songs>(`
 				SELECT s.*
 				FROM ${SongsTable.name} s
 				WHERE s.share_id_ref = ANY($1) AND s.date_removed IS NULL
@@ -146,7 +146,7 @@ export class SongService implements ISongService, IService {
 
 	public async getSongOriginLibrary(songID: string): Promise<Share | null> {
 		const dbResults = await this.database.query(
-			SQL.raw<typeof CoreTables.shares>(`
+			SQL.raw<typeof Tables.shares>(`
 				SELECT libraries.*
 				FROM ${SongsTable.name} s
 				INNER JOIN ${SharesTable.name} libraries ON libraries.share_id = s.share_id_ref
@@ -165,7 +165,7 @@ export class SongService implements ISongService, IService {
 
 	public async hasAccessToSongs(userID: string, songIDs: string[]): Promise<boolean> {
 		const dbResults = await this.database.query(
-			SQL.raw<typeof CoreTables.songs>(`
+			SQL.raw<typeof Tables.songs>(`
 				${sqlFragements.accessableShares}
 				SELECT DISTINCT songs.song_id
 				FROM songs, accessibleshares
@@ -259,7 +259,7 @@ export class SongService implements ISongService, IService {
 		`
 
 		const dbResults = await this.database.query(
-			SQL.raw<typeof CoreTables.songs>(sql, [userID])
+			SQL.raw<typeof Tables.songs>(sql, [userID])
 		)
 
 		const sum = (acc: number, value: number) => acc + value
@@ -294,7 +294,7 @@ export class SongService implements ISongService, IService {
 
 	public async removeSongFromLibrary(libraryID: string, songID: string): Promise<SongIDUpdate[]> {
 		const affectedPlaylists = await this.database.query(
-			SQL.raw<typeof CoreTables.playlists & typeof CoreTables.shares>(`
+			SQL.raw<typeof Tables.playlists & typeof Tables.shares>(`
 				SELECT playlists.playlist_id, playlists.name, shares.share_id, shares.is_library
 				FROM playlists
 				INNER JOIN playlist_songs ps ON playlists.playlist_id = ps.playlist_id_ref

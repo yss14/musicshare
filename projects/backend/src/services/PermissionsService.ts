@@ -1,6 +1,6 @@
 import { Permission, Permissions } from '@musicshare/shared-types';
 import { IDatabaseClient } from "postgres-schema-builder";
-import { UserSharesTable } from "../database/schema/tables";
+import { UserSharesTable } from "../database/tables";
 
 export interface IPermissionService {
 	getPermissionsForUser(shareID: string, userID: string): Promise<Permission[]>;
