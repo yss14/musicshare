@@ -54,7 +54,7 @@ export const connectAndSetupDatabase = async (config: IConfig) => {
 
 	if (config.database.clear === true) {
 		console.info('Clear database')
-		clearDatabase(database, config.database.user)
+		await clearDatabase(database, config.database.user)
 	}
 
 	const schema = DatabaseSchema({

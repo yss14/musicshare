@@ -364,7 +364,6 @@ export const seedDatabase = async ({ database, services }: IMakeDatabaseSeedArgs
 	}
 }
 
-
 interface IInsertProductionSetupSeed {
 	config: IConfig;
 	services: IServices;
