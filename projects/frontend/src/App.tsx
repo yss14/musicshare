@@ -5,7 +5,6 @@ import { Router } from "react-router-dom";
 import { client, cache } from "./Apollo";
 import { DndProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
-
 import { makeConfigFromEnv } from "./config";
 import { ThemeProvider } from "styled-components";
 import { ConfigContext } from "./context/configContext";
@@ -14,8 +13,18 @@ import { PlayerContext } from "./player/player-context";
 import { Player } from "./player/player";
 import { IPrimaryTheme } from "./types/Theme";
 import { history } from "./components/routing/history";
+import { createGlobalStyle } from 'styled-components'
 
 const config = makeConfigFromEnv();
+
+const GlobalStyle = createGlobalStyle`
+	html, body, #root{
+		width: 100%;
+		height: 100%;
+		margin: 0px;
+		padding: 0px;
+	}
+`
 
 //initial cache data
 const data = {
@@ -51,21 +60,24 @@ const player = Player();
 
 const App = () => {
 	return (
-		<ApolloProvider client={client}>
-			<ApolloProviderHooks client={client}>
-				<ThemeProvider theme={theme}>
-					<ConfigContext.Provider value={config}>
-						<PlayerContext.Provider value={player}>
-							<DndProvider backend={HTML5Backend}>
-								<Router history={history}>
-									<Routing />
-								</Router>
-							</DndProvider>
-						</PlayerContext.Provider>
-					</ConfigContext.Provider>
-				</ThemeProvider>
-			</ApolloProviderHooks>
-		</ApolloProvider>
+		<>
+			<GlobalStyle />
+			<ApolloProvider client={client}>
+				<ApolloProviderHooks client={client}>
+					<ThemeProvider theme={theme}>
+						<ConfigContext.Provider value={config}>
+							<PlayerContext.Provider value={player}>
+								<DndProvider backend={HTML5Backend}>
+									<Router history={history}>
+										<Routing />
+									</Router>
+								</DndProvider>
+							</PlayerContext.Provider>
+						</ConfigContext.Provider>
+					</ThemeProvider>
+				</ApolloProviderHooks>
+			</ApolloProvider>
+		</>
 	);
 };
 

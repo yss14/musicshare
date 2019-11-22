@@ -6,18 +6,20 @@ import { formatDuration } from "../../utils/format-duration";
 import { DragNDropItem } from "../../types/DragNDropItems";
 import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd";
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist";
+import { setComponents } from 'virtualizedtableforantd'
 import songDragPreviewImg from '../../images/playlist_add.png'
+import styled from "styled-components";
 
 const columns = [
 	{
 		title: "Title",
-		width: 200,
+		width: 250,
 		key: "title",
 		render: (song: IShareSong) => <span>{buildSongName(song)}</span>
 	},
 	{
 		title: "Time",
-		width: 100,
+		width: 40,
 		dataIndex: "duration",
 		key: "duration",
 		render: (duration: number) => formatDuration(duration)
@@ -40,6 +42,22 @@ const columns = [
 	}
 ];
 
+const CustomTHElement = styled.th`
+	padding: 4px 6px !important;
+    border-top: 1px solid #dcdcdc;
+    border-bottom: 1px solid #dcdcdc !important;
+`
+
+const CustomTDElement = styled.td`
+	padding: 3px 6px !important;
+`
+
+const CustomTRElement = styled.tr`
+	&:nth-child(odd){
+		background-color: #f3f3f3;
+	}
+`
+
 interface ISongTableRowProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLTableRowElement>, HTMLTableRowElement> {
 	song: IBaseSong;
 }
@@ -60,10 +78,12 @@ const DragableSongRow = ({ song, ...props }: ISongTableRowProps) => {
 	return (
 		<>
 			<DragPreviewImage connect={dragPreview} src={songDragPreviewImg} />
-			<tr {...props} ref={drag} />
+			<CustomTRElement {...props} ref={drag} />
 		</>
 	)
 }
+
+setComponents(1000, { body: { row: DragableSongRow } })
 
 interface ISongTableProps {
 	songs: IScopedSong[];
@@ -75,7 +95,7 @@ export const SongTable = ({ songs, onRowClick, onRowContextMenu }: ISongTablePro
 	const [height, setHeight] = useState(0);
 	const updateDimensions = () => {
 		setHeight(window.innerHeight);
-	};
+	}
 
 	useEffect(() => {
 		updateDimensions();
@@ -91,15 +111,23 @@ export const SongTable = ({ songs, onRowClick, onRowContextMenu }: ISongTablePro
 				size="middle"
 				columns={columns}
 				dataSource={songs}
-				rowKey={(record, index) => "song-key-" + index}
+				rowKey={(song) => "song-key-" + song.id}
 				pagination={false}
-				scroll={{ y: height - 210 }}
+				scroll={{ y: height - 192 }}
 				onRow={(record: IScopedSong, index) => ({
 					onClick: event => onRowClick(event, record, index),
 					onContextMenu: event => onRowContextMenu(event, record),
 					song: record,
 				})}
-				components={{ body: { row: DragableSongRow } }}
+				components={{
+					header: {
+						cell: CustomTHElement,
+					},
+					body: {
+						row: DragableSongRow,
+						cell: CustomTDElement,
+					}
+				}}
 			/>
 		</>
 	);
