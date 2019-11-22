@@ -36,7 +36,11 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID 
 		matcher: allMatchingOptions,
 	})
 
-	const onRowClick = (event: React.MouseEvent, song: IScopedSong, idx: number) => {
+	const onRowClick = useCallback((event: React.MouseEvent, song: IScopedSong) => {
+		setEditSong(song)
+	}, [setEditSong])
+
+	const onRowDoubleClick = useCallback((event: React.MouseEvent, song: IScopedSong, idx: number) => {
 		changeSong(makePlayableSong(song));
 
 		if (songs) {
@@ -45,10 +49,7 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID 
 			clearQueue();
 			enqueueSongs(followUpSongs.map(makePlayableSong));
 		}
-
-		setEditSong(song)
-		setShowSongModal(true)
-	}
+	}, [changeSong, makePlayableSong, clearQueue, enqueueSongs, songs])
 
 	const onRowContextMenu = (event: React.MouseEvent, song: IScopedSong) => {
 		showContextMenu(event)
@@ -87,7 +88,12 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID 
 	return (
 		<>
 			<SongTableHeader title={title} songs={filteredSongs} onSearchFilterChange={setSearchFilter} />
-			<SongTable songs={filteredSongs} onRowClick={onRowClick} onRowContextMenu={onRowContextMenu} />
+			<SongTable
+				songs={filteredSongs}
+				onRowClick={onRowClick}
+				onRowContextMenu={onRowContextMenu}
+				onRowDoubleClick={onRowDoubleClick}
+			/>
 			{editSong && showSongModal ? (
 				<SongModal
 					song={editSong}

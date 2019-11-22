@@ -88,10 +88,11 @@ setComponents(1000, { body: { row: DragableSongRow } })
 interface ISongTableProps {
 	songs: IScopedSong[];
 	onRowClick: (event: React.MouseEvent, song: IScopedSong, index: number) => void;
+	onRowDoubleClick: (event: React.MouseEvent, song: IScopedSong, index: number) => void;
 	onRowContextMenu: (event: React.MouseEvent, song: IScopedSong) => void;
 }
 
-export const SongTable = ({ songs, onRowClick, onRowContextMenu }: ISongTableProps) => {
+export const SongTable = ({ songs, onRowClick, onRowContextMenu, onRowDoubleClick }: ISongTableProps) => {
 	const [height, setHeight] = useState(0);
 	const updateDimensions = () => {
 		setHeight(window.innerHeight);
@@ -117,6 +118,7 @@ export const SongTable = ({ songs, onRowClick, onRowContextMenu }: ISongTablePro
 				onRow={(record: IScopedSong, index) => ({
 					onClick: event => onRowClick(event, record, index),
 					onContextMenu: event => onRowContextMenu(event, record),
+					onDoubleClick: event => onRowDoubleClick(event, record, index),
 					song: record,
 				})}
 				components={{
