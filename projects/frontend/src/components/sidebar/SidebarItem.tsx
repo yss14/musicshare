@@ -19,9 +19,10 @@ export const SidebarItem = styled.div<ISidebarItemProps>`
 	}
 
 	&, & *{
-		color: ${props => props.selected ? 'black' : '#b0b5b9'};
+		color: ${props => props.selected ? 'black' : 'white'};
 		font-size: 15px;
 		width: 100%;
+		font-weight: 500;
 	}
 
 	& a{

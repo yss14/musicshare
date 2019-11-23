@@ -14,18 +14,20 @@ import { useMergedPlaylists } from "../../graphql/queries/merged-playlists-query
 
 const Sidebar = styled.div`
 	width: 100%;
-	height: 100%;
+	height: calc(100% - 48px);
 	background-color: #303030;
 	box-sizing: border-box;
 	padding: 4px 0px;
+	overflow: scroll;
 `
 
 const SidebarSection = styled.div`
 	width: 100%;
 	box-sizing: border-box;
 	color: grey;
-	font-size: 14px;
-	padding: 4px 8px 8px 8px;
+	font-size: 12px;
+	padding: 8px 8px 4px 8px;
+	font-weight: 800;
 `
 
 const SidebarButtonContainer = styled.div`
@@ -82,14 +84,14 @@ const SharePlaylistsSidebar = () => {
 					targetUrl={`/shares/${playlist.shareID}/playlists/${playlist.id}`}
 				/>
 			))}
-			<SidebarButtonContainer>
+			<SidebarButtonContainer style={{ position: 'sticky', bottom: 0 }}>
 				<Button
 					type="dashed"
 					size="small"
 					onClick={() => setNewPlaylistName("")}
 				>
 					New Playlist
-         	</Button>
+         		</Button>
 			</SidebarButtonContainer>
 
 			{newPlaylistName !== null && (
