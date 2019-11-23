@@ -10,6 +10,7 @@ import { Spinner } from "../Spinner";
 import { usePlaylistID } from "../../graphql/client/queries/playlistid-query";
 import { SidebarItem } from "./SidebarItem";
 import { PlaylistSidebarItem } from "./PlaylistSidebarItem";
+import { SidebarSection } from './SidebarSection'
 import { useMergedPlaylists } from "../../graphql/queries/merged-playlists-query";
 
 const Sidebar = styled.div`
@@ -18,16 +19,8 @@ const Sidebar = styled.div`
 	background-color: #303030;
 	box-sizing: border-box;
 	padding: 4px 0px;
-	overflow: scroll;
-`
-
-const SidebarSection = styled.div`
-	width: 100%;
-	box-sizing: border-box;
-	color: grey;
-	font-size: 12px;
-	padding: 8px 8px 4px 8px;
-	font-weight: 800;
+	display: flex;
+	flex-direction: column;
 `
 
 const SidebarButtonContainer = styled.div`
@@ -71,28 +64,30 @@ const SharePlaylistsSidebar = () => {
 
 	return (
 		<Sidebar>
-			<SidebarSection>General</SidebarSection>
-			<SidebarItem selected={playlistID === null}>
-				<Link to={`/shares/${shareID}`}>All songs</Link>
-			</SidebarItem>
-			<SidebarSection>Playlists</SidebarSection>
-			{data.share.playlists.map(playlist => (
-				<PlaylistSidebarItem
-					key={playlist.id}
-					playlist={playlist}
-					selected={playlist.id === playlistID}
-					targetUrl={`/shares/${playlist.shareID}/playlists/${playlist.id}`}
-				/>
-			))}
-			<SidebarButtonContainer style={{ position: 'sticky', bottom: 0 }}>
-				<Button
-					type="dashed"
-					size="small"
-					onClick={() => setNewPlaylistName("")}
-				>
-					New Playlist
+			<SidebarSection title="General">
+				<SidebarItem selected={playlistID === null}>
+					<Link to={`/shares/${shareID}`}>All songs</Link>
+				</SidebarItem>
+			</SidebarSection>
+			<SidebarSection title="Playlists" overflowScroll>
+				{data.share.playlists.map(playlist => (
+					<PlaylistSidebarItem
+						key={playlist.id}
+						playlist={playlist}
+						selected={playlist.id === playlistID}
+						targetUrl={`/shares/${playlist.shareID}/playlists/${playlist.id}`}
+					/>
+				))}
+				<SidebarButtonContainer style={{ position: 'sticky', bottom: 0 }}>
+					<Button
+						type="dashed"
+						size="small"
+						onClick={() => setNewPlaylistName("")}
+					>
+						New Playlist
          		</Button>
-			</SidebarButtonContainer>
+				</SidebarButtonContainer>
+			</SidebarSection>
 
 			{newPlaylistName !== null && (
 				<Prompt
@@ -117,19 +112,21 @@ const MergedPlaylistsSidebar = () => {
 
 	return (
 		<Sidebar>
-			<SidebarSection>General</SidebarSection>
-			<SidebarItem selected={playlistID === null}>
-				<Link to={`/all`}>All songs</Link>
-			</SidebarItem>
-			<SidebarSection>Playlists</SidebarSection>
-			{data.map(playlist => (
-				<PlaylistSidebarItem
-					key={playlist.id}
-					playlist={playlist}
-					selected={playlist.id === playlistID}
-					targetUrl={`/all/shares/${playlist.shareID}/playlists/${playlist.id}`}
-				/>
-			))}
+			<SidebarSection title="General">
+				<SidebarItem selected={playlistID === null}>
+					<Link to={`/all`}>All songs</Link>
+				</SidebarItem>
+			</SidebarSection>
+			<SidebarSection title="Playlists">
+				{data.map(playlist => (
+					<PlaylistSidebarItem
+						key={playlist.id}
+						playlist={playlist}
+						selected={playlist.id === playlistID}
+						targetUrl={`/all/shares/${playlist.shareID}/playlists/${playlist.id}`}
+					/>
+				))}
+			</SidebarSection>
 		</Sidebar>
 	)
 }
