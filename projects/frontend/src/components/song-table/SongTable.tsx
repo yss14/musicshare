@@ -6,9 +6,10 @@ import { formatDuration } from "../../utils/format-duration";
 import { DragNDropItem } from "../../types/DragNDropItems";
 import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd";
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist";
-import { setComponents } from 'virtualizedtableforantd'
+import { setComponents, VTComponents } from 'virtualizedtableforantd'
 import songDragPreviewImg from '../../images/playlist_add.png'
 import styled from "styled-components";
+import { isMutableRef } from "../../types/isMutableRef";
 
 const columns = [
 	{
@@ -48,13 +49,12 @@ const CustomTHElement = styled.th`
     border-bottom: 1px solid #dcdcdc !important;
 `
 
-const CustomTDElement = styled.td`
-	padding: 3px 6px !important;
-`
-
 const CustomTRElement = styled.tr`
 	&:nth-child(odd){
-		background-color: #f3f3f3;
+		/*background-color: #f3f3f3;*/
+	}
+	& > td{
+		padding: 3px 6px !important;
 	}
 `
 
@@ -62,7 +62,7 @@ interface ISongTableRowProps extends React.DetailedHTMLProps<React.HTMLAttribute
 	song: IBaseSong;
 }
 
-const DragableSongRow = ({ song, ...props }: ISongTableRowProps) => {
+const DragableSongRow = React.forwardRef<HTMLTableRowElement, ISongTableRowProps>(({ song, children, ...props }, ref) => {
 	const addSongsToPlaylist = useAddSongsToPlaylist()
 	const [, drag, dragPreview] = useDrag({
 		item: { type: DragNDropItem.Song, song },
@@ -75,15 +75,19 @@ const DragableSongRow = ({ song, ...props }: ISongTableRowProps) => {
 		},
 	})
 
-	return (
-		<>
-			<DragPreviewImage connect={dragPreview} src={songDragPreviewImg} />
-			<CustomTRElement {...props} ref={drag} />
-		</>
-	)
-}
+	useEffect(() => {
+		if (isMutableRef(ref)) {
+			drag(ref.current)
+		}
+	}, [ref, drag])
 
-setComponents(1000, { body: { row: DragableSongRow } })
+	return (
+		<CustomTRElement {...props} ref={ref}>
+			<DragPreviewImage connect={dragPreview} src={songDragPreviewImg} />
+			{children}
+		</CustomTRElement>
+	)
+})
 
 interface ISongTableProps {
 	songs: IScopedSong[];
@@ -101,6 +105,16 @@ export const SongTable = ({ songs, onRowClick, onRowContextMenu, onRowDoubleClic
 	useEffect(() => {
 		updateDimensions();
 		window.addEventListener("resize", updateDimensions);
+
+		setComponents(1000, {
+			header: {
+				cell: CustomTHElement,
+			},
+			body: {
+				row: DragableSongRow,
+			}
+		})
+
 		return () => {
 			window.removeEventListener("resize", updateDimensions);
 		};
@@ -121,15 +135,7 @@ export const SongTable = ({ songs, onRowClick, onRowContextMenu, onRowDoubleClic
 					onDoubleClick: event => onRowDoubleClick(event, record, index),
 					song: record,
 				})}
-				components={{
-					header: {
-						cell: CustomTHElement,
-					},
-					body: {
-						row: DragableSongRow,
-						cell: CustomTDElement,
-					}
-				}}
+				components={VTComponents({ id: 1000 })}
 			/>
 		</>
 	);
