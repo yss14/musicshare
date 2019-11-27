@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Table } from "antd";
-import { IShareSong, IBaseSong, IPlaylist, IScopedSong } from "../../graphql/types";
+import { IShareSong, IPlaylist, IScopedSong } from "../../graphql/types";
 import { buildSongName } from "../../utils/songname-builder";
 import { formatDuration } from "../../utils/format-duration";
 import { DragNDropItem } from "../../types/DragNDropItems";
-import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd";
+import { useDrag, DragSourceMonitor, DragPreviewImage, DragElementWrapper, DragPreviewOptions } from "react-dnd";
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist";
 import { setComponents, VTComponents } from 'virtualizedtableforantd'
 import songDragPreviewImg from '../../images/playlist_add.png'
@@ -50,44 +50,23 @@ const CustomTHElement = styled.th`
 `
 
 const CustomTRElement = styled.tr`
-	&:nth-child(odd){
-		/*background-color: #f3f3f3;*/
-	}
 	& > td{
 		padding: 3px 6px !important;
 	}
 `
 
 interface ISongTableRowProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLTableRowElement>, HTMLTableRowElement> {
-	song: IBaseSong;
+	song: IScopedSong;
+	handleSongHover: (song: IScopedSong, ref: React.Ref<HTMLTableRowElement>) => void;
+	dragPreview: DragElementWrapper<DragPreviewOptions>;
 }
 
-const DragableSongRow = React.forwardRef<HTMLTableRowElement, ISongTableRowProps>(({ song, children, ...props }, ref) => {
-	const addSongsToPlaylist = useAddSongsToPlaylist()
-	const [, drag, dragPreview] = useDrag({
-		item: { type: DragNDropItem.Song, song },
-		end: (item: { song: IBaseSong } | undefined, monitor: DragSourceMonitor) => {
-			const dragResult = monitor.getDropResult() as { playlist: IPlaylist }
-
-			if (item && dragResult && dragResult.playlist) {
-				addSongsToPlaylist(dragResult.playlist.shareID, dragResult.playlist.id, [song.id])
-			}
-		},
-	})
-
-	useEffect(() => {
-		if (isMutableRef(ref)) {
-			drag(ref.current)
-		}
-	}, [ref, drag])
-
-	return (
-		<CustomTRElement {...props} ref={ref}>
-			<DragPreviewImage connect={dragPreview} src={songDragPreviewImg} />
-			{children}
-		</CustomTRElement>
-	)
-})
+const DragableSongRow = React.forwardRef<HTMLTableRowElement, ISongTableRowProps>(({ song, handleSongHover, dragPreview, children, ...props }, ref) => (
+	<CustomTRElement {...props} ref={ref} onMouseEnter={() => handleSongHover(song, ref)}>
+		<DragPreviewImage connect={dragPreview} src={songDragPreviewImg} />
+		{children}
+	</CustomTRElement>
+))
 
 interface ISongTableProps {
 	songs: IScopedSong[];
@@ -98,9 +77,30 @@ interface ISongTableProps {
 
 export const SongTable = ({ songs, onRowClick, onRowContextMenu, onRowDoubleClick }: ISongTableProps) => {
 	const [height, setHeight] = useState(0);
-	const updateDimensions = () => {
+	const updateDimensions = useCallback(() => {
 		setHeight(window.innerHeight);
-	}
+	}, [setHeight])
+
+	const [hoveredSong, setHoveredSong] = useState<IScopedSong>()
+	const addSongsToPlaylist = useAddSongsToPlaylist()
+	const [, drag, dragPreview] = useDrag({
+		item: { type: DragNDropItem.Song, song: hoveredSong },
+		end: (item: { song: IScopedSong } | undefined, monitor: DragSourceMonitor) => {
+			const dragResult = monitor.getDropResult() as { playlist: IPlaylist }
+
+			if (item && dragResult && dragResult.playlist && item.song) {
+				addSongsToPlaylist(dragResult.playlist.shareID, dragResult.playlist.id, [item.song.id])
+			}
+		},
+	})
+
+	const onSongHovered = useCallback((song: IScopedSong, ref: React.Ref<HTMLTableRowElement>) => {
+		setHoveredSong(song)
+
+		if (isMutableRef(ref)) {
+			drag(ref.current)
+		}
+	}, [setHoveredSong, drag])
 
 	useEffect(() => {
 		updateDimensions();
@@ -118,26 +118,28 @@ export const SongTable = ({ songs, onRowClick, onRowContextMenu, onRowDoubleClic
 		return () => {
 			window.removeEventListener("resize", updateDimensions);
 		};
-	}, []);
+	}, [updateDimensions]);
 
-	return (
-		<>
-			<Table
-				size="middle"
-				columns={columns}
-				dataSource={songs}
-				rowKey={(song) => "song-key-" + song.id}
-				pagination={false}
-				scroll={{ y: height - 192 }}
-				onRow={(record: IScopedSong, index) => ({
-					onClick: event => onRowClick(event, record, index),
-					onContextMenu: event => onRowContextMenu(event, record),
-					onDoubleClick: event => onRowDoubleClick(event, record, index),
-					song: record,
-				})}
-				components={VTComponents({ id: 1000 })}
-			/>
-		</>
-	);
+	const table = useMemo(() => (
+		<Table
+			size="middle"
+			columns={columns}
+			dataSource={songs}
+			rowKey={(song, idx) => "song-key-" + song.id + "-" + idx}
+			pagination={false}
+			scroll={{ y: height - 192 }}
+			onRow={(record: IScopedSong, index) => ({
+				onClick: event => onRowClick(event, record, index),
+				onContextMenu: event => onRowContextMenu(event, record),
+				onDoubleClick: event => onRowDoubleClick(event, record, index),
+				song: record,
+				handleSongHover: onSongHovered,
+				dragPreview,
+			})}
+			components={VTComponents({ id: 1000 })}
+		/>
+	), [songs, onSongHovered, height, dragPreview, onRowClick, onRowContextMenu, onRowDoubleClick])
+
+	return table
 };
 

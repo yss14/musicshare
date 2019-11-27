@@ -51,10 +51,10 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID 
 		}
 	}, [changeSong, makePlayableSong, clearQueue, enqueueSongs, songs])
 
-	const onRowContextMenu = (event: React.MouseEvent, song: IScopedSong) => {
+	const onRowContextMenu = useCallback((event: React.MouseEvent, song: IScopedSong) => {
 		showContextMenu(event)
 		setEditSong(song)
-	}
+	}, [showContextMenu, setEditSong])
 
 	const songFilter = useCallback((song: IBaseSong) => {
 		const { query, mode, matcher } = searchFilter
