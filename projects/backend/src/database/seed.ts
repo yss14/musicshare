@@ -361,6 +361,16 @@ export const seedDatabase = async ({ database, services }: IMakeDatabaseSeedArgs
 			}));
 
 		await Promise.all(songInserts.map(song => songService.create(libraryUser1ShareID, song)));
+
+		await Promise.all(
+			createPrefilledArray(50, {}).map((_, idx): IPlaylistDBResult => ({
+				name: `Playlist ${idx}`,
+				playlist_id: uuid(),
+				date_added: new Date(),
+				date_removed: null,
+			}))
+				.map(playlist => playlistService.create(libraryUser1ShareID, playlist.name, playlist.playlist_id))
+		)
 	}
 }
 
