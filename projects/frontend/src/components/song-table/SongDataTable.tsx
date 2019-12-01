@@ -7,6 +7,7 @@ import { SongContextMenu, ISongContextMenuEvents } from '../../pages/share/SongC
 import { useDrag, DragPreviewImage, DragElementWrapper, DragPreviewOptions } from 'react-dnd'
 import { DragNDropItem } from '../../types/DragNDropItems'
 import { isMutableRef } from '../../types/isMutableRef'
+import { Empty } from 'antd';
 import songDragPreviewImg from '../../images/playlist_add.png'
 
 const Table = styled.div`
@@ -169,7 +170,7 @@ export const SongDataTable: React.FC<ISongDataTableProps> = (props) => {
 						<List
 							height={height}
 							overscanRowCount={100}
-							noRowsRenderer={() => <div>No Songs...</div>}
+							noRowsRenderer={() => <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
 							rowCount={songs.length}
 							rowHeight={27}
 							rowRenderer={rowRenderer}
