@@ -13,6 +13,7 @@ import { MergedSongs } from "../../pages/share/MergedSongs";
 import { useUpdateLibraryID } from '../../graphql/client/mutations/libraryid-mutation'
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query";
 import { Offline } from "../../pages/status/Offline";
+import { LoadingSpinner } from "../common/LoadingSpinner";
 
 const Share = lazy(() => import("../../pages/share/Share").then(module => ({ default: module.Share })));
 
@@ -73,7 +74,7 @@ const LoggedInRoutes = () => {
 	}, [data, updateLibraryID, libraryID])
 
 	if (loading) {
-		return <Spin />;
+		return <LoadingSpinner />;
 	}
 
 	return (
