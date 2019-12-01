@@ -2,7 +2,8 @@ import React from "react";
 import { IScopedSong } from "../../graphql/types";
 import { buildSongName } from "../../utils/songname-builder";
 import { formatDuration } from "../../utils/format-duration";
-import { SongDataTable, IColumn } from "./SongDataTable";
+import { SongDataTable, IColumn, IRowEvents } from "./SongDataTable";
+import { ISongContextMenuEvents } from "../../pages/share/SongContextMenu";
 
 const columns: IColumn[] = [
 	{
@@ -33,21 +34,17 @@ const columns: IColumn[] = [
 
 interface ISongTableProps {
 	songs: IScopedSong[];
-	onRowClick: (event: React.MouseEvent, song: IScopedSong, index: number) => void;
-	onRowDoubleClick: (event: React.MouseEvent, song: IScopedSong, index: number) => void;
-	onRowContextMenu: (event: React.MouseEvent, song: IScopedSong) => void;
+	rowEvents: IRowEvents;
+	contextMenuEvents: ISongContextMenuEvents;
 }
 
-export const SongTable = ({ songs, onRowClick, onRowContextMenu, onRowDoubleClick }: ISongTableProps) => {
+export const SongTable = ({ songs, rowEvents, contextMenuEvents }: ISongTableProps) => {
 	return (
 		<SongDataTable
 			columns={columns}
 			songs={songs}
-			rowEvents={{
-				onClick: onRowClick,
-				onContextMenu: onRowContextMenu,
-				onDoubleClick: onRowDoubleClick,
-			}}
+			rowEvents={rowEvents}
+			contextMenuEvents={contextMenuEvents}
 		/>
 	)
 };

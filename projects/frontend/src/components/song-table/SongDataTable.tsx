@@ -3,7 +3,7 @@ import { IScopedSong } from "../../graphql/types"
 import styled from "styled-components"
 import { List, ListRowProps, AutoSizer } from 'react-virtualized'
 import { useContextMenu } from '../modals/contextmenu/ContextMenu'
-import { SongContextMenu } from '../../pages/share/SongContextMenu'
+import { SongContextMenu, ISongContextMenuEvents } from '../../pages/share/SongContextMenu'
 import { useDrag, DragPreviewImage, DragElementWrapper, DragPreviewOptions } from 'react-dnd'
 import { DragNDropItem } from '../../types/DragNDropItems'
 import { isMutableRef } from '../../types/isMutableRef'
@@ -81,7 +81,7 @@ export interface IColumn {
 	render: (song: Song) => string | number | React.ReactElement<any>;
 }
 
-interface IRowEvents {
+export interface IRowEvents {
 	onClick?: (event: React.MouseEvent, song: Song, idx: number) => any;
 	onContextMenu?: (event: React.MouseEvent, song: Song, idx: number) => any;
 	onDoubleClick?: (event: React.MouseEvent, song: Song, idx: number) => any;
@@ -90,12 +90,13 @@ interface IRowEvents {
 interface ISongDataTableProps {
 	columns: IColumn[];
 	songs: Song[];
-	rowEvents?: IRowEvents;
+	rowEvents: IRowEvents;
+	contextMenuEvents: ISongContextMenuEvents;
 	playlistID?: string;
 }
 
 export const SongDataTable: React.FC<ISongDataTableProps> = (props) => {
-	const { columns, songs, rowEvents, playlistID } = props
+	const { columns, songs, rowEvents, playlistID, contextMenuEvents } = props
 	const [{ hoveredSong }, dispatch] = useReducer(songTableReducer, {
 		hoveredSong: null,
 	})
@@ -112,7 +113,7 @@ export const SongDataTable: React.FC<ISongDataTableProps> = (props) => {
 	const hookedRowEvents = useMemo((): IRowEvents => ({
 		...rowEvents,
 		onContextMenu: (event: React.MouseEvent, song: Song, idx: number) => {
-			if (rowEvents && rowEvents.onContextMenu) rowEvents.onContextMenu(event, song, idx)
+			if (rowEvents.onContextMenu) rowEvents.onContextMenu(event, song, idx)
 
 			showContextMenu(event)
 		}
@@ -181,7 +182,7 @@ export const SongDataTable: React.FC<ISongDataTableProps> = (props) => {
 				song={hoveredSong}
 				playlistID={playlistID}
 				ref={contextMenuRef}
-				onShowInformation={() => undefined}
+				events={contextMenuEvents}
 			/>
 		</Table>
 	)
