@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { Button } from "antd";
 import styled from "styled-components";
-import { Link, useRouteMatch } from "react-router-dom";
+import { Link, useRouteMatch, useHistory } from "react-router-dom";
 import { IShareRoute } from "../../interfaces";
 import { useSharePlaylists } from "../../graphql/queries/playlists-query";
 import { useCreatePlaylist } from "../../graphql/mutations/create-playlist-mutation";
@@ -49,15 +49,17 @@ export const PlaylistSidebar: React.FC<IPlaylistSidebar> = ({ merged }) => {
 
 const SharePlaylistsSidebar = () => {
 	const { params: { shareID } } = useRouteMatch<IShareRoute>()!
+	const history = useHistory()
 	const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null);
 	const { loading, error, data } = useSharePlaylists({ shareID });
 	const [createPlaylist] = useCreatePlaylist({
-		shareID,
-		name: newPlaylistName || "",
+		onCompleted: ({ createPlaylist: createdPlaylist }) => {
+			history.push(`/shares/${createdPlaylist.shareID}/playlists/${createdPlaylist.id}`)
+		},
 	});
 
 	const handleCreatePlaylist = () => {
-		createPlaylist();
+		createPlaylist(shareID, newPlaylistName || "");
 		setNewPlaylistName(null);
 	};
 
