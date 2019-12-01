@@ -32,7 +32,7 @@ export const HeaderNavMenu = () => {
 	const [sharesSubmenuHovered, setSharesSubmenuHovered] = useState(false)
 
 	if (loading) {
-		return <Spin />;
+		return null
 	}
 
 	if (error || !data) {

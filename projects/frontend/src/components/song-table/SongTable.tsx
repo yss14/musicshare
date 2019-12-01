@@ -127,7 +127,7 @@ export const SongTable = ({ songs, onRowClick, onRowContextMenu, onRowDoubleClic
 			dataSource={songs}
 			rowKey={(song, idx) => "song-key-" + song.id + "-" + idx}
 			pagination={false}
-			scroll={{ y: height - 192 }}
+			scroll={{ y: height - 207 }}
 			onRow={(record: IScopedSong, index) => ({
 				onClick: event => onRowClick(event, record, index),
 				onContextMenu: event => onRowContextMenu(event, record),

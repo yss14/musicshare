@@ -6,7 +6,6 @@ import { IShareRoute } from "../../interfaces";
 import { useSharePlaylists } from "../../graphql/queries/playlists-query";
 import { useCreatePlaylist } from "../../graphql/mutations/create-playlist-mutation";
 import { Prompt } from "../modals/promt/Prompt";
-import { Spinner } from "../Spinner";
 import { usePlaylistID } from "../../graphql/client/queries/playlistid-query";
 import { SidebarItem } from "./SidebarItem";
 import { PlaylistSidebarItem } from "./PlaylistSidebarItem";
@@ -16,8 +15,8 @@ import { IPlaylist } from "../../graphql/types";
 import { LoadingSpinner } from "../common/LoadingSpinner";
 
 const Sidebar = styled.div`
-	width: 100%;
-	height: calc(100% - 48px);
+	width: 200px;
+	height: 100%;
 	background-color: #303030;
 	box-sizing: border-box;
 	padding: 4px 0px;
