@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, Icon, Spin } from "antd";
+import { Menu, Icon } from "antd";
 import styled from "styled-components";
 import { Link, useParams, useRouteMatch } from "react-router-dom";
 import { useShares } from "../graphql/queries/shares-query";
