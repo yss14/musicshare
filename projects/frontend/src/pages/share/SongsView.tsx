@@ -8,6 +8,19 @@ import { SongTable } from "../../components/song-table/SongTable";
 import { SongModal } from "../../components/modals/song-modal/SongModal";
 import { SongContextMenu } from "./SongContextMenu";
 import { ISongSearchFilter, allMatchingOptions } from "../../components/song-table/search/search-types";
+import styled from "styled-components";
+
+const FlexContainer = styled.div`
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+`
+
+const TableContainer = styled.div`
+	width: 100%;
+	flex: 1 1 0px;
+`
 
 const tokenizeQuery = (query: string) => query
 	.trim()
@@ -86,14 +99,16 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID 
 	const filteredSongs = useMemo(() => songs.filter(songFilter), [songs, songFilter])
 
 	return (
-		<>
+		<FlexContainer>
 			<SongTableHeader title={title} songs={filteredSongs} onSearchFilterChange={setSearchFilter} />
-			<SongTable
-				songs={filteredSongs}
-				onRowClick={onRowClick}
-				onRowContextMenu={onRowContextMenu}
-				onRowDoubleClick={onRowDoubleClick}
-			/>
+			<TableContainer>
+				<SongTable
+					songs={filteredSongs}
+					onRowClick={onRowClick}
+					onRowContextMenu={onRowContextMenu}
+					onRowDoubleClick={onRowDoubleClick}
+				/>
+			</TableContainer>
 			{editSong && showSongModal ? (
 				<SongModal
 					song={editSong}
@@ -107,6 +122,6 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID 
 				ref={contextMenuRef}
 				onShowInformation={() => setShowSongModal(true)}
 			/>
-		</>
+		</FlexContainer>
 	);
 }
