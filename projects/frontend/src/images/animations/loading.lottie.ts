@@ -1,4 +1,6 @@
-{
+import { ColorType, colorToRGBA } from "../../types/ColorType"
+
+export default (color: ColorType = [0.137, 0.137, 0.137, 1]) => ({
 	"v": "4.5.7",
 	"fr": 60,
 	"ip": 0,
@@ -78,12 +80,7 @@
 									"ty": "st",
 									"c": {
 										"a": 0,
-										"k": [
-											0.137,
-											0.137,
-											0.137,
-											1
-										]
+										"k": colorToRGBA(color),
 									},
 									"o": {
 										"a": 0,
@@ -412,4 +409,4 @@
 			"sr": 1
 		}
 	]
-}
+})

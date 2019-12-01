@@ -142,7 +142,7 @@ const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({ playlists, 
 	const playlistID = usePlaylistID()
 
 	if (loading === true) {
-		return <LoadingSpinner />
+		return <LoadingSpinner color="#FFFFFF" />
 	}
 
 	if (error) {
