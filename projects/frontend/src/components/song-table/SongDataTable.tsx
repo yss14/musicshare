@@ -9,6 +9,7 @@ import { DragNDropItem } from '../../types/DragNDropItems'
 import { isMutableRef } from '../../types/isMutableRef'
 import { Empty } from 'antd';
 import songDragPreviewImg from '../../images/playlist_add.png'
+import { useEventListener } from '../../hooks/use-event-listener'
 
 const Table = styled.div`
 	width: 100%;
@@ -146,11 +147,17 @@ export const SongDataTable: React.FC<ISongDataTableProps> = (props) => {
 		)
 	}, [hoveredSong, hookedRowEvents, columns, songs, dragPreview, onRowMouseEnter])
 
-	useEffect(() => {
+	const evaluateAndSetHeight = useCallback(() => {
 		if (bodyRef.current) {
 			setHeight(bodyRef.current.clientHeight)
 		}
-	}, [bodyRef])
+	}, [bodyRef, setHeight])
+
+	useEffect(evaluateAndSetHeight, [evaluateAndSetHeight])
+
+	useEventListener('resize', () => {
+		evaluateAndSetHeight()
+	}, window)
 
 	return (
 		<Table>
