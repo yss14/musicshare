@@ -1,21 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Button } from "antd";
 import styled from "styled-components";
-import { Link, useRouteMatch } from "react-router-dom";
+import { Link, useRouteMatch, useHistory } from "react-router-dom";
 import { IShareRoute } from "../../interfaces";
 import { useSharePlaylists } from "../../graphql/queries/playlists-query";
 import { useCreatePlaylist } from "../../graphql/mutations/create-playlist-mutation";
 import { Prompt } from "../modals/promt/Prompt";
-import { Spinner } from "../Spinner";
 import { usePlaylistID } from "../../graphql/client/queries/playlistid-query";
 import { SidebarItem } from "./SidebarItem";
 import { PlaylistSidebarItem } from "./PlaylistSidebarItem";
 import { SidebarSection } from './SidebarSection'
 import { useMergedPlaylists } from "../../graphql/queries/merged-playlists-query";
+import { IPlaylist } from "../../graphql/types";
+import { LoadingSpinner } from "../common/LoadingSpinner";
 
 const Sidebar = styled.div`
-	width: 100%;
-	height: calc(100% - 48px);
+	width: 200px;
+	height: 100%;
 	background-color: #303030;
 	box-sizing: border-box;
 	padding: 4px 0px;
@@ -31,64 +32,63 @@ const SidebarButtonContainer = styled.div`
 	padding: 4px 0px;
 `;
 
+const byPlaylistName = (lhs: IPlaylist, rhs: IPlaylist) => lhs.name.localeCompare(rhs.name)
+
 interface IPlaylistSidebar {
 	merged: boolean;
 }
 
 export const PlaylistSidebar: React.FC<IPlaylistSidebar> = ({ merged }) => {
-	if (merged) {
-		return <MergedPlaylistsSidebar />;
-	} else {
-		return <SharePlaylistsSidebar />
-	}
+	return (
+		<Sidebar>
+			{merged ? <MergedPlaylistsSidebar /> : <SharePlaylistsSidebar />}
+		</Sidebar>
+	)
 }
 
 const SharePlaylistsSidebar = () => {
-	const match = useRouteMatch<IShareRoute>()!
+	const { params: { shareID } } = useRouteMatch<IShareRoute>()!
+	const history = useHistory()
 	const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null);
-	const { shareID } = match.params;
-	const playlistID = usePlaylistID()
 	const { loading, error, data } = useSharePlaylists({ shareID });
 	const [createPlaylist] = useCreatePlaylist({
-		shareID,
-		name: newPlaylistName || ""
+		onCompleted: ({ createPlaylist: createdPlaylist }) => {
+			history.push(`/shares/${createdPlaylist.shareID}/playlists/${createdPlaylist.id}`)
+		},
 	});
 
 	const handleCreatePlaylist = () => {
-		createPlaylist();
+		createPlaylist(shareID, newPlaylistName || "");
 		setNewPlaylistName(null);
 	};
 
-	if (loading) return <Spinner />;
-	if (error || !data) return <div>Error loading playlists</div>;
+	const addPlaylistButton = useMemo(() => (
+		<Button
+			type="dashed"
+			size="small"
+			onClick={() => setNewPlaylistName("")}
+		>
+			New Playlist
+        </Button>
+	), [setNewPlaylistName])
+
+	const playlists: IPlaylistTargeted[] = useMemo(() => (data || [])
+		.map(playlist => ({
+			...playlist,
+			targetUrl: `/shares/${playlist.shareID}/playlists/${playlist.id}`,
+		}))
+		.sort(byPlaylistName)
+		, [data])
 
 	return (
-		<Sidebar>
-			<SidebarSection title="General">
-				<SidebarItem selected={playlistID === null}>
-					<Link to={`/shares/${shareID}`}>All songs</Link>
-				</SidebarItem>
-			</SidebarSection>
-			<SidebarSection title="Playlists" overflowScroll>
-				{data.share.playlists.map(playlist => (
-					<PlaylistSidebarItem
-						key={playlist.id}
-						playlist={playlist}
-						selected={playlist.id === playlistID}
-						targetUrl={`/shares/${playlist.shareID}/playlists/${playlist.id}`}
-					/>
-				))}
-				<SidebarButtonContainer style={{ position: 'sticky', bottom: 0 }}>
-					<Button
-						type="dashed"
-						size="small"
-						onClick={() => setNewPlaylistName("")}
-					>
-						New Playlist
-         		</Button>
-				</SidebarButtonContainer>
-			</SidebarSection>
-
+		<>
+			<PlaylistSidebarContent
+				playlists={playlists}
+				targetUrlAllSongs="/all"
+				addButton={addPlaylistButton}
+				loading={loading}
+				error={error ? error.message : undefined}
+			/>
 			{newPlaylistName !== null && (
 				<Prompt
 					title="New Playlist"
@@ -99,34 +99,77 @@ const SharePlaylistsSidebar = () => {
 					value={newPlaylistName}
 				/>
 			)}
-		</Sidebar>
-	);
+		</>
+	)
 };
 
 const MergedPlaylistsSidebar = () => {
-	const playlistID = usePlaylistID()
 	const { loading, error, data } = useMergedPlaylists()
 
-	if (loading) return <Spinner />;
-	if (error || !data) return <div>Error loading playlists</div>;
+	const playlists: IPlaylistTargeted[] = useMemo(() => (data || [])
+		.map(playlist => ({
+			...playlist,
+			targetUrl: `/all/shares/${playlist.shareID}/playlists/${playlist.id}`,
+		}))
+		.sort(byPlaylistName)
+		, [data])
+
 
 	return (
-		<Sidebar>
+		<PlaylistSidebarContent
+			playlists={playlists}
+			targetUrlAllSongs="/all"
+			loading={loading}
+			error={error ? error.message : undefined}
+		/>
+	)
+}
+
+interface IPlaylistTargeted extends IPlaylist {
+	targetUrl: string;
+}
+
+interface IPlaylistSidebarContent {
+	playlists: IPlaylistTargeted[];
+	targetUrlAllSongs: string;
+	addButton?: React.ReactElement<any>;
+	loading: boolean;
+	error?: string;
+}
+
+const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({ playlists, targetUrlAllSongs, addButton, loading, error }) => {
+	const playlistID = usePlaylistID()
+
+	if (loading === true) {
+		return <LoadingSpinner color="#FFFFFF" />
+	}
+
+	if (error) {
+		return <div>error</div>
+	}
+
+	return (
+		<>
 			<SidebarSection title="General">
 				<SidebarItem selected={playlistID === null}>
-					<Link to={`/all`}>All songs</Link>
+					<Link to={targetUrlAllSongs}>All songs</Link>
 				</SidebarItem>
 			</SidebarSection>
-			<SidebarSection title="Playlists">
-				{data.map(playlist => (
+			<SidebarSection title="Playlists" overflowScroll>
+				{playlists.map(playlist => (
 					<PlaylistSidebarItem
 						key={playlist.id}
 						playlist={playlist}
 						selected={playlist.id === playlistID}
-						targetUrl={`/all/shares/${playlist.shareID}/playlists/${playlist.id}`}
+						targetUrl={playlist.targetUrl}
 					/>
 				))}
 			</SidebarSection>
-		</Sidebar>
+			{addButton && (
+				<SidebarButtonContainer style={{ position: 'sticky', bottom: 0 }}>
+					{addButton}
+				</SidebarButtonContainer>
+			)}
+		</>
 	)
 }

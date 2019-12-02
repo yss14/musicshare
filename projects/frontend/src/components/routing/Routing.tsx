@@ -1,6 +1,5 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { Route, useHistory, Switch, useRouteMatch } from "react-router-dom";
-import { Spin } from "antd";
 import Login from "../../pages/login/Login";
 import { useUser } from "../../graphql/queries/user-query";
 import { MainLayout } from "../MainLayout";
@@ -13,6 +12,7 @@ import { MergedSongs } from "../../pages/share/MergedSongs";
 import { useUpdateLibraryID } from '../../graphql/client/mutations/libraryid-mutation'
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query";
 import { Offline } from "../../pages/status/Offline";
+import { LoadingSpinner } from "../common/LoadingSpinner";
 
 const Share = lazy(() => import("../../pages/share/Share").then(module => ({ default: module.Share })));
 
@@ -27,7 +27,7 @@ export const Routing = () => {
 	}, [authToken, history])
 
 	return (
-		<Suspense fallback={<Spin />}>
+		<Suspense fallback={<LoadingSpinner />}>
 			<Switch>
 				<Route exact path="/login" render={() => <Login />} />
 				<Route exact path="/404" render={() => <NotFound />} />
@@ -73,7 +73,7 @@ const LoggedInRoutes = () => {
 	}, [data, updateLibraryID, libraryID])
 
 	if (loading) {
-		return <Spin />;
+		return <LoadingSpinner />;
 	}
 
 	return (

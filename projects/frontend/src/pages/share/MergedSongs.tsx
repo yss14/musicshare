@@ -1,13 +1,13 @@
 import React from 'react'
 import { useMergedSongs } from '../../graphql/queries/merged-songs-query'
 import { SongsView } from './SongsView';
-import { Spinner } from '../../components/Spinner';
+import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 
 export const MergedSongs: React.FC = () => {
 	const { loading, error, data: songs } = useMergedSongs()
 
 	if (loading || !songs) {
-		return <Spinner />;
+		return <LoadingSpinner />;
 	}
 	if (error) return <div>`Error!: ${error}`</div>;
 

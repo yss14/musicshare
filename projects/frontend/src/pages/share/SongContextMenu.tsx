@@ -10,14 +10,19 @@ import { useLibraryID } from "../../graphql/client/queries/libraryid-query";
 import { useRemoveSongFromLibrary } from "../../graphql/mutations/remove-song-from-library-mutation";
 import { useRemoveSongsFromPlaylist } from "../../graphql/mutations/remove-songs-from-playlist-mutation";
 
+export interface ISongContextMenuEvents {
+	onShowInformation: (song: IScopedSong) => void;
+}
+
 interface ISongContextMenuProps {
 	song: IScopedSong | null;
 	playlistID?: string;
-	onShowInformation: () => void;
+	events: ISongContextMenuEvents;
 }
 
 export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenuProps>((props, ref) => {
-	const { song, onShowInformation, playlistID } = props
+	const { song, playlistID, events } = props
+	const { onShowInformation } = events
 	const [showPickPlaylistModal, setShowPickPlaylistModal] = useState(false)
 	const { changeSong, enqueueSong, enqueueSongNext } = usePlayer();
 	const { makePlayableSong } = useSongUtils()
@@ -74,7 +79,7 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 		<>
 			<ContextMenu ref={ref}>
 				<Menu>
-					<Menu.Item key="information" onClick={onShowInformation}>
+					<Menu.Item key="information" onClick={() => onShowInformation(song!)}>
 						Information
 					</Menu.Item>
 					<Menu.Divider />

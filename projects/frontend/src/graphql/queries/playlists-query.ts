@@ -32,5 +32,11 @@ export const GET_SHARE_PLAYLISTS = gql`
 	}
 `;
 
-export const useSharePlaylists = (vars: IGetPlaylistsVariables) =>
-	useQuery<IGetPlaylistsData, IGetPlaylistsVariables>(GET_SHARE_PLAYLISTS, { variables: vars });
+export const useSharePlaylists = (vars: IGetPlaylistsVariables) => {
+	const { data, ...rest } = useQuery<IGetPlaylistsData, IGetPlaylistsVariables>(GET_SHARE_PLAYLISTS, { variables: vars })
+
+	return {
+		data: data ? data.share.playlists : null,
+		...rest,
+	}
+}

@@ -29,7 +29,7 @@ export const PlaylistPicker: React.FC<IPlaylistPickerProps> = ({ visible, onSubm
 
 	const onSubmitModal = () => {
 		const playlists = selectedPlaylists
-			.map(playlistID => data.share.playlists.find(playlist => playlist.id === playlistID))
+			.map(playlistID => data.find(playlist => playlist.id === playlistID))
 			.filter(filterUndefined)
 
 		setSelectedPlaylists([])
@@ -56,7 +56,7 @@ export const PlaylistPicker: React.FC<IPlaylistPickerProps> = ({ visible, onSubm
 				onDeselect={onDeselectPlaylist}
 				optionLabelProp="title"
 			>
-				{data.share.playlists.map((playlist) => (
+				{data.map((playlist) => (
 					<Option value={playlist.id} title={playlist.name}>{playlist.name}</Option>
 				))}
 			</Select>
