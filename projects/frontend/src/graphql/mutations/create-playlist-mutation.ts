@@ -24,11 +24,6 @@ export const CREATE_PLAYLIST = gql`
 	}
 `;
 
-interface ICreatePlaylistHook {
-	shareID: string;
-	name: string;
-}
-
 export const useCreatePlaylist = (opts?: IMutationOptions<ICreatePlaylistData>) => {
 	const makeUpdatePlaylistCache = useCallback((shareID: string): MutationUpdaterFn<ICreatePlaylistData> => (cache, { data }) => {
 		const currentPlaylists = cache.readQuery<IGetPlaylistsData, IGetPlaylistsVariables>({
