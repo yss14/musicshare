@@ -1,55 +1,15 @@
 import React, { useMemo, useCallback, useState, useEffect, useRef, useReducer } from 'react'
 import { IScopedSong } from "../../graphql/types"
-import styled from "styled-components"
 import { List, ListRowProps, AutoSizer } from 'react-virtualized'
 import { useContextMenu } from '../modals/contextmenu/ContextMenu'
 import { SongContextMenu, ISongContextMenuEvents } from '../../pages/share/SongContextMenu'
-import { useDrag, DragPreviewImage, DragElementWrapper, DragPreviewOptions } from 'react-dnd'
+import { useDrag } from 'react-dnd'
 import { DragNDropItem } from '../../types/DragNDropItems'
 import { isMutableRef } from '../../types/isMutableRef'
 import { Empty } from 'antd';
-import songDragPreviewImg from '../../images/playlist_add.png'
 import { useEventListener } from '../../hooks/use-event-listener'
-
-const Table = styled.div`
-	width: 100%;
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-`
-
-const Header = styled.div`
-	width: 100%;
-	background-color: #fafafa;
-	display: flex;
-	flex-direction: row;
-`
-
-const Col = styled.div`
-	padding: 3px 6px;
-	box-sizing: border-box;
-`
-
-const HeaderCol = styled(Col)`
-	padding: 4px 6px;
-	border-top: 1px solid #dcdcdc;
-    border-bottom: 1px solid #dcdcdc;
-`
-
-const Body = styled.div`
-	flex: 1 1 0px;
-	overflow: auto;
-`
-
-const Row = styled.div`
-	width: 100%;
-	display: flex;
-	flex-direction: row;
-
-	&:hover{
-		background-color: #e6f6ff;
-	}
-`
+import { SongRow } from './SongRow'
+import { Table, Header, HeaderCol, Body } from './SongTableUI'
 
 type Song = IScopedSong
 
@@ -193,46 +153,5 @@ export const SongDataTable: React.FC<ISongDataTableProps> = (props) => {
 				events={contextMenuEvents}
 			/>
 		</Table>
-	)
-}
-
-interface ISongRowProps extends ListRowProps {
-	columns: IColumn[];
-	song: Song;
-	rowEvents?: IRowEvents;
-	hovered: boolean;
-	onMouseEnter?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, ref: React.Ref<HTMLDivElement>) => void;
-	dragPreview: DragElementWrapper<DragPreviewOptions>;
-}
-
-const SongRow: React.FC<ISongRowProps> = ({ index, style, rowEvents, columns, song, hovered, onMouseEnter, dragPreview }) => {
-	const rowRef = useRef<HTMLDivElement>(null)
-	const accumulatedWidth = useMemo(() => columns.reduce((acc, col) => acc + col.width, 0), [columns])
-
-	const onClick = (event: React.MouseEvent) => rowEvents && rowEvents.onClick ? rowEvents.onClick(event, song, index) : undefined
-	const onContextMenu = (event: React.MouseEvent) => rowEvents && rowEvents.onContextMenu ? rowEvents.onContextMenu(event, song, index) : undefined
-	const onDoubleClick = (event: React.MouseEvent) => rowEvents && rowEvents.onDoubleClick ? rowEvents.onDoubleClick(event, song, index) : undefined
-
-	return (
-		<>
-			<Row
-				ref={rowRef}
-				style={{ ...style, backgroundColor: hovered ? '#e6f6ff' : 'transparent' }}
-				onClick={onClick}
-				onContextMenu={onContextMenu}
-				onDoubleClick={onDoubleClick}
-				onMouseEnter={e => onMouseEnter ? onMouseEnter(e, rowRef) : undefined}
-			>
-				{columns.map(column => (
-					<Col
-						key={`song-${song.id}-${index}-${column.title}`}
-						style={{ width: `${(column.width / accumulatedWidth) * 100}%` }}
-					>
-						{column.render(song)}
-					</Col>
-				))}
-			</Row>
-			<DragPreviewImage connect={dragPreview} src={songDragPreviewImg} />
-		</>
 	)
 }
