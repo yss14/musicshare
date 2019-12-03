@@ -4,7 +4,9 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm i
+RUN apk add --no-cache make gcc g++ python && \
+	npm install --silent && \
+	apk del make gcc g++ python
 
 ENV SKIP_PREFLIGHT_CHECK true
 
