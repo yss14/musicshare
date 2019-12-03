@@ -34,7 +34,7 @@ WORKDIR /app
 
 RUN cp -r build/* /usr/share/nginx/html/
 RUN cp env.sh /usr/share/nginx/html/
-RUN cp .env /usr/share/nginx/html/
+RUN cp config/prod.dummy.env /usr/share/nginx/html/.env
 RUN cp -r config/nginx /etc/nginx/conf.d
 
 # Default port exposure
