@@ -6,7 +6,6 @@ WORKDIR /usr/src/app
 
 COPY ./ /usr/src/app/
 
-#RUN npm i
 RUN apk add --no-cache make gcc g++ python && \
 	npm install --silent && \
 	apk del make gcc g++ python
