@@ -6,7 +6,10 @@ WORKDIR /usr/src/app
 
 COPY ./ /usr/src/app/
 
-RUN npm i
+#RUN npm i
+RUN apk add --no-cache make gcc g++ python && \
+	npm install --silent && \
+	apk del make gcc g++ python
 
 RUN npx lerna bootstrap --scope @musicshare/backend --include-filtered-dependencies
 RUN npx lerna run build --scope @musicshare/backend --include-filtered-dependencies
