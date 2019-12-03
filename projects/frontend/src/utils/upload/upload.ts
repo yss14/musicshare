@@ -16,7 +16,7 @@ export const upload = async (
 	config: IConfig,
 ): Promise<void> => {
 	await axios.post<void>(
-		`http://127.0.0.1:4000/users/${userID}/shares/${shareID}/files/${file.name}?${playlistIDs.map(id => `playlistID=${id}`).join('&')}`,
+		`${config.services.musicshare.backendURL}/users/${userID}/shares/${shareID}/files/${file.name}?${playlistIDs.map(id => `playlistID=${id}`).join('&')}`,
 		buffer,
 		{
 			onUploadProgress: onProgress,
