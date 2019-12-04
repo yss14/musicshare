@@ -2,7 +2,6 @@ export interface IConfig {
 	services: {
 		musicshare: {
 			backendURL: string;
-			authTokenDev?: string;
 		}
 	}
 }
@@ -36,7 +35,6 @@ export const makeConfigFromEnv = (): IConfig => {
 		services: {
 			musicshare: {
 				backendURL: getEnvValue('REACT_APP_MUSICSHARE_BACKEND_URL'),
-				authTokenDev: getEnvValue('REACT_APP_MUSICSHARE_BACKEND_AUTH_TOKEN_DEV'),
 			}
 		}
 	}

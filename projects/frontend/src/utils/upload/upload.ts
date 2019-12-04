@@ -21,7 +21,7 @@ export const upload = async (
 		{
 			onUploadProgress: onProgress,
 			headers: {
-				authorization: config.services.musicshare.authTokenDev
+				authorization: localStorage.getItem("auth-token"),
 			}
 		}
 	);
