@@ -51,7 +51,7 @@ const typeDefs = `
 `;
 
 const httpLink = new HttpLink({
-	uri: config.services.musicshare.backendURL,
+	uri: `${config.services.musicshare.backendURL}/graphql`,
 });
 
 interface IHTTPHeader {
