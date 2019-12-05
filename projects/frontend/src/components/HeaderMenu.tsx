@@ -41,7 +41,7 @@ export const HeaderNavMenu = () => {
 		localStorage.removeItem("refresh-token")
 
 		setAuthTokens(null, null, {
-			update: () => window.location.reload(),
+			update: () => history.push('/login'),
 		})
 	}, [setAuthTokens])
 

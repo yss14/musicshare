@@ -19,18 +19,11 @@ const Share = lazy(() => import("../../pages/share/Share").then(module => ({ def
 
 export const Routing = () => {
 	const authToken = useAuthToken()
-	const history = useHistory()
-
-	useEffect(() => {
-		if (!authToken) {
-			history.push('/login')
-		}
-	}, [authToken, history])
 
 	return (
 		<Suspense fallback={<LoadingSpinner />}>
 			<Switch>
-				<Route exact path="/login/:email?" render={() => <Login />} />
+				<Route path="/login/:email?" render={() => <Login />} />
 				<Route path="/invitation/:invitationToken" render={() => <AcceptInvitation />} />
 				<Route exact path="/404" render={() => <NotFound />} />
 				<Route path="/offline" render={() => <Offline />} />
@@ -57,6 +50,13 @@ const LoggedInRoutes = () => {
 	const updateLibraryID = useUpdateLibraryID()
 	const libraryID = useLibraryID()
 	const history = useHistory()
+	const authToken = useAuthToken()
+
+	useEffect(() => {
+		if (!authToken) {
+			history.push('/login')
+		}
+	}, [authToken, history])
 
 	useEffect(() => {
 		if (error) {

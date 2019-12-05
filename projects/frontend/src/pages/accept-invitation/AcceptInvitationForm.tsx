@@ -43,7 +43,7 @@ interface IAcceptInvitationFormProps {
 export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ invitationPayload, invitationToken }) => {
 	const history = useHistory()
 	const [acceptInvitation] = useAcceptInvitation({
-		onCompleted: () => history.push(`/login/${invitationPayload.email}`)
+		onCompleted: () => { console.log('onCompleted'); history.push(`/login/${invitationPayload.email}`) }
 	})
 
 	const onSubmit = useCallback(({ username, password }: IFormValues) => {

@@ -1,22 +1,7 @@
 import React, { useMemo, useLayoutEffect, useRef } from "react";
-import styled from "styled-components";
-import { Flex } from "../../components/Flex";
 import { IInvitationPayload } from "@musicshare/shared-types"
 import { AcceptInvitationForm } from "./AcceptInvitationForm";
-
-const Container = styled(Flex)`
-  	width: 100%;
-  	height: 100%;
-  	padding: 20px;
-`;
-
-const Title = styled.h1`
-	width: 100%;
-	text-align: center;
-	top: 20%;
-	font-size: 44px;
-	padding-bottom: 20px;
-`
+import { Container, Title } from "../CustomerActionForm";
 
 export const AcceptInvitation = () => {
 	const titleRef = useRef<HTMLHeadingElement>(null)
@@ -27,7 +12,7 @@ export const AcceptInvitation = () => {
 
 		return payloadDecoded
 	}, [invitationToken])
-
+	console.log('AcceptInvitation')
 	useLayoutEffect(() => {
 		if (titleRef.current) {
 			titleRef.current.style.marginTop = `-${titleRef.current.clientHeight / 2}px`
