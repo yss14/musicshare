@@ -6,8 +6,7 @@ import { withRouter, RouteComponentProps } from "react-router";
 
 const LoginForm = ({
 	form,
-	history,
-	...rest
+	history
 }: FormComponentProps & RouteComponentProps) => {
 	const { getFieldValue } = form;
 	const [login] = useLogin({
@@ -68,7 +67,7 @@ const LoginForm = ({
 					htmlType="submit"
 				>
 					Log in
-        </Button>
+        		</Button>
 			</Form.Item>
 		</Form>
 	);
