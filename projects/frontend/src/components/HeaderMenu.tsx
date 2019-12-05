@@ -43,7 +43,7 @@ export const HeaderNavMenu = () => {
 		setAuthTokens(null, null, {
 			update: () => window.location.reload(),
 		})
-	}, [history, setAuthTokens])
+	}, [setAuthTokens])
 
 	if (loading) {
 		return null
