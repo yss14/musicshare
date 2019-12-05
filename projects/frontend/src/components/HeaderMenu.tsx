@@ -33,16 +33,16 @@ export const HeaderNavMenu = () => {
 	const [showCreateShare, setShowCreateShare] = useState(false)
 	const [shareSettings, setShareSettings] = useState<IShare | null>(null)
 	const [sharesSubmenuHovered, setSharesSubmenuHovered] = useState(false)
-	const [setAuthTokens] = useSetAuthTokens()
+	const [setAuthTokens] = useSetAuthTokens({
+		onCompleted: () => history.push('/login'),
+	})
 	const history = useHistory()
 
 	const logout = useCallback(() => {
 		localStorage.removeItem("auth-token")
 		localStorage.removeItem("refresh-token")
 
-		setAuthTokens(null, null, {
-			update: () => history.push('/login'),
-		})
+		setAuthTokens(null, null)
 	}, [setAuthTokens])
 
 	if (loading) {
