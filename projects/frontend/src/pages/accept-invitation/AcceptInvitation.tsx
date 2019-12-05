@@ -12,7 +12,7 @@ export const AcceptInvitation = () => {
 
 		return payloadDecoded
 	}, [invitationToken])
-	console.log('AcceptInvitation')
+
 	useLayoutEffect(() => {
 		if (titleRef.current) {
 			titleRef.current.style.marginTop = `-${titleRef.current.clientHeight / 2}px`
