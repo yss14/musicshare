@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
-import { Form, Icon, Input, Button, Checkbox } from "antd";
+import { Form, Icon, Input, Button, Alert } from "antd";
 import { IInvitationPayload } from '@musicshare/shared-types'
-import { Formik, useFormik } from 'formik'
+import { useFormik } from 'formik'
 import { useAcceptInvitation } from '../../graphql/mutations/accept-invitation-mutation';
 import { useHistory } from 'react-router-dom';
 
@@ -42,8 +42,9 @@ interface IAcceptInvitationFormProps {
 
 export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ invitationPayload, invitationToken }) => {
 	const history = useHistory()
-	const [acceptInvitation] = useAcceptInvitation({
-		onCompleted: () => { console.log('onCompleted'); history.push(`/login/${invitationPayload.email}`) }
+	const [acceptInvitation, { error }] = useAcceptInvitation({
+		onCompleted: () => { console.log('onCompleted'); history.push(`/login/${invitationPayload.email}`) },
+		onError: console.error,
 	})
 
 	const onSubmit = useCallback(({ username, password }: IFormValues) => {
@@ -52,7 +53,7 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 			password,
 			invitationToken,
 		})
-	}, [acceptInvitation])
+	}, [acceptInvitation, invitationToken])
 
 	const { handleSubmit, errors, values, handleChange, isValid, handleBlur, touched } = useFormik({
 		initialValues: initialFormValues,
@@ -62,6 +63,7 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 
 	return (
 		<Form onSubmit={handleSubmit} style={{ width: 250 }}>
+			{error && <Alert message="Invitation expired" type="error" />}
 			<Form.Item>
 				<Input
 					prefix={<Icon type="email" style={{ color: "rgba(0,0,0,.25)" }} />}

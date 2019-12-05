@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Form, Icon, Input, Button, Checkbox } from "antd";
+import { Form, Icon, Input, Button, Alert } from "antd";
 import { useLogin } from "../../graphql/mutations/login-mutation";
 import { useHistory } from "react-router";
 import { useFormik } from "formik";
@@ -29,8 +29,9 @@ interface ILoginFormProps {
 
 export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 	const history = useHistory()
-	const [login] = useLogin({
-		onCompleted: () => history.push("/")
+	const [login, { error }] = useLogin({
+		onCompleted: () => history.push("/"),
+		onError: console.error,
 	});
 	const onSubmit = useCallback(({ email, password }: IFormValues) => {
 		login(email, password)
@@ -44,6 +45,7 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 
 	return (
 		<Form onSubmit={handleSubmit} style={{ width: 250 }}>
+			{error && <Alert message={error.message.replace('GraphQL error: ', '')} type="error" />}
 			<Form.Item validateStatus={touched.email && errors.email ? 'error' : 'success'} help={errors.email}>
 				<Input
 					prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
