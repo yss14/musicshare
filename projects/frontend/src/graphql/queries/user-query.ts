@@ -5,6 +5,7 @@ import { IShare, shareKeys } from "../types";
 export interface IUserData {
 	viewer: {
 		id: string;
+		name: string;
 		shares: IShare[];
 	};
 }
@@ -12,7 +13,8 @@ export interface IUserData {
 export const GET_USER = gql`
   query user {
     viewer {
-      id
+	  id
+	  name
       shares {
         ${shareKeys}
       }

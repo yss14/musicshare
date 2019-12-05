@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Menu, Icon } from "antd";
 import styled from "styled-components";
-import { Link, useParams, useRouteMatch } from "react-router-dom";
+import { Link, useParams, useRouteMatch, useHistory } from "react-router-dom";
 import { useShares } from "../graphql/queries/shares-query";
 import { IShareRoute } from "../interfaces";
 import { CreateShareModal } from "./modals/CreateShareModal";
 import { ShareSettings } from "./modals/share-settings/ShareSettings";
 import { IShare } from "../graphql/types";
+import { useUser } from "../graphql/queries/user-query";
+import { useSetAuthTokens } from "../graphql/client/mutations/token-mutation";
 
 const { SubMenu, ItemGroup, Item } = Menu;
 
@@ -26,10 +28,22 @@ const CurrentShareItem = styled(Item)`
 export const HeaderNavMenu = () => {
 	const { shareID } = useParams<IShareRoute>()
 	const match = useRouteMatch()
-	const { data, loading, error } = useShares();
+	const { data, loading, error } = useShares()
+	const { data: user } = useUser()
 	const [showCreateShare, setShowCreateShare] = useState(false)
 	const [shareSettings, setShareSettings] = useState<IShare | null>(null)
 	const [sharesSubmenuHovered, setSharesSubmenuHovered] = useState(false)
+	const [setAuthTokens] = useSetAuthTokens({
+		onCompleted: () => history.push('/login'),
+	})
+	const history = useHistory()
+
+	const logout = useCallback(() => {
+		localStorage.removeItem("auth-token")
+		localStorage.removeItem("refresh-token")
+
+		setAuthTokens(null, null)
+	}, [setAuthTokens])
 
 	if (loading) {
 		return null
@@ -83,7 +97,7 @@ export const HeaderNavMenu = () => {
 					<Link to={`/all`}>
 						<StyledIcon type="profile" />
 						All
-        		</Link>
+        			</Link>
 				</Item>
 				<SubMenu
 					key="shares:own"
@@ -122,8 +136,11 @@ export const HeaderNavMenu = () => {
 						<Menu.Item key="shares:create:button" onClick={() => setShowCreateShare(true)}>
 							<Icon type="plus" />
 							Create share
-					</Menu.Item>
+						</Menu.Item>
 					</ItemGroup>
+				</SubMenu>
+				<SubMenu key="user" title={user?.viewer.name || '...'} style={{ float: 'right' }}>
+					<Item key="user:logout" title="Logout" onClick={logout}>Logout</Item>
 				</SubMenu>
 			</Menu>
 			{showCreateShare && <CreateShareModal onSubmit={() => setShowCreateShare(false)} onCancel={() => setShowCreateShare(false)} />}

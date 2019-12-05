@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { Route, useHistory, Switch, useRouteMatch } from "react-router-dom";
-import Login from "../../pages/login/Login";
+import { Login } from "../../pages/login/Login";
 import { useUser } from "../../graphql/queries/user-query";
 import { MainLayout } from "../MainLayout";
 import { RedirectToLibrary } from "./RedirectToLibrary";
@@ -13,23 +13,18 @@ import { useUpdateLibraryID } from '../../graphql/client/mutations/libraryid-mut
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query";
 import { Offline } from "../../pages/status/Offline";
 import { LoadingSpinner } from "../common/LoadingSpinner";
+import { AcceptInvitation } from "../../pages/accept-invitation/AcceptInvitation";
 
 const Share = lazy(() => import("../../pages/share/Share").then(module => ({ default: module.Share })));
 
 export const Routing = () => {
 	const authToken = useAuthToken()
-	const history = useHistory()
-
-	useEffect(() => {
-		if (!authToken) {
-			history.push('/login')
-		}
-	}, [authToken, history])
 
 	return (
 		<Suspense fallback={<LoadingSpinner />}>
 			<Switch>
-				<Route exact path="/login" render={() => <Login />} />
+				<Route path="/login/:email?" render={() => <Login />} />
+				<Route path="/invitation/:invitationToken" render={() => <AcceptInvitation />} />
 				<Route exact path="/404" render={() => <NotFound />} />
 				<Route path="/offline" render={() => <Offline />} />
 				{authToken && <LoggedInRoutes />}
@@ -55,6 +50,13 @@ const LoggedInRoutes = () => {
 	const updateLibraryID = useUpdateLibraryID()
 	const libraryID = useLibraryID()
 	const history = useHistory()
+	const authToken = useAuthToken()
+
+	useEffect(() => {
+		if (!authToken) {
+			history.push('/login')
+		}
+	}, [authToken, history])
 
 	useEffect(() => {
 		if (error) {
