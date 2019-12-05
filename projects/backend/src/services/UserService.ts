@@ -5,7 +5,7 @@ import { UsersTable, UserSharesTable, Tables } from "../database/tables";
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError, ValidationError } from 'apollo-server-core';
 import { IConfig } from '../types/config';
-import { IInvitationPayload, isInvitationPayload } from '@musicshare/shared-types/src/InvitationPayload';
+import { IInvitationPayload, isInvitationPayload } from '@musicshare/shared-types';
 import * as JWT from 'jsonwebtoken';
 import { IService, IServices } from './services';
 import { Permissions } from '@musicshare/shared-types';
@@ -145,6 +145,7 @@ export class UserService implements IUserService, IService {
 				UsersTable.update(['name', 'invitation_token'], ['user_id'])([name, null], [user.id])
 			)
 			await this.services.passwordLoginService.register({ userID: user.id, password })
+			await this.services.shareService.create(user.id, `${name}'s Library`, true)
 
 			return this.getUserByID(user.id)
 		} catch (err) {
