@@ -381,7 +381,7 @@ interface IInsertProductionSetupSeed {
 
 export const insertProductionSetupSeed = async ({ config, services, }: IInsertProductionSetupSeed) => {
 	const { email, password, name: username, shareName } = config.setup.seed;
-	const { songTypeService, userService, passwordLoginService, genreService, shareService } = services
+	const { userService, passwordLoginService, seedService, shareService } = services
 
 	const allUsers = await userService.getAll();
 
@@ -391,12 +391,7 @@ export const insertProductionSetupSeed = async ({ config, services, }: IInsertPr
 	await passwordLoginService.register({ password, userID: user.id });
 
 	const initialShare = await shareService.create(user.id, shareName, true);
-
-	await Promise.all(defaultSongTypes.map(songType =>
-		songTypeService.addSongTypeToShare(initialShare.id, SongType.fromObject(songType))));
-
-	await Promise.all(defaultGenres.map(genre =>
-		genreService.addGenreToShare(initialShare.id, Genre.fromObject(genre))));
+	await seedService.seedShare(initialShare.id)
 
 	// istanbul ignore next
 	if (!__TEST__) {

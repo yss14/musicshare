@@ -21,6 +21,7 @@ import { ITagService, TagService } from "./TagService";
 import { AWSS3FileService } from "../file-service/AWSS3FileService";
 import { S3 } from "aws-sdk";
 import { IFileService } from "../file-service/FileService";
+import { ISeedService, SeedService } from "./SeedService";
 
 export interface IServices {
 	songFileService: IFileService;
@@ -39,6 +40,7 @@ export interface IServices {
 	invalidAuthTokenStore: IAuthTokenStore;
 	permissionService: IPermissionService;
 	tagService: ITagService;
+	seedService: ISeedService;
 }
 
 export interface IService {
@@ -46,6 +48,8 @@ export interface IService {
 }
 
 export const initServices = (config: IConfig, database: IDatabaseClient): IServices => {
+	let services: IServices = {} as any
+
 	const songFileService = initFileStore(config, 'songs');
 	const songService = new SongService(database);
 	const shareService = ShareService(database);
@@ -65,8 +69,9 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	const invalidAuthTokenStore = AuthTokenStore({ database, tokenGroup: 'authtoken' });
 	const permissionService = PermissionService({ database });
 	const tagService = TagService({ songService, shareService });
+	const seedService = SeedService(database, services)
 
-	const services = {
+	services = {
 		songFileService,
 		songService,
 		shareService,
@@ -83,6 +88,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 		invalidAuthTokenStore,
 		permissionService,
 		tagService,
+		seedService,
 	}
 
 	for (const service of Object.values(services)) {

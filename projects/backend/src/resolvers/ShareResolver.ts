@@ -116,6 +116,7 @@ export class ShareResolver {
 		@Ctx() ctx: IGraphQLContext
 	): Promise<Share> {
 		const createdShare = await this.services.shareService.create(ctx.userID!, name, false)
+
 		await expireAuthToken(ctx)
 
 		return createdShare
