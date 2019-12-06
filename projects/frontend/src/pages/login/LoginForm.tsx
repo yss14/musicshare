@@ -3,6 +3,7 @@ import { Form, Icon, Input, Button, Alert } from "antd";
 import { useLogin } from "../../graphql/mutations/login-mutation";
 import { useHistory } from "react-router";
 import { useFormik } from "formik";
+import { Link } from "react-router-dom";
 
 interface IFormValues {
 	email: string;
@@ -68,9 +69,9 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 				/>
 			</Form.Item>
 			<Form.Item>
-				<Button type="link">
+				<Link to="/password/restore">
 					Forgot password
-        		</Button>
+        		</Link>
 			</Form.Item>
 			<Form.Item>
 				<Button

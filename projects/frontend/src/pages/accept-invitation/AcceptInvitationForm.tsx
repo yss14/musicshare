@@ -56,6 +56,7 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 		initialValues: initialFormValues,
 		onSubmit,
 		validate: validateForm,
+		isInitialValid: false,
 	})
 
 	const successAlert = data && (
