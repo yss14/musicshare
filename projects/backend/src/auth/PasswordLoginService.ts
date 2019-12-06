@@ -27,17 +27,27 @@ export class LoginNotFound extends Error {
 }
 
 export class CredentialsInvalid extends Error {
-	constructor() {
-		super(`Credentials invalid`);
+	constructor(message?: string) {
+		super(message || `Credentials invalid`)
 	}
 }
 
 export type IPasswordLoginService = ReturnType<typeof PasswordLoginService>
 
 export const PasswordLoginService = ({ authService, database, userService }: IPasswordLoginServiceArgs) => {
+	const getUserCredentialsByEMailQuery = (email: string) => SQL.raw<typeof Tables.user_login_credentials>(`
+			SELECT uc.* FROM ${UserLoginCredentialsTable.name} uc
+			INNER JOIN ${UsersTable.name} u ON u.user_id = uc.user_id_ref
+			WHERE u.email = $1 AND uc.date_removed IS NULL;
+		`, [email])
+	const updatePasswordQuery = UserLoginCredentialsTable.update(['credential'], ['user_id_ref'])
+	const updatePasswordRestoreTokenQuery = UserLoginCredentialsTable.update(['credential', 'restore_token'], ['user_id_ref'])
+
+	const generatedRestoreToken = () => crypto.createHash('md5').update(uuid()).digest('hex').toUpperCase()
+
 	const register = async ({ userID, password }: IRegsiterArgs) => {
 		const passwordHashed = await hashPassword(password);
-		const restoreToken = crypto.createHash('md5').update(uuid()).digest('hex').toUpperCase()
+		const restoreToken = generatedRestoreToken()
 
 		await database.query(UserLoginCredentialsTable.insertFromObj({
 			user_id_ref: userID,
@@ -51,13 +61,7 @@ export const PasswordLoginService = ({ authService, database, userService }: IPa
 	}
 
 	const login = async (email: string, password: string) => {
-		const getUserCredentialsQuery = SQL.raw<typeof Tables.user_login_credentials>(`
-			SELECT uc.* FROM ${UserLoginCredentialsTable.name} uc
-			INNER JOIN ${UsersTable.name} u ON u.user_id = uc.user_id_ref
-			WHERE u.email = $1 AND uc.date_removed IS NULL;
-		`, [email]);
-
-		const loginCredentials = await database.query(getUserCredentialsQuery);
+		const loginCredentials = await database.query(getUserCredentialsByEMailQuery(email));
 
 		if (loginCredentials.length === 0) {
 			throw new LoginNotFound(email);
@@ -98,9 +102,27 @@ export const PasswordLoginService = ({ authService, database, userService }: IPa
 			throw new CredentialsInvalid();
 		}
 
-		const updatePasswordQuery = UserLoginCredentialsTable.update(['credential'], ['user_id_ref'])
-
 		await database.query(updatePasswordQuery([newPasswordHashed], [userID]))
+	}
+
+	const restorePassword = async (email: string, restoreToken: string, newPassword: string) => {
+		const loginCredentials = await database.query(getUserCredentialsByEMailQuery(email))
+		const newPasswordHashed = await hashPassword(newPassword)
+
+		if (loginCredentials.length !== 1) {
+			throw new LoginNotFound(email);
+		}
+
+		if (loginCredentials[0].restore_token !== restoreToken) {
+			throw new CredentialsInvalid(`Restore token invalid`)
+		}
+
+		const newRestoreToken = generatedRestoreToken()
+
+		await database.query(updatePasswordRestoreTokenQuery(
+			[newPasswordHashed, newRestoreToken], [loginCredentials[0].user_id_ref]))
+
+		return newRestoreToken
 	}
 
 	const getRestoreToken = async (userID: string) => {
@@ -122,5 +144,7 @@ export const PasswordLoginService = ({ authService, database, userService }: IPa
 		login,
 		changePassword,
 		getRestoreToken,
+		restorePassword,
+		generatedRestoreToken,
 	}
 }

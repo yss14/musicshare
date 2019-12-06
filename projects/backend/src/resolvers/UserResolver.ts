@@ -17,6 +17,7 @@ import { SongType } from '../models/SongType';
 import { Song } from '../models/SongModel';
 import { SongSearchInput, SongSearchMatcher } from '../inputs/SongSearchInput';
 import { ChangePasswordInput } from '../inputs/ChangePasswordInput';
+import { RestorePasswordInput } from '../inputs/RestorePasswordInput';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -73,6 +74,7 @@ export class UserResolver {
 	}
 
 	@Mutation(() => Boolean)
+	@Authorized()
 	public async changePassword(
 		@Arg('input') { oldPassword, newPassword }: ChangePasswordInput,
 		@Ctx() { userID }: IGraphQLContext,
@@ -80,6 +82,13 @@ export class UserResolver {
 		await this.services.passwordLoginService.changePassword(userID!, oldPassword, newPassword)
 
 		return true
+	}
+
+	@Mutation(() => String, { description: 'Returns new restore token' })
+	public async restorePassword(
+		@Arg('input') { email, restoreToken, newPassword }: RestorePasswordInput,
+	): Promise<string> {
+		return await this.services.passwordLoginService.restorePassword(email, restoreToken, newPassword)
 	}
 
 	@Mutation(() => String, { description: 'Issue a new authToken after the old one was invalidated' })
