@@ -47,8 +47,12 @@ export interface IService {
 	readonly services: IServices;
 }
 
+export type ServiceFactory = () => IServices;
+
 export const initServices = (config: IConfig, database: IDatabaseClient): IServices => {
 	let services: IServices = {} as any
+
+	const serviceFactory = () => services
 
 	const songFileService = initFileStore(config, 'songs');
 	const songService = new SongService(database);
@@ -69,7 +73,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	const invalidAuthTokenStore = AuthTokenStore({ database, tokenGroup: 'authtoken' });
 	const permissionService = PermissionService({ database });
 	const tagService = TagService({ songService, shareService });
-	const seedService = SeedService(database, services)
+	const seedService = SeedService(database, serviceFactory)
 
 	services = {
 		songFileService,

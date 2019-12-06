@@ -1,15 +1,15 @@
 import { IDatabaseClient } from "postgres-schema-builder";
-import { IServices } from "./services";
+import { IServices, ServiceFactory } from "./services";
 import { defaultSongTypes, defaultGenres } from "../database/fixtures";
 import { SongType } from "../models/SongType";
 import { Genre } from "../models/GenreModel";
 
 export type ISeedService = ReturnType<typeof SeedService>
 
-export const SeedService = (database: IDatabaseClient, services: IServices) => {
-	const { songTypeService, genreService } = services
-
+export const SeedService = (database: IDatabaseClient, services: ServiceFactory) => {
 	const seedShare = async (shareID: string) => {
+		const { songTypeService, genreService } = services()
+
 		await Promise.all(defaultSongTypes.map(songType =>
 			songTypeService.addSongTypeToShare(shareID, SongType.fromObject(songType))));
 
