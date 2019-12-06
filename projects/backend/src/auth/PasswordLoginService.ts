@@ -15,24 +15,21 @@ interface IPasswordLoginServiceArgs {
 	userService: IUserService;
 }
 
-export interface IPasswordLoginService {
-	register(args: IRegsiterArgs): Promise<void>;
-	login(email: string, password: string): Promise<string>;
-}
-
 export class LoginNotFound extends Error {
 	constructor(email: string) {
 		super(`Login for email ${email} not found`);
 	}
 }
 
-export class LoginCredentialsInvalid extends Error {
+export class CredentialsInvalid extends Error {
 	constructor() {
-		super(`Login credentials invalid`);
+		super(`Credentials invalid`);
 	}
 }
 
-export const PasswordLoginService = ({ authService, database, userService }: IPasswordLoginServiceArgs): IPasswordLoginService => {
+export type IPasswordLoginService = ReturnType<typeof PasswordLoginService>
+
+export const PasswordLoginService = ({ authService, database, userService }: IPasswordLoginServiceArgs) => {
 	const register = async ({ userID, password }: IRegsiterArgs) => {
 		const passwordHashed = await hashPassword(password);
 
@@ -60,7 +57,7 @@ export const PasswordLoginService = ({ authService, database, userService }: IPa
 		const credentialsValid = await argon2.verify(loginCredentials[0].credential, password);
 
 		if (!credentialsValid) {
-			throw new LoginCredentialsInvalid();
+			throw new CredentialsInvalid();
 		}
 
 		const user = await userService.getUserByEMail(email);
@@ -70,10 +67,38 @@ export const PasswordLoginService = ({ authService, database, userService }: IPa
 		return refreshToken;
 	}
 
+	const changePassword = async (userID: string, oldPassword: string, newPassword: string) => {
+		const newPasswordHashed = await hashPassword(newPassword)
+
+		const getUserCredentialsByID = SQL.raw<typeof Tables.user_login_credentials>(`
+			SELECT * 
+			FROM ${UserLoginCredentialsTable.name}
+			WHERE user_id_ref = $1 AND date_removed IS NULL;
+		`, [userID])
+
+		const dbResults = await database.query(getUserCredentialsByID)
+
+		if (dbResults.length !== 1) {
+			throw new CredentialsInvalid()
+		}
+
+		const currentPassword = dbResults[0].credential
+		const credentialsValid = await argon2.verify(currentPassword, oldPassword)
+
+		if (!credentialsValid) {
+			throw new CredentialsInvalid();
+		}
+
+		const updatePasswordQuery = UserLoginCredentialsTable.update(['credential'], ['user_id_ref'])
+
+		await database.query(updatePasswordQuery([newPasswordHashed], [userID]))
+	}
+
 	const hashPassword = (password: string) => argon2.hash(password);
 
 	return {
 		register,
-		login
+		login,
+		changePassword,
 	}
 }

@@ -2,7 +2,7 @@ import { User } from '../models/UserModel';
 import { Resolver, Arg, Query, FieldResolver, Root, Mutation, Authorized, Ctx, Args } from "type-graphql";
 import { Share } from '../models/ShareModel';
 import { UserNotFoundError } from '../services/UserService';
-import { LoginNotFound, LoginCredentialsInvalid } from '../auth/PasswordLoginService';
+import { LoginNotFound, CredentialsInvalid } from '../auth/PasswordLoginService';
 import { InternalServerError } from '../types/internal-server-error';
 import { IGraphQLContext, IShareScope } from '../types/context';
 import { AuthTokenBundle } from '../models/AuthTokenBundleModel';
@@ -16,6 +16,7 @@ import { Genre } from '../models/GenreModel';
 import { SongType } from '../models/SongType';
 import { Song } from '../models/SongModel';
 import { SongSearchInput, SongSearchMatcher } from '../inputs/SongSearchInput';
+import { ChangePasswordInput } from '../inputs/ChangePasswordInput';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -63,12 +64,22 @@ export class UserResolver {
 
 			return AuthTokenBundle.create(refreshToken, authToken);
 		} catch (err) {
-			if (err instanceof LoginNotFound || err instanceof LoginCredentialsInvalid) {
-				throw new LoginCredentialsInvalid();
+			if (err instanceof LoginNotFound || err instanceof CredentialsInvalid) {
+				throw new CredentialsInvalid();
 			} else {
 				throw new InternalServerError(err);
 			}
 		}
+	}
+
+	@Mutation(() => Boolean)
+	public async changePassword(
+		@Arg('input') { oldPassword, newPassword }: ChangePasswordInput,
+		@Ctx() { userID }: IGraphQLContext,
+	): Promise<boolean> {
+		await this.services.passwordLoginService.changePassword(userID!, oldPassword, newPassword)
+
+		return true
 	}
 
 	@Mutation(() => String, { description: 'Issue a new authToken after the old one was invalidated' })

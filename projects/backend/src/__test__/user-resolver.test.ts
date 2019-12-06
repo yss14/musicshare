@@ -150,7 +150,7 @@ describe('login', () => {
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			null,
-			[{ message: `Login credentials invalid` }]
+			[{ message: `Credentials invalid` }]
 		));
 	});
 
@@ -164,7 +164,7 @@ describe('login', () => {
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			null,
-			[{ message: `Login credentials invalid` }]
+			[{ message: `Credentials invalid` }]
 		));
 	});
 
@@ -178,7 +178,7 @@ describe('login', () => {
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			null,
-			[{ message: `Login credentials invalid` }]
+			[{ message: `Credentials invalid` }]
 		));
 	});
 
@@ -195,6 +195,41 @@ describe('login', () => {
 		expect(body.errors[0].message.indexOf('An internal server error occured')).toBeGreaterThan(-1);
 	});
 });
+
+describe('change password', () => {
+	const makeChangePasswordMutation = (oldPassword: string, newPassword: string) => `
+		mutation{
+			changePassword(input: {oldPassword: "${oldPassword}", newPassword: "${newPassword}"})
+		}
+	`
+	const newPassword = 'ihavean1cenewpass0rd+#$'
+
+	test('valid credentials passed succeeds', async () => {
+		const { graphQLServer, passwordLoginService } = await setupTest({});
+
+		const testUser = testData.users.user1;
+		const query = makeChangePasswordMutation(testPassword, newPassword);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.changePassword).toBeTrue()
+
+		await expect(passwordLoginService.login(testUser.email, newPassword)).resolves.toBeString()
+	})
+
+	test('invalid old password is rejected', async () => {
+		const { graphQLServer, passwordLoginService } = await setupTest({});
+
+		const query = makeChangePasswordMutation('some_wrong_old_password', newPassword);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: 'Credentials invalid' }],
+		))
+	})
+})
 
 describe('issue new auth token', () => {
 	const makeIssueAuthTokenQuery = (refreshToken: string) => `mutation{issueAuthToken(refreshToken: "${refreshToken}")}`;
