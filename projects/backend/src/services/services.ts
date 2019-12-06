@@ -67,7 +67,14 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 		new MP3SongDuration()
 	]);
 	const playlistService = PlaylistService({ database, songService });
-	const songProcessingQueue = new SongUploadProcessingQueue(songService, songFileService, songMetaDataService, songTypeService, playlistService);
+	const songProcessingQueue = new SongUploadProcessingQueue(
+		songService,
+		songFileService,
+		songMetaDataService,
+		songTypeService,
+		playlistService,
+		database
+	);
 	const authService = new AuthenticationService(config.jwt.secret);
 	const passwordLoginService = PasswordLoginService({ authService, database, userService });
 	const invalidAuthTokenStore = AuthTokenStore({ database, tokenGroup: 'authtoken' });
