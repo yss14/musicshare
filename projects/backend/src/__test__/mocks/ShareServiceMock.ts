@@ -40,7 +40,7 @@ export class ShareServiceMock implements IShareService {
 		throw 'Not implemented yet';
 	}
 
-	public async delete(shareID: string): Promise<void> {
+	public async remove(shareID: string): Promise<void> {
 		throw 'Not implemented yet';
 	}
 

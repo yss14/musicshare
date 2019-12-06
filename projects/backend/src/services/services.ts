@@ -48,7 +48,7 @@ export interface IService {
 export const initServices = (config: IConfig, database: IDatabaseClient): IServices => {
 	const songFileService = initFileStore(config, 'songs');
 	const songService = new SongService(database);
-	const shareService = new ShareService(database);
+	const shareService = ShareService(database);
 	const userService = new UserService(database, config);
 	const songTypeService = new SongTypeService(database, shareService);
 	const genreService = new GenreService(database, shareService);

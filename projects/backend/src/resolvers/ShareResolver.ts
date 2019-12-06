@@ -141,7 +141,7 @@ export class ShareResolver {
 		@Args() { shareID }: ShareIDArg,
 		@Ctx() ctx: IGraphQLContext,
 	): Promise<boolean> {
-		await this.services.shareService.delete(shareID)
+		await this.services.shareService.remove(shareID)
 		await expireAuthToken(ctx)
 
 		return true
