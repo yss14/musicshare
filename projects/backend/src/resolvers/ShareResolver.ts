@@ -18,6 +18,7 @@ import { expireAuthToken } from "../auth/auth-middleware";
 import { ShareIDInput } from "../inputs/ShareIDInput";
 import { TimestampedResults } from "../models/helper/TimestampedResultModel";
 import { TimestampArgs } from "../args/pagination-args";
+import { AcceptInviationPayload } from "../models/return-models/AcceptInvitationPayloadModel";
 
 const TimedstampSongResult = TimestampedResults(Song)
 
@@ -189,11 +190,14 @@ export class ShareResolver {
 		return invitationLink
 	}
 
-	@Mutation(() => User)
+	@Mutation(() => AcceptInviationPayload)
 	public async acceptInvitation(
 		@Arg('input') { invitationToken, name, password }: AcceptInvitationInput,
-	): Promise<User> {
-		return await this.services.userService.acceptInvitation(invitationToken, name, password)
+	): Promise<AcceptInviationPayload> {
+		const user = await this.services.userService.acceptInvitation(invitationToken, name, password)
+		const restoreToken = await this.services.passwordLoginService.getRestoreToken(user.id)
+
+		return { restoreToken, user }
 	}
 
 	@Mutation(() => Boolean)

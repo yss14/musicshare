@@ -615,9 +615,12 @@ describe('accept invitation', () => {
 	const makeAcceptInvitationMutation = (invitationToken: string, name: string, password: string) => `
 		mutation{
 			acceptInvitation(input: {invitationToken: "${invitationToken}", name: "${name}", password: "${password}"}){
-				id
-				name
-				email
+				user{
+					id
+					name
+					email
+				}
+				restoreToken
 			}
 		}
 	`;
@@ -635,9 +638,12 @@ describe('accept invitation', () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
 		expect(body.data.acceptInvitation).toMatchObject({
-			id: expect.toBeString(),
-			name: '1337 User',
-			email,
+			user: {
+				id: expect.toBeString(),
+				name: '1337 User',
+				email,
+			},
+			restoreToken: expect.toBeString(),
 		})
 
 		const refreshToken = await passwordLoginService.login(email, 'password')

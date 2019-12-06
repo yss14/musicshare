@@ -3,6 +3,11 @@ import { UserLoginCredentialsTable, Tables, UsersTable } from '../database/table
 import { IDatabaseClient, SQL } from 'postgres-schema-builder';
 import { IAuthenticationService } from './AuthenticationService';
 import { IUserService } from '../services/UserService';
+import * as crypto from 'crypto'
+import { v4 as uuid } from 'uuid'
+import { NotFoundError } from '../types/errors/NotFound';
+import { Where } from 'postgres-schema-builder'
+
 
 interface IRegsiterArgs {
 	password: string;
@@ -32,13 +37,17 @@ export type IPasswordLoginService = ReturnType<typeof PasswordLoginService>
 export const PasswordLoginService = ({ authService, database, userService }: IPasswordLoginServiceArgs) => {
 	const register = async ({ userID, password }: IRegsiterArgs) => {
 		const passwordHashed = await hashPassword(password);
+		const restoreToken = crypto.createHash('md5').update(uuid()).digest('hex').toUpperCase()
 
 		await database.query(UserLoginCredentialsTable.insertFromObj({
 			user_id_ref: userID,
 			credential: passwordHashed,
+			restore_token: restoreToken,
 			date_added: new Date(),
-			date_removed: null
+			date_removed: null,
 		}));
+
+		return restoreToken
 	}
 
 	const login = async (email: string, password: string) => {
@@ -94,11 +103,24 @@ export const PasswordLoginService = ({ authService, database, userService }: IPa
 		await database.query(updatePasswordQuery([newPasswordHashed], [userID]))
 	}
 
+	const getRestoreToken = async (userID: string) => {
+		const dbResults = await database.query(
+			UserLoginCredentialsTable.select('*', ['user_id_ref', 'date_removed'])([userID, Where.isNull()])
+		)
+
+		if (dbResults.length === 1 && dbResults[0].restore_token) {
+			return dbResults[0].restore_token
+		} else {
+			throw new NotFoundError(`Restore token for user ${userID} not found`)
+		}
+	}
+
 	const hashPassword = (password: string) => argon2.hash(password);
 
 	return {
 		register,
 		login,
 		changePassword,
+		getRestoreToken,
 	}
 }

@@ -96,6 +96,7 @@ export namespace DatabaseV1 {
 		user_login_credential_id: { type: ColumnType.Integer, primaryKey: true, unique: true, autoIncrement: true },
 		user_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'users', targetColumn: 'user_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
 		credential: { type: ColumnType.Varchar, nullable: false },
+		restore_token: { type: ColumnType.Varchar, nullable: true },
 	});
 
 	export const share_tokens = TableSchema({
