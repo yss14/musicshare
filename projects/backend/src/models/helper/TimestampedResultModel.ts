@@ -1,5 +1,5 @@
 import { TypeValue } from "type-graphql/dist/decorators/types"
-import { ObjectType, Field, Int } from "type-graphql"
+import { ObjectType, Field } from "type-graphql"
 import { ITimestamped, ITimedstampedResult, ITimedstampedResults } from '@musicshare/shared-types'
 
 @ObjectType({ isAbstract: true })
