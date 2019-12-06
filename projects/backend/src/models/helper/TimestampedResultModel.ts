@@ -2,6 +2,8 @@ import { TypeValue } from "type-graphql/dist/decorators/types"
 import { ObjectType, Field } from "type-graphql"
 import { ITimestamped, ITimedstampedResult, ITimedstampedResults } from '@musicshare/shared-types'
 
+/* istanbul ignore file */
+
 @ObjectType({ isAbstract: true })
 class Timestamped implements ITimestamped {
 	@Field()
