@@ -45,11 +45,10 @@ export const RestorePasswordForm: React.FC = () => {
 		restorePassword(values)
 		setEMail(values.email)
 	}, [restorePassword])
-	const { handleSubmit, errors, values, handleChange, isValid, handleBlur, touched, resetForm } = useFormik({
+	const { handleSubmit, errors, values, handleChange, isValid, handleBlur, touched, resetForm, dirty } = useFormik({
 		initialValues: initialFormValues,
 		onSubmit,
 		validate: validateForm,
-		isInitialValid: false,
 	})
 
 	const successAlert = data && (
@@ -121,7 +120,7 @@ export const RestorePasswordForm: React.FC = () => {
 					type="primary"
 					key="submit"
 					htmlType="submit"
-					disabled={!isValid}
+					disabled={!(isValid && dirty)}
 				>
 					Restore Password
         		</Button>
