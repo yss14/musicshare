@@ -18,15 +18,15 @@ export interface IGetShareWithSongsVariables {
 }
 
 export const GET_SHARE_WITH_SONGS = gql`
-  query share($shareID: String!) {
-    share(shareID: $shareID) {
-      id
-      name
-      songs {
-        ${shareSongKeys}
-      }
-    }
-  }
+  	query share($shareID: String!) {
+    	share(shareID: $shareID) {
+      		id
+      		name
+      		songs {
+        		${shareSongKeys}
+      		}
+    	}
+  	}
 `;
 
 export const useShareSongs = (shareID: string) => {

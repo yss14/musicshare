@@ -17,22 +17,18 @@ import { AcceptInvitation } from "../../pages/accept-invitation/AcceptInvitation
 
 const Share = lazy(() => import("../../pages/share/Share").then(module => ({ default: module.Share })));
 
-export const Routing = () => {
-	const authToken = useAuthToken()
-
-	return (
-		<Suspense fallback={<LoadingSpinner />}>
-			<Switch>
-				<Route path="/login/:email?" render={() => <Login />} />
-				<Route path="/invitation/:invitationToken" render={() => <AcceptInvitation />} />
-				<Route exact path="/404" render={() => <NotFound />} />
-				<Route path="/offline" render={() => <Offline />} />
-				{authToken && <LoggedInRoutes />}
-				<Route render={() => <NotFound />} />
-			</Switch>
-		</Suspense>
-	);
-};
+export const Routing = () => (
+	<Suspense fallback={<LoadingSpinner />}>
+		<Switch>
+			<Route path="/login/:email?" render={() => <Login />} />
+			<Route path="/invitation/:invitationToken" render={() => <AcceptInvitation />} />
+			<Route exact path="/404" render={() => <NotFound />} />
+			<Route path="/offline" render={() => <Offline />} />
+			<LoggedInRoutes />
+			<Route render={() => <NotFound />} />
+		</Switch>
+	</Suspense>
+)
 
 const ShareRoute = () => {
 	const match = useRouteMatch()!

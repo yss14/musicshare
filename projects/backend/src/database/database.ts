@@ -4,6 +4,8 @@ import { Pool } from "pg";
 import { Tables } from "./tables";
 import { migrations } from './migrations'
 
+/* istanbul ignore file */
+
 export const clearDatabase = async (database: IDatabaseClient, databaseUser: string) => {
 	await database.query({
 		sql: `DROP SCHEMA public CASCADE;`

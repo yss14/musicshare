@@ -1,5 +1,8 @@
 import { TableSchema, ColumnType, PArray, NativeFunction, ForeignKeyUpdateDeleteRule, JSONType } from 'postgres-schema-builder';
 import { IFileSourceJSONType } from '../../models/FileSourceModels';
+import { ISongProcessingQueuePayload } from '../../job-queues/SongUploadProcessingQueue';
+import { Nullable } from '../../types/Nullable';
+import { ISong } from '../../models/interfaces/ISong';
 
 export namespace DatabaseV1 {
 	const baseSchema = TableSchema({
@@ -99,4 +102,13 @@ export namespace DatabaseV1 {
 		token_value: { type: ColumnType.Varchar, primaryKey: true },
 		group: { type: ColumnType.Varchar, primaryKey: true },
 	});
+
+	export const file_upload_logs = TableSchema({
+		...baseSchema,
+		file_upload_log_id: { type: ColumnType.UUID, primaryKey: true, unique: true, autoIncrement: true },
+		file: { type: JSONType<ISongProcessingQueuePayload>(), nullable: false },
+		meta: { type: JSONType<Partial<Nullable<ISong>>>(), nullable: true },
+		error: { type: ColumnType.Varchar, nullable: true },
+		user_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'users', targetColumn: 'user_id', onDelete: ForeignKeyUpdateDeleteRule.NoAction }] },
+	})
 }

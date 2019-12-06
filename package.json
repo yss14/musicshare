@@ -23,6 +23,7 @@
 		"test": "lerna run test --stream",
 		"test:backend": "lerna run test --stream --scope @musicshare/backend",
 		"test:ci": "lerna run test:ci --stream --scope @musicshare/backend",
+		"test:cov": "lerna run test:cov --stream",
 		"postinstall": "npm run bootstrap"
 	},
 	"dependencies": {

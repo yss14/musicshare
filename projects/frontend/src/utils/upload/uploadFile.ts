@@ -59,8 +59,6 @@ export const uploadFile = (
 	});
 
 	const onProgress = (progress: IAxiosProgress) => {
-		console.log(progress);
-
 		if (progress.loaded && progress.total) {
 			dispatch({
 				type: UPLOAD_PROGRESS,
@@ -75,7 +73,7 @@ export const uploadFile = (
 	try {
 		currentUploads++;
 
-		await upload(userID, shareID,playlistIDs, file, arrayBuffer, onProgress, config);
+		await upload(userID, shareID, playlistIDs, file, arrayBuffer, onProgress, config);
 
 		dispatch({
 			type: UPLOAD_FINISHED,

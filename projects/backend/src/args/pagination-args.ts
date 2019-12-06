@@ -24,3 +24,9 @@ export class ConnectionArgs implements Relay.ConnectionArguments {
 	@Field({ nullable: true, description: 'Paginate last' })
 	public readonly last?: number
 }
+
+@ArgsType()
+export class TimestampArgs {
+	@Field()
+	public readonly lastTimestamp!: Date;
+}

@@ -17,6 +17,9 @@ export const Header = styled.div`
 export const Col = styled.div`
 	padding: 3px 6px;
 	box-sizing: border-box;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
 `
 
 export const HeaderCol = styled(Col)`

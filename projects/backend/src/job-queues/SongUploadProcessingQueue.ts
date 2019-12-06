@@ -8,6 +8,9 @@ import { v4 as uuid } from 'uuid';
 import { ISongTypeService } from '../services/SongTypeService';
 import { IPlaylistService } from '../services/PlaylistService';
 import { makeFileSourceJSONType } from '../models/FileSourceModels';
+import { ILogger, Logger } from '../utils/Logger';
+import { IDatabaseClient } from 'postgres-schema-builder';
+import { FileUploadLogsTable } from '../database/tables';
 
 export interface ISongProcessingQueuePayload {
 	file: IFile;
@@ -15,6 +18,8 @@ export interface ISongProcessingQueuePayload {
 	shareID: string;
 	playlistIDs: string[];
 }
+
+const writeLogToDatabase = FileUploadLogsTable.insertFromObj
 
 const isSongProcessingQueuePayload = (obj: any): obj is ISongProcessingQueuePayload => {
 	const requiredProperties: (keyof ISongProcessingQueuePayload)[] =
@@ -31,6 +36,7 @@ export interface ISongUploadProcessingQueue {
 
 export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 	private readonly jobQueue: BetterQueue;
+	private readonly logger: ILogger = Logger('SongUploadQueue');
 
 	constructor(
 		private readonly songService: ISongService,
@@ -38,6 +44,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 		private readonly songMetaDataService: ISongMetaDataService,
 		private readonly songTypeService: ISongTypeService,
 		private readonly playlistService: IPlaylistService,
+		private readonly database: IDatabaseClient,
 	) {
 		this.jobQueue = new BetterQueue<ISongProcessingQueuePayload, string>(this.process);
 	}
@@ -59,6 +66,8 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 		if (!isSongProcessingQueuePayload(uploadMeta)) {
 			return callback(new Error('Received job queue payload is no ISongProcessingQueuePayload, skip processing...'));
 		}
+
+		this.logger.log(JSON.stringify(uploadMeta))
 
 		try {
 			const audioBuffer = await this.fileService.getFileAsBuffer(uploadMeta.file.blob);
@@ -98,9 +107,21 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 				}
 			}
 
+			await this.database.query(writeLogToDatabase({
+				file: uploadMeta,
+				meta: songMeta,
+				user_id_ref: uploadMeta.userID,
+			}))
+
 			return callback(undefined, song);
 		} catch (err) {
 			console.error(err);
+
+			await this.database.query(writeLogToDatabase({
+				file: uploadMeta,
+				error: err,
+				user_id_ref: uploadMeta.userID,
+			}))
 
 			return callback(err);
 		}

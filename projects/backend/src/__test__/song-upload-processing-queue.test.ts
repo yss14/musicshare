@@ -5,6 +5,7 @@ import { SongUploadProcessingQueue, ISongProcessingQueuePayload } from "../job-q
 import { v4 as uuid } from 'uuid';
 import { SongTypeServiceMock } from "./mocks/SongTypeServiceMock";
 import { PlaylistServiceMock } from "./mocks/PlaylistServiceMock";
+import { makeMockDatabase } from "postgres-schema-builder";
 
 const setupTestEnv = () => {
 	const songService = new SongServiceMock();
@@ -12,8 +13,16 @@ const setupTestEnv = () => {
 	const songMetaDataService: ISongMetaDataService = { analyse: async () => ({}) };
 	const playlistService = PlaylistServiceMock();
 	const songTypeServiceMock = SongTypeServiceMock();
+	const database = makeMockDatabase()
 
-	const songUploadProcessingQueue = new SongUploadProcessingQueue(songService, fileService, songMetaDataService, songTypeServiceMock, playlistService);
+	const songUploadProcessingQueue = new SongUploadProcessingQueue(
+		songService,
+		fileService,
+		songMetaDataService,
+		songTypeServiceMock,
+		playlistService,
+		database
+	);
 
 	return { songService, fileService, songMetaDataService, songUploadProcessingQueue, playlistService };
 }

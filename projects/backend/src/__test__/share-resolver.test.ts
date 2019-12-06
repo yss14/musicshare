@@ -56,10 +56,12 @@ const makeShareSongsQuery = (range?: [number, number]) => {
 	`;
 }
 
-const makeShareSongsDirtyQuery = (lastTimestamp: number) => {
+const makeShareSongsDirtyQuery = (lastTimestamp: Date) => {
 	return `
-		songsDirty(lastTimestamp: ${lastTimestamp}){
-			${songKeys}
+		songsDirty(lastTimestamp: "${lastTimestamp.toISOString()}"){
+			nodes{
+				${songKeys}
+			}
 		}
 	`;
 }
@@ -172,7 +174,7 @@ describe('get share songs', () => {
 		const { graphQLServer } = await setupTest({});
 
 		const library = testData.shares.library_user1;
-		const lastTimestamp = moment().subtract(150, 'minutes').valueOf();
+		const lastTimestamp = moment().subtract(150, 'minutes').toDate()
 		const query = makeShareQuery(library.share_id.toString(), [makeShareSongsDirtyQuery(lastTimestamp)]);
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
@@ -182,7 +184,7 @@ describe('get share songs', () => {
 			testData.songs.song3_library_user1,
 		].map(result => Song.fromDBResult(result, shareID));
 
-		const receivedSongs = body.data.share.songsDirty;
+		const receivedSongs = body.data.share.songsDirty.nodes;
 		expect(receivedSongs.length).toBe(2);
 		expectedSongs.forEach(expectedSong => includesSong(receivedSongs, expectedSong));
 	});

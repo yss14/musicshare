@@ -145,12 +145,14 @@ export class UserService implements IUserService, IService {
 				UsersTable.update(['name', 'invitation_token'], ['user_id'])([name, null], [user.id])
 			)
 			await this.services.passwordLoginService.register({ userID: user.id, password })
-			await this.services.shareService.create(user.id, `${name}'s Library`, true)
+			const userLibrary = await this.services.shareService.create(user.id, `${name}'s Library`, true)
+			await this.services.seedService.seedShare(userLibrary.id)
 
 			return this.getUserByID(user.id)
 		} catch (err) {
 			if (err instanceof UserNotFoundError) throw err
 
+			console.error(err)
 			throw new ValidationError('invitationToken is invalid')
 		}
 	}

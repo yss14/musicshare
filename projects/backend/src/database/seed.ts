@@ -381,15 +381,17 @@ interface IInsertProductionSetupSeed {
 
 export const insertProductionSetupSeed = async ({ config, services, }: IInsertProductionSetupSeed) => {
 	const { email, password, name: username, shareName } = config.setup.seed;
+	const { userService, passwordLoginService, seedService, shareService } = services
 
-	const allUsers = await services.userService.getAll();
+	const allUsers = await userService.getAll();
 
 	if (allUsers.length > 0) return false;
 
-	const user = await services.userService.create(username, email);
-	await services.passwordLoginService.register({ password, userID: user.id });
+	const user = await userService.create(username, email);
+	await passwordLoginService.register({ password, userID: user.id });
 
-	await services.shareService.create(user.id, shareName, true);
+	const initialShare = await shareService.create(user.id, shareName, true);
+	await seedService.seedShare(initialShare.id)
 
 	// istanbul ignore next
 	if (!__TEST__) {
