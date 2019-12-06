@@ -10,12 +10,16 @@ import { ShareNameArg, ShareIDArg } from "../args/share-args";
 import { InviteToShareInput } from "../inputs/InviteToShareInput";
 import { ForbiddenError } from "apollo-server-core";
 import { UserNotFoundError } from "../services/UserService";
-import { Permissions } from '@musicshare/shared-types';
+import { Permissions, ITimedstampedResults } from '@musicshare/shared-types';
 import { User } from "../models/UserModel";
 import { AcceptInvitationInput } from "../inputs/AcceptInvitationInput";
 import { RevokeInvitationInput } from "../inputs/RevokeInvitationInput";
 import { expireAuthToken } from "../auth/auth-middleware";
 import { ShareIDInput } from "../inputs/ShareIDInput";
+import { TimestampedResults } from "../models/helper/TimestampedResultModel";
+import { TimestampArgs } from "../args/pagination-args";
+
+const TimedstampSongResult = TimestampedResults(Song)
 
 @Resolver(of => Share)
 export class ShareResolver {
@@ -49,12 +53,18 @@ export class ShareResolver {
 	}
 
 	@Authorized()
-	@FieldResolver(() => [Song])
+	@FieldResolver(() => TimedstampSongResult)
 	public async songsDirty(
 		@Root() share: Share,
-		@Arg('lastTimestamp') lastTimestamp: number,
-	): Promise<Song[]> {
-		return this.services.songService.getByShareDirty(share.id, lastTimestamp);
+		@Args() { lastTimestamp }: TimestampArgs,
+	): Promise<ITimedstampedResults<Song>> {
+		const dirtySongs = await this.services.songService.getByShareDirty(share.id, lastTimestamp.getTime())
+		const time = new Date()
+
+		return {
+			nodes: dirtySongs,
+			timestamp: time,
+		}
 	}
 
 	@Authorized()

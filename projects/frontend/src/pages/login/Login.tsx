@@ -18,7 +18,7 @@ export const Login = () => {
 		if (authToken) {
 			history.push('/')
 		}
-	}, [])
+	}, [authToken, history])
 
 	useLayoutEffect(() => {
 		if (titleRef.current) {
