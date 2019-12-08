@@ -10,6 +10,7 @@ import { ISSUE_AUTH_TOKEN, IIssueAuthTokenData, IIssueAuthTokenVariables } from 
 import { getRefreshToken } from "./graphql/client/queries/auth-token-query";
 import { promiseToObservable } from "./graphql/utils/promise-to-observable";
 import { history } from "./components/routing/history";
+import { logoutUser } from "./graphql/programmatic/logout";
 
 const config = makeConfigFromEnv();
 
@@ -126,6 +127,10 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
 							return Observable.of()
 						}
 					})
+			} else if (error.message.startsWith('User with id') && error.message.endsWith('not found')) {
+				logoutUser(client)
+
+				history.push("/login")
 			}
 		}
 	}

@@ -14,6 +14,7 @@ import { useLibraryID } from "../../graphql/client/queries/libraryid-query";
 import { Offline } from "../../pages/status/Offline";
 import { LoadingSpinner } from "../common/LoadingSpinner";
 import { AcceptInvitation } from "../../pages/accept-invitation/AcceptInvitation";
+import { RestorePassword } from "../../pages/restore-password/RestorePassword";
 
 const Share = lazy(() => import("../../pages/share/Share").then(module => ({ default: module.Share })));
 
@@ -22,6 +23,7 @@ export const Routing = () => (
 		<Switch>
 			<Route path="/login/:email?" render={() => <Login />} />
 			<Route path="/invitation/:invitationToken" render={() => <AcceptInvitation />} />
+			<Route path="/password/restore" render={() => <RestorePassword />} />
 			<Route exact path="/404" render={() => <NotFound />} />
 			<Route path="/offline" render={() => <Offline />} />
 			<LoggedInRoutes />

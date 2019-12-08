@@ -1,14 +1,16 @@
 import React, { useState, useCallback } from "react";
 import { Menu, Icon } from "antd";
 import styled from "styled-components";
-import { Link, useParams, useRouteMatch, useHistory } from "react-router-dom";
+import { Link, useParams, useRouteMatch } from "react-router-dom";
 import { useShares } from "../graphql/queries/shares-query";
 import { IShareRoute } from "../interfaces";
 import { CreateShareModal } from "./modals/CreateShareModal";
 import { ShareSettings } from "./modals/share-settings/ShareSettings";
 import { IShare } from "../graphql/types";
 import { useUser } from "../graphql/queries/user-query";
-import { useSetAuthTokens } from "../graphql/client/mutations/token-mutation";
+import { ChangePasswordModal } from "./modals/ChangePasswordModal";
+import { useApolloClient } from "react-apollo";
+import { logoutUser } from "../graphql/programmatic/logout";
 
 const { SubMenu, ItemGroup, Item } = Menu;
 
@@ -32,18 +34,11 @@ export const HeaderNavMenu = () => {
 	const { data: user } = useUser()
 	const [showCreateShare, setShowCreateShare] = useState(false)
 	const [shareSettings, setShareSettings] = useState<IShare | null>(null)
+	const [showChangePassword, setShowChangePassword] = useState(false)
 	const [sharesSubmenuHovered, setSharesSubmenuHovered] = useState(false)
-	const [setAuthTokens] = useSetAuthTokens({
-		onCompleted: () => history.push('/login'),
-	})
-	const history = useHistory()
+	const client = useApolloClient()
 
-	const logout = useCallback(() => {
-		localStorage.removeItem("auth-token")
-		localStorage.removeItem("refresh-token")
-
-		setAuthTokens(null, null)
-	}, [setAuthTokens])
+	const logout = useCallback(() => logoutUser(client), [client])
 
 	if (loading) {
 		return null
@@ -118,7 +113,7 @@ export const HeaderNavMenu = () => {
 								{libraryShare.name}
 							</Link>
 							)}
-              				</Menu.Item>
+              			</Menu.Item>
 					</ItemGroup>
 					<ItemGroup key="shares:own" title="Own Shares">
 						{otherShares.map((share) => (
@@ -140,11 +135,15 @@ export const HeaderNavMenu = () => {
 					</ItemGroup>
 				</SubMenu>
 				<SubMenu key="user" title={user?.viewer.name || '...'} style={{ float: 'right' }}>
+					<Item key="user:change_password" title="Change Password" onClick={() => setShowChangePassword(true)}>
+						Change Password
+					</Item>
 					<Item key="user:logout" title="Logout" onClick={logout}>Logout</Item>
 				</SubMenu>
 			</Menu>
 			{showCreateShare && <CreateShareModal onSubmit={() => setShowCreateShare(false)} onCancel={() => setShowCreateShare(false)} />}
 			{shareSettings && <ShareSettings share={shareSettings} onClose={() => setShareSettings(null)} />}
+			{showChangePassword && <ChangePasswordModal onClose={() => setShowChangePassword(false)} />}
 		</>
 	);
 };

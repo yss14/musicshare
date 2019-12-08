@@ -1,14 +1,14 @@
 import { GraphQLScalarType, Kind } from "graphql";
 import { OrderUpdate } from "../../services/PlaylistService";
 
+/* istanbul ignore file */
+
 export const OrderUpdateScalar = new GraphQLScalarType({
 	name: 'OrderUpdate',
 	description: 'Alias for a length 2 array [string,number], which maps a songID into its new position within a collection',
-	// istanbul ignore
 	parseValue(value: number[]) {
 		return value;
 	},
-	// istanbul ignore
 	serialize(value: OrderUpdate) {
 		return value;
 	},
@@ -22,7 +22,6 @@ export const OrderUpdateScalar = new GraphQLScalarType({
 			}
 		}
 
-		// istanbul ignore next
 		return null;
 	}
 });

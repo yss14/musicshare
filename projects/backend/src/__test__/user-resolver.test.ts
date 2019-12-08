@@ -150,7 +150,7 @@ describe('login', () => {
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			null,
-			[{ message: `Login credentials invalid` }]
+			[{ message: `Credentials invalid` }]
 		));
 	});
 
@@ -164,7 +164,7 @@ describe('login', () => {
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			null,
-			[{ message: `Login credentials invalid` }]
+			[{ message: `Credentials invalid` }]
 		));
 	});
 
@@ -178,7 +178,7 @@ describe('login', () => {
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			null,
-			[{ message: `Login credentials invalid` }]
+			[{ message: `Credentials invalid` }]
 		));
 	});
 
@@ -195,6 +195,126 @@ describe('login', () => {
 		expect(body.errors[0].message.indexOf('An internal server error occured')).toBeGreaterThan(-1);
 	});
 });
+
+describe('change password', () => {
+	const makeChangePasswordMutation = (oldPassword: string, newPassword: string) => `
+		mutation{
+			changePassword(input: {oldPassword: "${oldPassword}", newPassword: "${newPassword}"})
+		}
+	`
+	const newPassword = 'ihavean1cenewpass0rd+#$'
+
+	test('valid credentials passed succeeds', async () => {
+		const { graphQLServer, passwordLoginService } = await setupTest({});
+
+		const testUser = testData.users.user1;
+		const query = makeChangePasswordMutation(testPassword, newPassword);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body.data.changePassword).toBeTrue()
+
+		await expect(passwordLoginService.login(testUser.email, newPassword)).resolves.toBeString()
+	})
+
+	test('user not found is rejected', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const userID = uuid()
+		const query = makeChangePasswordMutation(testPassword, newPassword);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID });
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: `User with id ${userID} not found` }],
+		))
+	})
+
+	test('invalid old password is rejected', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const query = makeChangePasswordMutation('some_wrong_old_password', newPassword);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: 'Old password is invalid' }],
+		))
+	})
+})
+
+describe('restore password', () => {
+	const makeRestorePasswordMutation = (email: string, restoreToken: string, newPassword: string) => `
+		mutation{
+			restorePassword(input: {email: "${email}", restoreToken: "${restoreToken}", newPassword: "${newPassword}"})
+		}
+	`
+	const newPassword = 'ihavean1cenewpass0rd+#$'
+
+	test('valid credentials passed succeeds', async () => {
+		const { graphQLServer, passwordLoginService } = await setupTest({});
+
+		const { email, user_id } = testData.users.user1
+		const restoreToken = await passwordLoginService.getRestoreToken(user_id)
+		const query = makeRestorePasswordMutation(email, restoreToken, newPassword)
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		const newRestoreToken = await passwordLoginService.getRestoreToken(user_id)
+		expect(body.data.restorePassword).toBe(newRestoreToken)
+
+		await expect(passwordLoginService.login(email, newPassword)).resolves.toBeString()
+	})
+
+	test('invalid restore token is rejected', async () => {
+		const { graphQLServer, passwordLoginService } = await setupTest({});
+
+		const { email } = testData.users.user1
+		const wrongRestoreToken = passwordLoginService.generatedRestoreToken()
+		const query = makeRestorePasswordMutation(email, wrongRestoreToken, newPassword)
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: 'Restore token invalid' }],
+		))
+	})
+
+	test('user with email not existing is rejected', async () => {
+		const { graphQLServer, passwordLoginService } = await setupTest({});
+
+		const email = 'wrong@gmail.com'
+		const { user_id } = testData.users.user1
+		const restoreToken = await passwordLoginService.getRestoreToken(user_id)
+		const query = makeRestorePasswordMutation(email, restoreToken, newPassword)
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: `Login for email ${email} not found` }],
+		))
+	})
+})
+
+describe('get restore token', () => {
+	test('existing user succeeds', async () => {
+		const { passwordLoginService } = await setupTest({});
+
+		await expect(passwordLoginService.getRestoreToken(testData.users.user1.user_id)).resolves.toBeString()
+	})
+
+	test('not existing user fails', async () => {
+		const { passwordLoginService } = await setupTest({});
+
+		const userID = uuid()
+
+		await expect(passwordLoginService.getRestoreToken(userID)).rejects.toThrowError(`Restore token for user ${userID} not found`)
+	})
+})
 
 describe('issue new auth token', () => {
 	const makeIssueAuthTokenQuery = (refreshToken: string) => `mutation{issueAuthToken(refreshToken: "${refreshToken}")}`;

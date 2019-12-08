@@ -3,7 +3,7 @@ import { Form, Icon, Input, Button, Alert } from "antd";
 import { IInvitationPayload } from '@musicshare/shared-types'
 import { useFormik } from 'formik'
 import { useAcceptInvitation } from '../../graphql/mutations/accept-invitation-mutation';
-import { useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 interface IFormValues {
 	username: string;
@@ -41,12 +41,10 @@ interface IAcceptInvitationFormProps {
 }
 
 export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ invitationPayload, invitationToken }) => {
-	const history = useHistory()
-	const [acceptInvitation, { error }] = useAcceptInvitation({
-		onCompleted: () => history.push(`/login/${invitationPayload.email}`),
+	const [acceptInvitation, { error, data }] = useAcceptInvitation({
 		onError: console.error,
+		onCompleted: () => resetForm(),
 	})
-
 	const onSubmit = useCallback(({ username, password }: IFormValues) => {
 		acceptInvitation({
 			name: username,
@@ -54,16 +52,32 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 			invitationToken,
 		})
 	}, [acceptInvitation, invitationToken])
-
-	const { handleSubmit, errors, values, handleChange, isValid, handleBlur, touched } = useFormik({
+	const { handleSubmit, errors, values, handleChange, isValid, handleBlur, touched, resetForm, dirty } = useFormik({
 		initialValues: initialFormValues,
 		onSubmit,
 		validate: validateForm,
 	})
 
+	const successAlert = data && (
+		<Alert
+			message={
+				<>
+					<p>Your account has been created. Please note the following token and keep it safe! In case you have to restore your password, you need this token!</p>
+					<p>Your restore token: {data.acceptInvitation.restoreToken}</p>
+					<p>
+						Proceed to <Link to={`/login/${invitationPayload.email}`}>Sign In</Link>
+					</p>
+				</>
+			}
+			type="success"
+		/>
+	)
+	const errorAlert = error && <Alert message="Invitation expired" type="error" />
+
 	return (
 		<Form onSubmit={handleSubmit} style={{ width: 250 }}>
-			{error && <Alert message="Invitation expired" type="error" />}
+			{errorAlert}
+			{successAlert}
 			<Form.Item>
 				<Input
 					prefix={<Icon type="email" style={{ color: "rgba(0,0,0,.25)" }} />}
@@ -121,7 +135,7 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 					type="primary"
 					key="submit"
 					htmlType="submit"
-					disabled={!isValid}
+					disabled={!(isValid && dirty)}
 				>
 					Create
         		</Button>
