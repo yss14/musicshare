@@ -62,8 +62,7 @@ export const SongDataTable: React.FC<ISongDataTableProps> = (props) => {
 	const [{ hoveredSong }, dispatch] = useReducer(songTableReducer, {
 		hoveredSong: null,
 	})
-	const contextMenuRef = useRef<HTMLDivElement>(null)
-	const { showContextMenu, isVisible: contextMenuVisible } = useContextMenu(contextMenuRef)
+	const { showContextMenu, isVisible: contextMenuVisible, ref: contextMenuRef } = useContextMenu()
 	const [height, setHeight] = useState(0)
 	const bodyRef = useRef<HTMLDivElement>(null)
 	const accumulatedWidth = useMemo(() => columns.reduce((acc, col) => acc + col.width, 0), [columns])

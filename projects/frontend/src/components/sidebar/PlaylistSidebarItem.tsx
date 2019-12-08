@@ -15,9 +15,11 @@ interface IPlaylistSidebarItemProps {
 	playlist: IPlaylist;
 	selected: boolean;
 	targetUrl: string;
+	onContextMenu?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+	onMouseEnter?: () => void;
 }
 
-export const PlaylistSidebarItem: React.FC<IPlaylistSidebarItemProps> = ({ playlist, selected, targetUrl }) => {
+export const PlaylistSidebarItem: React.FC<IPlaylistSidebarItemProps> = ({ playlist, selected, targetUrl, onContextMenu, onMouseEnter }) => {
 	const addSongsToPlaylist = useAddSongsToPlaylist()
 
 	const [{ canDrop, isOver }, drop] = useDrop<IAcceptSong, void, IMonitorProps>({
@@ -42,8 +44,14 @@ export const PlaylistSidebarItem: React.FC<IPlaylistSidebarItemProps> = ({ playl
 	}
 
 	return (
-		<SidebarItem ref={drop} style={isOver && canDrop ? isOverStyle : {}} selected={selected}>
-			<Link to={targetUrl}>
+		<SidebarItem
+			ref={drop}
+			style={isOver && canDrop ? isOverStyle : {}}
+			selected={selected}
+			onContextMenu={onContextMenu}
+			onMouseEnter={onMouseEnter}
+		>
+			<Link to={targetUrl} onContextMenu={onContextMenu}>
 				{playlist.name}
 			</Link>
 		</SidebarItem>

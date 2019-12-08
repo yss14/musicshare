@@ -13,6 +13,8 @@ import { SidebarSection } from './SidebarSection'
 import { useMergedPlaylists } from "../../graphql/queries/merged-playlists-query";
 import { IPlaylist } from "../../graphql/types";
 import { LoadingSpinner } from "../common/LoadingSpinner";
+import { useContextMenu } from "../modals/contextmenu/ContextMenu";
+import { PlaylistContextMenu } from "./PlaylistContextMenu";
 
 const Sidebar = styled.div`
 	width: 200px;
@@ -139,6 +141,8 @@ interface IPlaylistSidebarContent {
 
 const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({ playlists, targetUrlAllSongs, addButton, loading, error }) => {
 	const playlistID = usePlaylistID()
+	const { ref, showContextMenu, isVisible } = useContextMenu()
+	const [contextMenuPlaylist, setContextMenuPlaylist] = useState<IPlaylist | null>(null)
 
 	if (loading === true) {
 		return <LoadingSpinner color="#FFFFFF" />
@@ -162,6 +166,8 @@ const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({ playlists, 
 						playlist={playlist}
 						selected={playlist.id === playlistID}
 						targetUrl={playlist.targetUrl}
+						onContextMenu={showContextMenu}
+						onMouseEnter={isVisible ? () => undefined : () => setContextMenuPlaylist(playlist)}
 					/>
 				))}
 			</SidebarSection>
@@ -170,6 +176,7 @@ const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({ playlists, 
 					{addButton}
 				</SidebarButtonContainer>
 			)}
+			{contextMenuPlaylist && <PlaylistContextMenu ref={ref} playlist={contextMenuPlaylist} />}
 		</>
 	)
 }

@@ -23,6 +23,11 @@ export const SidebarItem = styled.div<ISidebarItemProps>`
 		font-size: 15px;
 		width: 100%;
 		font-weight: 500;
+		user-select: none;
+        -moz-user-select: none;
+        -khtml-user-select: none;
+        -webkit-user-select: none;
+        -o-user-select: none;
 	}
 
 	& a{
