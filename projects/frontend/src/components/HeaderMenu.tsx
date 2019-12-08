@@ -10,6 +10,8 @@ import { IShare } from "../graphql/types";
 import { useUser } from "../graphql/queries/user-query";
 import { useSetAuthTokens } from "../graphql/client/mutations/token-mutation";
 import { ChangePasswordModal } from "./modals/ChangePasswordModal";
+import { useApolloClient } from "react-apollo";
+import { logoutUser } from "../graphql/programmatic/logout";
 
 const { SubMenu, ItemGroup, Item } = Menu;
 
@@ -35,17 +37,9 @@ export const HeaderNavMenu = () => {
 	const [shareSettings, setShareSettings] = useState<IShare | null>(null)
 	const [showChangePassword, setShowChangePassword] = useState(false)
 	const [sharesSubmenuHovered, setSharesSubmenuHovered] = useState(false)
-	const [setAuthTokens] = useSetAuthTokens({
-		onCompleted: () => history.push('/login'),
-	})
-	const history = useHistory()
+	const client = useApolloClient()
 
-	const logout = useCallback(() => {
-		localStorage.removeItem("auth-token")
-		localStorage.removeItem("refresh-token")
-
-		setAuthTokens(null, null)
-	}, [setAuthTokens])
+	const logout = useCallback(() => logoutUser(client), [client])
 
 	if (loading) {
 		return null
