@@ -1,14 +1,13 @@
 import React, { useState, useCallback } from "react";
 import { Menu, Icon } from "antd";
 import styled from "styled-components";
-import { Link, useParams, useRouteMatch, useHistory } from "react-router-dom";
+import { Link, useParams, useRouteMatch } from "react-router-dom";
 import { useShares } from "../graphql/queries/shares-query";
 import { IShareRoute } from "../interfaces";
 import { CreateShareModal } from "./modals/CreateShareModal";
 import { ShareSettings } from "./modals/share-settings/ShareSettings";
 import { IShare } from "../graphql/types";
 import { useUser } from "../graphql/queries/user-query";
-import { useSetAuthTokens } from "../graphql/client/mutations/token-mutation";
 import { ChangePasswordModal } from "./modals/ChangePasswordModal";
 import { useApolloClient } from "react-apollo";
 import { logoutUser } from "../graphql/programmatic/logout";

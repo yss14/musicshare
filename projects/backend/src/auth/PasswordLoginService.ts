@@ -8,7 +8,6 @@ import { v4 as uuid } from 'uuid'
 import { NotFoundError } from '../types/errors/NotFound';
 import { Where } from 'postgres-schema-builder'
 
-
 interface IRegsiterArgs {
 	password: string;
 	userID: string;
