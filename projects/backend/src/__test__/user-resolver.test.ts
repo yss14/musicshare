@@ -226,7 +226,7 @@ describe('change password', () => {
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			null,
-			[{ message: 'Credentials invalid' }],
+			[{ message: 'Old password is invalid' }],
 		))
 	})
 })

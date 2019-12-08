@@ -2,7 +2,7 @@ import * as argon2 from 'argon2';
 import { UserLoginCredentialsTable, Tables, UsersTable } from '../database/tables';
 import { IDatabaseClient, SQL } from 'postgres-schema-builder';
 import { IAuthenticationService } from './AuthenticationService';
-import { IUserService } from '../services/UserService';
+import { IUserService, UserNotFoundError } from '../services/UserService';
 import * as crypto from 'crypto'
 import { v4 as uuid } from 'uuid'
 import { NotFoundError } from '../types/errors/NotFound';
@@ -92,14 +92,14 @@ export const PasswordLoginService = ({ authService, database, userService }: IPa
 		const dbResults = await database.query(getUserCredentialsByID)
 
 		if (dbResults.length !== 1) {
-			throw new CredentialsInvalid()
+			throw new UserNotFoundError('id', userID)
 		}
 
 		const currentPassword = dbResults[0].credential
 		const credentialsValid = await argon2.verify(currentPassword, oldPassword)
 
 		if (!credentialsValid) {
-			throw new CredentialsInvalid();
+			throw new CredentialsInvalid('Old password is invalid');
 		}
 
 		await database.query(updatePasswordQuery([newPasswordHashed], [userID]))
