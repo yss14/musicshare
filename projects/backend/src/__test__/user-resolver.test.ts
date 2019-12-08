@@ -217,6 +217,20 @@ describe('change password', () => {
 		await expect(passwordLoginService.login(testUser.email, newPassword)).resolves.toBeString()
 	})
 
+	test('user not found is rejected', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const userID = uuid()
+		const query = makeChangePasswordMutation(testPassword, newPassword);
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID });
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: `User with id ${userID} not found` }],
+		))
+	})
+
 	test('invalid old password is rejected', async () => {
 		const { graphQLServer } = await setupTest({});
 
@@ -283,6 +297,22 @@ describe('restore password', () => {
 			null,
 			[{ message: `Login for email ${email} not found` }],
 		))
+	})
+})
+
+describe('get restore token', () => {
+	test('existing user succeeds', async () => {
+		const { passwordLoginService } = await setupTest({});
+
+		await expect(passwordLoginService.getRestoreToken(testData.users.user1.user_id)).resolves.toBeString()
+	})
+
+	test('not existing user fails', async () => {
+		const { passwordLoginService } = await setupTest({});
+
+		const userID = uuid()
+
+		await expect(passwordLoginService.getRestoreToken(userID)).rejects.toThrowError(`Restore token for user ${userID} not found`)
 	})
 })
 
