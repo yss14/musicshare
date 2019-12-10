@@ -3,7 +3,6 @@ import { Playlist } from "../models/PlaylistModel";
 import { ISongService } from "./SongService";
 import { IPlaylistDBResult, PlaylistsTable, SharePlaylistsTable, PlaylistSongsTable, SongsTable, Tables } from "../database/tables";
 import { v4 as uuid } from 'uuid';
-import { Song } from "../models/SongModel";
 import { ForbiddenError } from "apollo-server-core";
 import { PlaylistSong } from "../models/PlaylistSongModel";
 
@@ -85,12 +84,15 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		await database.batch(insertQueries);
 	};
 
-	const removeSongs = async (shareID: string, playlistID: string, songIDs: string[]) => {
-		const deleteQuerys = songIDs.map(songID => ({
-			sql: `DELETE FROM ${PlaylistSongsTable.name} WHERE playlist_id_ref = $1 AND song_id_ref = $2;`,
-			values: [playlistID, songID],
+	const removeSongs = async (playlistSongIDs: string[]) => {
+		const deleteQuerys = playlistSongIDs.map(playlistSongID => ({
+			sql: `DELETE FROM ${PlaylistSongsTable.name} WHERE playlist_song_id = $1;`,
+			values: [playlistSongID],
 		}));
-		await database.batch(deleteQuerys);
+
+		await database.transaction(async (client) => {
+			await Promise.all(deleteQuerys.map(query => client.query(query)))
+		})
 	}
 
 	const getSongs = async (playlistID: string): Promise<PlaylistSong[]> => {

@@ -1,11 +1,10 @@
 import { Playlist } from "../models/PlaylistModel";
 import { Resolver, Authorized, FieldResolver, Root, Arg, Mutation, Args, Ctx } from "type-graphql";
 import { OrderUpdate } from "../services/PlaylistService";
-import { Song } from "../models/SongModel";
 import { OrderUpdateScalar } from "../types/scalars/order-update";
 import { PlaylistNameArg, PlaylistIDArg, PlaylistNewNameArg } from "../args/playlist-args";
 import { ShareIDArg } from "../args/share-args";
-import { SongIDsArg } from "../args/song-args";
+import { SongIDsArg, PlaylistSongIDsArg } from "../args/song-args";
 import { PlaylistAuth } from "../auth/middleware/playlist-auth";
 import { IServices } from "../services/services";
 import { IGraphQLContext } from "../types/context";
@@ -20,10 +19,10 @@ export class PlaylistResolver {
 
 	@Authorized()
 	@PlaylistAuth()
-	@FieldResolver(() => [Song])
+	@FieldResolver(() => [PlaylistSong])
 	public async songs(
 		@Root() playlist: Playlist,
-	): Promise<Song[]> {
+	): Promise<PlaylistSong[]> {
 		return this.services.playlistService.getSongs(playlist.id);
 	}
 
@@ -64,13 +63,13 @@ export class PlaylistResolver {
 
 	@Authorized()
 	@PlaylistAuth(['playlist:mutate_songs'])
-	@Mutation(() => [Song])
+	@Mutation(() => [PlaylistSong])
 	public async addSongsToPlaylist(
 		@Args() { shareID }: ShareIDArg,
 		@Args() { playlistID }: PlaylistIDArg,
 		@Args() { songIDs }: SongIDsArg,
 		@Ctx() { userID }: IGraphQLContext,
-	): Promise<Song[]> {
+	): Promise<PlaylistSong[]> {
 		if (!(await this.services.songService.hasAccessToSongs(userID!, songIDs))) {
 			throw new ForbiddenError('User has no permission to add those song ids to a playlist')
 		}
@@ -82,13 +81,13 @@ export class PlaylistResolver {
 
 	@Authorized()
 	@PlaylistAuth(['playlist:mutate_songs'])
-	@Mutation(() => [Song])
+	@Mutation(() => [PlaylistSong])
 	public async removeSongsFromPlaylist(
 		@Args() { shareID }: ShareIDArg,
 		@Args() { playlistID }: PlaylistIDArg,
-		@Args() { songIDs }: SongIDsArg,
-	): Promise<Song[]> {
-		await this.services.playlistService.removeSongs(shareID, playlistID, songIDs);
+		@Args() { playlistSongIDs }: PlaylistSongIDsArg,
+	): Promise<PlaylistSong[]> {
+		await this.services.playlistService.removeSongs(playlistSongIDs);
 
 		return this.services.playlistService.getSongs(playlistID);
 	}

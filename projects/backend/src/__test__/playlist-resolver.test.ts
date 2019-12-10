@@ -328,29 +328,30 @@ describe('add songs to playlist', () => {
 });
 
 describe('remove songs from playlist', () => {
-	const makeRemoveSongsQuery = (shareID: string, playlistID: string, songIDs: string[]) => `
-		removeSongsFromPlaylist(shareID: "${shareID}", playlistID: "${playlistID}", songIDs: [${songIDs.map(songID => `"${songID}"`).join(',')}]){
-			${songKeys}
+	const makeRemoveSongsQuery = (shareID: string, playlistID: string, playlistSongIDs: string[]) => `
+		removeSongsFromPlaylist(shareID: "${shareID}", playlistID: "${playlistID}", playlistSongIDs: [${playlistSongIDs.map(songID => `"${songID}"`).join(',')}]){
+			${playlistSongKeys}
 		}
 	`;
 
 	const shareID = testData.shares.library_user1.share_id.toString();
 
 	test('existing songs', async () => {
-		const { graphQLServer } = await setupTest({});
+		const { graphQLServer, playlistService } = await setupTest({});
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
-		const songs = [testData.playlists.playlist1_library_user1.songs[1]];
-		const query = makeMutation(makeRemoveSongsQuery(shareID, playlistID, songs.map(song => song.song_id.toString())));
+		const playlistSongs = await playlistService.getSongs(playlistID)
+		const songs = [playlistSongs[1]];
+		const query = makeMutation(makeRemoveSongsQuery(shareID, playlistID, songs.map(song => song.playlistSongID)));
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
-		const expectedSongs = [testData.playlists.playlist1_library_user1.songs[0], testData.playlists.playlist1_library_user1.songs[2]]
-			.map((song, idx) => ({
-				id: song.song_id.toString()
-			}));
+		const expectedSongs = [
+			playlistSongs[0],
+			playlistSongs[2],
+		]
 
 		expect(body.data.removeSongsFromPlaylist).toBeArrayOfSize(2);
-		expect(sortBy(body.data.removeSongsFromPlaylist, 'position')).toMatchObject(expectedSongs);
+		expectedSongs.forEach(expectedSong => includesSong(body.data.removeSongsFromPlaylist, expectedSong));
 	});
 
 	test('not existing songs', async () => {
@@ -367,7 +368,6 @@ describe('remove songs from playlist', () => {
 		}));
 
 		expect(body.data.removeSongsFromPlaylist).toBeArrayOfSize(testData.playlists.playlist1_library_user1.songs.length);
-		expect(sortBy(body.data.removeSongsFromPlaylist, 'position')).toMatchObject(expectedSongs);
 	});
 
 	test('insufficient permissions', async () => {
