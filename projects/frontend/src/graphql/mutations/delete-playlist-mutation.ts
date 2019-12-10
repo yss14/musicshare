@@ -57,7 +57,7 @@ export const useDeletePlaylist = (opts?: IMutationOptions<IDeletePlaylistData>) 
 			},
 			update: makeUpdateCache(shareID, playlistID),
 		})
-	}, [deletePlaylistMutation])
+	}, [deletePlaylistMutation, makeUpdateCache])
 
 	return [deletePlaylist, other] as [(shareID: string, playlistID: string) => void, MutationResult<IDeletePlaylistData>]
 }

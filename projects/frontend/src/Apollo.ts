@@ -11,6 +11,7 @@ import { getRefreshToken } from "./graphql/client/queries/auth-token-query";
 import { promiseToObservable } from "./graphql/utils/promise-to-observable";
 import { history } from "./components/routing/history";
 import { logoutUser } from "./graphql/programmatic/logout";
+import { isPlaylistSong } from "./graphql/types";
 
 const config = makeConfigFromEnv();
 
@@ -142,7 +143,16 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
 	}
 });
 
-const cache = new InMemoryCache();
+const cache = new InMemoryCache({
+	dataIdFromObject: (obj: any) => {
+		if (isPlaylistSong(obj)) {
+			//playlists songs can occur multiple times with the same song.id, so we utilize the playlistSongID here
+			return obj.playlistSongID
+		} else {
+			return obj.id
+		}
+	}
+});
 const client = new ApolloClient({
 	link: ApolloLink.from([errorLink, authMiddlewareLink, httpLink]),
 	cache,
