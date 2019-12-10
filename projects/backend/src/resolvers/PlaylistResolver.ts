@@ -10,6 +10,7 @@ import { PlaylistAuth } from "../auth/middleware/playlist-auth";
 import { IServices } from "../services/services";
 import { IGraphQLContext } from "../types/context";
 import { ForbiddenError } from "apollo-server-core";
+import { PlaylistSong } from "../models/PlaylistSongModel";
 
 @Resolver(of => Playlist)
 export class PlaylistResolver {
@@ -94,12 +95,12 @@ export class PlaylistResolver {
 
 	@Authorized()
 	@PlaylistAuth(['playlist:mutate_songs'])
-	@Mutation(() => [Song])
+	@Mutation(() => [PlaylistSong])
 	public async updateOrderOfPlaylist(
 		@Args() { shareID }: ShareIDArg,
 		@Args() { playlistID }: PlaylistIDArg,
 		@Arg('orderUpdates', () => [OrderUpdateScalar]) orderUpdates: OrderUpdate[],
-	): Promise<Song[]> {
+	): Promise<PlaylistSong[]> {
 		await this.services.playlistService.updateOrder(shareID, playlistID, orderUpdates);
 
 		const playlistSongs = await this.services.playlistService.getSongs(playlistID);

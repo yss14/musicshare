@@ -35,3 +35,8 @@ export const songKeys = `
 	dateAdded
 	libraryID
 `;
+
+export const playlistSongKeys = `
+	${songKeys}
+	playlistSongID
+`
