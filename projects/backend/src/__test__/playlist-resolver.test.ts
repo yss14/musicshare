@@ -5,7 +5,6 @@ import moment = require("moment");
 import { songKeys, playlistSongKeys } from "./fixtures/song-query";
 import { includesSong } from "./utils/compare-songs";
 import { OrderUpdate } from "../services/PlaylistService";
-import { sortBy } from 'lodash';
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { Scopes } from "../types/context";
 import { IDatabaseClient } from "postgres-schema-builder";
@@ -362,10 +361,6 @@ describe('remove songs from playlist', () => {
 		const query = makeMutation(makeRemoveSongsQuery(shareID, playlistID, songIDs));
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
-
-		const expectedSongs = testData.playlists.playlist1_library_user1.songs.map((song, idx) => ({
-			id: song.song_id.toString()
-		}));
 
 		expect(body.data.removeSongsFromPlaylist).toBeArrayOfSize(testData.playlists.playlist1_library_user1.songs.length);
 	});
