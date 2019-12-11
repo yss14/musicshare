@@ -7,6 +7,7 @@ import { SongTable } from "../../components/song-table/SongTable";
 import { SongModal } from "../../components/modals/song-modal/SongModal";
 import { ISongSearchFilter, allMatchingOptions } from "../../components/song-table/search/search-types";
 import styled from "styled-components";
+import { MoveSong } from "../../components/song-table/MoveSong";
 
 const FlexContainer = styled.div`
 	width: 100%;
@@ -32,9 +33,10 @@ interface ISongsViewProps {
 	title: string;
 	songs: IScopedSong[];
 	playlistID?: string;
+	moveSong?: MoveSong;
 }
 
-export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID }) => {
+export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong }) => {
 	const { makePlayableSong } = useSongUtils()
 	const { changeSong, enqueueSongs, clearQueue } = usePlayer();
 	const [editSong, setEditSong] = useState<IScopedSong | null>(null);
@@ -105,6 +107,8 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID 
 							setShowSongModal(true)
 						}
 					}}
+					moveSong={moveSong}
+					playlistID={playlistID}
 				/>
 			</TableContainer>
 			{editSong && showSongModal ? (

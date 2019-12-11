@@ -71,10 +71,11 @@ export interface IShareSong extends IBaseSong {
 }
 
 export interface IPlaylistSong extends IBaseSong {
-	playlistID: string;
-	position: number;
-	dateAdded: string;
+	playlistSongID: string;
 }
+
+export const isPlaylistSong = (obj: any): obj is IPlaylistSong => typeof obj === 'object'
+	&& typeof obj.playlistSongID === 'string'
 
 /* 
 	libraryID of IBaseSong represents the share a song is linked from.
@@ -85,6 +86,8 @@ export interface IScopedSong extends IBaseSong {
 }
 
 export interface IScopedShareSong extends IShareSong, IScopedSong { }
+
+export interface IScopedPlaylistSong extends IPlaylistSong, IScopedSong { }
 
 const baseSongKeys = `
 	id
@@ -113,6 +116,7 @@ export const shareSongKeys = `
 
 export const playlistSongKeys = `
 	${baseSongKeys}
+	playlistSongID
 `;
 
 export const shareKeys = `

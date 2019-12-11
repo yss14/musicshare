@@ -69,7 +69,7 @@ export namespace DatabaseV1 {
 
 	export const playlist_songs = TableSchema({
 		...baseSchema,
-		playlist_song_id: { type: ColumnType.UUID, primaryKey: true, unique: true, autoIncrement: true },
+		playlist_song_id: { type: ColumnType.UUID, primaryKey: true, unique: true },
 		playlist_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'playlists', targetColumn: 'playlist_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
 		song_id_ref: { type: ColumnType.UUID, createIndex: true, nullable: false, foreignKeys: [{ targetTable: 'songs', targetColumn: 'song_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
 		position: { type: ColumnType.Integer, createIndex: true, nullable: false },

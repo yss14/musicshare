@@ -10,14 +10,14 @@ interface IRemoveSongsFromPlaylistData {
 }
 
 interface IRemoveSongsFromPlaylistVariables {
-	songIDs: string[];
+	playlistSongIDs: string[];
 	playlistID: string;
 	shareID: string;
 }
 
 const REMOVE_SONGS_FROM_PLAYLIST = gql`
-	mutation RemoveSongsFromPlaylist($shareID: String! $playlistID: String! $songIDs: [String!]!) {
-		removeSongsFromPlaylist(shareID: $shareID playlistID: $playlistID songIDs: $songIDs) {
+	mutation RemoveSongsFromPlaylist($shareID: String! $playlistID: String! $playlistSongIDs: [String!]!) {
+		removeSongsFromPlaylist(shareID: $shareID playlistID: $playlistID playlistSongIDs: $playlistSongIDs) {
 			${playlistSongKeys}
 		}
 	}
@@ -27,7 +27,7 @@ export const useRemoveSongsFromPlaylist = () => {
 	const [removeSongsFromPlaylistMutation, other] =
 		useMutation<IRemoveSongsFromPlaylistData, IRemoveSongsFromPlaylistVariables>(REMOVE_SONGS_FROM_PLAYLIST)
 
-	const makeUpdateCache = useCallback((shareID: string, playlistID: string, songIDs: string[]): MutationUpdaterFn<IRemoveSongsFromPlaylistData> => (cache, { data, }) => {
+	const makeUpdateCache = useCallback((shareID: string, playlistID: string, playlistSongIDs: string[]): MutationUpdaterFn<IRemoveSongsFromPlaylistData> => (cache, { data, }) => {
 		if (!data) return
 
 		const variables = {
@@ -52,24 +52,24 @@ export const useRemoveSongsFromPlaylist = () => {
 					...currentData.share,
 					playlist: {
 						...currentData.share.playlist,
-						songs: currentData.share.playlist.songs.filter(song => !songIDs.includes(song.id)),
+						songs: currentData.share.playlist.songs.filter(song => !playlistSongIDs.includes(song.playlistSongID)),
 					},
 				},
 			},
 		})
 	}, [])
 
-	const removeSongsFromPlaylist = useCallback((shareID: string, playlistID: string, songIDs: string[]) => {
+	const removeSongsFromPlaylist = useCallback((shareID: string, playlistID: string, playlistSongIDs: string[]) => {
 		removeSongsFromPlaylistMutation({
 			variables: {
 				shareID,
 				playlistID,
-				songIDs,
+				playlistSongIDs,
 			},
-			update: makeUpdateCache(shareID, playlistID, songIDs),
+			update: makeUpdateCache(shareID, playlistID, playlistSongIDs),
 		})
 	}, [removeSongsFromPlaylistMutation, makeUpdateCache])
 
 	return [removeSongsFromPlaylist, other] as
-		[(shareID: string, playlistID: string, songIDs: string[]) => void, MutationResult<IRemoveSongsFromPlaylistData>]
+		[(shareID: string, playlistID: string, playlistSongIDs: string[]) => void, MutationResult<IRemoveSongsFromPlaylistData>]
 }

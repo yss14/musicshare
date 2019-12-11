@@ -1,23 +1,26 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import styled from 'styled-components'
 
 export const ContextMenu = styled.div`
-	background-color: red;
+	background-color: white;
 	position: fixed;
 	box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 	border-color: #d6d6d6;
     border-width: 1px;
     border-style: solid;
 	display: none;
+	min-width: 200px;
+	z-index: 100;
 `
 
-export const useContextMenu = (ref: React.RefObject<HTMLDivElement>) => {
+export const useContextMenu = () => {
+	const ref = useRef<HTMLDivElement>(null)
 	const [isVisible, setVisible] = useState(false)
 	const [{ posX, posY }, setPosition] = useState({ posX: 0, posY: 0 })
 
 	const toggleContextMenu = () => setVisible(state => !state)
 	const hideContextMenu = () => setVisible(false)
-	const showContextMenu = (event?: React.MouseEvent) => {
+	const showContextMenu = useCallback((event?: React.MouseEvent) => {
 		setVisible(true)
 
 		if (event) {
@@ -30,7 +33,7 @@ export const useContextMenu = (ref: React.RefObject<HTMLDivElement>) => {
 		}
 
 		return false
-	}
+	}, [setPosition, setVisible])
 
 	const contextMenuElement = ref.current
 
@@ -52,5 +55,5 @@ export const useContextMenu = (ref: React.RefObject<HTMLDivElement>) => {
 		return () => undefined
 	}, [ref, isVisible, posX, posY, contextMenuElement])
 
-	return { toggleContextMenu, hideContextMenu, showContextMenu, isVisible }
+	return { toggleContextMenu, hideContextMenu, showContextMenu, isVisible, ref }
 }

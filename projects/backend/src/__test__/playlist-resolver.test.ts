@@ -2,16 +2,16 @@ import { setupTestEnv, SetupTestEnvArgs, setupTestSuite } from "./utils/setup-te
 import { testData } from "../database/seed";
 import { executeGraphQLQuery, argumentValidationError, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql";
 import moment = require("moment");
-import { songKeys } from "./fixtures/song-query";
+import { songKeys, playlistSongKeys } from "./fixtures/song-query";
 import { includesSong } from "./utils/compare-songs";
 import { OrderUpdate } from "../services/PlaylistService";
-import { sortBy } from 'lodash';
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { Scopes } from "../types/context";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/database";
 import { Song } from "../models/SongModel";
 import { v4 as uuid } from 'uuid';
+import { PlaylistSong } from "../models/PlaylistSongModel";
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -327,29 +327,30 @@ describe('add songs to playlist', () => {
 });
 
 describe('remove songs from playlist', () => {
-	const makeRemoveSongsQuery = (shareID: string, playlistID: string, songIDs: string[]) => `
-		removeSongsFromPlaylist(shareID: "${shareID}", playlistID: "${playlistID}", songIDs: [${songIDs.map(songID => `"${songID}"`).join(',')}]){
-			${songKeys}
+	const makeRemoveSongsQuery = (shareID: string, playlistID: string, playlistSongIDs: string[]) => `
+		removeSongsFromPlaylist(shareID: "${shareID}", playlistID: "${playlistID}", playlistSongIDs: [${playlistSongIDs.map(songID => `"${songID}"`).join(',')}]){
+			${playlistSongKeys}
 		}
 	`;
 
 	const shareID = testData.shares.library_user1.share_id.toString();
 
 	test('existing songs', async () => {
-		const { graphQLServer } = await setupTest({});
+		const { graphQLServer, playlistService } = await setupTest({});
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
-		const songs = [testData.playlists.playlist1_library_user1.songs[1]];
-		const query = makeMutation(makeRemoveSongsQuery(shareID, playlistID, songs.map(song => song.song_id.toString())));
+		const playlistSongs = await playlistService.getSongs(playlistID)
+		const songs = [playlistSongs[1]];
+		const query = makeMutation(makeRemoveSongsQuery(shareID, playlistID, songs.map(song => song.playlistSongID)));
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
-		const expectedSongs = [testData.playlists.playlist1_library_user1.songs[0], testData.playlists.playlist1_library_user1.songs[2]]
-			.map((song, idx) => ({
-				id: song.song_id.toString()
-			}));
+		const expectedSongs = [
+			playlistSongs[0],
+			playlistSongs[2],
+		]
 
 		expect(body.data.removeSongsFromPlaylist).toBeArrayOfSize(2);
-		expect(sortBy(body.data.removeSongsFromPlaylist, 'position')).toMatchObject(expectedSongs);
+		expectedSongs.forEach(expectedSong => includesSong(body.data.removeSongsFromPlaylist, expectedSong));
 	});
 
 	test('not existing songs', async () => {
@@ -361,12 +362,7 @@ describe('remove songs from playlist', () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
-		const expectedSongs = testData.playlists.playlist1_library_user1.songs.map((song, idx) => ({
-			id: song.song_id.toString()
-		}));
-
 		expect(body.data.removeSongsFromPlaylist).toBeArrayOfSize(testData.playlists.playlist1_library_user1.songs.length);
-		expect(sortBy(body.data.removeSongsFromPlaylist, 'position')).toMatchObject(expectedSongs);
 	});
 
 	test('insufficient permissions', async () => {
@@ -384,38 +380,43 @@ describe('remove songs from playlist', () => {
 describe('update order', () => {
 	const makeUpdateOrderMutation = (shareID: string, playlistID: string, orderUpdates: OrderUpdate[]) => `
 		updateOrderOfPlaylist(shareID: "${shareID}", playlistID:"${playlistID}", orderUpdates: [${orderUpdates.map(orderUpdate => `["${orderUpdate[0]}", ${orderUpdate[1]}]`).join(',')}]){
-			${songKeys}
+			${playlistSongKeys}
 		}
 	`;
 
 	const shareID = testData.shares.library_user1.share_id;
+	const mapPlaylistSongID = (song: PlaylistSong) => song.playlistSongID
 
 	test('valid order', async () => {
-		const { graphQLServer } = await setupTest({});
+		const { graphQLServer, playlistService } = await setupTest({});
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id;
+		const playlistSongs = await playlistService.getSongs(playlistID)
 		const orderUpdates: OrderUpdate[] = [
-			[testData.playlists.playlist1_library_user1.songs[0].song_id, 2],
-			[testData.playlists.playlist1_library_user1.songs[1].song_id, 1],
-			[testData.playlists.playlist1_library_user1.songs[2].song_id, 0],
+			[playlistSongs[0].playlistSongID, 2],
+			[playlistSongs[1].playlistSongID, 1],
+			[playlistSongs[2].playlistSongID, 0],
 		];
 
 		const query = makeMutation(makeUpdateOrderMutation(shareID, playlistID, orderUpdates));
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query });
 
-		expect(body.data.updateOrderOfPlaylist).toMatchObject(orderUpdates.reverse().map(orderUpdate => ({
-			id: orderUpdate[0],
-		})));
+		expect(body.data.updateOrderOfPlaylist.map(mapPlaylistSongID)).toEqual([
+			playlistSongs[2],
+			playlistSongs[1],
+			playlistSongs[0],
+		].map(mapPlaylistSongID));
 	});
 
 	test('not existing songs', async () => {
-		const { graphQLServer } = await setupTest({});
+		const { graphQLServer, playlistService } = await setupTest({});
 		const playlistID = testData.playlists.playlist1_library_user1.playlist_id.toString();
+		const playlistSongs = await playlistService.getSongs(playlistID)
 		const songIDNotPart = uuid();
 		const orderUpdates: OrderUpdate[] = [
 			[songIDNotPart, 2],
-			[testData.playlists.playlist1_library_user1.songs[1].song_id.toString(), 1],
-			[testData.playlists.playlist1_library_user1.songs[2].song_id.toString(), 0],
+			[playlistSongs[0].playlistSongID, 1],
+			[playlistSongs[0].playlistSongID, 0],
 		];
 
 		const query = makeMutation(makeUpdateOrderMutation(shareID, playlistID, orderUpdates));

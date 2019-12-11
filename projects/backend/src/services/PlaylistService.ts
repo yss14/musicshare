@@ -3,10 +3,10 @@ import { Playlist } from "../models/PlaylistModel";
 import { ISongService } from "./SongService";
 import { IPlaylistDBResult, PlaylistsTable, SharePlaylistsTable, PlaylistSongsTable, SongsTable, Tables } from "../database/tables";
 import { v4 as uuid } from 'uuid';
-import { Song } from "../models/SongModel";
 import { ForbiddenError } from "apollo-server-core";
+import { PlaylistSong } from "../models/PlaylistSongModel";
 
-export type OrderUpdate = [string, number];
+export type OrderUpdate = [string, number] | readonly [string, number];
 
 export class PlaylistNotFoundError extends ForbiddenError {
 	constructor(playlistID: string) {
@@ -14,24 +14,14 @@ export class PlaylistNotFoundError extends ForbiddenError {
 	}
 }
 
-export interface IPlaylistService {
-	getByID(shareID: string, playlistID: string): Promise<Playlist>;
-	create(shareID: string, name: string, id?: string): Promise<Playlist>;
-	delete(shareID: string, playlistID: string): Promise<void>;
-	rename(shareID: string, playlistID: string, newName: string): Promise<void>;
-	addSongs(shareID: string, playlistID: string, songIDs: string[]): Promise<void>;
-	removeSongs(shareID: string, playlistID: string, songIDs: string[]): Promise<void>;
-	getSongs(playlistID: string): Promise<Song[]>;
-	updateOrder(shareID: string, playlistID: string, orderUpdates: OrderUpdate[]): Promise<void>;
-	getPlaylistsForShare(shareID: string): Promise<Playlist[]>;
-}
+export type IPlaylistService = ReturnType<typeof PlaylistService>
 
 interface IPlaylistServiceArgs {
 	database: IDatabaseClient;
 	songService: ISongService;
 }
 
-export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs): IPlaylistService => {
+export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs) => {
 	const getByID = async (shareID: string, playlistID: string) => {
 		const playlists = await getPlaylistsForShare(shareID);
 
@@ -83,6 +73,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 
 		const insertQueries = songIDs
 			.map((songID, idx) => PlaylistSongsTable.insertFromObj({
+				playlist_song_id: uuid(),
 				playlist_id_ref: playlistID,
 				song_id_ref: songID,
 				date_removed: null,
@@ -93,28 +84,28 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		await database.batch(insertQueries);
 	};
 
-	const removeSongs = async (shareID: string, playlistID: string, songIDs: string[]) => {
-		const deleteQuerys = songIDs.map(songID => ({
-			sql: `DELETE FROM ${PlaylistSongsTable.name} WHERE playlist_id_ref = $1 AND song_id_ref = $2;`,
-			values: [playlistID, songID],
+	const removeSongs = async (playlistID: string, playlistSongIDs: string[]) => {
+		const deleteQuerys = playlistSongIDs.map(playlistSongID => ({
+			sql: `DELETE FROM ${PlaylistSongsTable.name} WHERE playlist_song_id = $1;`,
+			values: [playlistSongID],
 		}));
-		await database.batch(deleteQuerys);
 
-		await normalizeOrder(shareID, playlistID);
+		await database.transaction(async (client) => {
+			await Promise.all(deleteQuerys.map(query => client.query(query)))
+		})
+		await normalizeSongOrder(playlistID)
 	}
 
-	const normalizeOrder = async (shareID: string, playlistID: string) => {
-		const songs = await getSongs(playlistID);
+	const normalizeSongOrder = async (playlistID: string) => {
+		const songs = await getSongs(playlistID)
+		const orderUpdates = songs.map((song, idx) => [song.playlistSongID, idx] as const)
 
-		const orderUpdates = songs
-			.map((song, idx): OrderUpdate => [song.id.toString(), idx]);
-
-		await executeOrderUpdates(shareID, playlistID, orderUpdates);
+		await executeOrderUpdates(orderUpdates)
 	}
 
-	const getSongs = async (playlistID: string): Promise<Song[]> => {
-		const songQuery = SQL.raw<typeof Tables.songs>(`
-			SELECT s.*
+	const getSongs = async (playlistID: string): Promise<PlaylistSong[]> => {
+		const songQuery = SQL.raw<typeof Tables.songs & typeof Tables.playlist_songs>(`
+			SELECT s.*, ps.playlist_song_id
 			FROM ${SongsTable.name} s
 			INNER JOIN ${PlaylistSongsTable.name} ps ON ps.song_id_ref = s.song_id
 			WHERE ps.playlist_id_ref = $1
@@ -125,29 +116,30 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 
 		return songs
 			.filter(song => song.date_removed === null)
-			.map(result => Song.fromDBResult(result));
+			.map(result => PlaylistSong.fromDBResult(result));
 	};
 
 	const updateOrder = async (shareID: string, playlistID: string, orderUpdates: OrderUpdate[]) => {
 		const currentSongs = await getSongs(playlistID);
+		const playlistSongIDsSet = new Set(currentSongs.map(song => song.playlistSongID))
 		const someSongsIDsPartOfPlaylist = orderUpdates.map(orderUpdate =>
-			orderUpdate[0]).some(songID =>
-				currentSongs.findIndex(currentSong =>
-					currentSong.id === songID) === -1)
+			orderUpdate[0]).some(playlistSongID => !playlistSongIDsSet.has(playlistSongID))
 
 		if (someSongsIDsPartOfPlaylist) {
 			throw new Error(`Some songs are not part of this playlist`)
 		}
 
-		await executeOrderUpdates(shareID, playlistID, orderUpdates);
+		await executeOrderUpdates(orderUpdates);
 	}
 
-	const executeOrderUpdates = async (shareID: string, playlistID: string, orderUpdates: OrderUpdate[]) => {
-		const updateOrderQuery = PlaylistSongsTable.update(['position'], ['playlist_id_ref', 'song_id_ref']);
+	const executeOrderUpdates = async (orderUpdates: OrderUpdate[]) => {
+		const updateOrderQuery = PlaylistSongsTable.update(['position'], ['playlist_song_id']);
 		const queries = orderUpdates
-			.map(orderUpdate => updateOrderQuery([orderUpdate[1]], [playlistID, orderUpdate[0]]));
+			.map(orderUpdate => updateOrderQuery([orderUpdate[1]], [orderUpdate[0]]));
 
-		await database.batch(queries);
+		await database.transaction(async (client) => {
+			await Promise.all(queries.map(query => client.query(query)))
+		})
 	}
 
 	const getPlaylistsForShare = async (shareID: string): Promise<Playlist[]> => {

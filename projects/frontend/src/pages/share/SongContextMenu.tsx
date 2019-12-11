@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { IPlaylist, IScopedSong } from "../../graphql/types";
+import { IPlaylist, IScopedSong, isPlaylistSong } from "../../graphql/types";
 import { usePlayer } from "../../player/player-hook";
 import { ContextMenu } from "../../components/modals/contextmenu/ContextMenu";
 import { Menu } from "antd";
@@ -70,9 +70,9 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	}, [song, removeSongFromLibrary])
 
 	const onRemoveFromPlaylist = useCallback(() => {
-		if (!song || !playlistID) return
+		if (!song || !playlistID || !isPlaylistSong(song)) return
 
-		removeSongsFromPlaylist(song.shareID, playlistID, [song.id])
+		removeSongsFromPlaylist(song.shareID, playlistID, [song.playlistSongID])
 	}, [song, playlistID, removeSongsFromPlaylist])
 
 	return (

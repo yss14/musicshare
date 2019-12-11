@@ -1,9 +1,10 @@
-import { IBaseSong, IScopedSong } from "../types";
+export function makeScopedSong<T>(song: T, shareID: string): T & { shareID: string } {
+	return {
+		...song,
+		shareID,
+	}
+}
 
-export const makeScopedSong = (song: IBaseSong, shareID: string): IScopedSong => ({
-	...song,
-	shareID,
-})
-
-export const makeScopedSongs = (songs: IBaseSong[], shareID: string): IScopedSong[] =>
-	songs.map(song => makeScopedSong(song, shareID))
+export function makeScopedSongs<T>(songs: T[], shareID: string): (T & { shareID: string })[] {
+	return songs.map(song => makeScopedSong(song, shareID))
+}

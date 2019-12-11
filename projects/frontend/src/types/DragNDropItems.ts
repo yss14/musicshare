@@ -4,7 +4,8 @@ export enum DragNDropItem {
 	Song = 'song'
 }
 
-export interface IAcceptSong {
+export interface ISongDNDItem {
 	type: DragNDropItem.Song;
 	song: IScopedSong;
+	idx: number;
 }

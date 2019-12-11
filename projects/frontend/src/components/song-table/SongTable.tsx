@@ -4,6 +4,7 @@ import { buildSongName } from "../../utils/songname-builder";
 import { formatDuration } from "../../utils/format-duration";
 import { SongDataTable, IColumn, IRowEvents } from "./SongDataTable";
 import { ISongContextMenuEvents } from "../../pages/share/SongContextMenu";
+import { MoveSong } from "./MoveSong";
 
 const columns: IColumn[] = [
 	{
@@ -36,16 +37,17 @@ interface ISongTableProps {
 	songs: IScopedSong[];
 	rowEvents: IRowEvents;
 	contextMenuEvents: ISongContextMenuEvents;
+	moveSong?: MoveSong;
+	playlistID?: string;
 }
 
-export const SongTable = ({ songs, rowEvents, contextMenuEvents }: ISongTableProps) => {
-	return (
-		<SongDataTable
-			columns={columns}
-			songs={songs}
-			rowEvents={rowEvents}
-			contextMenuEvents={contextMenuEvents}
-		/>
-	)
-};
-
+export const SongTable = ({ songs, rowEvents, contextMenuEvents, moveSong, playlistID }: ISongTableProps) => (
+	<SongDataTable
+		columns={columns}
+		songs={songs}
+		rowEvents={rowEvents}
+		contextMenuEvents={contextMenuEvents}
+		moveSong={moveSong}
+		playlistID={playlistID}
+	/>
+)
