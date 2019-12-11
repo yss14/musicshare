@@ -74,7 +74,7 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 
 		removeSongsFromPlaylist(song.shareID, playlistID, [song.playlistSongID])
 	}, [song, playlistID, removeSongsFromPlaylist])
-	console.log({ playlistID })
+
 	return (
 		<>
 			<ContextMenu ref={ref}>

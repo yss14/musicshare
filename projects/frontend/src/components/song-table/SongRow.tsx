@@ -16,16 +16,17 @@ interface ISongRowProps extends ListRowProps {
 	onMouseEnter?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, ref: React.Ref<HTMLDivElement>) => void;
 	dragPreview: DragElementWrapper<DragPreviewOptions>;
 	moveSong?: MoveSong;
+	isPlaylist: boolean;
 }
 
-export const SongRow: React.FC<ISongRowProps> = ({ index, style, rowEvents, columns, song, hovered, onMouseEnter, dragPreview, moveSong }) => {
+export const SongRow: React.FC<ISongRowProps> = ({ index, style, rowEvents, columns, song, hovered, onMouseEnter, dragPreview, moveSong, isPlaylist }) => {
 	const rowRef = useRef<HTMLDivElement>(null)
 	const accumulatedWidth = useMemo(() => columns.reduce((acc, col) => acc + col.width, 0), [columns])
 
 	const [{ isOver }, drop] = useDrop<ISongDNDItem, void, { isOver: boolean }>({
 		accept: DragNDropItem.Song,
-		canDrop: () => true,
-		collect: (monitor) => ({ isOver: monitor.isOver() }),
+		canDrop: () => isPlaylist,
+		collect: (monitor) => ({ isOver: isPlaylist && monitor.isOver() }),
 		drop: (item) => {
 			if (moveSong) {
 				moveSong(item.song, song)

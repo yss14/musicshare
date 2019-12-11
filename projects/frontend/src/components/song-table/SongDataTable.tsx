@@ -113,9 +113,10 @@ export const SongDataTable: React.FC<ISongDataTableProps> = (props) => {
 				onMouseEnter={(e, ref) => onRowMouseEnter(song, ref, props.index)}
 				dragPreview={dragPreview}
 				moveSong={moveSong}
+				isPlaylist={playlistID !== undefined}
 			/>
 		)
-	}, [hoveredSong, hookedRowEvents, columns, songs, dragPreview, onRowMouseEnter, moveSong])
+	}, [hoveredSong, hookedRowEvents, columns, songs, dragPreview, onRowMouseEnter, moveSong, playlistID])
 
 	const evaluateAndSetHeight = useCallback(() => {
 		if (bodyRef.current) {
