@@ -108,6 +108,7 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID,
 						}
 					}}
 					moveSong={moveSong}
+					playlistID={playlistID}
 				/>
 			</TableContainer>
 			{editSong && showSongModal ? (

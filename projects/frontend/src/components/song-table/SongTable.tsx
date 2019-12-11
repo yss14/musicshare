@@ -38,17 +38,16 @@ interface ISongTableProps {
 	rowEvents: IRowEvents;
 	contextMenuEvents: ISongContextMenuEvents;
 	moveSong?: MoveSong;
+	playlistID?: string;
 }
 
-export const SongTable = ({ songs, rowEvents, contextMenuEvents, moveSong }: ISongTableProps) => {
-	return (
-		<SongDataTable
-			columns={columns}
-			songs={songs}
-			rowEvents={rowEvents}
-			contextMenuEvents={contextMenuEvents}
-			moveSong={moveSong}
-		/>
-	)
-};
-
+export const SongTable = ({ songs, rowEvents, contextMenuEvents, moveSong, playlistID }: ISongTableProps) => (
+	<SongDataTable
+		columns={columns}
+		songs={songs}
+		rowEvents={rowEvents}
+		contextMenuEvents={contextMenuEvents}
+		moveSong={moveSong}
+		playlistID={playlistID}
+	/>
+)
