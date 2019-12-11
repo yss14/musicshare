@@ -6,7 +6,7 @@ import { v4 as uuid } from 'uuid';
 import { ForbiddenError } from "apollo-server-core";
 import { PlaylistSong } from "../models/PlaylistSongModel";
 
-export type OrderUpdate = [string, number];
+export type OrderUpdate = [string, number] | readonly [string, number];
 
 export class PlaylistNotFoundError extends ForbiddenError {
 	constructor(playlistID: string) {
@@ -84,7 +84,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		await database.batch(insertQueries);
 	};
 
-	const removeSongs = async (playlistSongIDs: string[]) => {
+	const removeSongs = async (playlistID: string, playlistSongIDs: string[]) => {
 		const deleteQuerys = playlistSongIDs.map(playlistSongID => ({
 			sql: `DELETE FROM ${PlaylistSongsTable.name} WHERE playlist_song_id = $1;`,
 			values: [playlistSongID],
@@ -93,6 +93,14 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		await database.transaction(async (client) => {
 			await Promise.all(deleteQuerys.map(query => client.query(query)))
 		})
+		await normalizeSongOrder(playlistID)
+	}
+
+	const normalizeSongOrder = async (playlistID: string) => {
+		const songs = await getSongs(playlistID)
+		const orderUpdates = songs.map((song, idx) => [song.playlistSongID, idx] as const)
+
+		await executeOrderUpdates(orderUpdates)
 	}
 
 	const getSongs = async (playlistID: string): Promise<PlaylistSong[]> => {

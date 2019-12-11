@@ -87,7 +87,7 @@ export class PlaylistResolver {
 		@Args() { playlistID }: PlaylistIDArg,
 		@Args() { playlistSongIDs }: PlaylistSongIDsArg,
 	): Promise<PlaylistSong[]> {
-		await this.services.playlistService.removeSongs(playlistSongIDs);
+		await this.services.playlistService.removeSongs(playlistID, playlistSongIDs);
 
 		return this.services.playlistService.getSongs(playlistID);
 	}
