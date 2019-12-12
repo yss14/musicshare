@@ -17,8 +17,10 @@ export class AWSS3FileService implements IFileService {
 
 						return resolve();
 					});
+				} else if (err) {
+					reject(err);
 				} else {
-					resolve();
+					resolve()
 				}
 			});
 		});

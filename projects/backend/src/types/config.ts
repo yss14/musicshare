@@ -1,6 +1,8 @@
 import { CustomEnv } from "../utils/env/CustomEnv";
 import { __PROD__ } from "../utils/env/env-constants";
 
+/* istanbul ignore file */
+
 type FileStorageProvider = 'azureblob' | 'awss3';
 
 export interface IConfig {
@@ -30,9 +32,14 @@ export interface IConfig {
 	fileStorage: {
 		provider: 'azureblob' | 'awss3';
 		s3?: {
-			host: string;
+			host?: string;
 			accessKey: string;
 			secretKey: string;
+			bucket?: string;
+			region?: string;
+		},
+		azureStorage?: {
+			container?: string;
 		}
 	},
 	frontend: {
@@ -54,11 +61,13 @@ export const configFromEnv = (): IConfig => {
 
 	let s3Config = undefined;
 
-	if (process.env[CustomEnv.S3_ACCESS_KEY] && process.env[CustomEnv.S3_SECRET_KEY] && process.env[CustomEnv.S3_HOST]) {
+	if (process.env[CustomEnv.S3_ACCESS_KEY] && process.env[CustomEnv.S3_SECRET_KEY]) {
 		s3Config = {
 			accessKey: process.env[CustomEnv.S3_ACCESS_KEY]!,
 			secretKey: process.env[CustomEnv.S3_SECRET_KEY]!,
-			host: process.env[CustomEnv.S3_HOST]!,
+			host: process.env[CustomEnv.S3_HOST],
+			bucket: process.env[CustomEnv.S3_BUCKET],
+			region: process.env[CustomEnv.S3_REGION],
 		}
 	}
 
@@ -88,7 +97,10 @@ export const configFromEnv = (): IConfig => {
 		},
 		fileStorage: {
 			provider: processFileStorageProvider(process.env[CustomEnv.FILE_STORAGE_PROVIDER]) || 'awss3',
-			s3: s3Config
+			s3: s3Config,
+			azureStorage: {
+				container: process.env[CustomEnv.AZURE_STORAGE_CONTAINER],
+			}
 		},
 		frontend: {
 			baseUrl: process.env[CustomEnv.FRONTEND_BASEURL] || 'http://localhost:3000',
