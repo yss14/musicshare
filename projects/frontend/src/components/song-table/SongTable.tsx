@@ -11,7 +11,7 @@ import { useEventListener } from '../../hooks/use-event-listener'
 import { SongRow } from './SongRow'
 import { Table, Header, HeaderCol, Body } from './SongTableUI'
 import { MoveSong } from './MoveSong'
-import { IColumn } from './song-table-columns'
+import { IColumn, useCalculatedColumnWidths } from './song-table-columns'
 
 type Song = IScopedSong
 
@@ -68,9 +68,10 @@ export const SongTable: React.FC<ISongDataTableProps> = (props) => {
 	})
 	const { showContextMenu, isVisible: contextMenuVisible, ref: contextMenuRef } = useContextMenu()
 	const [height, setHeight] = useState(0)
+	const [width, setWidth] = useState(0)
 	const bodyRef = useRef<HTMLDivElement>(null)
-	const accumulatedWidth = useMemo(() => columns.reduce((acc, col) => acc + col.width, 0), [columns])
-
+	const calculatedColumnWidths = useCalculatedColumnWidths(columns, width)
+	console.log({ width })
 	const [, drag, dragPreview] = useDrag<ISongDNDItem, void, {}>({
 		item: { type: DragNDropItem.Song, song: hoveredSong!, idx: hoveredIdx },
 	})
@@ -108,13 +109,15 @@ export const SongTable: React.FC<ISongDataTableProps> = (props) => {
 				dragPreview={dragPreview}
 				moveSong={moveSong}
 				isPlaylist={playlistID !== undefined}
+				calculatedColumnWidths={calculatedColumnWidths}
 			/>
 		)
-	}, [hoveredSong, hookedRowEvents, columns, songs, dragPreview, onRowMouseEnter, moveSong, playlistID])
+	}, [hoveredSong, hookedRowEvents, columns, songs, dragPreview, onRowMouseEnter, moveSong, playlistID, calculatedColumnWidths])
 
 	const evaluateAndSetHeight = useCallback(() => {
 		if (bodyRef.current) {
 			setHeight(bodyRef.current.clientHeight)
+			setWidth(bodyRef.current.clientWidth)
 		}
 	}, [bodyRef, setHeight])
 
@@ -130,7 +133,7 @@ export const SongTable: React.FC<ISongDataTableProps> = (props) => {
 				{columns.map(column => (
 					<HeaderCol
 						key={column.title}
-						style={{ width: `${(column.width / accumulatedWidth) * 100}%` }}
+						style={{ width: calculatedColumnWidths[column.key] }}
 					>
 						{column.title}
 					</HeaderCol>

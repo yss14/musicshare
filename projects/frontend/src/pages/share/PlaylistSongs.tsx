@@ -58,6 +58,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 			playlistID={playlist.id}
 			moveSong={moveSong}
 			columns={[
+				SongTableColumn.Position,
 				SongTableColumn.Title,
 				SongTableColumn.Time,
 				SongTableColumn.Artists,

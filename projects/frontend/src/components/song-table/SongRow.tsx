@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { ListRowProps } from 'react-virtualized'
 import { IRowEvents } from './SongTable'
 import { DragElementWrapper, DragPreviewOptions, DragPreviewImage, useDrop } from 'react-dnd'
@@ -7,7 +7,7 @@ import { Row, Col } from './SongTableUI'
 import songDragPreviewImg from '../../images/playlist_add.png'
 import { DragNDropItem, ISongDNDItem } from '../../types/DragNDropItems'
 import { MoveSong } from './MoveSong'
-import { IColumn } from './song-table-columns'
+import { IColumn, CalculatedColumnWidths } from './song-table-columns'
 
 interface ISongRowProps extends ListRowProps {
 	columns: IColumn[];
@@ -18,11 +18,11 @@ interface ISongRowProps extends ListRowProps {
 	dragPreview: DragElementWrapper<DragPreviewOptions>;
 	moveSong?: MoveSong;
 	isPlaylist: boolean;
+	calculatedColumnWidths: CalculatedColumnWidths;
 }
 
-export const SongRow: React.FC<ISongRowProps> = ({ index, style, rowEvents, columns, song, hovered, onMouseEnter, dragPreview, moveSong, isPlaylist }) => {
+export const SongRow: React.FC<ISongRowProps> = ({ index, style, rowEvents, columns, song, hovered, onMouseEnter, dragPreview, moveSong, isPlaylist, calculatedColumnWidths }) => {
 	const rowRef = useRef<HTMLDivElement>(null)
-	const accumulatedWidth = useMemo(() => columns.reduce((acc, col) => acc + col.width, 0), [columns])
 
 	const [{ isOver }, drop] = useDrop<ISongDNDItem, void, { isOver: boolean }>({
 		accept: DragNDropItem.Song,
@@ -61,9 +61,9 @@ export const SongRow: React.FC<ISongRowProps> = ({ index, style, rowEvents, colu
 				{columns.map(column => (
 					<Col
 						key={`song-${song.id}-${index}-${column.title}`}
-						style={{ width: `${(column.width / accumulatedWidth) * 100}%` }}
+						style={{ width: calculatedColumnWidths[column.key] }}
 					>
-						{column.render(song)}
+						{column.render(song, index)}
 					</Col>
 				))}
 			</Row>

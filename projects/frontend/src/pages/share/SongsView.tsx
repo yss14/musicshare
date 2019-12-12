@@ -8,7 +8,7 @@ import { SongModal } from "../../components/modals/song-modal/SongModal";
 import { ISongSearchFilter, allMatchingOptions } from "../../components/song-table/search/search-types";
 import styled from "styled-components";
 import { MoveSong } from "../../components/song-table/MoveSong";
-import { SongTableColumn, IColumn } from "../../components/song-table/song-table-columns";
+import { IColumn } from "../../components/song-table/song-table-columns";
 
 const FlexContainer = styled.div`
 	width: 100%;
