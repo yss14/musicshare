@@ -1,4 +1,4 @@
-import { S3 } from 'aws-sdk';
+import { S3, AWSError } from 'aws-sdk';
 import { AWSS3FileService } from '../file-service/AWSS3FileService';
 import { configFromEnv } from '../types/config';
 import { v4 as uuid } from 'uuid';
@@ -9,13 +9,14 @@ import moment = require('moment');
 import { promises as fsPromises } from 'fs';
 
 const config = configFromEnv();
-const s3Client = new S3({
+const s3Config = {
 	accessKeyId: config.fileStorage.s3!.accessKey,
 	secretAccessKey: config.fileStorage.s3!.secretKey,
 	endpoint: config.fileStorage.s3!.host,
 	s3ForcePathStyle: true,
 	signatureVersion: 'v4',
-});
+}
+const s3Client = new S3(s3Config);
 
 describe('instance creation', () => {
 	test('single instance', async () => {
@@ -39,6 +40,17 @@ describe('instance creation', () => {
 
 		await expect(fileService.createContainerIfNotExists()).rejects.toThrow();
 	});
+
+	test('invalid credentials', async () => {
+		const container = uuid();
+		const config = {
+			...s3Config,
+			accessKeyId: 'abcd',
+		}
+		const fileService = new AWSS3FileService(new S3(config), container)
+
+		await expect(fileService.createContainerIfNotExists()).rejects.toThrowError(AWSError)
+	})
 });
 
 describe('file upload', () => {

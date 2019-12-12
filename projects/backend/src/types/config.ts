@@ -1,6 +1,8 @@
 import { CustomEnv } from "../utils/env/CustomEnv";
 import { __PROD__ } from "../utils/env/env-constants";
 
+/* istanbul ignore file */
+
 type FileStorageProvider = 'azureblob' | 'awss3';
 
 export interface IConfig {

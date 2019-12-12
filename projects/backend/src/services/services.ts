@@ -109,7 +109,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	return services
 }
 
-const initFileStore = (config: IConfig): IFileService => {
+export const initFileStore = (config: IConfig): IFileService => {
 	const { provider, s3 } = config.fileStorage;
 	const defaultContainerName = 'musicshare'
 
