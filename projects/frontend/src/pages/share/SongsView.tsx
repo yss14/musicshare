@@ -8,6 +8,7 @@ import { SongModal } from "../../components/modals/song-modal/SongModal";
 import { ISongSearchFilter, allMatchingOptions } from "../../components/song-table/search/search-types";
 import styled from "styled-components";
 import { MoveSong } from "../../components/song-table/MoveSong";
+import { SongTableColumn, IColumn } from "../../components/song-table/song-table-columns";
 
 const FlexContainer = styled.div`
 	width: 100%;
@@ -32,11 +33,12 @@ const tokenizeQuery = (query: string) => query
 interface ISongsViewProps {
 	title: string;
 	songs: IScopedSong[];
+	columns: IColumn[];
 	playlistID?: string;
 	moveSong?: MoveSong;
 }
 
-export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong }) => {
+export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong, columns }) => {
 	const { makePlayableSong } = useSongUtils()
 	const { changeSong, enqueueSongs, clearQueue } = usePlayer();
 	const [editSong, setEditSong] = useState<IScopedSong | null>(null);
@@ -97,6 +99,7 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID,
 			<TableContainer>
 				<SongTable
 					songs={filteredSongs}
+					columns={columns}
 					rowEvents={{
 						onClick: onRowClick,
 						onDoubleClick: onRowDoubleClick,

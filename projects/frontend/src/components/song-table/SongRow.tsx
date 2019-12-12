@@ -1,12 +1,13 @@
 import React, { useMemo, useRef, useEffect } from 'react'
 import { ListRowProps } from 'react-virtualized'
-import { IColumn, IRowEvents } from './SongDataTable'
+import { IRowEvents } from './SongTable'
 import { DragElementWrapper, DragPreviewOptions, DragPreviewImage, useDrop } from 'react-dnd'
 import { IScopedSong } from '../../graphql/types'
 import { Row, Col } from './SongTableUI'
 import songDragPreviewImg from '../../images/playlist_add.png'
 import { DragNDropItem, ISongDNDItem } from '../../types/DragNDropItems'
 import { MoveSong } from './MoveSong'
+import { IColumn } from './song-table-columns'
 
 interface ISongRowProps extends ListRowProps {
 	columns: IColumn[];

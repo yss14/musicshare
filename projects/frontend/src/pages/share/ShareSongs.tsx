@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import { SongsView } from './SongsView';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { useShareDirtySongs } from '../../graphql/queries/share-songs-dirty-query';
+import { SongTableColumn } from '../../components/song-table/song-table-columns';
 
 export const ShareSongs: React.FC = () => {
 	const { shareID } = useParams<IShareRoute>();
@@ -16,5 +17,16 @@ export const ShareSongs: React.FC = () => {
 	}
 	if (error) return <div>`Error!: ${error}`</div>;
 
-	return <SongsView title="All songs" songs={songs} />
+	return (
+		<SongsView
+			title="All songs"
+			songs={songs}
+			columns={[
+				SongTableColumn.Title,
+				SongTableColumn.Time,
+				SongTableColumn.Artists,
+				SongTableColumn.Genres
+			]}
+		/>
+	)
 }
