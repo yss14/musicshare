@@ -54,7 +54,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 
 	const serviceFactory = () => services
 
-	const songFileService = initFileStore(config, 'songs');
+	const songFileService = initFileStore(config);
 	const songService = new SongService(database);
 	const shareService = ShareService(database);
 	const userService = new UserService(database, config);
@@ -109,11 +109,12 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	return services
 }
 
-const initFileStore = (config: IConfig, container: string): IFileService => {
+const initFileStore = (config: IConfig): IFileService => {
 	const { provider, s3 } = config.fileStorage;
+	const defaultContainerName = 'musicshare'
 
 	if (provider === 'azureblob') {
-		return new AzureFileService(container);
+		return new AzureFileService(config.fileStorage.azureStorage?.container || defaultContainerName);
 	} else if (provider === 'awss3') {
 		if (!s3) {
 			throw new Error(`AWS S3 is specified as file storage provider, but no credentials are provided`);
@@ -125,7 +126,8 @@ const initFileStore = (config: IConfig, container: string): IFileService => {
 			endpoint: s3.host,
 			s3ForcePathStyle: true,
 			signatureVersion: 'v4',
-		}), container);
+			region: s3.region,
+		}), s3.bucket || defaultContainerName);
 	} else {
 		throw new Error(`Unknown file storage provider ${provider}`);
 	}

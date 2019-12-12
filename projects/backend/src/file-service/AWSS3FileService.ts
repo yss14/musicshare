@@ -10,15 +10,17 @@ export class AWSS3FileService implements IFileService {
 
 	public createContainerIfNotExists() {
 		return new Promise<void>((resolve, reject) => {
-			this.s3Client.headBucket({ Bucket: this.bucket }, (err) => {
+			this.s3Client.headBucket({ Bucket: this.bucket }, (err, data) => {
 				if (err && err.code === 'NotFound') {
 					this.s3Client.createBucket({ Bucket: this.bucket }, (err) => {
 						if (err) return reject(err);
 
 						return resolve();
 					});
+				} else if (err) {
+					reject(err);
 				} else {
-					resolve();
+					resolve()
 				}
 			});
 		});
