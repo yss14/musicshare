@@ -178,6 +178,8 @@ export const SongTable: React.FC<ISongDataTableProps> = (props) => {
 						key={column.title}
 						style={{ width: calculatedColumnWidths[column.key] }}
 						onClick={() => dispatch(setOrderCriteria(column.key, toggleDirection(orderDirection)))}
+						selected={orderByColumn === column.key}
+						direction={orderDirection}
 					>
 						{column.title}
 					</HeaderCol>
