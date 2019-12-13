@@ -12,12 +12,17 @@ import { SongRow } from './SongRow'
 import { Table, Header, HeaderCol, Body } from './SongTableUI'
 import { MoveSong } from './MoveSong'
 import { IColumn, useCalculatedColumnWidths } from './song-table-columns'
+import { zip } from 'lodash'
+import { filterUndefined } from '../../utils/filter-null'
 
 type Song = IScopedSong
+type OrderDirection = 'asc' | 'desc'
 
 interface ISongTableState {
 	hoveredSong: Song | null;
 	hoveredIdx: number;
+	orderByColumn: string;
+	orderDirection: OrderDirection;
 }
 
 interface IHoverSong {
@@ -36,11 +41,28 @@ const hoverSong = (song: Song | null, idx: number): IHoverSong => ({
 	},
 })
 
-type SongTableAction = IHoverSong
+interface ISetOrderCriteria {
+	type: 'order_criteria';
+	payload: {
+		column: string;
+		direction: OrderDirection;
+	}
+}
+
+const setOrderCriteria = (column: string, direction: OrderDirection): ISetOrderCriteria => ({
+	type: 'order_criteria',
+	payload: {
+		column,
+		direction,
+	}
+})
+
+type SongTableAction = IHoverSong | ISetOrderCriteria
 
 const songTableReducer = (state: ISongTableState, action: SongTableAction): ISongTableState => {
 	switch (action.type) {
 		case 'hover_song': return { ...state, hoveredSong: action.payload.song, hoveredIdx: action.payload.idx }
+		case 'order_criteria': return { ...state, orderByColumn: action.payload.column, orderDirection: action.payload.direction }
 		default: return state
 	}
 }
@@ -50,6 +72,8 @@ export interface IRowEvents {
 	onContextMenu?: (event: React.MouseEvent, song: Song, idx: number) => any;
 	onDoubleClick?: (event: React.MouseEvent, song: Song, idx: number) => any;
 }
+
+const toggleDirection = (dir: OrderDirection): OrderDirection => dir === 'asc' ? 'desc' : 'asc'
 
 interface ISongDataTableProps {
 	columns: IColumn[];
@@ -62,16 +86,17 @@ interface ISongDataTableProps {
 
 export const SongTable: React.FC<ISongDataTableProps> = (props) => {
 	const { columns, songs, rowEvents, playlistID, contextMenuEvents, moveSong } = props
-	const [{ hoveredSong, hoveredIdx }, dispatch] = useReducer(songTableReducer, {
+	const [{ hoveredSong, hoveredIdx, orderByColumn, orderDirection }, dispatch] = useReducer(songTableReducer, {
 		hoveredSong: null,
 		hoveredIdx: -1,
+		orderByColumn: 'title',
+		orderDirection: 'desc',
 	})
 	const { showContextMenu, isVisible: contextMenuVisible, ref: contextMenuRef } = useContextMenu()
 	const [height, setHeight] = useState(0)
-	const [width, setWidth] = useState(0)
 	const bodyRef = useRef<HTMLDivElement>(null)
-	const calculatedColumnWidths = useCalculatedColumnWidths(columns, width)
-	console.log({ width })
+	const calculatedColumnWidths = useCalculatedColumnWidths(columns)
+
 	const [, drag, dragPreview] = useDrag<ISongDNDItem, void, {}>({
 		item: { type: DragNDropItem.Song, song: hoveredSong!, idx: hoveredIdx },
 	})
@@ -95,8 +120,27 @@ export const SongTable: React.FC<ISongDataTableProps> = (props) => {
 		}
 	}, [dispatch, contextMenuVisible, drag])
 
+	const orderedSongs = useMemo(() => {
+		const column = columns.find(column => column.key === orderByColumn)
+
+		if (!column) {
+			console.warn(`Cannot order songs, column with key ${orderByColumn} not found`)
+
+			return songs
+		}
+
+		const renderedSongColumn = songs.map((song, idx) => column.render(song, idx))
+		const zippedSongs = zip(songs, renderedSongColumn)
+		const orderedSongs = zippedSongs
+			.sort((lhs, rhs) => lhs[1]!.localeCompare(rhs[1]!))
+			.map(zipped => zipped[0])
+			.filter(filterUndefined)
+
+		return orderDirection === 'asc' ? [...orderedSongs].reverse() : orderedSongs
+	}, [songs, orderByColumn, orderDirection, columns])
+
 	const rowRenderer = useCallback((props: ListRowProps) => {
-		const song = songs[props.index]
+		const song = orderedSongs[props.index]
 
 		return (
 			<SongRow
@@ -112,12 +156,11 @@ export const SongTable: React.FC<ISongDataTableProps> = (props) => {
 				calculatedColumnWidths={calculatedColumnWidths}
 			/>
 		)
-	}, [hoveredSong, hookedRowEvents, columns, songs, dragPreview, onRowMouseEnter, moveSong, playlistID, calculatedColumnWidths])
+	}, [hoveredSong, hookedRowEvents, columns, orderedSongs, dragPreview, onRowMouseEnter, moveSong, playlistID, calculatedColumnWidths])
 
 	const evaluateAndSetHeight = useCallback(() => {
 		if (bodyRef.current) {
 			setHeight(bodyRef.current.clientHeight)
-			setWidth(bodyRef.current.clientWidth)
 		}
 	}, [bodyRef, setHeight])
 
@@ -134,6 +177,7 @@ export const SongTable: React.FC<ISongDataTableProps> = (props) => {
 					<HeaderCol
 						key={column.title}
 						style={{ width: calculatedColumnWidths[column.key] }}
+						onClick={() => dispatch(setOrderCriteria(column.key, toggleDirection(orderDirection)))}
 					>
 						{column.title}
 					</HeaderCol>
@@ -146,10 +190,11 @@ export const SongTable: React.FC<ISongDataTableProps> = (props) => {
 							height={height}
 							overscanRowCount={100}
 							noRowsRenderer={() => <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
-							rowCount={songs.length}
+							rowCount={orderedSongs.length}
 							rowHeight={27}
 							rowRenderer={rowRenderer}
 							width={width}
+
 						/>
 					)}
 				</AutoSizer>

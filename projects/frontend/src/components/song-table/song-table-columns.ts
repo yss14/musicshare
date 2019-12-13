@@ -1,14 +1,21 @@
-import { IScopedSong, IScopedPlaylistSong, isPlaylistSong } from "../../graphql/types"
+import { IScopedSong, IScopedPlaylistSong } from "../../graphql/types"
 import { buildSongName } from "../../utils/songname-builder"
 import { formatDuration } from "../../utils/format-duration"
 import { useMemo } from "react"
 
-export interface IColumn {
+interface IColumnBase {
 	title: string;
 	width: number;
 	fixWidth: boolean;
 	key: string;
-	render: (song: IScopedSong | IScopedPlaylistSong, index: number) => string | number | React.ReactElement<any> | null;
+}
+
+export interface IColumn extends IColumnBase {
+	render: (song: IScopedSong | IScopedPlaylistSong, index: number) => string;
+}
+
+export interface IColumnRendered extends IColumnBase {
+	displayValue: string;
 }
 
 type ColumnNames = 'Title' | 'Time' | 'Artists' | 'Genres' | 'Position'
@@ -51,7 +58,7 @@ export const SongTableColumn: SongTableColumnMap = {
 		width: 24,
 		fixWidth: true,
 		key: 'position',
-		render: (song, idx) => isPlaylistSong(song) ? idx + 1 : null,
+		render: (_, idx) => String(idx + 1),
 	}
 }
 
@@ -59,14 +66,9 @@ export type CalculatedColumnWidths = {
 	[key in ColumnNames]: string;
 }
 
-export const useCalculatedColumnWidths = (columns: IColumn[], containerWidth: number) => {
+export const useCalculatedColumnWidths = (columns: IColumn[]) => {
 	const percentageWidthColumns = useMemo(() => columns.filter(col => !col.fixWidth), [columns])
-	const fixWidthColumns = useMemo(() => columns.filter(col => col.fixWidth), [columns])
 
-	const hundredPercent = useMemo(
-		() => containerWidth - fixWidthColumns.reduce((acc, col) => acc + col.width, 0),
-		[containerWidth, fixWidthColumns]
-	)
 	const accumulatedColumnPercentageWidths = useMemo(
 		() => percentageWidthColumns.reduce((acc, col) => acc + col.width, 0),
 		[percentageWidthColumns]
@@ -79,7 +81,7 @@ export const useCalculatedColumnWidths = (columns: IColumn[], containerWidth: nu
 
 		return { ...obj, [col.key]: `${(col.width / accumulatedColumnPercentageWidths) * 100}%` }
 	}, {})
-		, [columns, accumulatedColumnPercentageWidths, hundredPercent])
+		, [columns, accumulatedColumnPercentageWidths])
 
 	return calculatedWidths as CalculatedColumnWidths
 }
