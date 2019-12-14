@@ -117,7 +117,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 			INNER JOIN ${PlaylistSongsTable.name} ps ON ps.song_id_ref = s.song_id
 			INNER JOIN share_songs sls ON sls.song_id_ref = s.song_id
 			INNER JOIN shares l ON l.share_id = sls.share_id_ref
-			WHERE ps.playlist_id_ref = $1 
+			WHERE ps.playlist_id_ref = $1 AND l.is_library = true
 			ORDER BY ps.position ASC;
 		`, [playlistID]);
 
