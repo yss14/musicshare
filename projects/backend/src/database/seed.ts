@@ -63,6 +63,7 @@ export const songZeroOliverSmith: ISongDBResult = {
 	date_added: moment().subtract(3, 'hours').toDate(),
 	date_removed: null,
 	share_id_ref: libraryUser1ShareID,
+	play_count: 0,
 }
 
 export const songPerthDusky: ISongDBResult = {
@@ -87,6 +88,7 @@ export const songPerthDusky: ISongDBResult = {
 	date_added: moment().subtract(2, 'hours').toDate(),
 	date_removed: null,
 	share_id_ref: libraryUser1ShareID,
+	play_count: 0,
 }
 
 export const songContactAlastor: ISongDBResult = {
@@ -111,6 +113,7 @@ export const songContactAlastor: ISongDBResult = {
 	date_added: moment().subtract(1, 'hour').toDate(),
 	date_removed: null,
 	share_id_ref: libraryUser1ShareID,
+	play_count: 0,
 }
 
 export const songIsItLove: ISongDBResult = {
@@ -135,6 +138,7 @@ export const songIsItLove: ISongDBResult = {
 	date_added: moment().subtract(48, 'hour').toDate(),
 	date_removed: null,
 	share_id_ref: libraryUser2ShareID,
+	play_count: 0,
 }
 
 export const songThunder: ISongDBResult = {
@@ -161,6 +165,7 @@ export const songThunder: ISongDBResult = {
 	date_added: moment().subtract(14, 'hour').toDate(),
 	date_removed: null,
 	share_id_ref: libraryUser3ShareID,
+	play_count: 0,
 }
 
 export const testData: ITestDataSchema = {
@@ -358,6 +363,7 @@ export const seedDatabase = async ({ database, services }: IMakeDatabaseSeedArgs
 				date_added: new Date(),
 				date_removed: null,
 				share_id_ref: libraryUser1ShareID,
+				play_count: 0,
 			}));
 
 		await Promise.all(songInserts.map(song => songService.create(libraryUser1ShareID, song)));
