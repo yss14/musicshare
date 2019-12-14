@@ -32,6 +32,10 @@ export class ShareServiceMock implements IShareService {
 		throw 'Not implemented yet';
 	}
 
+	public async getLinkedShares(): Promise<Share[]> {
+		throw 'Not implemented yet';
+	}
+
 	public async create(): Promise<Share> {
 		throw 'Not implemented yet';
 	}

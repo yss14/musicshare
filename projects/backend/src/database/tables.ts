@@ -1,4 +1,4 @@
-import { TableRecord, Table } from "postgres-schema-builder";
+import { TableRecord, Table, TableSchema, ColumnType } from "postgres-schema-builder";
 import { DatabaseV1 } from "./versions/SchemaV1";
 
 export const Tables = DatabaseV1;
@@ -29,3 +29,10 @@ export const ShareTokensTable = Table(Tables, 'share_tokens');
 export const FileUploadLogsTable = Table(Tables, 'file_upload_logs');
 export const SongPlaysTable = Table(Tables, 'song_plays');
 export const ShareSongsTable = Table(Tables, 'share_songs')
+
+// common helper types for custom sql queries
+const library_id_query = TableSchema({
+	library_id: { type: ColumnType.UUID, nullable: false },
+})
+
+export type SongDBResultWithLibrary = typeof Tables.songs & typeof library_id_query

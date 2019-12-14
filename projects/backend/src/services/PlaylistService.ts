@@ -1,7 +1,7 @@
 import { IDatabaseClient, SQL } from "postgres-schema-builder";
 import { Playlist } from "../models/PlaylistModel";
 import { ISongService } from "./SongService";
-import { IPlaylistDBResult, PlaylistsTable, SharePlaylistsTable, PlaylistSongsTable, SongsTable, Tables } from "../database/tables";
+import { IPlaylistDBResult, PlaylistsTable, SharePlaylistsTable, PlaylistSongsTable, SongsTable, Tables, ShareSongsTable, SongDBResultWithLibrary } from "../database/tables";
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError } from "apollo-server-core";
 import { PlaylistSong } from "../models/PlaylistSongModel";
@@ -104,11 +104,13 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 	}
 
 	const getSongs = async (playlistID: string): Promise<PlaylistSong[]> => {
-		const songQuery = SQL.raw<typeof Tables.songs & typeof Tables.playlist_songs>(`
-			SELECT s.*, ps.playlist_song_id
+		const songQuery = SQL.raw<SongDBResultWithLibrary & typeof Tables.playlist_songs>(`
+			SELECT s.*, l.share_id as library_id, ps.playlist_song_id
 			FROM ${SongsTable.name} s
 			INNER JOIN ${PlaylistSongsTable.name} ps ON ps.song_id_ref = s.song_id
-			WHERE ps.playlist_id_ref = $1
+			INNER JOIN share_songs sls ON sls.song_id_ref = s.song_id
+			INNER JOIN shares l ON l.share_id = sls.share_id_ref
+			WHERE ps.playlist_id_ref = $1 
 			ORDER BY ps.position ASC;
 		`, [playlistID]);
 

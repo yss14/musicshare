@@ -1,9 +1,9 @@
 import { Song } from '../models/SongModel';
-import { IDatabaseClient, SQL } from 'postgres-schema-builder';
+import { IDatabaseClient, SQL, IDatabaseBaseClient } from 'postgres-schema-builder';
 import { SongUpdateInput } from '../inputs/SongInput';
 import * as snakeCaseObjKeys from 'snakecase-keys';
 import moment = require('moment');
-import { ISongDBResult, Tables, SongsTable, SharesTable, SongPlaysTable } from '../database/tables';
+import { ISongDBResult, Tables, SongsTable, SharesTable, SongPlaysTable, ShareSongsTable, SongDBResultWithLibrary } from '../database/tables';
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError, ValidationError } from 'apollo-server-core';
 import { Share } from '../models/ShareModel';
@@ -56,78 +56,50 @@ const sqlFragements = {
 export type ISongService = ReturnType<typeof SongService>
 
 export const SongService = (database: IDatabaseClient, services: ServiceFactory) => {
-	const getByID = async (share: ShareLike, songID: string, userID?: string): Promise<Song> => {
-		const getByShare = async (shareID: string) => {
-			const dbResults = await database.query(
-				SQL.raw<typeof Tables.songs>(`
-					SELECT s.*
-					FROM ${SongsTable.name} s
-					WHERE s.song_id = $1 AND s.share_id_ref = $2 AND s.date_removed IS NULL;
-				`, [songID, shareID])
-			);
 
-			if (dbResults.length === 0) {
-				throw new SongNotFoundError(shareID, songID);
-			}
-
-			return Song.fromDBResult(dbResults[0]);
-		}
-
-		if (typeof share === 'string') {
-			return getByShare(share);
-		} else if (typeof userID === 'undefined') {
-			return getByShare(share.id);
-		} else {
-			const hasAccessToSong = await hasAccessToSongs(userID, [songID])
-			const originShare = await getSongOriginLibrary(songID)
-
-			if (!hasAccessToSong || !originShare) {
-				throw new SongNotFoundError(share.id, songID);
-			}
-
-			return getByShare(originShare.id);
-		}
-	}
-
-	const getByShare = async (share: ShareLike): Promise<Song[]> => {
-		if (typeof share === 'string') {
-			return getByShares([share])
-		} else if (share.isLibrary) {
-			return getByShares([share.id]);
-		} else {
-			const shareLibrariesResult = await database.query(
-				SQL.raw<typeof Tables.shares>(`
-					SELECT DISTINCt sl.*
-					FROM shares sl, user_shares su, user_shares ul
-					WHERE su.share_id_ref = $1
-					AND ul.user_id_ref = su.user_id_ref
-					AND ul.share_id_ref = sl.share_id
-					AND sl.is_library = true
-					AND sl.date_removed IS NULL;				
-				`, [share.id])
-			);
-
-			const mergedSongs = await getByShares(shareLibrariesResult.map(result => result.share_id));
-
-			return uniqBy(mergedSongs, song => song.id);
-		}
-	}
-
-	const getByShares = async (shareIDs: string[]): Promise<Song[]> => {
+	const getByID = async (shareID: string, songID: string): Promise<Song> => {
 		const dbResults = await database.query(
-			SQL.raw<typeof Tables.songs>(`
-				SELECT s.*
+			SQL.raw<SongDBResultWithLibrary>(`
+				SELECT s.*, l.share_id as library_id
 				FROM ${SongsTable.name} s
-				WHERE s.share_id_ref = ANY($1) AND s.date_removed IS NULL
-				ORDER BY s.date_added;
-			`, [shareIDs])
+				INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
+				INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
+				INNER JOIN shares l ON l.share_id = sls.share_id_ref
+				WHERE s.song_id = $1 
+					AND l.is_library = true 
+					AND ss.share_id_ref = $2 
+					AND s.date_removed IS NULL 
+					AND ss.date_removed IS NULL;
+			`, [songID, shareID])
 		);
 
-		return dbResults
-			.map(result => Song.fromDBResult(result));
+		if (dbResults.length === 0) {
+			throw new SongNotFoundError(shareID, songID);
+		}
+
+		return Song.fromDBResult(dbResults[0]);
+	}
+
+	const getByShare = async (shareID: string): Promise<Song[]> => {
+		const dbResults = await database.query(
+			SQL.raw<SongDBResultWithLibrary>(`
+					SELECT s.*, l.share_id as library_id
+					FROM ${SongsTable.name} s
+					INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
+					INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
+					INNER JOIN shares l ON l.share_id = sls.share_id_ref
+					WHERE ss.share_id_ref = $1 
+						AND l.is_library = true 
+						AND s.date_removed IS NULL 
+						AND ss.date_removed IS NULL;
+			`, [shareID])
+		)
+
+		return dbResults.map(Song.fromDBResult)
 	}
 
 	const getSongOriginLibrary = async (songID: string): Promise<Share | null> => {
+		throw 'getSongOriginLibrary() not implemented yet'
 		const dbResults = await database.query(
 			SQL.raw<typeof Tables.shares>(`
 				SELECT libraries.*
@@ -147,6 +119,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 	}
 
 	const hasAccessToSongs = async (userID: string, songIDs: string[]): Promise<boolean> => {
+		throw 'hasAccessToSongs() not implemented yet'
 		const dbResults = await database.query(
 			SQL.raw<typeof Tables.songs>(`
 				${sqlFragements.accessableShares}
@@ -169,14 +142,38 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		return songs.filter(song => moment(song.dateLastEdit).valueOf() > lastTimestamp); // TODO do via SQL query
 	}
 
-	const create = async (shareID: string, song: ISongDBResult): Promise<string> => {
+	const create = async (libraryID: string, song: ISongDBResult): Promise<string> => {
 		// istanbul ignore next
-		let id = song.song_id || uuid();
+		let songID = song.song_id || uuid();
 		const sources = { data: song.sources.data || [] };
 
-		await database.query(SongsTable.insertFromObj({ ...song, sources: sources, share_id_ref: shareID }));
+		const insertSongTableQuery = SongsTable.insertFromObj({ ...song, sources: sources })
+		const insertShareSongsTableQuery = ShareSongsTable.insertFromObj({
+			share_id_ref: libraryID,
+			song_id_ref: songID,
+		})
 
-		return id.toString();
+		await database.transaction(async (transaction) => {
+			await transaction.query(insertSongTableQuery)
+			await transaction.query(insertShareSongsTableQuery)
+
+			await propagateNewSong(libraryID, songID, transaction)
+		})
+
+		return songID
+	}
+
+	const propagateNewSong = async (libraryID: string, songID: string, transaction: IDatabaseBaseClient) => {
+		const { shareService } = services()
+
+		const linkedLibraryShares = await shareService.getLinkedShares(libraryID)
+
+		await Promise.all(linkedLibraryShares.map(share => transaction.query(
+			ShareSongsTable.insertFromObj({
+				share_id_ref: share.id,
+				song_id_ref: songID,
+			})
+		)))
 	}
 
 	const update = async (shareID: string, songID: string, song: SongUpdateInput): Promise<void> => {
@@ -269,7 +266,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 
 		return take(
 			dbResults
-				.map(result => Song.fromDBResult(result))
+				.map(result => Song.fromDBResult(result as any))
 				.sort((lhs, rhs) => containmentScores[rhs.id] - containmentScores[lhs.id])
 			, limit // cannot use limit in sql query because scoring happens in code
 		)
