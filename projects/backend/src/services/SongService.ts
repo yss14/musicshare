@@ -193,6 +193,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 	}
 
 	const searchSongs = async (userID: string, query: string, matchers: SongSearchMatcher[], limit: number = 20): Promise<Song[]> => {
+		const { shareService } = services()
 		const tokenizedQuery = tokenizeQuery(query)
 
 		if (tokenizedQuery.length === 0) {
@@ -228,18 +229,23 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 			.map(columnName => `LEFT JOIN LATERAL unnest(${columnName}) as ${columnName}_flatten ON true`).join('\n')
 		const where = columnNames.map(mapColumnToTokenizedQuery).join(' OR ')
 
+		const userShares = await shareService.getSharesOfUser(userID)
+
 		const sql = `
-			${sqlFragements.accessableShares}
-			SELECT DISTINCT ON (songs.song_id) songs.*
-			FROM songs, accessibleshares
+			SELECT DISTINCT ON (s.song_id) s.*, l.share_id as library_id
+			FROM songs s
+			INNER JOIN share_songs ss ON s.song_id = ss.song_id_ref
+			INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
+			INNER JOIN shares l ON l.share_id = sls.share_id_ref
 			${unnestStatements}
-			WHERE songs.share_id_ref = accessibleshares.share_id
-				AND songs.date_removed IS NULL
+			WHERE ss.share_id_ref = ANY($1)
+				AND l.is_library = true
+				AND s.date_removed IS NULL
 				AND (${where});
 		`
 
 		const dbResults = await database.query(
-			SQL.raw<typeof Tables.songs>(sql, [userID])
+			SQL.raw<SongDBResultWithLibrary>(sql, [userShares.map(share => share.id)])
 		)
 
 		const sum = (acc: number, value: number) => acc + value
