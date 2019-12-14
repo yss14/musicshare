@@ -8,6 +8,7 @@ export const PlaylistServiceMock = (): IPlaylistService => ({
 	getPlaylistsForShare: jest.fn(),
 	getSongs: jest.fn(),
 	removeSongs: jest.fn(),
+	removeSongByID: jest.fn(),
 	rename: jest.fn(),
 	updateOrder: jest.fn(),
 })

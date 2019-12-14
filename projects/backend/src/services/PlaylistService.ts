@@ -96,6 +96,13 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		await normalizeSongOrder(playlistID)
 	}
 
+	const removeSongByID = async (playlistID: string, songID: string) => {
+		await database.query(
+			PlaylistSongsTable.delete(['playlist_id_ref', 'song_id_ref'])([playlistID, songID])
+		)
+		await normalizeSongOrder(playlistID)
+	}
+
 	const normalizeSongOrder = async (playlistID: string) => {
 		const songs = await getSongs(playlistID)
 		const orderUpdates = songs.map((song, idx) => [song.playlistSongID, idx] as const)
@@ -166,6 +173,7 @@ export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs)
 		rename,
 		addSongs,
 		removeSongs,
+		removeSongByID,
 		getSongs,
 		updateOrder,
 		getPlaylistsForShare,

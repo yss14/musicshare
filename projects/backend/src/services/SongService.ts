@@ -7,10 +7,9 @@ import { ISongDBResult, Tables, SongsTable, SharesTable, SongPlaysTable, ShareSo
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError, ValidationError } from 'apollo-server-core';
 import { Share } from '../models/ShareModel';
-import { uniqBy, flatten, take } from 'lodash'
+import { flatten, take } from 'lodash'
 import { SongSearchMatcher } from '../inputs/SongSearchInput';
-import { IService, IServices, ServiceFactory } from './services';
-import { SongIDUpdate } from '../return-types/SongIDUpdate';
+import { ServiceFactory } from './services';
 import { isFileUpload } from '../models/FileSourceModels';
 
 export class SongNotFoundError extends ForbiddenError {
@@ -278,8 +277,8 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		)
 	}
 
-	const removeSongFromLibrary = async (libraryID: string, songID: string): Promise<SongIDUpdate[]> => {
-		const { shareService } = services()
+	const removeSongFromLibrary = async (libraryID: string, songID: string) => {
+		const { playlistService } = services()
 
 		const affectedPlaylists = await database.query(
 			SQL.raw<typeof Tables.playlists & typeof Tables.shares>(`
@@ -327,39 +326,13 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 			copiedSongLibraryMappings.set(affectedLibraryID, newSongID)
 		}
 
-		// try to find a referencing library which has this song and update songID to new songID
-		const songIDUpdates: SongIDUpdate[] = []
-
-		for (const affectedSharePlaylist of affectedSharePlaylists) {
-			const linkedLibrariesOfShare = await shareService.getLinkedLibrariesOfShare(affectedSharePlaylist.share_id)
-			const linkedLibraryWithSong = linkedLibrariesOfShare.find(linkedLibrary => affectedLibraryIDs.has(linkedLibrary.id))
-
-			if (!linkedLibraryWithSong) continue
-
-			const newSongID = copiedSongLibraryMappings.get(linkedLibraryWithSong.id)
-
-			if (!newSongID) continue
-
-			await database.query(SQL.raw(`
-					UPDATE playlist_songs SET song_id_ref = $1 WHERE playlist_id_ref = $2 AND song_id_ref = $3;
-				`, [newSongID, affectedSharePlaylist.playlist_id, songID]))
-
-			songIDUpdates.push(
-				SongIDUpdate.create(
-					affectedSharePlaylist.share_id,
-					affectedSharePlaylist.playlist_id,
-					songID,
-					newSongID,
-					linkedLibraryWithSong.id
-				)
-			)
+		for (const sharePlaylist of affectedSharePlaylists) {
+			await playlistService.removeSongByID(sharePlaylist.playlist_id, songID)
 		}
 
 		await database.query(
 			SongsTable.update(['date_removed'], ['song_id'])([new Date()], [songID])
 		)
-
-		return songIDUpdates
 	}
 
 	const increasePlayCount = async (shareID: string, songID: string, userID: string) => {
