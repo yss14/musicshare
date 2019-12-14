@@ -176,17 +176,12 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 	}
 
 	const addLibrarySongsToShare = async (shareID: string, libraryID: string) => {
-		const librarySongs = await getByShare(libraryID)
+		const shareSongsInsertQuery = SQL.raw(`
+			INSERT INTO ${ShareSongsTable.name} (share_id_ref, song_id_ref)
+			SELECT $1, song_id_ref FROM ${ShareSongsTable.name} WHERE share_id_ref = $2;
+		`, [shareID, libraryID])
 
-		const insertShareSongsInsertQuery = librarySongs.map(song => ShareSongsTable.insertFromObj({
-			share_id_ref: shareID,
-			song_id_ref: song.id,
-		}))
-		const startTime = Date.now()
-		await database.transaction(async (transaction) => {
-			await Promise.all(insertShareSongsInsertQuery.map(query => transaction.query(query)))
-		})
-		console.log(`Took ${Date.now() - startTime}ms`)
+		await database.query(shareSongsInsertQuery)
 	}
 
 	const update = async (shareID: string, songID: string, song: SongUpdateInput): Promise<void> => {
