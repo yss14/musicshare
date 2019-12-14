@@ -320,7 +320,7 @@ describe('remove song from library', () => {
 	})
 })
 
-describe.only('increase play count', () => {
+describe('increase play count', () => {
 	const makeIncreaseSongPlayCountMutation = (shareID: string, songID: string) => `
 		mutation {
 			increaseSongPlayCount(input: {shareID: "${shareID}", songID: "${songID}"}){

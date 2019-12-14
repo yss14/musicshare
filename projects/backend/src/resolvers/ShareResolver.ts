@@ -1,4 +1,4 @@
-import { Resolver, Query, Arg, FieldResolver, Root, Authorized, Args, Ctx, Mutation, Info } from "type-graphql";
+import { Resolver, Query, Arg, FieldResolver, Root, Authorized, Args, Ctx, Mutation } from "type-graphql";
 import { Share } from "../models/ShareModel";
 import { Song } from "../models/SongModel";
 import { Playlist } from '../models/PlaylistModel';
@@ -19,7 +19,6 @@ import { ShareIDInput } from "../inputs/ShareIDInput";
 import { TimestampedResults } from "../models/helper/TimestampedResultModel";
 import { TimestampArgs } from "../args/pagination-args";
 import { AcceptInviationPayload } from "../models/return-models/AcceptInvitationPayloadModel";
-import { GraphQLResolveInfo } from "graphql";
 
 const TimedstampSongResult = TimestampedResults(Song)
 
