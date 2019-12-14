@@ -3,7 +3,7 @@ import { IDatabaseClient, SQL } from 'postgres-schema-builder';
 import { SongUpdateInput } from '../inputs/SongInput';
 import * as snakeCaseObjKeys from 'snakecase-keys';
 import moment = require('moment');
-import { ISongDBResult, Tables, SongsTable, SharesTable } from '../database/tables';
+import { ISongDBResult, Tables, SongsTable, SharesTable, SongPlaysTable } from '../database/tables';
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError, ValidationError } from 'apollo-server-core';
 import { Share } from '../models/ShareModel';
@@ -64,6 +64,7 @@ export interface ISongService {
 	update(shareID: string, songID: string, song: SongUpdateInput): Promise<void>;
 	searchSongs(userID: string, query: string, matcher: SongSearchMatcher[], limit?: number): Promise<Song[]>;
 	removeSongFromLibrary(libraryID: string, songID: string): Promise<SongIDUpdate[]>;
+	increasePlayCount(shareID: string, songID: string, userID: string): Promise<void>;
 }
 
 export class SongService implements ISongService, IService {
@@ -372,5 +373,15 @@ export class SongService implements ISongService, IService {
 		)
 
 		return songIDUpdates
+	}
+
+	public async increasePlayCount(shareID: string, songID: string, userID: string) {
+		const insertPlayQuery = SongPlaysTable.insertFromObj({
+			song_id_ref: songID,
+			user_id_ref: userID,
+			share_id_ref: shareID,
+		})
+
+		await this.database.query(insertPlayQuery)
 	}
 }

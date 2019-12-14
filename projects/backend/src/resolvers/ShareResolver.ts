@@ -43,7 +43,7 @@ export class ShareResolver {
 	public async songs(
 		@Root() share: Share,
 		@Arg('from', { nullable: true }) from?: number,
-		@Arg('take', { nullable: true }) take?: number
+		@Arg('take', { nullable: true }) take?: number,
 	): Promise<Song[]> {
 		const songs = await this.services.songService.getByShare(share);
 
