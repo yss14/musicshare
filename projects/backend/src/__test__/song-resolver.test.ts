@@ -9,6 +9,7 @@ import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/database";
 import moment = require("moment");
 import { SongIDUpdate } from "../return-types/SongIDUpdate";
+import uuid = require("uuid");
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
@@ -315,6 +316,66 @@ describe('remove song from library', () => {
 		expect(body).toMatchObject(makeGraphQLResponse(
 			null,
 			[{ message: `User has insufficient permissions to perform this action!` }]
+		));
+	})
+})
+
+describe.only('increase play count', () => {
+	const makeIncreaseSongPlayCountMutation = (shareID: string, songID: string) => `
+		mutation {
+			increaseSongPlayCount(input: {shareID: "${shareID}", songID: "${songID}"}){
+				user{
+					id
+				}
+				song{
+					id
+				}
+				dateAdded
+			}
+		}
+	`
+	const shareID = testData.shares.library_user1.share_id
+
+	test('existing song id succeeds', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const songID = testData.songs.song1_library_user1.song_id
+		const query = makeIncreaseSongPlayCountMutation(shareID, songID)
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+		console.log(body)
+		expect(body.data.increaseSongPlayCount).toMatchObject({
+			user: { id: testData.users.user1.user_id },
+			song: { id: songID },
+			dateAdded: expect.toBeString(),
+		})
+	})
+
+	test('not existing song id fails', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const songID = uuid()
+		const query = makeIncreaseSongPlayCountMutation(shareID, songID)
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: `Song with id ${songID} not found in share ${shareID}` }]
+		));
+	})
+
+	test('foreign existing song id fails', async () => {
+		const { graphQLServer } = await setupTest({});
+
+		const songID = testData.songs.song5_library_user3.song_id
+		const query = makeIncreaseSongPlayCountMutation(shareID, songID)
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body).toMatchObject(makeGraphQLResponse(
+			null,
+			[{ message: `Song with id ${songID} not found in share ${shareID}` }]
 		));
 	})
 })

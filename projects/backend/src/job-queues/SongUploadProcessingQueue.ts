@@ -97,7 +97,6 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 				date_added: new Date(),
 				date_removed: null,
 				share_id_ref: uploadMeta.shareID,
-				play_count: 0,
 			});
 
 			for (const playlistID of uploadMeta.playlistIDs) {
