@@ -86,10 +86,11 @@ interface ISongDataTableProps {
 
 export const SongTable: React.FC<ISongDataTableProps> = (props) => {
 	const { columns, songs, rowEvents, playlistID, contextMenuEvents, moveSong } = props
+	const enableOrdering = !playlistID
 	const [{ hoveredSong, hoveredIdx, orderByColumn, orderDirection }, dispatch] = useReducer(songTableReducer, {
 		hoveredSong: null,
 		hoveredIdx: -1,
-		orderByColumn: 'title',
+		orderByColumn: playlistID ? 'position' : 'title',
 		orderDirection: 'desc',
 	})
 	const { showContextMenu, isVisible: contextMenuVisible, ref: contextMenuRef } = useContextMenu()
@@ -177,8 +178,8 @@ export const SongTable: React.FC<ISongDataTableProps> = (props) => {
 					<HeaderCol
 						key={column.title}
 						style={{ width: calculatedColumnWidths[column.key] }}
-						onClick={() => dispatch(setOrderCriteria(column.key, toggleDirection(orderDirection)))}
-						selected={orderByColumn === column.key}
+						onClick={enableOrdering ? () => dispatch(setOrderCriteria(column.key, toggleDirection(orderDirection))) : undefined}
+						selected={enableOrdering && orderByColumn === column.key}
 						direction={orderDirection}
 					>
 						{column.title}
