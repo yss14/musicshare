@@ -40,4 +40,8 @@ export class SongServiceMock implements ISongService {
 	public async removeSongFromLibrary(): Promise<any> {
 		throw 'Not implemented yet';
 	}
+
+	public async increasePlayCount(songID: string, userID: string): Promise<void> {
+		throw 'Not implemented yet';
+	}
 }
