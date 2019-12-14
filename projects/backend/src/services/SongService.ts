@@ -175,6 +175,20 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		)))
 	}
 
+	const addLibrarySongsToShare = async (shareID: string, libraryID: string) => {
+		const librarySongs = await getByShare(libraryID)
+
+		const insertShareSongsInsertQuery = librarySongs.map(song => ShareSongsTable.insertFromObj({
+			share_id_ref: shareID,
+			song_id_ref: song.id,
+		}))
+		const startTime = Date.now()
+		await database.transaction(async (transaction) => {
+			await Promise.all(insertShareSongsInsertQuery.map(query => transaction.query(query)))
+		})
+		console.log(`Took ${Date.now() - startTime}ms`)
+	}
+
 	const update = async (shareID: string, songID: string, song: SongUpdateInput): Promise<void> => {
 		const baseSong: Partial<ISongDBResult> = {
 			...snakeCaseObjKeys(song as any),
@@ -356,5 +370,6 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		searchSongs,
 		removeSongFromLibrary,
 		increasePlayCount,
+		addLibrarySongsToShare,
 	}
 }

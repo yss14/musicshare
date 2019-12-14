@@ -270,6 +270,37 @@ export const testData: ITestDataSchema = {
 	}
 }
 
+export const createTestSongs = (amount: number) => {
+	const prefilledArray = createPrefilledArray(amount, {});
+	const songInserts = prefilledArray
+		.map((_, idx): Required<ISongDBResult> => ({
+			song_id: uuid(),
+			title: faker.name.findName(),
+			suffix: null,
+			year: null,
+			bpm: null,
+			date_last_edit: new Date(),
+			release_date: null,
+			is_rip: false,
+			artists: [faker.name.firstName(), faker.name.lastName()],
+			remixer: [],
+			featurings: [],
+			type: 'Remix',
+			genres: ['Some Genre'],
+			labels: null,
+			requires_user_action: false,
+			sources: makeFileSourceJSONType(
+				makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3')
+			),
+			duration: 120 + Math.floor(Math.random() * 400),
+			tags: [],
+			date_added: new Date(),
+			date_removed: null,
+		}));
+
+	return songInserts
+}
+
 interface IMakeDatabaseSeedArgs {
 	database: IDatabaseClient;
 	services: IServices;
@@ -327,32 +358,7 @@ export const seedDatabase = async ({ database, services }: IMakeDatabaseSeedArgs
 	}
 
 	if (__DEV__) {
-		const prefilledArray = createPrefilledArray(100, {});
-		const songInserts = prefilledArray
-			.map((_, idx): Required<ISongDBResult> => ({
-				song_id: uuid(),
-				title: faker.name.findName(),
-				suffix: null,
-				year: null,
-				bpm: null,
-				date_last_edit: new Date(),
-				release_date: null,
-				is_rip: false,
-				artists: [faker.name.firstName(), faker.name.lastName()],
-				remixer: [],
-				featurings: [],
-				type: 'Remix',
-				genres: ['Some Genre'],
-				labels: null,
-				requires_user_action: false,
-				sources: makeFileSourceJSONType(
-					makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3')
-				),
-				duration: 120 + Math.floor(Math.random() * 400),
-				tags: [],
-				date_added: new Date(),
-				date_removed: null,
-			}));
+		const songInserts = createTestSongs(100)
 
 		for (const songInsert of songInserts) {
 			await songService.create(libraryUser1ShareID, songInsert)

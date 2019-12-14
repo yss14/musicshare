@@ -44,4 +44,8 @@ export class SongServiceMock implements ISongService {
 	public async increasePlayCount(songID: string, userID: string): Promise<void> {
 		throw 'Not implemented yet';
 	}
+
+	public async addLibrarySongsToShare(): Promise<void> {
+		throw 'Not implemented yet';
+	}
 }

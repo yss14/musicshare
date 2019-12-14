@@ -178,7 +178,9 @@ export class ShareResolver {
 				throw new ForbiddenError('User already member of share')
 			}
 
+			const userLibrary = userShares.find(share => share.isLibrary)!
 			await this.services.shareService.addUser(shareID, user.id, Permissions.NEW_MEMBER)
+			await this.services.songService.addLibrarySongsToShare(shareID, userLibrary.id)
 
 			return null
 		} catch (err) {

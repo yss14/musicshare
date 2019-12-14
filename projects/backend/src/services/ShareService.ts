@@ -68,24 +68,6 @@ export const ShareService = (database: IDatabaseClient) => {
 		return dbResults.map(Share.fromDBResult)
 	}
 
-	const getLinkedLibrariesOfShare = async (shareID: string): Promise<Share[]> => {
-		const dbResults = await database.query(
-			SQL.raw<typeof Tables.shares>(`
-				SELECT l.*
-				FROM shares s
-				INNER JOIN user_shares us1 ON us1.share_id_ref = s.share_id
-				INNER JOIN user_shares us2 ON us1.user_id_ref = us2.user_id_ref
-				INNER JOIN shares l ON l.share_id = us2.share_id_ref
-				WHERE s.date_removed IS NULL
-					AND l.date_removed IS NULL
-					AND l.is_library = true
-					AND s.share_id = $1;
-			`, [shareID])
-		)
-
-		return dbResults.map(Share.fromDBResult)
-	}
-
 	const getLinkedShares = async (libraryID: string) => {
 		const dbResults = await database.query(
 			SQL.raw<typeof Tables.shares>(`
@@ -153,7 +135,6 @@ export const ShareService = (database: IDatabaseClient) => {
 	return {
 		getSharesOfUser,
 		getShareByID,
-		getLinkedLibrariesOfShare,
 		getLinkedLibrariesOfUser,
 		getLinkedShares,
 		create,
