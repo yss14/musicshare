@@ -343,7 +343,7 @@ describe('increase play count', () => {
 		const query = makeIncreaseSongPlayCountMutation(shareID, songID)
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
-		console.log(body)
+
 		expect(body.data.increaseSongPlayCount).toMatchObject({
 			user: { id: testData.users.user1.user_id },
 			song: { id: songID },

@@ -9,7 +9,7 @@ import { ForbiddenError, ValidationError } from 'apollo-server-core';
 import { Share } from '../models/ShareModel';
 import { uniqBy, flatten, take } from 'lodash'
 import { SongSearchMatcher } from '../inputs/SongSearchInput';
-import { IService, IServices } from './services';
+import { IService, IServices, ServiceFactory } from './services';
 import { SongIDUpdate } from '../return-types/SongIDUpdate';
 import { isFileUpload } from '../models/FileSourceModels';
 
@@ -53,30 +53,12 @@ const sqlFragements = {
 		)`,
 }
 
-export interface ISongService {
-	getByID(shareID: string, songID: string): Promise<Song>;
-	getByID(share: Share, songID: string, userID: string): Promise<Song>
-	getByShare(share: ShareLike): Promise<Song[]>;
-	getSongOriginLibrary(songID: string): Promise<Share | null>;
-	hasAccessToSongs(userID: string, songIDs: string[]): Promise<boolean>;
-	getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]>;
-	create(shareID: string, song: ISongDBResult): Promise<string>;
-	update(shareID: string, songID: string, song: SongUpdateInput): Promise<void>;
-	searchSongs(userID: string, query: string, matcher: SongSearchMatcher[], limit?: number): Promise<Song[]>;
-	removeSongFromLibrary(libraryID: string, songID: string): Promise<SongIDUpdate[]>;
-	increasePlayCount(shareID: string, songID: string, userID: string): Promise<void>;
-}
+export type ISongService = ReturnType<typeof SongService>
 
-export class SongService implements ISongService, IService {
-	public readonly services!: IServices;
-
-	constructor(
-		private readonly database: IDatabaseClient,
-	) { }
-
-	public async getByID(share: ShareLike, songID: string, userID?: string): Promise<Song> {
+export const SongService = (database: IDatabaseClient, services: ServiceFactory) => {
+	const getByID = async (share: ShareLike, songID: string, userID?: string): Promise<Song> => {
 		const getByShare = async (shareID: string) => {
-			const dbResults = await this.database.query(
+			const dbResults = await database.query(
 				SQL.raw<typeof Tables.songs>(`
 					SELECT s.*
 					FROM ${SongsTable.name} s
@@ -96,8 +78,8 @@ export class SongService implements ISongService, IService {
 		} else if (typeof userID === 'undefined') {
 			return getByShare(share.id);
 		} else {
-			const hasAccessToSong = await this.hasAccessToSongs(userID, [songID])
-			const originShare = await this.getSongOriginLibrary(songID)
+			const hasAccessToSong = await hasAccessToSongs(userID, [songID])
+			const originShare = await getSongOriginLibrary(songID)
 
 			if (!hasAccessToSong || !originShare) {
 				throw new SongNotFoundError(share.id, songID);
@@ -107,13 +89,13 @@ export class SongService implements ISongService, IService {
 		}
 	}
 
-	public async getByShare(share: ShareLike): Promise<Song[]> {
+	const getByShare = async (share: ShareLike): Promise<Song[]> => {
 		if (typeof share === 'string') {
-			return this.getByShares([share])
+			return getByShares([share])
 		} else if (share.isLibrary) {
-			return this.getByShares([share.id]);
+			return getByShares([share.id]);
 		} else {
-			const shareLibrariesResult = await this.database.query(
+			const shareLibrariesResult = await database.query(
 				SQL.raw<typeof Tables.shares>(`
 					SELECT DISTINCt sl.*
 					FROM shares sl, user_shares su, user_shares ul
@@ -125,14 +107,14 @@ export class SongService implements ISongService, IService {
 				`, [share.id])
 			);
 
-			const mergedSongs = await this.getByShares(shareLibrariesResult.map(result => result.share_id));
+			const mergedSongs = await getByShares(shareLibrariesResult.map(result => result.share_id));
 
 			return uniqBy(mergedSongs, song => song.id);
 		}
 	}
 
-	private async getByShares(shareIDs: string[]): Promise<Song[]> {
-		const dbResults = await this.database.query(
+	const getByShares = async (shareIDs: string[]): Promise<Song[]> => {
+		const dbResults = await database.query(
 			SQL.raw<typeof Tables.songs>(`
 				SELECT s.*
 				FROM ${SongsTable.name} s
@@ -145,8 +127,8 @@ export class SongService implements ISongService, IService {
 			.map(result => Song.fromDBResult(result));
 	}
 
-	public async getSongOriginLibrary(songID: string): Promise<Share | null> {
-		const dbResults = await this.database.query(
+	const getSongOriginLibrary = async (songID: string): Promise<Share | null> => {
+		const dbResults = await database.query(
 			SQL.raw<typeof Tables.shares>(`
 				SELECT libraries.*
 				FROM ${SongsTable.name} s
@@ -164,8 +146,8 @@ export class SongService implements ISongService, IService {
 		}
 	}
 
-	public async hasAccessToSongs(userID: string, songIDs: string[]): Promise<boolean> {
-		const dbResults = await this.database.query(
+	const hasAccessToSongs = async (userID: string, songIDs: string[]): Promise<boolean> => {
+		const dbResults = await database.query(
 			SQL.raw<typeof Tables.songs>(`
 				${sqlFragements.accessableShares}
 				SELECT DISTINCT songs.song_id
@@ -181,39 +163,39 @@ export class SongService implements ISongService, IService {
 		return songIDs.every(songID => accessibleSongIDs.has(songID))
 	}
 
-	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]> {
-		const songs = await this.getByShare(shareID);
+	const getByShareDirty = async (shareID: string, lastTimestamp: number): Promise<Song[]> => {
+		const songs = await getByShare(shareID);
 
 		return songs.filter(song => moment(song.dateLastEdit).valueOf() > lastTimestamp); // TODO do via SQL query
 	}
 
-	public async create(shareID: string, song: ISongDBResult): Promise<string> {
+	const create = async (shareID: string, song: ISongDBResult): Promise<string> => {
 		// istanbul ignore next
 		let id = song.song_id || uuid();
 		const sources = { data: song.sources.data || [] };
 
-		await this.database.query(SongsTable.insertFromObj({ ...song, sources: sources, share_id_ref: shareID }));
+		await database.query(SongsTable.insertFromObj({ ...song, sources: sources, share_id_ref: shareID }));
 
 		return id.toString();
 	}
 
-	public async update(shareID: string, songID: string, song: SongUpdateInput): Promise<void> {
+	const update = async (shareID: string, songID: string, song: SongUpdateInput): Promise<void> => {
 		const baseSong: Partial<ISongDBResult> = {
 			...snakeCaseObjKeys(song as any),
 			date_last_edit: new Date(),
 		}
 
-		await this.updateShareSong(shareID, songID, baseSong);
+		await updateShareSong(shareID, songID, baseSong);
 	}
 
-	private async updateShareSong(shareID: string, songID: string, baseSong: Partial<ISongDBResult>) {
-		await this.database.query(
+	const updateShareSong = async (shareID: string, songID: string, baseSong: Partial<ISongDBResult>) => {
+		await database.query(
 			SongsTable.update(Object.keys(baseSong) as any, ['song_id'])
 				(Object.values(baseSong), [songID])
 		);
 	}
 
-	public async searchSongs(userID: string, query: string, matchers: SongSearchMatcher[], limit: number = 20): Promise<Song[]> {
+	const searchSongs = async (userID: string, query: string, matchers: SongSearchMatcher[], limit: number = 20): Promise<Song[]> => {
 		const tokenizedQuery = tokenizeQuery(query)
 
 		if (tokenizedQuery.length === 0) {
@@ -259,7 +241,7 @@ export class SongService implements ISongService, IService {
 				AND (${where});
 		`
 
-		const dbResults = await this.database.query(
+		const dbResults = await database.query(
 			SQL.raw<typeof Tables.songs>(sql, [userID])
 		)
 
@@ -293,8 +275,10 @@ export class SongService implements ISongService, IService {
 		)
 	}
 
-	public async removeSongFromLibrary(libraryID: string, songID: string): Promise<SongIDUpdate[]> {
-		const affectedPlaylists = await this.database.query(
+	const removeSongFromLibrary = async (libraryID: string, songID: string): Promise<SongIDUpdate[]> => {
+		const { shareService } = services()
+
+		const affectedPlaylists = await database.query(
 			SQL.raw<typeof Tables.playlists & typeof Tables.shares>(`
 				SELECT playlists.playlist_id, playlists.name, shares.share_id, shares.is_library
 				FROM playlists
@@ -311,14 +295,14 @@ export class SongService implements ISongService, IService {
 		const affectedSharePlaylists = affectedForeignPlaylists.filter(result => !result.is_library)
 
 		// copy songs to affected libraries and update playlists of those libraries
-		const songResult = (await this.database.query(SongsTable.select('*', ['song_id'])([songID])))[0]
+		const songResult = (await database.query(SongsTable.select('*', ['song_id'])([songID])))[0]
 		const affectedLibraryIDs = new Set(affectedLibraryPlaylists.map(result => result.share_id))
 
 		const copiedSongLibraryMappings = new Map<string, string>()
 
 		for (const affectedLibraryID of affectedLibraryIDs) {
 			const newSongID = uuid()
-			await this.create(affectedLibraryID, {
+			await create(affectedLibraryID, {
 				...songResult,
 				song_id: newSongID,
 				sources: {
@@ -332,7 +316,7 @@ export class SongService implements ISongService, IService {
 			)
 
 			for (const playlistID of playlistIDs) {
-				await this.database.query(SQL.raw(`
+				await database.query(SQL.raw(`
 					UPDATE playlist_songs SET song_id_ref = $1 WHERE playlist_id_ref = $2 AND song_id_ref = $3;
 				`, [newSongID, playlistID, songID]))
 			}
@@ -344,7 +328,7 @@ export class SongService implements ISongService, IService {
 		const songIDUpdates: SongIDUpdate[] = []
 
 		for (const affectedSharePlaylist of affectedSharePlaylists) {
-			const linkedLibrariesOfShare = await this.services.shareService.getLinkedLibrariesOfShare(affectedSharePlaylist.share_id)
+			const linkedLibrariesOfShare = await shareService.getLinkedLibrariesOfShare(affectedSharePlaylist.share_id)
 			const linkedLibraryWithSong = linkedLibrariesOfShare.find(linkedLibrary => affectedLibraryIDs.has(linkedLibrary.id))
 
 			if (!linkedLibraryWithSong) continue
@@ -353,7 +337,7 @@ export class SongService implements ISongService, IService {
 
 			if (!newSongID) continue
 
-			await this.database.query(SQL.raw(`
+			await database.query(SQL.raw(`
 					UPDATE playlist_songs SET song_id_ref = $1 WHERE playlist_id_ref = $2 AND song_id_ref = $3;
 				`, [newSongID, affectedSharePlaylist.playlist_id, songID]))
 
@@ -368,20 +352,33 @@ export class SongService implements ISongService, IService {
 			)
 		}
 
-		await this.database.query(
+		await database.query(
 			SongsTable.update(['date_removed'], ['song_id'])([new Date()], [songID])
 		)
 
 		return songIDUpdates
 	}
 
-	public async increasePlayCount(shareID: string, songID: string, userID: string) {
+	const increasePlayCount = async (shareID: string, songID: string, userID: string) => {
 		const insertPlayQuery = SongPlaysTable.insertFromObj({
 			song_id_ref: songID,
 			user_id_ref: userID,
 			share_id_ref: shareID,
 		})
 
-		await this.database.query(insertPlayQuery)
+		await database.query(insertPlayQuery)
+	}
+
+	return {
+		getByID,
+		getByShare,
+		getSongOriginLibrary,
+		hasAccessToSongs,
+		getByShareDirty,
+		create,
+		update,
+		searchSongs,
+		removeSongFromLibrary,
+		increasePlayCount,
 	}
 }

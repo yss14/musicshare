@@ -9,7 +9,7 @@ export class SongServiceMock implements ISongService {
 		throw 'Not implemented yet';
 	}
 
-	public async getByShare(shareID: string): Promise<Song[]> {
+	public async getByShare(): Promise<Song[]> {
 		throw 'Not implemented yet';
 	}
 
