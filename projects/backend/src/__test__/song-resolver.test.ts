@@ -79,7 +79,7 @@ describe('update song mutation', () => {
 	});
 
 	test('title null', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			title: null as any,
@@ -95,7 +95,7 @@ describe('update song mutation', () => {
 	});
 
 	test('title empty', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			title: '',
@@ -111,7 +111,7 @@ describe('update song mutation', () => {
 	});
 
 	test('invalid year', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			year: 195,
@@ -127,7 +127,7 @@ describe('update song mutation', () => {
 	});
 
 	test('empty artist item', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			artists: ['some valid', ''],
@@ -143,7 +143,7 @@ describe('update song mutation', () => {
 	});
 
 	test('null artist', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			artists: null as any,
@@ -159,7 +159,7 @@ describe('update song mutation', () => {
 	});
 
 	test('null artist item', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			artists: ['some valid', null],
@@ -170,7 +170,7 @@ describe('update song mutation', () => {
 	});
 
 	test('null type', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			type: null as any,
@@ -186,7 +186,7 @@ describe('update song mutation', () => {
 	});
 
 	test('empty type', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			type: '',
@@ -202,7 +202,7 @@ describe('update song mutation', () => {
 	});
 
 	test('insufficient permissions', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 		const input: any = <SongUpdateInput>{
 			type: '',
 		}
@@ -235,7 +235,7 @@ describe('update song mutation', () => {
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
-			[{ message: `Song with id ${songID} not found in share ${shareID}` }]
+			[{ message: `Users access to this song is permitted!` }]
 		));
 	})
 });

@@ -3,10 +3,9 @@ import { IDatabaseClient, SQL, IDatabaseBaseClient } from 'postgres-schema-build
 import { SongUpdateInput } from '../inputs/SongInput';
 import * as snakeCaseObjKeys from 'snakecase-keys';
 import moment = require('moment');
-import { ISongDBResult, Tables, SongsTable, SharesTable, SongPlaysTable, ShareSongsTable, SongDBResultWithLibrary } from '../database/tables';
+import { ISongDBResult, Tables, SongsTable, SongPlaysTable, ShareSongsTable, SongDBResultWithLibrary } from '../database/tables';
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError, ValidationError } from 'apollo-server-core';
-import { Share } from '../models/ShareModel';
 import { flatten, take } from 'lodash'
 import { SongSearchMatcher } from '../inputs/SongSearchInput';
 import { ServiceFactory } from './services';
@@ -18,8 +17,6 @@ export class SongNotFoundError extends ForbiddenError {
 	}
 }
 
-type ShareLike = Share | { id: string, isLibrary: boolean } | string;
-
 const tokenizeQuery = (query: string) => query
 	.trim()
 	.toLowerCase()
@@ -27,30 +24,6 @@ const tokenizeQuery = (query: string) => query
 	.split(' ')
 	.map(token => token.trim())
 	.filter(token => token.length > 0)
-
-const sqlFragements = {
-	accessableShares: `
-		WITH usershares as (
-			SELECT DISTINCT user_shares.share_id_ref as share_id
-			FROM user_shares, shares
-			WHERE user_shares.user_id_ref = $1
-				AND user_shares.share_id_ref = shares.share_id
-				AND shares.date_removed IS NULL
-		),
-		relatedlibraries as (
-			SELECT DISTINCT libraries.share_id
-			FROM shares as libraries, user_shares us1, user_shares us2, usershares
-			WHERE usershares.share_id = us1.share_id_ref
-				AND us1.user_id_ref = us2.user_id_ref
-				AND us2.share_id_ref = libraries.share_id
-				AND libraries.date_removed IS NULL
-		),
-		accessibleshares as (
-			SELECT * FROM usershares
-			UNION DISTINCT
-			SELECT * FROM relatedlibraries
-		)`,
-}
 
 export type ISongService = ReturnType<typeof SongService>
 
@@ -97,40 +70,43 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		return dbResults.map(Song.fromDBResult)
 	}
 
-	const getSongOriginLibrary = async (songID: string): Promise<Share | null> => {
-		throw 'getSongOriginLibrary() not implemented yet'
+	const hasReadAccessToSongs = async (userID: string, songIDs: string[]): Promise<boolean> => {
 		const dbResults = await database.query(
-			SQL.raw<typeof Tables.shares>(`
-				SELECT libraries.*
-				FROM ${SongsTable.name} s
-				INNER JOIN ${SharesTable.name} libraries ON libraries.share_id = s.share_id_ref
-				WHERE s.song_id = $1
-					AND libraries.date_removed IS NULL 
-					AND s.date_removed IS NULL;
-			`, [songID])
+			SQL.raw<typeof Tables.share_songs>(`
+				SELECT ss.*
+				FROM shares s
+				INNER JOIN user_shares us1 ON us1.share_id_ref = s.share_id
+				INNER JOIN user_shares us2 ON us1.user_id_ref = us2.user_id_ref
+				INNER JOIN shares l ON l.share_id = us2.share_id_ref
+				INNER JOIN share_songs ss ON ss.share_id_ref = s.share_id
+				WHERE us2.user_id_ref = $1
+					AND s.date_removed IS NULL
+					AND l.date_removed IS NULL
+					AND s.is_library = false
+					AND (${songIDs.map((id, idx) => `ss.song_id_ref = $${idx + 2}`).join(' OR ')})
+			`, [userID, ...songIDs])
 		)
 
-		if (dbResults.length > 0) {
-			return Share.fromDBResult(dbResults[0]);
-		} else {
-			return null;
-		}
+		const accessibleSongIDs = new Set(dbResults.map(result => result.song_id_ref))
+
+		return songIDs.every(songID => accessibleSongIDs.has(songID))
 	}
 
-	const hasAccessToSongs = async (userID: string, songIDs: string[]): Promise<boolean> => {
-		throw 'hasAccessToSongs() not implemented yet'
+	const hasWriteAccessToSongs = async (userID: string, songIDs: string[]): Promise<boolean> => {
 		const dbResults = await database.query(
-			SQL.raw<typeof Tables.songs>(`
-				${sqlFragements.accessableShares}
-				SELECT DISTINCT songs.song_id
-				FROM songs, accessibleshares
-				WHERE songs.share_id_ref = accessibleshares.share_id
-					AND songs.date_removed IS NULL;
-			
-			`, [userID])
+			SQL.raw<typeof Tables.share_songs>(`
+				SELECT ss.*
+				FROM shares l
+				INNER JOIN user_shares us ON us.share_id_ref = l.share_id
+				INNER JOIN share_songs ss ON ss.share_id_ref = l.share_id
+				WHERE us.user_id_ref = $1
+					AND l.date_removed IS NULL
+					AND l.is_library = true
+					AND (${songIDs.map((id, idx) => `ss.song_id_ref = $${idx + 2}`).join(' OR ')})
+			`, [userID, ...songIDs])
 		)
 
-		const accessibleSongIDs = new Set(dbResults.map(result => result.song_id))
+		const accessibleSongIDs = new Set(dbResults.map(result => result.song_id_ref))
 
 		return songIDs.every(songID => accessibleSongIDs.has(songID))
 	}
@@ -357,8 +333,8 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 	return {
 		getByID,
 		getByShare,
-		getSongOriginLibrary,
-		hasAccessToSongs,
+		hasReadAccessToSongs,
+		hasWriteAccessToSongs,
 		getByShareDirty,
 		create,
 		update,
