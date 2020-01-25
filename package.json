@@ -133,7 +133,7 @@
 		"azurite": "^3.2.0-preview",
 		"codecov": "^3.6.1",
 		"concurrently": "^5.0.0",
-		"cross-env": "^6.0.3",
+		"cross-env": "^7.0.0",
 		"eslint": "^6.6.0",
 		"eslint-plugin-react-hooks": "^2.2.0",
 		"find-free-port": "^2.0.0",
