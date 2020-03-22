@@ -32,7 +32,7 @@
 		"@apollo/react-hooks": "^3.0.0",
 		"@types/graphql": "^14.2.0",
 		"@types/graphql-relay": "^0.4.11",
-		"antd": "^3.25.1",
+		"antd": "^4.0.3",
 		"apollo-cache-inmemory": "^1.5.1",
 		"apollo-client": "^2.5.1",
 		"apollo-link": "^1.2.11",
