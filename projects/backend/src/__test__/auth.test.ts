@@ -351,7 +351,7 @@ describe('auth middleware', () => {
 		test('check ref defaults to true', async () => {
 			const database = makeMockedDatabase();
 			(database.query as jest.Mock).mockReturnValue([]);
-			const shareService = ShareService(database);
+			const shareService = ShareService(database, jest.fn());
 
 			const shareID = uuid();
 			const middleware = makeShareAuthMiddleware({}) as Function;

@@ -4,7 +4,7 @@ import { Share } from "./ShareModel";
 import { Nullable } from '../types/Nullable';
 import { ISong } from './interfaces/ISong';
 import { plainToClass } from 'class-transformer';
-import { ISongDBResult, IShareSongDBResult } from '../database/tables';
+import { ISongDBResult } from '../database/tables';
 import moment = require('moment');
 import { filterNull } from '../utils/array/filter-null'
 import { connectionTypes } from '../relay/relay';

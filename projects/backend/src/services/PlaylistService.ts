@@ -1,7 +1,7 @@
 import { IDatabaseClient, SQL } from "postgres-schema-builder";
 import { Playlist } from "../models/PlaylistModel";
 import { ISongService } from "./SongService";
-import { IPlaylistDBResult, PlaylistsTable, SharePlaylistsTable, PlaylistSongsTable, SongsTable, Tables, ShareSongsTable, SongDBResultWithLibrary } from "../database/tables";
+import { IPlaylistDBResult, PlaylistsTable, SharePlaylistsTable, PlaylistSongsTable, SongsTable, Tables, SongDBResultWithLibrary } from "../database/tables";
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError } from "apollo-server-core";
 import { PlaylistSong } from "../models/PlaylistSongModel";
