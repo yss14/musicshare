@@ -8,7 +8,6 @@ import { makeMockedDatabase } from "./mocks/mock-database";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/database";
 import moment = require("moment");
-import { SongIDUpdate } from "../return-types/SongIDUpdate";
 import uuid = require("uuid");
 
 const { cleanUp, getDatabase } = setupTestSuite();
@@ -80,7 +79,7 @@ describe('update song mutation', () => {
 	});
 
 	test('title null', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			title: null as any,
@@ -96,7 +95,7 @@ describe('update song mutation', () => {
 	});
 
 	test('title empty', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			title: '',
@@ -112,7 +111,7 @@ describe('update song mutation', () => {
 	});
 
 	test('invalid year', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			year: 195,
@@ -128,7 +127,7 @@ describe('update song mutation', () => {
 	});
 
 	test('empty artist item', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			artists: ['some valid', ''],
@@ -144,7 +143,7 @@ describe('update song mutation', () => {
 	});
 
 	test('null artist', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			artists: null as any,
@@ -160,7 +159,7 @@ describe('update song mutation', () => {
 	});
 
 	test('null artist item', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			artists: ['some valid', null],
@@ -171,7 +170,7 @@ describe('update song mutation', () => {
 	});
 
 	test('null type', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			type: null as any,
@@ -187,7 +186,7 @@ describe('update song mutation', () => {
 	});
 
 	test('empty type', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 
 		const input: any = <SongUpdateInput>{
 			type: '',
@@ -203,7 +202,7 @@ describe('update song mutation', () => {
 	});
 
 	test('insufficient permissions', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
+		const { graphQLServer } = await setupTest({});
 		const input: any = <SongUpdateInput>{
 			type: '',
 		}
@@ -236,7 +235,7 @@ describe('update song mutation', () => {
 
 		expect(body).toMatchObject(makeGraphQLResponse(
 			{ updateSong: null },
-			[{ message: `Song with id ${songID} not found in share ${shareID}` }]
+			[{ message: `Users access to this song is permitted!` }]
 		));
 	})
 });
@@ -244,13 +243,7 @@ describe('update song mutation', () => {
 describe('remove song from library', () => {
 	const makeRemoveSongFromLibraryMutation = (libraryID: string, songID: string) => `
 		mutation {
-			removeSongFromLibrary(input: {shareID: "${libraryID}", songID: "${songID}"}){
-				shareID
-				playlistID
-				oldSongID
-				newSongID
-				newLibraryID
-			}
+			removeSongFromLibrary(input: {shareID: "${libraryID}", songID: "${songID}"})
 		}
 	`
 
@@ -263,17 +256,7 @@ describe('remove song from library', () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		const expectedSongIDUpdates: Partial<SongIDUpdate>[] = [
-			{
-				newLibraryID: testData.shares.library_user2.share_id,
-				newSongID: expect.toBeString(),
-				oldSongID: song.song_id,
-				playlistID: testData.playlists.playlist_some_shared_library.playlist_id,
-				shareID: testData.shares.some_share.share_id,
-			}
-		]
-
-		expect(body.data.removeSongFromLibrary).toEqual(expectedSongIDUpdates)
+		expect(body.data.removeSongFromLibrary).toBeTrue()
 
 		const ownLibrarySongs = await songService.getByShare(shareID)
 		expect(ownLibrarySongs.map(song => song.id)).not.toContain(song.song_id)
@@ -286,7 +269,7 @@ describe('remove song from library', () => {
 		expect(foreignLibrarySongs.map(song => song.title)).toContain(song.title)
 
 		const someSharePlaylistSongs = await playlistService.getSongs(testData.playlists.playlist_some_shared_library.playlist_id)
-		expect(someSharePlaylistSongs.map(song => song.title)).toContain(song.title)
+		expect(someSharePlaylistSongs.map(song => song.title)).not.toContain(song.title)
 	})
 
 	test('song of linked library not permitted', async () => {
@@ -343,7 +326,7 @@ describe('increase play count', () => {
 		const query = makeIncreaseSongPlayCountMutation(shareID, songID)
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
-		console.log(body)
+
 		expect(body.data.increaseSongPlayCount).toMatchObject({
 			user: { id: testData.users.user1.user_id },
 			song: { id: songID },

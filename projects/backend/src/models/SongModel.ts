@@ -25,6 +25,11 @@ const mapFileSourceModel = (entry: FileSource): FileSource | null => {
 	return null
 }
 
+export type ISongDBResultWithLibrary = ISongDBResult & { library_id: string }
+
+const isSongDBResultWithLibrary = (obj: any): obj is ISongDBResultWithLibrary => typeof obj === 'object'
+	&& typeof obj.library_id === 'string'
+
 @ObjectType({ description: 'This represents a song and its properties' })
 export class Song implements Nullable<ISong>{
 	@Field()
@@ -90,6 +95,8 @@ export class Song implements Nullable<ISong>{
 	@Field(type => String)
 	public readonly libraryID!: string;
 
+	public static fromDBResult(row: ISongDBResultWithLibrary): Song;
+	public static fromDBResult(row: ISongDBResult, libraryID: string): Song;
 	public static fromDBResult(row: ISongDBResult, libraryID?: string): Song {
 		return plainToClass(
 			Song,
@@ -114,7 +121,7 @@ export class Song implements Nullable<ISong>{
 				duration: row.duration,
 				tags: row.tags || [],
 				dateAdded: row.date_added.toISOString(),
-				libraryID: libraryID ? libraryID : row.share_id_ref,
+				libraryID: isSongDBResultWithLibrary(row) ? row.library_id : libraryID,
 			}
 		)
 	}

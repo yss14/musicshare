@@ -45,7 +45,7 @@ export class ShareResolver {
 		@Arg('from', { nullable: true }) from?: number,
 		@Arg('take', { nullable: true }) take?: number,
 	): Promise<Song[]> {
-		const songs = await this.services.songService.getByShare(share);
+		const songs = await this.services.songService.getByShare(share.id)
 
 		const startIdx = (from || 1) - 1;
 		const endIdx = (take || songs.length) - 1;
@@ -75,7 +75,7 @@ export class ShareResolver {
 		@Arg('id') id: string,
 		@Ctx() { userID }: IGraphQLContext,
 	): Promise<Song | null> {
-		return this.services.songService.getByID(share, id, userID!);
+		return this.services.songService.getByID(share.id, id);
 	}
 
 	@Authorized()
@@ -178,7 +178,9 @@ export class ShareResolver {
 				throw new ForbiddenError('User already member of share')
 			}
 
+			const userLibrary = userShares.find(share => share.isLibrary)!
 			await this.services.shareService.addUser(shareID, user.id, Permissions.NEW_MEMBER)
+			await this.services.songService.addLibrarySongsToShare(shareID, userLibrary.id)
 
 			return null
 		} catch (err) {

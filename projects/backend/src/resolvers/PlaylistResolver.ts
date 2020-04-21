@@ -70,7 +70,7 @@ export class PlaylistResolver {
 		@Args() { songIDs }: SongIDsArg,
 		@Ctx() { userID }: IGraphQLContext,
 	): Promise<PlaylistSong[]> {
-		if (!(await this.services.songService.hasAccessToSongs(userID!, songIDs))) {
+		if (!(await this.services.songService.hasReadAccessToSongs(userID!, songIDs))) {
 			throw new ForbiddenError('User has no permission to add those song ids to a playlist')
 		}
 

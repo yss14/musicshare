@@ -1,4 +1,4 @@
-import { TableRecord, Table } from "postgres-schema-builder";
+import { TableRecord, Table, TableSchema, ColumnType } from "postgres-schema-builder";
 import { DatabaseV1 } from "./versions/SchemaV1";
 
 export const Tables = DatabaseV1;
@@ -13,6 +13,7 @@ export interface IUserLoginCredentialDBResult extends TableRecord<typeof Tables.
 export interface IShareTokenDBResult extends TableRecord<typeof Tables.share_tokens> { }
 export interface IFileUploadLogDBResult extends TableRecord<typeof Tables.file_upload_logs> { }
 export interface ISongPlayDBResult extends TableRecord<typeof Tables.song_plays> { }
+export interface IShareSongDBResult extends TableRecord<typeof Tables.share_songs> { }
 
 export const UsersTable = Table(Tables, 'users');
 export const SharesTable = Table(Tables, 'shares');
@@ -27,3 +28,11 @@ export const UserLoginCredentialsTable = Table(Tables, 'user_login_credentials')
 export const ShareTokensTable = Table(Tables, 'share_tokens');
 export const FileUploadLogsTable = Table(Tables, 'file_upload_logs');
 export const SongPlaysTable = Table(Tables, 'song_plays');
+export const ShareSongsTable = Table(Tables, 'share_songs')
+
+// common helper types for custom sql queries
+const library_id_query = TableSchema({
+	library_id: { type: ColumnType.UUID, nullable: false },
+})
+
+export type SongDBResultWithLibrary = typeof Tables.songs & typeof library_id_query

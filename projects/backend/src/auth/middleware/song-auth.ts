@@ -18,17 +18,29 @@ export const makeSongAuthMiddleware = (permissions?: Permissions.Song[]): Middle
 			throw new Error('Share reference not found');
 		}
 
-		await songService.getByID(shareID, songID);
-
 		if (permissions) {
 			const isPermitted = hasAllPermissions(
 				permissions,
 				getCurrentPermissionsForShare(shareID, scopes),
-			);
+			)
 
 			if (!isPermitted) {
 				throw new Error(`User has insufficient permissions to perform this action!`);
 			}
+
+			let songAccess = false
+			if (permissions.includes(Permissions.SONG_MODIFY)) {
+				songAccess = await songService.hasWriteAccessToSongs(context.userID!, [songID])
+			} else {
+				songAccess = await songService.hasReadAccessToSongs(context.userID!, [songID])
+			}
+
+			if (!songAccess) {
+				throw new Error(`Users access to this song is permitted!`);
+			}
+		} else {
+			// check if song exists
+			await songService.getByID(shareID, songID)
 		}
 
 		return next();

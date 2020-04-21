@@ -9,7 +9,7 @@ export class SongServiceMock implements ISongService {
 		throw 'Not implemented yet';
 	}
 
-	public async getByShare(shareID: string): Promise<Song[]> {
+	public async getByShare(): Promise<Song[]> {
 		throw 'Not implemented yet';
 	}
 
@@ -17,7 +17,11 @@ export class SongServiceMock implements ISongService {
 		throw 'Not implemented yet';
 	}
 
-	public async hasAccessToSongs(userID: string, songIDs: string[]): Promise<boolean> {
+	public async hasReadAccessToSongs(userID: string, songIDs: string[]): Promise<boolean> {
+		throw 'Not implemented yet';
+	}
+
+	public async hasWriteAccessToSongs(userID: string, songIDs: string[]): Promise<boolean> {
 		throw 'Not implemented yet';
 	}
 
@@ -42,6 +46,10 @@ export class SongServiceMock implements ISongService {
 	}
 
 	public async increasePlayCount(songID: string, userID: string): Promise<void> {
+		throw 'Not implemented yet';
+	}
+
+	public async addLibrarySongsToShare(): Promise<void> {
 		throw 'Not implemented yet';
 	}
 }

@@ -1,6 +1,5 @@
-import { Song } from "./SongModel";
+import { Song, ISongDBResultWithLibrary } from "./SongModel";
 import { ObjectType, Field } from "type-graphql";
-import { ISongDBResult } from "../database/tables";
 import { plainToClass } from "class-transformer";
 
 @ObjectType()
@@ -8,7 +7,7 @@ export class PlaylistSong extends Song {
 	@Field()
 	public readonly playlistSongID!: string;
 
-	public static fromDBResult(result: ISongDBResult & { playlist_song_id: string }) {
+	public static fromDBResult(result: ISongDBResultWithLibrary & { playlist_song_id: string }) {
 		return plainToClass(
 			PlaylistSong,
 			{

@@ -62,7 +62,6 @@ export const songZeroOliverSmith: ISongDBResult = {
 	tags: ['Anjuna', 'Progressive'],
 	date_added: moment().subtract(3, 'hours').toDate(),
 	date_removed: null,
-	share_id_ref: libraryUser1ShareID,
 }
 
 export const songPerthDusky: ISongDBResult = {
@@ -86,7 +85,6 @@ export const songPerthDusky: ISongDBResult = {
 	tags: ['Anjuna', 'Deep', 'Funky'],
 	date_added: moment().subtract(2, 'hours').toDate(),
 	date_removed: null,
-	share_id_ref: libraryUser1ShareID,
 }
 
 export const songContactAlastor: ISongDBResult = {
@@ -110,7 +108,6 @@ export const songContactAlastor: ISongDBResult = {
 	tags: ['Dark', 'Party Chill'],
 	date_added: moment().subtract(1, 'hour').toDate(),
 	date_removed: null,
-	share_id_ref: libraryUser1ShareID,
 }
 
 export const songIsItLove: ISongDBResult = {
@@ -134,7 +131,6 @@ export const songIsItLove: ISongDBResult = {
 	tags: [],
 	date_added: moment().subtract(48, 'hour').toDate(),
 	date_removed: null,
-	share_id_ref: libraryUser2ShareID,
 }
 
 export const songThunder: ISongDBResult = {
@@ -160,7 +156,6 @@ export const songThunder: ISongDBResult = {
 	tags: ['Good Mood'],
 	date_added: moment().subtract(14, 'hour').toDate(),
 	date_removed: null,
-	share_id_ref: libraryUser3ShareID,
 }
 
 export const testData: ITestDataSchema = {
@@ -275,6 +270,37 @@ export const testData: ITestDataSchema = {
 	}
 }
 
+export const createTestSongs = (amount: number) => {
+	const prefilledArray = createPrefilledArray(amount, {});
+	const songInserts = prefilledArray
+		.map((_, idx): Required<ISongDBResult> => ({
+			song_id: uuid(),
+			title: faker.name.findName(),
+			suffix: null,
+			year: null,
+			bpm: null,
+			date_last_edit: new Date(),
+			release_date: null,
+			is_rip: false,
+			artists: [faker.name.firstName(), faker.name.lastName()],
+			remixer: [],
+			featurings: [],
+			type: 'Remix',
+			genres: ['Some Genre'],
+			labels: null,
+			requires_user_action: false,
+			sources: makeFileSourceJSONType(
+				makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3')
+			),
+			duration: 120 + Math.floor(Math.random() * 400),
+			tags: [],
+			date_added: new Date(),
+			date_removed: null,
+		}));
+
+	return songInserts
+}
+
 interface IMakeDatabaseSeedArgs {
 	database: IDatabaseClient;
 	services: IServices;
@@ -312,11 +338,11 @@ export const seedDatabase = async ({ database, services }: IMakeDatabaseSeedArgs
 
 		for (const [key, song] of Object.entries(testData.songs)) {
 			if (key.indexOf('user1') > -1) {
-				await songService.create(libraryUser1ShareID, { ...song, share_id_ref: libraryUser1ShareID });
+				await songService.create(libraryUser1ShareID, song);
 			} else if (key.indexOf('user2') > -1) {
-				await songService.create(libraryUser2ShareID, { ...song, share_id_ref: libraryUser2ShareID });
+				await songService.create(libraryUser2ShareID, song);
 			} else if (key.indexOf('user3') > -1) {
-				await songService.create(libraryUser3ShareID, { ...song, share_id_ref: libraryUser3ShareID });
+				await songService.create(libraryUser3ShareID, song);
 			}
 		}
 
@@ -332,35 +358,11 @@ export const seedDatabase = async ({ database, services }: IMakeDatabaseSeedArgs
 	}
 
 	if (__DEV__) {
-		const prefilledArray = createPrefilledArray(100, {});
-		const songInserts = prefilledArray
-			.map((_, idx): Required<ISongDBResult> => ({
-				song_id: uuid(),
-				title: faker.name.findName(),
-				suffix: null,
-				year: null,
-				bpm: null,
-				date_last_edit: new Date(),
-				release_date: null,
-				is_rip: false,
-				artists: [faker.name.firstName(), faker.name.lastName()],
-				remixer: [],
-				featurings: [],
-				type: 'Remix',
-				genres: ['Some Genre'],
-				labels: null,
-				requires_user_action: false,
-				sources: makeFileSourceJSONType(
-					makeFileObject('songs', faker.name.lastName(), faker.name.firstName(), 'mp3')
-				),
-				duration: 120 + Math.floor(Math.random() * 400),
-				tags: [],
-				date_added: new Date(),
-				date_removed: null,
-				share_id_ref: libraryUser1ShareID,
-			}));
+		const songInserts = createTestSongs(100)
 
-		await Promise.all(songInserts.map(song => songService.create(libraryUser1ShareID, song)));
+		for (const songInsert of songInserts) {
+			await songService.create(libraryUser1ShareID, songInsert)
+		}
 
 		await Promise.all(
 			createPrefilledArray(50, {}).map((_, idx): IPlaylistDBResult => ({

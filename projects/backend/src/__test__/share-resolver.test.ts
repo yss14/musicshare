@@ -214,7 +214,7 @@ describe('get share songs', () => {
 });
 
 describe('get share song', () => {
-	test('get share song by id', async () => {
+	test('get library song by id', async () => {
 		const { graphQLServer } = await setupTest({});
 
 		const share = testData.shares.library_user1;
@@ -226,7 +226,7 @@ describe('get share song', () => {
 		compareSongs(Song.fromDBResult(song, share.share_id), body.data.share.song);
 	});
 
-	test('get share song by id not existing', async () => {
+	test('get library song by id not existing', async () => {
 		const { graphQLServer } = await setupTest({});
 
 		const shareID = testData.shares.library_user1.share_id.toString();
@@ -239,7 +239,7 @@ describe('get share song', () => {
 		expect(body.errors).toMatchObject([{ message: `Song with id ${songID} not found in share ${shareID}` }])
 	});
 
-	test('get share song by id with access url', async () => {
+	test('get library song by id with access url', async () => {
 		const { graphQLServer } = await setupTest({});
 
 		const share = testData.shares.library_user1;
@@ -259,7 +259,7 @@ describe('get share song', () => {
 		expect(body.data.share.song.sources[0].accessUrl).toBeString();
 	});
 
-	test('get share song via proxy from linked share succeeds', async () => {
+	test('get share song succeeds', async () => {
 		const { graphQLServer } = await setupTest({});
 
 		const share = testData.shares.some_share;
@@ -272,21 +272,7 @@ describe('get share song', () => {
 		compareSongs(body.data.share.song, Song.fromDBResult(song, testData.shares.library_user2.share_id));
 	})
 
-	test('get share song via proxy from linked library succeeds', async () => {
-		const { graphQLServer } = await setupTest({});
-
-		const userID = testData.users.user2.user_id
-		const share = testData.shares.library_user2;
-		const song = testData.songs.song2_library_user1;
-		const query = makeShareQuery(share.share_id.toString(), [makeShareSongQuery(song.song_id.toString())]);
-
-		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID });
-
-		expect(body.data.share.song).not.toBeNull();
-		compareSongs(body.data.share.song, Song.fromDBResult(song, testData.shares.library_user1.share_id));
-	})
-
-	test('get share song via proxy from unrelated share fails', async () => {
+	test('get share song from unrelated share fails', async () => {
 		const { graphQLServer } = await setupTest({});
 
 		const share = testData.shares.some_unrelated_library;

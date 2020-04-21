@@ -52,7 +52,6 @@ export namespace DatabaseV1 {
 		duration: { type: ColumnType.Integer, nullable: false },
 		tags: { type: PArray(ColumnType.Varchar) },
 		requires_user_action: { type: ColumnType.Boolean, nullable: false, default: false },
-		share_id_ref: { type: ColumnType.UUID, nullable: false, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
 	});
 
 	export const playlists = TableSchema({
@@ -65,6 +64,12 @@ export namespace DatabaseV1 {
 		...baseSchema,
 		share_id_ref: { type: ColumnType.UUID, primaryKey: true, nullable: false, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
 		playlist_id_ref: { type: ColumnType.UUID, primaryKey: true, nullable: false, foreignKeys: [{ targetTable: 'playlists', targetColumn: 'playlist_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
+	});
+
+	export const share_songs = TableSchema({
+		...baseSchema,
+		share_id_ref: { type: ColumnType.UUID, primaryKey: true, nullable: false, foreignKeys: [{ targetTable: 'shares', targetColumn: 'share_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
+		song_id_ref: { type: ColumnType.UUID, primaryKey: true, nullable: false, foreignKeys: [{ targetTable: 'songs', targetColumn: 'song_id', onDelete: ForeignKeyUpdateDeleteRule.Cascade }] },
 	});
 
 	export const playlist_songs = TableSchema({
