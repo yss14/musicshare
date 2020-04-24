@@ -56,7 +56,6 @@ export const SongForm = ({ song, songTypes, genres, artists, closeForm, tags, pl
 				setFieldValue,
 				submitForm
 			}) => {
-				console.log(errors)
 				return (
 					<Modal
 						title={buildSongName(song)}
