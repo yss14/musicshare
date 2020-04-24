@@ -10,10 +10,10 @@ RUN apk add --no-cache make gcc g++ python && \
 	npm install --silent && \
 	apk del make gcc g++ python
 
-RUN npx lerna bootstrap --scope @musicshare/backend --include-filtered-dependencies
-RUN npx lerna run build --scope @musicshare/backend --include-filtered-dependencies
+RUN npx lerna bootstrap --scope @musicshare/backend --include-dependencies
+RUN npx lerna run build --scope @musicshare/backend --include-dependencies
 
 ENV NODE_ENV production
 EXPOSE 4000
 
-ENTRYPOINT ["node", "projects/backend/build/index.js"]
+CMD ["node", "projects/backend/build/index.js"]
