@@ -90,7 +90,7 @@ export const configFromEnv = (): IConfig => {
 		setup: {
 			seed: {
 				name: process.env[CustomEnv.SETUP_USERNAME] || 'musicshare',
-				password: process.env[CustomEnv.SETUP_PASSWORD] || 'ILoveMusic',
+				password: process.env[CustomEnv.SETUP_PASSWORD] || 'WeLoveMusic',
 				email: process.env[CustomEnv.SETUP_EMAIL] || 'donotreply@musicshare.rocks',
 				shareName: process.env[CustomEnv.SETUP_SHARE_NAME] || 'MyShare',
 			}
