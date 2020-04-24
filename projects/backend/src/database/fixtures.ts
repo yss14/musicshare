@@ -5,7 +5,7 @@ export const defaultSongTypes: ISongType[] = [
 	{ name: 'Acapella', hasArtists: false, group: 'Electronic Music' },
 	{ name: 'Radio Edit', hasArtists: false, group: 'Electronic Music' },
 	{ name: 'Bootleg', hasArtists: true, group: 'Electronic Music' },
-	{ name: 'Club Mix', hasArtists: true, group: 'Electronic Music' },
+	{ name: 'Club Mix', hasArtists: true, group: 'Electronic Music', alternativeNames: ['Extended Club Mix'] },
 	{ name: 'Edit', hasArtists: true, group: 'Electronic Music' },
 	{ name: 'Extended Mix', hasArtists: true, group: 'Electronic Music' },
 	{ name: 'Instrumental Mix', hasArtists: true, alternativeNames: ['Instrumental'], group: 'Electronic Music' },

@@ -22,6 +22,7 @@ export class ID3MetaData implements ISongMetaDataSource {
 
 	public async analyse(file: IFile, audioBuffer: Buffer, songTypes: ISongType[]): Promise<ExtractedSongMetaData> {
 		const id3Tags = await ID3Parser.parse(audioBuffer);
+
 		const extractedMetaData: ExtractedSongMetaData = {
 			artists: [],
 			remixer: [],

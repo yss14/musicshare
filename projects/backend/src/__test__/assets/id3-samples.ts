@@ -4,7 +4,7 @@ import { ISong } from "../../models/interfaces/ISong";
 
 interface IID3SampleTest {
 	originalFilename: string;
-	sample: IID3Tag;
+	sample: IID3Tag | false;
 	expectedOutput: Partial<Nullable<ISong>>;
 	knownArtists?: string[];
 }
@@ -233,6 +233,35 @@ export const id3Samples: IID3SampleTest[] = [
 			artists: ['Feint'],
 			featurings: ['Laura Brehm'],
 			type: 'Original Mix',
+		}
+	},
+	{
+		originalFilename: 'Above & Beyond - Bittersweet & Blue (Above & Beyond Extended Club Mix)',
+		sample: {
+			version: {
+				v1: { major: 1, minor: 1 },
+				v2: false,
+			},
+			title: 'Bittersweet & Blue (Above & Beyond Extended Club Mix)',
+			artist: 'Above & Beyond; Richard Bedford',
+			album: 'Bittersweet & Blue',
+			year: '2020',
+			comments: '',
+			track: '2',
+			genre: 'Dance; Trance',
+			band: 'Above & Beyond',
+			'set-part': '1',
+			isrc: 'GBEWA1905411',
+			publisher: 'Anjunabeats'
+		},
+		expectedOutput: {
+			...defaultExpectedOutput,
+			title: 'Bittersweet & Blue',
+			artists: ['Above', 'Beyond', 'Richard Bedford'],
+			remixer: ['Above', 'Beyond'],
+			type: 'Club Mix',
+			labels: ['Anjunabeats'],
+			year: 2020,
 		}
 	}
 ]
