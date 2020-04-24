@@ -2,10 +2,9 @@ import React, { useMemo, useCallback } from 'react';
 import './song-modal.css';
 import { IGenre, ISongType, IArtist, IScopedSong } from '../../../graphql/types';
 import { Formik } from 'formik';
-import { Form, Input, Row, Col, DatePicker, Switch, Modal } from 'antd';
+import { Form, Input, Row, Col, DatePicker, Switch, Modal, Select } from 'antd';
 import { EditableTagGroup } from '../../form/EditableTagGroup';
 import moment from 'moment';
-import { Dropdown } from '../../form/Dropdown';
 import { UPDATE_SONG, ISongUpdateInput, IUpdateSongData, makeUpdateSongCache } from '../../../graphql/mutations/update-song-mutation';
 import { Nullable } from '../../../types/Nullable';
 import { buildSongName } from '../../../utils/songname-builder';
@@ -48,7 +47,7 @@ export const SongForm = ({ song, songTypes, genres, artists, closeForm, tags, pl
 	}, [updateSongMutation, song.libraryID, song.id])
 
 	return (
-		<Formik initialValues={song} onSubmit={updateSong} validate={validateSong}>
+		<Formik initialValues={song} onSubmit={updateSong} validate={validateSong} initialErrors={validateSong(song)}>
 			{({
 				values,
 				errors,
@@ -57,6 +56,7 @@ export const SongForm = ({ song, songTypes, genres, artists, closeForm, tags, pl
 				setFieldValue,
 				submitForm
 			}) => {
+				console.log(errors)
 				return (
 					<Modal
 						title={buildSongName(song)}
@@ -176,14 +176,11 @@ export const SongForm = ({ song, songTypes, genres, artists, closeForm, tags, pl
 										<Form.Item
 											label="Type"
 											validateStatus={errors.type ? 'error' : 'success'}
+											hasFeedback={!!errors.type}
 										>
-											<Dropdown
-												name='type'
-												value={values.type}
-												options={songTypeOptions}
-												onChange={newSongType => setFieldValue('type', newSongType)}
-												readOnly={readOnly}
-											/>
+											<Select value={values.type} onSelect={(value: string | null) => setFieldValue('type', value)} disabled={readOnly} style={{ width: 200 }}>
+												{songTypeOptions.map(songType => <Select.Option key={songType.value} value={songType.value}>{songType.label}</Select.Option>)}
+											</Select>
 										</Form.Item>
 									</Col>
 									<Col span={12} style={{ paddingRight: 20 }}>
@@ -261,7 +258,7 @@ const validateSong = (data: IScopedSong) => {
 		errors.bpm = 'Invalid bpm'
 	}
 
-	if (!data.type) {
+	if (!data.type || data.type.length === 0) {
 		errors.type = 'No type selected';
 	}
 
