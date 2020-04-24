@@ -29,8 +29,8 @@ export const UploadDropzone: React.FC = ({ children }) => (
 				>
 					{uploadItems.length > 0 ? (
 						<UploadProgressContainer>
-							{uploadItems.map(item => (
-								<UploadItem>
+							{uploadItems.map((item, idx) => (
+								<UploadItem key={idx + item.hash}>
 									<div>{item.filename}</div>
 									<Progress
 										percent={item.progress}
