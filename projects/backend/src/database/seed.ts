@@ -162,7 +162,7 @@ export const testData: ITestDataSchema = {
 	users: {
 		user1: {
 			name: 'Yss',
-			email: 'test@musicshare.de',
+			email: 'test@musicshare.rocks',
 			user_id: user1ID,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
@@ -170,7 +170,7 @@ export const testData: ITestDataSchema = {
 		},
 		user2: {
 			name: 'Simon',
-			email: 'simon@musicshare.de',
+			email: 'simon@musicshare.rocks',
 			user_id: user2ID,
 			date_added: moment().subtract(3, 'hours').toDate(),
 			date_removed: null,
@@ -204,7 +204,7 @@ export const testData: ITestDataSchema = {
 		},
 		some_share: {
 			share_id: someShareShareID,
-			name: 'Some Shared Library',
+			name: 'Some Share',
 			is_library: false,
 			date_added: moment().subtract(1, 'hours').toDate(),
 			date_removed: null,
