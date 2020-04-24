@@ -16,4 +16,4 @@ RUN npx lerna run build --scope @musicshare/backend --include-filtered-dependenc
 ENV NODE_ENV production
 EXPOSE 4000
 
-CMD node projects/backend/build/index.js
+ENTRYPOINT ["node", "projects/backend/build/index.js"]
