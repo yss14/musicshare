@@ -11,7 +11,7 @@ export interface IArtist {
 export class ArtistExtractor {
 	public static readonly featuringSeparators = ['feat.', 'ft.', 'feat '];
 	private readonly separators = ArtistExtractor.featuringSeparators
-		.concat(['vs.', 'Vs.', 'VS.', ' vs ', 'Vs', 'VS', '&', ',', ' and ', ' And ', ' x ']);
+		.concat([';', 'vs.', 'Vs.', 'VS.', ' vs ', 'Vs', 'VS', '&', ',', ' and ', ' And ', ' x ']);
 	private readonly knownArtists: Set<string>;
 
 	constructor(knownArtists: string[] | Set<string> = []) {
