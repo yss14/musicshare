@@ -1,8 +1,8 @@
 import { Song } from '../models/SongModel';
 import { IDatabaseClient, SQL, IDatabaseBaseClient } from 'postgres-schema-builder';
 import { SongUpdateInput } from '../inputs/SongInput';
-import * as snakeCaseObjKeys from 'snakecase-keys';
-import moment = require('moment');
+import snakeCaseObjKeys from 'snakecase-keys';
+import moment from "moment"
 import { ISongDBResult, Tables, SongsTable, SongPlaysTable, ShareSongsTable, SongDBResultWithLibrary } from '../database/tables';
 import { v4 as uuid } from 'uuid';
 import { ForbiddenError, ValidationError } from 'apollo-server-core';

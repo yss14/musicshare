@@ -1,7 +1,7 @@
-import * as express from 'express';
+import express from "express";
 import * as pathModule from 'path';
-import * as Cors from 'cors';
-import * as Morgan from 'morgan';
+import Cors from 'cors';
+import Morgan from 'morgan';
 import { fileUploadRouter } from './routes/file-upload-route';
 import { __DEV__, __PROD__ } from '../utils/env/env-constants';
 import { IFileService } from '../file-service/FileService';

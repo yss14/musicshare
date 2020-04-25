@@ -1,4 +1,4 @@
-import * as Express from 'express';
+import Express from "express";
 import { Permission } from '@musicshare/shared-types';
 import { ContextFunction } from 'apollo-server-core';
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
@@ -31,9 +31,9 @@ export type ContextRequest = Express.Request & { context: IBaseContext };
 export type CustomRequestHandler = (req: ContextRequest, res: Express.Response, next: Express.NextFunction) => any;
 
 export const makeGraphQLContextProvider = (services: IServices): ContextFunction<ExpressContext, IGraphQLContext> =>
-	({ req }: { req: ContextRequest }): IGraphQLContext => {
+	({ req }: { req: unknown }): IGraphQLContext => {
 		return {
-			...req.context,
+			...(req as ContextRequest).context,
 			services,
 		};
 	}

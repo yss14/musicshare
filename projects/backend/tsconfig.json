@@ -16,9 +16,11 @@
 		"suppressImplicitAnyIndexErrors": true,
 		"incremental": true,
 		"noUnusedLocals": false,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true
 	},
 	"include": [
-		"src/**/*",
+		"src/**/*"
 	],
 	"exclude": [
 		"node_modules",

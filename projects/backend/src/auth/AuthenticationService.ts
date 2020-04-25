@@ -64,7 +64,7 @@ export class AuthenticationService implements IAuthenticationService {
 	public async verifyToken(token: string): Promise<IAuthTokenSchema> {
 		return new Promise<IAuthTokenSchema>((resolve, reject) => {
 			JWT.verify(token, this.jwtSecret, {}, (err, payload) => {
-				if (err) {
+				if (err || !payload) {
 					reject(err);
 
 					return;

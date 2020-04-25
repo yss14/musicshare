@@ -1,6 +1,6 @@
 // tslint:disable-next-line:no-import-side-effect
 import "reflect-metadata";
-import * as express from 'express';
+import express from "express";
 import { AuthenticationService } from '../auth/AuthenticationService';
 import { makeAuthExtractor, auth, graphQLAuthChecker } from '../auth/auth-middleware';
 import { testData } from '../database/seed';
