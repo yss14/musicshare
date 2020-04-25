@@ -10,7 +10,7 @@
 				"**/__test__/**",
 				"*.test.ts",
 				"*.md",
-				"**/jest.json",
+				"**/jest.json"
 			],
 			"message": "chore(release): publish %v"
 		}
