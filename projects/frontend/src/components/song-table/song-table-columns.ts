@@ -4,24 +4,24 @@ import { formatDuration } from "../../utils/format-duration"
 import { useMemo } from "react"
 
 interface IColumnBase {
-	title: string;
-	width: number;
-	fixWidth: boolean;
-	key: string;
+	title: string
+	width: number
+	fixWidth: boolean
+	key: string
 }
 
 export interface IColumn extends IColumnBase {
-	render: (song: IScopedSong | IScopedPlaylistSong, index: number) => string;
+	render: (song: IScopedSong | IScopedPlaylistSong, index: number) => string
 }
 
 export interface IColumnRendered extends IColumnBase {
-	displayValue: string;
+	displayValue: string
 }
 
-type ColumnNames = 'Title' | 'Time' | 'Artists' | 'Genres' | 'Position'
+type ColumnNames = "Title" | "Time" | "Artists" | "Genres" | "Position"
 
 type SongTableColumnMap = {
-	[key in ColumnNames]: IColumn;
+	[key in ColumnNames]: IColumn
 }
 
 export const SongTableColumn: SongTableColumnMap = {
@@ -37,51 +37,54 @@ export const SongTableColumn: SongTableColumnMap = {
 		width: 70,
 		fixWidth: true,
 		key: "duration",
-		render: (song) => formatDuration(song.duration)
+		render: (song) => formatDuration(song.duration),
 	},
 	Artists: {
 		title: "Artists",
 		width: 150,
 		fixWidth: false,
 		key: "artists",
-		render: (song) => song.artists.join(', ')
+		render: (song) => song.artists.join(", "),
 	},
 	Genres: {
 		title: "Genres",
 		width: 150,
 		fixWidth: false,
 		key: "genres",
-		render: (song) => song.genres.join(', ')
+		render: (song) => song.genres.join(", "),
 	},
 	Position: {
-		title: '#',
+		title: "#",
 		width: 24,
 		fixWidth: true,
-		key: 'position',
+		key: "position",
 		render: (_, idx) => String(idx + 1),
-	}
+	},
 }
 
 export type CalculatedColumnWidths = {
-	[key in ColumnNames]: string;
+	[key in ColumnNames]: string
 }
 
 export const useCalculatedColumnWidths = (columns: IColumn[]) => {
-	const percentageWidthColumns = useMemo(() => columns.filter(col => !col.fixWidth), [columns])
+	const percentageWidthColumns = useMemo(() => columns.filter((col) => !col.fixWidth), [columns])
 
 	const accumulatedColumnPercentageWidths = useMemo(
 		() => percentageWidthColumns.reduce((acc, col) => acc + col.width, 0),
-		[percentageWidthColumns]
+		[percentageWidthColumns],
 	)
 
-	const calculatedWidths = useMemo(() => columns.reduce((obj, col) => {
-		if (col.fixWidth) {
-			return { ...obj, [col.key]: `${col.width}px` }
-		}
+	const calculatedWidths = useMemo(
+		() =>
+			columns.reduce((obj, col) => {
+				if (col.fixWidth) {
+					return { ...obj, [col.key]: `${col.width}px` }
+				}
 
-		return { ...obj, [col.key]: `${(col.width / accumulatedColumnPercentageWidths) * 100}%` }
-	}, {})
-		, [columns, accumulatedColumnPercentageWidths])
+				return { ...obj, [col.key]: `${(col.width / accumulatedColumnPercentageWidths) * 100}%` }
+			}, {}),
+		[columns, accumulatedColumnPercentageWidths],
+	)
 
 	return calculatedWidths as CalculatedColumnWidths
 }

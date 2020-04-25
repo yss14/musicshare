@@ -1,23 +1,23 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { Modal, Form, Input, Table, Button, Alert, Popconfirm, Icon } from 'antd'
-import { IShare, IUser } from '../../../graphql/types'
-import { useDebounce } from 'use-debounce/lib'
-import { useShareUsers } from '../../../graphql/queries/share-users-query'
-import Column from 'antd/lib/table/Column'
-import { useInviteToShare } from '../../../graphql/mutations/invite-to-share-mutation'
-import { Typography } from 'antd';
-import { ApolloError } from 'apollo-client'
-import { useRevokeInvitation } from '../../../graphql/mutations/revoke-invitation-mutation'
-import { useRenameShare } from '../../../graphql/mutations/rename-share-mutation'
-import { useDeleteShare } from '../../../graphql/mutations/delete-share-mutation'
-import { useLeaveShare } from '../../../graphql/mutations/leave-share-mutation'
-import { Permissions, UserStatus } from '@musicshare/shared-types'
+import React, { useState, useEffect, useCallback, useMemo } from "react"
+import { Modal, Form, Input, Table, Button, Alert, Popconfirm, Icon } from "antd"
+import { IShare, IUser } from "../../../graphql/types"
+import { useDebounce } from "use-debounce/lib"
+import { useShareUsers } from "../../../graphql/queries/share-users-query"
+import Column from "antd/lib/table/Column"
+import { useInviteToShare } from "../../../graphql/mutations/invite-to-share-mutation"
+import { Typography } from "antd"
+import { ApolloError } from "apollo-client"
+import { useRevokeInvitation } from "../../../graphql/mutations/revoke-invitation-mutation"
+import { useRenameShare } from "../../../graphql/mutations/rename-share-mutation"
+import { useDeleteShare } from "../../../graphql/mutations/delete-share-mutation"
+import { useLeaveShare } from "../../../graphql/mutations/leave-share-mutation"
+import { Permissions, UserStatus } from "@musicshare/shared-types"
 
-const { Text } = Typography;
+const { Text } = Typography
 
 interface IShareSettingsProps {
-	share: IShare;
-	onClose: () => void;
+	share: IShare
+	onClose: () => void
 }
 
 export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose }) => {
@@ -42,12 +42,10 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 	const cancelButton = (
 		<Popconfirm
 			title="Are you sure? This action cannot be undone!"
-			icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
+			icon={<Icon type="question-circle-o" style={{ color: "red" }} />}
 			onConfirm={onLeaveDeleteClick}
 		>
-			<Button
-				type="danger"
-			>{isOwner ? 'Delete Share' : 'Leave Share'}</Button>
+			<Button type="danger">{isOwner ? "Delete Share" : "Leave Share"}</Button>
 		</Popconfirm>
 	)
 
@@ -60,7 +58,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 			onCancel={onClose}
 			visible={true}
 			width={800}
-			cancelButtonProps={{ style: { border: 'none', padding: '0px' } }}
+			cancelButtonProps={{ style: { border: "none", padding: "0px" } }}
 		>
 			<Form>
 				{canChangeName && <ChangeSongName share={share} />}
@@ -81,19 +79,16 @@ const ChangeSongName: React.FC<{ share: IShare }> = ({ share: { name, id } }) =>
 			variables: {
 				shareID: id,
 				name: debouncedShareName,
-			}
+			},
 		})
 	}, [debouncedShareName, id, renameShare])
 
 	return (
-		<Form.Item
-			label="Name"
-			validateStatus={shareName.trim().length <= 2 ? 'error' : 'success'}
-		>
+		<Form.Item label="Name" validateStatus={shareName.trim().length <= 2 ? "error" : "success"}>
 			<Input
 				value={shareName}
 				type="text"
-				onChange={e => setShareName(e.target.value)}
+				onChange={(e) => setShareName(e.target.value)}
 				placeholder="Share name"
 			/>
 		</Form.Item>
@@ -102,7 +97,7 @@ const ChangeSongName: React.FC<{ share: IShare }> = ({ share: { name, id } }) =>
 
 const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 	const { data: users, loading, error, refetch } = useShareUsers(shareID)
-	const [email, setEMail] = useState('')
+	const [email, setEMail] = useState("")
 	const [invitationLink, setInvitationLink] = useState<string | null>(null)
 	const [inviteError, setInviteError] = useState<ApolloError | null>(null)
 	const [inviteToShare] = useInviteToShare({
@@ -111,7 +106,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 				setInvitationLink(data.inviteToShare)
 			}
 
-			setEMail('')
+			setEMail("")
 			refetch()
 		},
 		onError: setInviteError,
@@ -126,21 +121,24 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 				input: {
 					shareID,
 					email,
-				}
-			}
+				},
+			},
 		})
 	}, [inviteToShare, shareID, email])
 
-	const onRevokeInvitationClick = useCallback((userID: string) => {
-		revokeInvitation({
-			variables: {
-				input: {
-					shareID,
-					userID,
-				}
-			}
-		})
-	}, [revokeInvitation, shareID])
+	const onRevokeInvitationClick = useCallback(
+		(userID: string) => {
+			revokeInvitation({
+				variables: {
+					input: {
+						shareID,
+						userID,
+					},
+				},
+			})
+		},
+		[revokeInvitation, shareID],
+	)
 
 	if (error) return <div>Error</div>
 
@@ -151,18 +149,29 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 					<Column title="Name" dataIndex="name" key="name" />
 					<Column title="E-Mail" dataIndex="email" key="email" />
 					<Column title="Status" dataIndex="status" key="status" />
-					<Column title="Actions" key="actions" render={(text, user: IUser) => (
-						<>
-							{user.status === UserStatus.Pending && (
-								<Button type="link" onClick={() => onRevokeInvitationClick(user.id)}>Revoke</Button>
-							)}
-						</>
-					)} />
+					<Column
+						title="Actions"
+						key="actions"
+						render={(text, user: IUser) => (
+							<>
+								{user.status === UserStatus.Pending && (
+									<Button type="link" onClick={() => onRevokeInvitationClick(user.id)}>
+										Revoke
+									</Button>
+								)}
+							</>
+						)}
+					/>
 				</Table>
 			</Form.Item>
 			{invitationLink && (
 				<Alert
-					message={<><span>Invitation link: </span><Text code>{invitationLink}</Text></>}
+					message={
+						<>
+							<span>Invitation link: </span>
+							<Text code>{invitationLink}</Text>
+						</>
+					}
 					type="success"
 					closable
 					onClose={() => setInvitationLink(null)}
@@ -170,7 +179,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 			)}
 			{inviteError && (
 				<Alert
-					message={inviteError.message.replace('GraphQL error: ', '')}
+					message={inviteError.message.replace("GraphQL error: ", "")}
 					type="error"
 					closable
 					onClose={() => setInviteError(null)}
@@ -180,11 +189,13 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 				<Input
 					value={email}
 					type="email"
-					onChange={e => setEMail(e.target.value)}
+					onChange={(e) => setEMail(e.target.value)}
 					placeholder="example@domain.com"
 					width={300}
 				/>
-				<Button type="dashed" onClick={onInviteClick}>Invite</Button>
+				<Button type="dashed" onClick={onInviteClick}>
+					Invite
+				</Button>
 			</Form.Item>
 		</>
 	)

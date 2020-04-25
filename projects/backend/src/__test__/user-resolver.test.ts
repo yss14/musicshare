@@ -1,41 +1,41 @@
 // tslint:disable-next-line:no-import-side-effect
-import "reflect-metadata";
-import { executeGraphQLQuery, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql";
-import { testData, testPassword } from "../database/seed";
-import { Share } from "../models/ShareModel";
-import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env";
-import { v4 as uuid } from 'uuid';
-import * as argon2 from 'argon2';
-import { makeMockedDatabase } from "./mocks/mock-database";
-import { User } from "../models/UserModel";
-import { plainToClass } from "class-transformer";
-import { Permission } from '@musicshare/shared-types';
-import { Scopes } from "../types/context";
-import { IDatabaseClient } from "postgres-schema-builder";
-import { clearTables } from "../database/database";
-import { Artist } from "../models/ArtistModel";
-import { defaultGenres, defaultSongTypes } from "../database/fixtures";
+import "reflect-metadata"
+import { executeGraphQLQuery, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql"
+import { testData, testPassword } from "../database/seed"
+import { Share } from "../models/ShareModel"
+import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env"
+import { v4 as uuid } from "uuid"
+import * as argon2 from "argon2"
+import { makeMockedDatabase } from "./mocks/mock-database"
+import { User } from "../models/UserModel"
+import { plainToClass } from "class-transformer"
+import { Permission } from "@musicshare/shared-types"
+import { Scopes } from "../types/context"
+import { IDatabaseClient } from "postgres-schema-builder"
+import { clearTables } from "../database/database"
+import { Artist } from "../models/ArtistModel"
+import { defaultGenres, defaultSongTypes } from "../database/fixtures"
 
-const { cleanUp, getDatabase } = setupTestSuite();
-let database: IDatabaseClient;
+const { cleanUp, getDatabase } = setupTestSuite()
+let database: IDatabaseClient
 
 const setupTest = async (args: Partial<SetupTestEnvArgs>) => {
 	if (!args.database) {
-		await clearTables(database);
+		await clearTables(database)
 	}
 
-	const testEnv = await setupTestEnv({ ...args, database: args.database || database });
+	const testEnv = await setupTestEnv({ ...args, database: args.database || database })
 
-	return testEnv;
+	return testEnv
 }
 
 beforeAll(async () => {
-	database = await getDatabase();
-});
+	database = await getDatabase()
+})
 
 afterAll(async () => {
-	await cleanUp();
-});
+	await cleanUp()
+})
 
 const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => {
 	return `
@@ -45,14 +45,18 @@ const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => 
 				name
 				email
 				status
-				${withShares ? `shares(libOnly: ${libOnly}){
+				${
+					withShares
+						? `shares(libOnly: ${libOnly}){
 					id,
 					name,
 					isLibrary
-				}` : ''}
+				}`
+						: ""
+				}
 			}
 		}
-	`;
+	`
 }
 
 const makeLoginMutation = (email: string, password: string) => `
@@ -62,205 +66,195 @@ const makeLoginMutation = (email: string, password: string) => `
 			refreshToken
 		}
 	}
-`;
+`
 
-describe('get user by id', () => {
-	test('get user by id', async () => {
-		const { graphQLServer } = await setupTest({});
+describe("get user by id", () => {
+	test("get user by id", async () => {
+		const { graphQLServer } = await setupTest({})
 
-		const { users } = testData;
-		const query = makeUserQuery();
+		const { users } = testData
+		const query = makeUserQuery()
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: users.user1.user_id.toString() });
-		expect(body).toEqual(makeGraphQLResponse({ viewer: User.fromDBResult(users.user1) }));
-	});
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: users.user1.user_id.toString() })
+		expect(body).toEqual(makeGraphQLResponse({ viewer: User.fromDBResult(users.user1) }))
+	})
 
-	test('get user by id not existing', async () => {
-		const { graphQLServer } = await setupTest({});
+	test("get user by id not existing", async () => {
+		const { graphQLServer } = await setupTest({})
 
-		const userID = uuid();
-		const query = makeUserQuery();
+		const userID = uuid()
+		const query = makeUserQuery()
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID })
 
-		expect(body).toMatchObject(makeGraphQLResponse(
-			{ viewer: null },
-			[{ message: `User with id ${userID} not found` }]
-		));
-	});
-});
+		expect(body).toMatchObject(
+			makeGraphQLResponse({ viewer: null }, [{ message: `User with id ${userID} not found` }]),
+		)
+	})
+})
 
-describe('get users shares', () => {
-	test('get users shares only lib', async () => {
-		const { graphQLServer } = await setupTest({});
+describe("get users shares", () => {
+	test("get users shares only lib", async () => {
+		const { graphQLServer } = await setupTest({})
 
-		const testUser = testData.users.user1;
-		const query = makeUserQuery(true, true);
+		const testUser = testData.users.user1
+		const query = makeUserQuery(true, true)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: testUser.user_id.toString() });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: testUser.user_id.toString() })
 
-		expect(body).toEqual(makeGraphQLResponse({
-			viewer: {
-				...User.fromDBResult(testUser),
-				shares: [testData.shares.library_user1].map(Share.fromDBResult)
-			}
-		}));
-	});
+		expect(body).toEqual(
+			makeGraphQLResponse({
+				viewer: {
+					...User.fromDBResult(testUser),
+					shares: [testData.shares.library_user1].map(Share.fromDBResult),
+				},
+			}),
+		)
+	})
 
-	test('get users shares all', async () => {
-		const { graphQLServer } = await setupTest({});
+	test("get users shares all", async () => {
+		const { graphQLServer } = await setupTest({})
 
-		const testUser = testData.users.user1;
-		const query = makeUserQuery(true, false);
+		const testUser = testData.users.user1
+		const query = makeUserQuery(true, false)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: testUser.user_id.toString() });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: testUser.user_id.toString() })
 
-		expect(body).toEqual(makeGraphQLResponse({
-			viewer: {
-				...User.fromDBResult(testUser),
-				shares: [testData.shares.library_user1, testData.shares.some_share].map(Share.fromDBResult)
-			}
-		}));
-	});
-});
+		expect(body).toEqual(
+			makeGraphQLResponse({
+				viewer: {
+					...User.fromDBResult(testUser),
+					shares: [testData.shares.library_user1, testData.shares.some_share].map(Share.fromDBResult),
+				},
+			}),
+		)
+	})
+})
 
-describe('login', () => {
-	test('successful', async () => {
-		const { graphQLServer, authService } = await setupTest({});
+describe("login", () => {
+	test("successful", async () => {
+		const { graphQLServer, authService } = await setupTest({})
 
-		const testUser = testData.users.user1;
-		const query = makeLoginMutation(testUser.email, testPassword);
+		const testUser = testData.users.user1
+		const query = makeLoginMutation(testUser.email, testPassword)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
-		const { authToken, refreshToken } = body.data.login;
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+		const { authToken, refreshToken } = body.data.login
 
-		expect(authToken).toBeString();
-		expect(refreshToken).toBeString();
-		await expect(authService.verifyToken(authToken)).resolves.toBeObject();
-		await expect(authService.verifyToken(refreshToken)).resolves.toBeObject();
-	});
+		expect(authToken).toBeString()
+		expect(refreshToken).toBeString()
+		await expect(authService.verifyToken(authToken)).resolves.toBeObject()
+		await expect(authService.verifyToken(refreshToken)).resolves.toBeObject()
+	})
 
-	test('wrong password', async () => {
-		const { graphQLServer } = await setupTest({});
+	test("wrong password", async () => {
+		const { graphQLServer } = await setupTest({})
 
-		const testUser = testData.users.user1;
-		const query = makeLoginMutation(testUser.email, testPassword + 'wrong');
+		const testUser = testData.users.user1
+		const query = makeLoginMutation(testUser.email, testPassword + "wrong")
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body).toMatchObject(makeGraphQLResponse(
-			null,
-			[{ message: `Credentials invalid` }]
-		));
-	});
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: `Credentials invalid` }]))
+	})
 
-	test('already hashed password', async () => {
-		const { graphQLServer } = await setupTest({});
+	test("already hashed password", async () => {
+		const { graphQLServer } = await setupTest({})
 
-		const testUser = testData.users.user1;
-		const query = makeLoginMutation(testUser.email, await argon2.hash(testPassword));
+		const testUser = testData.users.user1
+		const query = makeLoginMutation(testUser.email, await argon2.hash(testPassword))
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body).toMatchObject(makeGraphQLResponse(
-			null,
-			[{ message: `Credentials invalid` }]
-		));
-	});
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: `Credentials invalid` }]))
+	})
 
-	test('not existing email', async () => {
-		const { graphQLServer } = await setupTest({});
+	test("not existing email", async () => {
+		const { graphQLServer } = await setupTest({})
 
-		const testUser = testData.users.user1;
-		const query = makeLoginMutation(testUser.email + 'a', testPassword);
+		const testUser = testData.users.user1
+		const query = makeLoginMutation(testUser.email + "a", testPassword)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body).toMatchObject(makeGraphQLResponse(
-			null,
-			[{ message: `Credentials invalid` }]
-		));
-	});
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: `Credentials invalid` }]))
+	})
 
-	test('unexpected internal error', async () => {
-		const database = makeMockedDatabase();
-		database.query = () => { throw new Error('Unexpected error'); }
-		const { graphQLServer } = await setupTest({ database });
+	test("unexpected internal error", async () => {
+		const database = makeMockedDatabase()
+		database.query = () => {
+			throw new Error("Unexpected error")
+		}
+		const { graphQLServer } = await setupTest({ database })
 
-		const testUser = testData.users.user1;
-		const query = makeLoginMutation(testUser.email, testPassword);
+		const testUser = testData.users.user1
+		const query = makeLoginMutation(testUser.email, testPassword)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body.errors[0].message.indexOf('An internal server error occured')).toBeGreaterThan(-1);
-	});
-});
+		expect(body.errors[0].message.indexOf("An internal server error occured")).toBeGreaterThan(-1)
+	})
+})
 
-describe('change password', () => {
+describe("change password", () => {
 	const makeChangePasswordMutation = (oldPassword: string, newPassword: string) => `
 		mutation{
 			changePassword(input: {oldPassword: "${oldPassword}", newPassword: "${newPassword}"})
 		}
 	`
-	const newPassword = 'ihavean1cenewpass0rd+#$'
+	const newPassword = "ihavean1cenewpass0rd+#$"
 
-	test('valid credentials passed succeeds', async () => {
-		const { graphQLServer, passwordLoginService } = await setupTest({});
+	test("valid credentials passed succeeds", async () => {
+		const { graphQLServer, passwordLoginService } = await setupTest({})
 
-		const testUser = testData.users.user1;
-		const query = makeChangePasswordMutation(testPassword, newPassword);
+		const testUser = testData.users.user1
+		const query = makeChangePasswordMutation(testPassword, newPassword)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		expect(body.data.changePassword).toBeTrue()
 
 		await expect(passwordLoginService.login(testUser.email, newPassword)).resolves.toBeString()
 	})
 
-	test('user not found is rejected', async () => {
-		const { graphQLServer } = await setupTest({});
+	test("user not found is rejected", async () => {
+		const { graphQLServer } = await setupTest({})
 
 		const userID = uuid()
-		const query = makeChangePasswordMutation(testPassword, newPassword);
+		const query = makeChangePasswordMutation(testPassword, newPassword)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID })
 
-		expect(body).toMatchObject(makeGraphQLResponse(
-			null,
-			[{ message: `User with id ${userID} not found` }],
-		))
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: `User with id ${userID} not found` }]))
 	})
 
-	test('invalid old password is rejected', async () => {
-		const { graphQLServer } = await setupTest({});
+	test("invalid old password is rejected", async () => {
+		const { graphQLServer } = await setupTest({})
 
-		const query = makeChangePasswordMutation('some_wrong_old_password', newPassword);
+		const query = makeChangePasswordMutation("some_wrong_old_password", newPassword)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body).toMatchObject(makeGraphQLResponse(
-			null,
-			[{ message: 'Old password is invalid' }],
-		))
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: "Old password is invalid" }]))
 	})
 })
 
-describe('restore password', () => {
+describe("restore password", () => {
 	const makeRestorePasswordMutation = (email: string, restoreToken: string, newPassword: string) => `
 		mutation{
 			restorePassword(input: {email: "${email}", restoreToken: "${restoreToken}", newPassword: "${newPassword}"})
 		}
 	`
-	const newPassword = 'ihavean1cenewpass0rd+#$'
+	const newPassword = "ihavean1cenewpass0rd+#$"
 
-	test('valid credentials passed succeeds', async () => {
-		const { graphQLServer, passwordLoginService } = await setupTest({});
+	test("valid credentials passed succeeds", async () => {
+		const { graphQLServer, passwordLoginService } = await setupTest({})
 
 		const { email, user_id } = testData.users.user1
 		const restoreToken = await passwordLoginService.getRestoreToken(user_id)
 		const query = makeRestorePasswordMutation(email, restoreToken, newPassword)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		const newRestoreToken = await passwordLoginService.getRestoreToken(user_id)
 		expect(body.data.restorePassword).toBe(newRestoreToken)
@@ -268,166 +262,164 @@ describe('restore password', () => {
 		await expect(passwordLoginService.login(email, newPassword)).resolves.toBeString()
 	})
 
-	test('invalid restore token is rejected', async () => {
-		const { graphQLServer, passwordLoginService } = await setupTest({});
+	test("invalid restore token is rejected", async () => {
+		const { graphQLServer, passwordLoginService } = await setupTest({})
 
 		const { email } = testData.users.user1
 		const wrongRestoreToken = passwordLoginService.generatedRestoreToken()
 		const query = makeRestorePasswordMutation(email, wrongRestoreToken, newPassword)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body).toMatchObject(makeGraphQLResponse(
-			null,
-			[{ message: 'Restore token invalid' }],
-		))
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: "Restore token invalid" }]))
 	})
 
-	test('user with email not existing is rejected', async () => {
-		const { graphQLServer, passwordLoginService } = await setupTest({});
+	test("user with email not existing is rejected", async () => {
+		const { graphQLServer, passwordLoginService } = await setupTest({})
 
-		const email = 'wrong@gmail.com'
+		const email = "wrong@gmail.com"
 		const { user_id } = testData.users.user1
 		const restoreToken = await passwordLoginService.getRestoreToken(user_id)
 		const query = makeRestorePasswordMutation(email, restoreToken, newPassword)
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body).toMatchObject(makeGraphQLResponse(
-			null,
-			[{ message: `Login for email ${email} not found` }],
-		))
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: `Login for email ${email} not found` }]))
 	})
 })
 
-describe('get restore token', () => {
-	test('existing user succeeds', async () => {
-		const { passwordLoginService } = await setupTest({});
+describe("get restore token", () => {
+	test("existing user succeeds", async () => {
+		const { passwordLoginService } = await setupTest({})
 
 		await expect(passwordLoginService.getRestoreToken(testData.users.user1.user_id)).resolves.toBeString()
 	})
 
-	test('not existing user fails', async () => {
-		const { passwordLoginService } = await setupTest({});
+	test("not existing user fails", async () => {
+		const { passwordLoginService } = await setupTest({})
 
 		const userID = uuid()
 
-		await expect(passwordLoginService.getRestoreToken(userID)).rejects.toThrowError(`Restore token for user ${userID} not found`)
+		await expect(passwordLoginService.getRestoreToken(userID)).rejects.toThrowError(
+			`Restore token for user ${userID} not found`,
+		)
 	})
 })
 
-describe('issue new auth token', () => {
-	const makeIssueAuthTokenQuery = (refreshToken: string) => `mutation{issueAuthToken(refreshToken: "${refreshToken}")}`;
-	const mockDatabase = makeMockedDatabase();
-	(<jest.Mock>mockDatabase.query).mockReturnValue([]);
-	const testUser = User.fromDBResult(testData.users.user1);
+describe("issue new auth token", () => {
+	const makeIssueAuthTokenQuery = (refreshToken: string) =>
+		`mutation{issueAuthToken(refreshToken: "${refreshToken}")}`
+	const mockDatabase = makeMockedDatabase()
+	;(<jest.Mock>mockDatabase.query).mockReturnValue([])
+	const testUser = User.fromDBResult(testData.users.user1)
 
-	test('valid refresh token', async () => {
-		const { graphQLServer, authService } = await setupTest({});
+	test("valid refresh token", async () => {
+		const { graphQLServer, authService } = await setupTest({})
 
-		const refreshToken = await authService.issueRefreshToken(testUser);
-		const query = makeIssueAuthTokenQuery(refreshToken);
+		const refreshToken = await authService.issueRefreshToken(testUser)
+		const query = makeIssueAuthTokenQuery(refreshToken)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
-		const authToken = body.data.issueAuthToken;
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+		const authToken = body.data.issueAuthToken
 
-		expect(authToken).toBeString();
-		await expect(authService.verifyToken(authToken)).resolves.toBeObject();
-	});
+		expect(authToken).toBeString()
+		await expect(authService.verifyToken(authToken)).resolves.toBeObject()
+	})
 
-	test('invalid refresh token', async () => {
-		const { graphQLServer } = await setupTest({ database: mockDatabase });
-		const refreshToken = 'abcd';
-		const query = makeIssueAuthTokenQuery(refreshToken);
+	test("invalid refresh token", async () => {
+		const { graphQLServer } = await setupTest({ database: mockDatabase })
+		const refreshToken = "abcd"
+		const query = makeIssueAuthTokenQuery(refreshToken)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: 'Invalid AuthToken' }]));
-	});
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: "Invalid AuthToken" }]))
+	})
 
-	test('expired refresh token', async () => {
-		const { graphQLServer, authService } = await setupTest({ database: mockDatabase });
-		const refreshToken = await authService.issueRefreshToken(testUser, '-1 day');
-		const query = makeIssueAuthTokenQuery(refreshToken);
+	test("expired refresh token", async () => {
+		const { graphQLServer, authService } = await setupTest({ database: mockDatabase })
+		const refreshToken = await authService.issueRefreshToken(testUser, "-1 day")
+		const query = makeIssueAuthTokenQuery(refreshToken)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: 'Invalid AuthToken' }]));
-	});
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: "Invalid AuthToken" }]))
+	})
 
-	test('user not found', async () => {
-		const { graphQLServer, authService } = await setupTest({ database: mockDatabase });
-		const testUser = plainToClass(User, { id: uuid() });
-		const refreshToken = await authService.issueRefreshToken(testUser);
-		const query = makeIssueAuthTokenQuery(refreshToken);
+	test("user not found", async () => {
+		const { graphQLServer, authService } = await setupTest({ database: mockDatabase })
+		const testUser = plainToClass(User, { id: uuid() })
+		const refreshToken = await authService.issueRefreshToken(testUser)
+		const query = makeIssueAuthTokenQuery(refreshToken)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: `User with id ${testUser.id} not found` }]));
-	});
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: `User with id ${testUser.id} not found` }]))
+	})
 
-	test('unexpected internal error', async () => {
-		const database = makeMockedDatabase();
-		database.query = () => { throw new Error('Unexpected error'); }
-		const { graphQLServer, authService } = await setupTest({ database: database });
+	test("unexpected internal error", async () => {
+		const database = makeMockedDatabase()
+		database.query = () => {
+			throw new Error("Unexpected error")
+		}
+		const { graphQLServer, authService } = await setupTest({ database: database })
 
-		const refreshToken = await authService.issueRefreshToken(testUser);
-		const query = makeIssueAuthTokenQuery(refreshToken);
+		const refreshToken = await authService.issueRefreshToken(testUser)
+		const query = makeIssueAuthTokenQuery(refreshToken)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body.errors[0].message.indexOf('An internal server error occured')).toBeGreaterThan(-1);
-	});
-});
+		expect(body.errors[0].message.indexOf("An internal server error occured")).toBeGreaterThan(-1)
+	})
+})
 
-describe('update user permissions', () => {
+describe("update user permissions", () => {
 	const makeUpdateUserPermissionsMutation = (shareID: string, userID: string, permissions: Permission[]) => `
-		mutation{updateUserPermissions(shareID: "${shareID}", userID: "${userID}", permissions: [${permissions.map(permission => `"${permission}"`).join(',')}])}
-	`;
-	const shareID = testData.shares.library_user1.share_id.toString();
-	const userID = testData.users.user1.user_id.toString();
+		mutation{updateUserPermissions(shareID: "${shareID}", userID: "${userID}", permissions: [${permissions
+		.map((permission) => `"${permission}"`)
+		.join(",")}])}
+	`
+	const shareID = testData.shares.library_user1.share_id.toString()
+	const userID = testData.users.user1.user_id.toString()
 
-	const database = makeMockedDatabase();
-	(<jest.Mock>database.query).mockReturnValue([testData.shares.library_user1]);
+	const database = makeMockedDatabase()
+	;(<jest.Mock>database.query).mockReturnValue([testData.shares.library_user1])
 
-	test('valid permission list', async () => {
-		const { graphQLServer } = await setupTest({});
+	test("valid permission list", async () => {
+		const { graphQLServer } = await setupTest({})
 
-		const permissions: Permission[] = ['playlist:create', 'share:owner'];
-		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions);
+		const permissions: Permission[] = ["playlist:create", "share:owner"]
+		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body.data.updateUserPermissions.sort()).toEqual(permissions);
-	});
+		expect(body.data.updateUserPermissions.sort()).toEqual(permissions)
+	})
 
-	test('invalid permission list', async () => {
-		const { graphQLServer } = await setupTest({ database: database });
-		const permissions: any[] = ['playlist:createe', 'share:owner'];
+	test("invalid permission list", async () => {
+		const { graphQLServer } = await setupTest({ database: database })
+		const permissions: any[] = ["playlist:createe", "share:owner"]
 
-		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions);
+		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions)
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body).toMatchObject(makeGraphQLResponse(
-			null,
-			[{ message: `Argument Validation Error` }]
-		));
-	});
+		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: `Argument Validation Error` }]))
+	})
 
-	test('insufficient permissions', async () => {
-		const { graphQLServer } = await setupTest({ database: database });
-		const permissions: Permission[] = ['playlist:create', 'share:owner'];
-		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions);
-		const scopes: Scopes = [{ shareID, permissions: ['playlist:create', 'playlist:modify'] }];
+	test("insufficient permissions", async () => {
+		const { graphQLServer } = await setupTest({ database: database })
+		const permissions: Permission[] = ["playlist:create", "share:owner"]
+		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions)
+		const scopes: Scopes = [{ shareID, permissions: ["playlist:create", "playlist:modify"] }]
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes })
 
-		expect(body).toMatchObject(insufficientPermissionsError());
-	});
-});
+		expect(body).toMatchObject(insufficientPermissionsError())
+	})
+})
 
-describe('aggregated user related data', () => {
+describe("aggregated user related data", () => {
 	const makeUserQuery = (subQuery: string) => {
 		return `
 			query{
@@ -435,57 +427,52 @@ describe('aggregated user related data', () => {
 					${subQuery}
 				}
 			}
-		`;
+		`
 	}
-	const makeShareArtistsQuery = () => `artists{name}`;
-	const makeShareGenresQuery = () => `genres{name,group}`;
-	const makeShareSongTypesQuery = () => `songTypes{name,group,hasArtists,alternativeNames}`;
-	const makeShareTagsQuery = () => 'tags';
+	const makeShareArtistsQuery = () => `artists{name}`
+	const makeShareGenresQuery = () => `genres{name,group}`
+	const makeShareSongTypesQuery = () => `songTypes{name,group,hasArtists,alternativeNames}`
+	const makeShareTagsQuery = () => "tags"
 
-	test('get aggregated artists', async () => {
-		const { graphQLServer } = await setupTest({});
+	test("get aggregated artists", async () => {
+		const { graphQLServer } = await setupTest({})
 
-		const query = makeUserQuery(makeShareArtistsQuery());
+		const query = makeUserQuery(makeShareArtistsQuery())
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body.data.viewer.artists).toIncludeAllMembers([
-			'Oliver Smith',
-			'Natalie Holmes',
-			'Kink',
-			'Dusky',
-			'Rue',
-			'Alastor'
-		].map(Artist.fromString));
-	});
+		expect(body.data.viewer.artists).toIncludeAllMembers(
+			["Oliver Smith", "Natalie Holmes", "Kink", "Dusky", "Rue", "Alastor"].map(Artist.fromString),
+		)
+	})
 
-	test('get aggregated genres', async () => {
-		const { graphQLServer } = await setupTest({});
+	test("get aggregated genres", async () => {
+		const { graphQLServer } = await setupTest({})
 
-		const query = makeUserQuery(makeShareGenresQuery());
+		const query = makeUserQuery(makeShareGenresQuery())
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body.data.viewer.genres).toBeArrayOfSize(defaultGenres.length);
-	});
+		expect(body.data.viewer.genres).toBeArrayOfSize(defaultGenres.length)
+	})
 
-	test('get aggregated song types', async () => {
-		const { graphQLServer } = await setupTest({});
+	test("get aggregated song types", async () => {
+		const { graphQLServer } = await setupTest({})
 
-		const query = makeUserQuery(makeShareSongTypesQuery());
+		const query = makeUserQuery(makeShareSongTypesQuery())
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body.data.viewer.songTypes).toBeArrayOfSize(defaultSongTypes.length);
-	});
+		expect(body.data.viewer.songTypes).toBeArrayOfSize(defaultSongTypes.length)
+	})
 
-	test('get aggregated tags', async () => {
-		const { graphQLServer } = await setupTest({});
-		const query = makeUserQuery(makeShareTagsQuery());
+	test("get aggregated tags", async () => {
+		const { graphQLServer } = await setupTest({})
+		const query = makeUserQuery(makeShareTagsQuery())
 
-		const { body } = await executeGraphQLQuery({ graphQLServer, query });
-		const expectedTags = ["Anjuna", "Progressive", "Deep", "Funky", "Dark", "Party Chill"].sort();
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+		const expectedTags = ["Anjuna", "Progressive", "Deep", "Funky", "Dark", "Party Chill"].sort()
 
-		expect(body.data.viewer.tags.sort()).toEqual(expectedTags);
-	});
+		expect(body.data.viewer.tags.sort()).toEqual(expectedTags)
+	})
 })

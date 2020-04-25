@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import deepEqual from 'dequal'
+import { useEffect, useRef } from "react"
+import deepEqual from "dequal"
 
 // taken from https://github.com/kentcdodds/use-deep-compare-effect
 

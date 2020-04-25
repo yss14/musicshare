@@ -1,31 +1,31 @@
-import { clearTables } from "../database/database";
-import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env";
-import { IDatabaseClient } from "postgres-schema-builder";
-import { testData, createTestSongs } from "../database/seed";
+import { clearTables } from "../database/database"
+import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env"
+import { IDatabaseClient } from "postgres-schema-builder"
+import { testData, createTestSongs } from "../database/seed"
 
-const { cleanUp, getDatabase } = setupTestSuite();
-let database: IDatabaseClient;
+const { cleanUp, getDatabase } = setupTestSuite()
+let database: IDatabaseClient
 
 const setupTest = async (args: Partial<SetupTestEnvArgs>) => {
 	if (!args.database) {
-		await clearTables(database);
+		await clearTables(database)
 	}
 
-	const testEnv = await setupTestEnv({ ...args, database: args.database || database });
+	const testEnv = await setupTestEnv({ ...args, database: args.database || database })
 
-	return testEnv;
+	return testEnv
 }
 
 beforeAll(async () => {
-	database = await getDatabase();
-});
+	database = await getDatabase()
+})
 
 afterAll(async () => {
-	await cleanUp();
-});
+	await cleanUp()
+})
 
-describe('addLibrarySongsToShare', () => {
-	test('add library with 500 songs to share does not block', async () => {
+describe("addLibrarySongsToShare", () => {
+	test("add library with 500 songs to share does not block", async () => {
 		const { songService } = await setupTest({})
 
 		const shareID = testData.shares.some_unrelated_share.share_id

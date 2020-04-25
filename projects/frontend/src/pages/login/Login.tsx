@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
-import { LoginForm } from "./LoginForm";
-import { useParams, useHistory } from "react-router-dom";
-import { Container, Title } from "../CustomerActionForm";
-import { useAuthToken } from "../../graphql/client/queries/auth-token-query";
+import React, { useEffect } from "react"
+import { LoginForm } from "./LoginForm"
+import { useParams, useHistory } from "react-router-dom"
+import { Container, Title } from "../CustomerActionForm"
+import { useAuthToken } from "../../graphql/client/queries/auth-token-query"
 
 interface ILoginRouteParams {
-	email?: string;
+	email?: string
 }
 
 export const Login = () => {
@@ -15,7 +15,7 @@ export const Login = () => {
 
 	useEffect(() => {
 		if (authToken) {
-			history.push('/')
+			history.push("/")
 		}
 	}, [authToken, history])
 

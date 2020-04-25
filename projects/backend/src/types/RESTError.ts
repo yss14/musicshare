@@ -1,4 +1,4 @@
 export interface IRestError {
-	identifier: string;
-	message: string;
+	identifier: string
+	message: string
 }

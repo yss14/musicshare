@@ -1,11 +1,11 @@
-import React, { useCallback } from 'react'
+import React, { useCallback } from "react"
 import { Menu, message } from "antd"
-import { ContextMenu } from '../modals/contextmenu/ContextMenu'
-import { IPlaylist } from '../../graphql/types'
-import { useDeletePlaylist } from '../../graphql/mutations/delete-playlist-mutation'
+import { ContextMenu } from "../modals/contextmenu/ContextMenu"
+import { IPlaylist } from "../../graphql/types"
+import { useDeletePlaylist } from "../../graphql/mutations/delete-playlist-mutation"
 
 interface IPlaylistSongContextMenuProps {
-	playlist: IPlaylist;
+	playlist: IPlaylist
 }
 
 export const PlaylistContextMenu = React.forwardRef<HTMLDivElement, IPlaylistSongContextMenuProps>((props, ref) => {

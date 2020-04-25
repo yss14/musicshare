@@ -1,34 +1,34 @@
-import { ISongMediaUrl } from "./queries/song-mediaurl-query";
-import { Permission, UserStatus } from '@musicshare/shared-types'
+import { ISongMediaUrl } from "./queries/song-mediaurl-query"
+import { Permission, UserStatus } from "@musicshare/shared-types"
 
 export interface IShareVariables {
-	shareID: string;
+	shareID: string
 }
 
 export interface IShareData {
-	shareID: string;
+	shareID: string
 }
 
 export interface IShare {
-	id: string;
-	__typename: 'Share';
-	name: string;
-	userID: string;
-	isLibrary: boolean;
-	userPermissions: Permission[];
+	id: string
+	__typename: "Share"
+	name: string
+	userID: string
+	isLibrary: boolean
+	userPermissions: Permission[]
 }
 
 export interface IUser {
-	id: string;
-	name: string;
-	email: string;
-	status: UserStatus;
+	id: string
+	name: string
+	email: string
+	status: UserStatus
 }
 
 export interface IUserWithShares extends IUser {
 	user: {
-		shares: IShare[];
-	};
+		shares: IShare[]
+	}
 }
 
 export const userKeys = `
@@ -39,55 +39,55 @@ export const userKeys = `
 `
 
 export interface IUserVariables {
-	id: string;
+	id: string
 }
 
 export interface IBaseSong {
-	id: string;
-	title: string;
-	suffix: string | null;
-	year: number | null;
-	bpm: number | null;
-	dateLastEdit: string;
-	releaseDate: string | null;
-	isRip: boolean;
-	artists: string[];
-	remixer: string[];
-	featurings: string[];
-	type: string | null;
-	genres: string[];
-	labels: string[];
-	duration: number;
-	tags: string[];
-	libraryID: string;
+	id: string
+	title: string
+	suffix: string | null
+	year: number | null
+	bpm: number | null
+	dateLastEdit: string
+	releaseDate: string | null
+	isRip: boolean
+	artists: string[]
+	remixer: string[]
+	featurings: string[]
+	type: string | null
+	genres: string[]
+	labels: string[]
+	duration: number
+	tags: string[]
+	libraryID: string
 }
 
 export interface IBaseSongPlayable extends IBaseSong {
-	getMediaURL: () => Promise<ISongMediaUrl[]>;
+	getMediaURL: () => Promise<ISongMediaUrl[]>
 }
 
 export interface IShareSong extends IBaseSong {
-	requiresUserAction: boolean;
+	requiresUserAction: boolean
 }
 
 export interface IPlaylistSong extends IBaseSong {
-	playlistSongID: string;
+	playlistSongID: string
 }
 
-export const isPlaylistSong = (obj: any): obj is IPlaylistSong => typeof obj === 'object'
-	&& typeof obj.playlistSongID === 'string'
+export const isPlaylistSong = (obj: any): obj is IPlaylistSong =>
+	typeof obj === "object" && typeof obj.playlistSongID === "string"
 
 /* 
 	libraryID of IBaseSong represents the share a song is linked from.
 	A scoped song allows to also carry information about the share a song is currently viewed from
 */
 export interface IScopedSong extends IBaseSong {
-	shareID: string;
+	shareID: string
 }
 
-export interface IScopedShareSong extends IShareSong, IScopedSong { }
+export interface IScopedShareSong extends IShareSong, IScopedSong {}
 
-export interface IScopedPlaylistSong extends IPlaylistSong, IScopedSong { }
+export interface IScopedPlaylistSong extends IPlaylistSong, IScopedSong {}
 
 const baseSongKeys = `
 	id
@@ -108,16 +108,16 @@ const baseSongKeys = `
 	duration
 	dateAdded
 	libraryID
-`;
+`
 
 export const shareSongKeys = `
 	${baseSongKeys}
-`;
+`
 
 export const playlistSongKeys = `
 	${baseSongKeys}
 	playlistSongID
-`;
+`
 
 export const shareKeys = `
 	id
@@ -127,34 +127,34 @@ export const shareKeys = `
 `
 
 export interface IFile {
-	readonly container: string;
-	readonly blob: string;
-	readonly fileExtension: string;
-	readonly originalFilename: string;
+	readonly container: string
+	readonly blob: string
+	readonly fileExtension: string
+	readonly originalFilename: string
 }
 
 export interface IGenre {
-	name: string;
-	group: string;
+	name: string
+	group: string
 }
 
 export interface ISongType extends IGenre {
-	hasArtists: boolean;
-	alternativeNames: string[];
+	hasArtists: boolean
+	alternativeNames: string[]
 }
 
 export interface IArtist {
-	name: string;
+	name: string
 }
 
 export interface IPlaylist {
-	id: string;
-	name: string;
-	shareID: string;
-	dateAdded: string;
+	id: string
+	name: string
+	shareID: string
+	dateAdded: string
 }
 
 export interface IPlaylistWithSongs extends IPlaylist {
-	songs: IPlaylistSong[];
-	__typename: "Playlist";
+	songs: IPlaylistSong[]
+	__typename: "Playlist"
 }

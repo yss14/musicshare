@@ -1,22 +1,18 @@
-import { FileUpload } from "../models/FileSourceModels";
-import { IServices } from "../services/services";
-import { Authorized, FieldResolver, Root, Resolver } from "type-graphql";
-import moment from "moment";
+import { FileUpload } from "../models/FileSourceModels"
+import { IServices } from "../services/services"
+import { Authorized, FieldResolver, Root, Resolver } from "type-graphql"
+import moment from "moment"
 
-@Resolver(of => FileUpload)
+@Resolver((of) => FileUpload)
 export class FileUploadResolver {
-	constructor(
-		private readonly services: IServices,
-	) { }
+	constructor(private readonly services: IServices) {}
 
 	@Authorized()
 	@FieldResolver(() => String)
-	public accessUrl(
-		@Root() fileUpload: FileUpload,
-	): Promise<string> {
+	public accessUrl(@Root() fileUpload: FileUpload): Promise<string> {
 		return this.services.songFileService.getLinkToFile({
 			filenameRemote: fileUpload.blob,
-			expireDate: moment().add(30, 'minutes'),
+			expireDate: moment().add(30, "minutes"),
 		})
 	}
 }

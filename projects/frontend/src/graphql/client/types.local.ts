@@ -1,18 +1,18 @@
 export interface ILocalUserVariables {
-  userID: string;
+	userID: string
 }
 
 export interface ILocalUserData {
-  userID: string;
+	userID: string
 }
 
 export interface ILocalShareData {
-  shareID: string;
+	shareID: string
 }
 
 export interface ILocalShareVariables {
-  shareID: string;
+	shareID: string
 }
 export interface ITodoVariables {
-  id: string;
+	id: string
 }

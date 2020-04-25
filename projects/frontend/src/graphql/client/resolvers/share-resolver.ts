@@ -1,13 +1,9 @@
-import { InMemoryCache } from "apollo-cache-inmemory";
+import { InMemoryCache } from "apollo-cache-inmemory"
 
 export interface ILoginVariables {
-  shareID: string;
+	shareID: string
 }
 
-export const updateShareId = (
-  _: any,
-  { shareID }: ILoginVariables,
-  { cache }: { cache: InMemoryCache }
-) => {
-  cache.writeData({ data: { shareID } });
-};
+export const updateShareId = (_: any, { shareID }: ILoginVariables, { cache }: { cache: InMemoryCache }) => {
+	cache.writeData({ data: { shareID } })
+}

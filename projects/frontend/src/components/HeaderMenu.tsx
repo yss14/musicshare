@@ -1,23 +1,23 @@
-import React, { useState, useCallback } from "react";
-import { Menu, Icon } from "antd";
-import styled from "styled-components";
-import { Link, useParams, useRouteMatch } from "react-router-dom";
-import { useShares } from "../graphql/queries/shares-query";
-import { IShareRoute } from "../interfaces";
-import { CreateShareModal } from "./modals/CreateShareModal";
-import { ShareSettings } from "./modals/share-settings/ShareSettings";
-import { IShare } from "../graphql/types";
-import { useUser } from "../graphql/queries/user-query";
-import { ChangePasswordModal } from "./modals/ChangePasswordModal";
-import { useApolloClient } from "react-apollo";
-import { logoutUser } from "../graphql/programmatic/logout";
+import React, { useState, useCallback } from "react"
+import { Menu, Icon } from "antd"
+import styled from "styled-components"
+import { Link, useParams, useRouteMatch } from "react-router-dom"
+import { useShares } from "../graphql/queries/shares-query"
+import { IShareRoute } from "../interfaces"
+import { CreateShareModal } from "./modals/CreateShareModal"
+import { ShareSettings } from "./modals/share-settings/ShareSettings"
+import { IShare } from "../graphql/types"
+import { useUser } from "../graphql/queries/user-query"
+import { ChangePasswordModal } from "./modals/ChangePasswordModal"
+import { useApolloClient } from "react-apollo"
+import { logoutUser } from "../graphql/programmatic/logout"
 
-const { SubMenu, ItemGroup, Item } = Menu;
+const { SubMenu, ItemGroup, Item } = Menu
 
 const StyledIcon = styled(Icon)`
-  font-size: 24px;
-  font-weight: 600;
-`;
+	font-size: 24px;
+	font-weight: 600;
+`
 
 const CurrentShareItem = styled(Item)`
 	width: 200px;
@@ -45,22 +45,23 @@ export const HeaderNavMenu = () => {
 	}
 
 	if (error || !data) {
-		if (error) console.log(error);
+		if (error) console.log(error)
 
-		return null;
+		return null
 	}
 
-	const libraryShare = data.viewer.shares.find(share => share.isLibrary)
-	const otherShares = data.viewer.shares
-		.filter(share => libraryShare === undefined ? false : share.id !== libraryShare.id)
+	const libraryShare = data.viewer.shares.find((share) => share.isLibrary)
+	const otherShares = data.viewer.shares.filter((share) =>
+		libraryShare === undefined ? false : share.id !== libraryShare.id,
+	)
 	const currentShareName = (() => {
 		if (match) {
-			if (!match.path.endsWith('/all')) {
+			if (!match.path.endsWith("/all")) {
 				if (shareID) {
-					const currentShare = data.viewer.shares.find(share => share.id === shareID)
+					const currentShare = data.viewer.shares.find((share) => share.id === shareID)
 
 					if (currentShare) {
-						if (match.path.startsWith('/all/')) {
+						if (match.path.startsWith("/all/")) {
 							return `All - ${currentShare.name}`
 						}
 
@@ -68,31 +69,28 @@ export const HeaderNavMenu = () => {
 					}
 				}
 			} else {
-				return 'All Shares'
+				return "All Shares"
 			}
 		}
 
-		return 'N/A'
+		return "N/A"
 	})()
 
 	if (!libraryShare || !otherShares) return null
 
-	const selectedKeys = shareID && match && !match.path.startsWith('/all/') ? `shares:${shareID}` : 'shares:all'
+	const selectedKeys = shareID && match && !match.path.startsWith("/all/") ? `shares:${shareID}` : "shares:all"
 
 	return (
 		<>
-			<Menu
-				selectedKeys={[selectedKeys]}
-				mode="horizontal"
-			>
+			<Menu selectedKeys={[selectedKeys]} mode="horizontal">
 				<CurrentShareItem key="share:current" disabled>
-					<span style={{ color: 'black', fontSize: 16 }}>{currentShareName}</span>
+					<span style={{ color: "black", fontSize: 16 }}>{currentShareName}</span>
 				</CurrentShareItem>
 				<Item key="shares:all">
 					<Link to={`/all`}>
 						<StyledIcon type="profile" />
 						All
-        			</Link>
+					</Link>
 				</Item>
 				<SubMenu
 					key="shares:own"
@@ -100,7 +98,7 @@ export const HeaderNavMenu = () => {
 						<span className="submenu-title-wrapper">
 							<StyledIcon type="share-alt" />
 							Shares
-          				</span>
+						</span>
 					}
 					style={{ width: sharesSubmenuHovered ? 250 : 140 }}
 					onTitleMouseEnter={() => setSharesSubmenuHovered(true)}
@@ -113,17 +111,22 @@ export const HeaderNavMenu = () => {
 								{libraryShare.name}
 							</Link>
 							)}
-              			</Menu.Item>
+						</Menu.Item>
 					</ItemGroup>
 					<ItemGroup key="shares:own" title="Own Shares">
 						{otherShares.map((share) => (
-							<SubMenu key={`shares:${share.id}`} title={
-								<Link to={`/shares/${share.id}`}>
-									<Icon type="share-alt" />
-									<span style={{ color: 'rgba(0, 0, 0, 0.65)' }}>{share.name}</span>
-								</Link>
-							}>
-								<Menu.Item key="share:submenu:edit" onClick={() => setShareSettings(share)}>Settings</Menu.Item>
+							<SubMenu
+								key={`shares:${share.id}`}
+								title={
+									<Link to={`/shares/${share.id}`}>
+										<Icon type="share-alt" />
+										<span style={{ color: "rgba(0, 0, 0, 0.65)" }}>{share.name}</span>
+									</Link>
+								}
+							>
+								<Menu.Item key="share:submenu:edit" onClick={() => setShareSettings(share)}>
+									Settings
+								</Menu.Item>
 							</SubMenu>
 						))}
 					</ItemGroup>
@@ -134,16 +137,27 @@ export const HeaderNavMenu = () => {
 						</Menu.Item>
 					</ItemGroup>
 				</SubMenu>
-				<SubMenu key="user" title={user?.viewer.name || '...'} style={{ float: 'right' }}>
-					<Item key="user:change_password" title="Change Password" onClick={() => setShowChangePassword(true)}>
+				<SubMenu key="user" title={user?.viewer.name || "..."} style={{ float: "right" }}>
+					<Item
+						key="user:change_password"
+						title="Change Password"
+						onClick={() => setShowChangePassword(true)}
+					>
 						Change Password
 					</Item>
-					<Item key="user:logout" title="Logout" onClick={logout}>Logout</Item>
+					<Item key="user:logout" title="Logout" onClick={logout}>
+						Logout
+					</Item>
 				</SubMenu>
 			</Menu>
-			{showCreateShare && <CreateShareModal onSubmit={() => setShowCreateShare(false)} onCancel={() => setShowCreateShare(false)} />}
+			{showCreateShare && (
+				<CreateShareModal
+					onSubmit={() => setShowCreateShare(false)}
+					onCancel={() => setShowCreateShare(false)}
+				/>
+			)}
 			{shareSettings && <ShareSettings share={shareSettings} onClose={() => setShareSettings(null)} />}
 			{showChangePassword && <ChangePasswordModal onClose={() => setShowChangePassword(false)} />}
 		</>
-	);
-};
+	)
+}

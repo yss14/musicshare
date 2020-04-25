@@ -11,14 +11,14 @@ export const Section = styled.div`
 	padding: 10px 0px;
 `
 
-const isStringArray = (obj: any): obj is string[] => Array.isArray(obj) && obj.every(item => typeof item === 'string')
+const isStringArray = (obj: any): obj is string[] => Array.isArray(obj) && obj.every((item) => typeof item === "string")
 
 interface ISongSearchOptionsPopoverProps {
-	onOptionChange: (opts: ISongSearchOptions) => any;
+	onOptionChange: (opts: ISongSearchOptions) => any
 }
 
 export const SongSearchOptionsPopover: React.FC<ISongSearchOptionsPopoverProps> = ({ onOptionChange }) => {
-	const [mode, setMode] = useState<SearchMode>('both')
+	const [mode, setMode] = useState<SearchMode>("both")
 	const [matching, setMatching] = useState({
 		checkedList: allMatchingOptions,
 		indeterminate: false,
@@ -26,7 +26,7 @@ export const SongSearchOptionsPopover: React.FC<ISongSearchOptionsPopoverProps> 
 	})
 
 	const onChangeMatching = (checkedList: CheckboxValueType[]) => {
-		if (!isStringArray(checkedList)) return;
+		if (!isStringArray(checkedList)) return
 
 		setMatching({
 			checkedList,
@@ -43,21 +43,25 @@ export const SongSearchOptionsPopover: React.FC<ISongSearchOptionsPopoverProps> 
 		})
 	}
 
-	useEffect(() => onOptionChange({ matcher: matching.checkedList, mode }), [matching.checkedList, mode, onOptionChange])
+	useEffect(() => onOptionChange({ matcher: matching.checkedList, mode }), [
+		matching.checkedList,
+		mode,
+		onOptionChange,
+	])
 
 	const content = (
 		<Form>
 			<Section>
 				<h5>Mode</h5>
-				<Radio.Group value={mode} onChange={e => setMode(e.target.value)}>
+				<Radio.Group value={mode} onChange={(e) => setMode(e.target.value)}>
 					<Radio value="search">Search</Radio>
-					<Radio value="both">{'Search & Filter'}</Radio>
+					<Radio value="both">{"Search & Filter"}</Radio>
 					<Radio value="filter">Filter</Radio>
 				</Radio.Group>
 			</Section>
 			<Section>
 				<h5>Matching</h5>
-				<div style={{ borderBottom: '1px solid #E9E9E9', marginTop: 8 }}>
+				<div style={{ borderBottom: "1px solid #E9E9E9", marginTop: 8 }}>
 					<Checkbox
 						indeterminate={matching.indeterminate}
 						onChange={onClickCheckAll}
@@ -67,14 +71,10 @@ export const SongSearchOptionsPopover: React.FC<ISongSearchOptionsPopoverProps> 
 					</Checkbox>
 				</div>
 				<br />
-				<CheckboxGroup
-					options={allMatchingOptions}
-					value={matching.checkedList}
-					onChange={onChangeMatching}
-				/>
+				<CheckboxGroup options={allMatchingOptions} value={matching.checkedList} onChange={onChangeMatching} />
 			</Section>
 		</Form>
-	);
+	)
 
 	return (
 		<Popover content={content} title="Search Options" trigger="hover" placement="bottomRight">

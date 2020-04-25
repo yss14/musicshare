@@ -1,10 +1,10 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from "react"
+import styled from "styled-components"
 
 const SidebarSectionContainer = styled.div<ISidebarBaseProps>`
 	width: 100%;
 	overflow-y: auto;
-	${({ overflowScroll }) => overflowScroll === true ? 'flex: 1 1 auto;' : 'flex-shrink: 0;'}
+	${({ overflowScroll }) => (overflowScroll === true ? "flex: 1 1 auto;" : "flex-shrink: 0;")}
 `
 
 const SidebarSectionTitle = styled.div`
@@ -20,11 +20,11 @@ const SidebarSectionTitle = styled.div`
 `
 
 interface ISidebarBaseProps {
-	overflowScroll?: boolean;
+	overflowScroll?: boolean
 }
 
 interface ISidebarSectionProps extends ISidebarBaseProps {
-	title: string;
+	title: string
 }
 
 export const SidebarSection: React.FC<ISidebarSectionProps> = ({ title, overflowScroll, children }) => (

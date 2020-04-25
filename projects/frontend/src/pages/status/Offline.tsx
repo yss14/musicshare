@@ -1,7 +1,7 @@
-import React from 'react'
-import styled from 'styled-components'
-import { Link } from 'react-router-dom';
-import offlineImg from '../../images/offline.png'
+import React from "react"
+import styled from "styled-components"
+import { Link } from "react-router-dom"
+import offlineImg from "../../images/offline.png"
 
 const OfflineContainer = styled.div`
 	width: 100%;
@@ -9,7 +9,7 @@ const OfflineContainer = styled.div`
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-`;
+`
 
 const Image = styled.img`
 	width: 200px;

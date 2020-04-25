@@ -8,7 +8,7 @@ export const Logger = (namespace: string, logDuringTest: boolean = false) => {
 
 		const finalMessage = `[${namespace}]: ${message && message.toString ? message.toString() : message}`
 
-		if (target && typeof target === 'function') {
+		if (target && typeof target === "function") {
 			target(finalMessage)
 		} else {
 			console.log(finalMessage)

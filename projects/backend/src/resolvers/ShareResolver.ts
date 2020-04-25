@@ -1,56 +1,51 @@
-import { Resolver, Query, Arg, FieldResolver, Root, Authorized, Args, Ctx, Mutation } from "type-graphql";
-import { Share } from "../models/ShareModel";
-import { Song } from "../models/SongModel";
-import { Playlist } from '../models/PlaylistModel';
-import { PlaylistIDArg } from '../args/playlist-args';
-import { ShareAuth } from '../auth/middleware/share-auth';
-import { IGraphQLContext } from '../types/context';
-import { IServices } from '../services/services';
-import { ShareNameArg, ShareIDArg } from "../args/share-args";
-import { InviteToShareInput } from "../inputs/InviteToShareInput";
-import { ForbiddenError } from "apollo-server-core";
-import { UserNotFoundError } from "../services/UserService";
-import { Permissions, ITimedstampedResults } from '@musicshare/shared-types';
-import { User } from "../models/UserModel";
-import { AcceptInvitationInput } from "../inputs/AcceptInvitationInput";
-import { RevokeInvitationInput } from "../inputs/RevokeInvitationInput";
-import { expireAuthToken } from "../auth/auth-middleware";
-import { ShareIDInput } from "../inputs/ShareIDInput";
-import { TimestampedResults } from "../models/helper/TimestampedResultModel";
-import { TimestampArgs } from "../args/pagination-args";
-import { AcceptInviationPayload } from "../models/return-models/AcceptInvitationPayloadModel";
+import { Resolver, Query, Arg, FieldResolver, Root, Authorized, Args, Ctx, Mutation } from "type-graphql"
+import { Share } from "../models/ShareModel"
+import { Song } from "../models/SongModel"
+import { Playlist } from "../models/PlaylistModel"
+import { PlaylistIDArg } from "../args/playlist-args"
+import { ShareAuth } from "../auth/middleware/share-auth"
+import { IGraphQLContext } from "../types/context"
+import { IServices } from "../services/services"
+import { ShareNameArg, ShareIDArg } from "../args/share-args"
+import { InviteToShareInput } from "../inputs/InviteToShareInput"
+import { ForbiddenError } from "apollo-server-core"
+import { UserNotFoundError } from "../services/UserService"
+import { Permissions, ITimedstampedResults } from "@musicshare/shared-types"
+import { User } from "../models/UserModel"
+import { AcceptInvitationInput } from "../inputs/AcceptInvitationInput"
+import { RevokeInvitationInput } from "../inputs/RevokeInvitationInput"
+import { expireAuthToken } from "../auth/auth-middleware"
+import { ShareIDInput } from "../inputs/ShareIDInput"
+import { TimestampedResults } from "../models/helper/TimestampedResultModel"
+import { TimestampArgs } from "../args/pagination-args"
+import { AcceptInviationPayload } from "../models/return-models/AcceptInvitationPayloadModel"
 
 const TimedstampSongResult = TimestampedResults(Song)
 
-@Resolver(of => Share)
+@Resolver((of) => Share)
 export class ShareResolver {
-	constructor(
-		private readonly services: IServices,
-	) { }
+	constructor(private readonly services: IServices) {}
 
 	@Authorized()
 	@ShareAuth({ checkRef: true })
 	@Query(() => Share)
-	public share(
-		@Arg("shareID") shareID: string,
-		@Ctx() ctx: IGraphQLContext,
-	): Promise<Share> {
-		return this.services.shareService.getShareByID(shareID, ctx.userID!);
+	public share(@Arg("shareID") shareID: string, @Ctx() ctx: IGraphQLContext): Promise<Share> {
+		return this.services.shareService.getShareByID(shareID, ctx.userID!)
 	}
 
 	@Authorized()
 	@FieldResolver()
 	public async songs(
 		@Root() share: Share,
-		@Arg('from', { nullable: true }) from?: number,
-		@Arg('take', { nullable: true }) take?: number,
+		@Arg("from", { nullable: true }) from?: number,
+		@Arg("take", { nullable: true }) take?: number,
 	): Promise<Song[]> {
 		const songs = await this.services.songService.getByShare(share.id)
 
-		const startIdx = (from || 1) - 1;
-		const endIdx = (take || songs.length) - 1;
+		const startIdx = (from || 1) - 1
+		const endIdx = (take || songs.length) - 1
 
-		return songs.filter((_, idx) => idx >= startIdx && idx <= endIdx);
+		return songs.filter((_, idx) => idx >= startIdx && idx <= endIdx)
 	}
 
 	@Authorized()
@@ -70,62 +65,43 @@ export class ShareResolver {
 
 	@Authorized()
 	@FieldResolver()
-	public song(
-		@Root() share: Share,
-		@Arg('id') id: string,
-		@Ctx() { userID }: IGraphQLContext,
-	): Promise<Song | null> {
-		return this.services.songService.getByID(share.id, id);
+	public song(@Root() share: Share, @Arg("id") id: string, @Ctx() { userID }: IGraphQLContext): Promise<Song | null> {
+		return this.services.songService.getByID(share.id, id)
 	}
 
 	@Authorized()
 	@FieldResolver(() => [Playlist])
-	public async playlists(
-		@Root() share: Share,
-	): Promise<Playlist[]> {
-		return this.services.playlistService.getPlaylistsForShare(share.id);
+	public async playlists(@Root() share: Share): Promise<Playlist[]> {
+		return this.services.playlistService.getPlaylistsForShare(share.id)
 	}
 
 	@Authorized()
 	@FieldResolver(() => Playlist)
-	public async playlist(
-		@Root() share: Share,
-		@Args() { playlistID }: PlaylistIDArg,
-	): Promise<Playlist> {
-		return this.services.playlistService.getByID(share.id, playlistID);
+	public async playlist(@Root() share: Share, @Args() { playlistID }: PlaylistIDArg): Promise<Playlist> {
+		return this.services.playlistService.getByID(share.id, playlistID)
 	}
 
 	@Authorized()
 	@FieldResolver(() => [User])
-	public async users(
-		@Root() share: Share,
-	): Promise<User[]> {
-		return this.services.userService.getUsersOfShare(share.id);
+	public async users(@Root() share: Share): Promise<User[]> {
+		return this.services.userService.getUsersOfShare(share.id)
 	}
 
 	@Authorized()
 	@FieldResolver(() => [String])
-	public async permissions(
-		@Root() share: Share
-	): Promise<string[]> {
-		return this.services.permissionService.getAvailablePermissions();
+	public async permissions(@Root() share: Share): Promise<string[]> {
+		return this.services.permissionService.getAvailablePermissions()
 	}
 
 	@Authorized()
 	@FieldResolver(() => [String])
-	public async userPermissions(
-		@Root() share: Share,
-		@Ctx() ctx: IGraphQLContext,
-	): Promise<string[]> {
-		return this.services.permissionService.getPermissionsForUser(share.id.toString(), ctx.userID!);
+	public async userPermissions(@Root() share: Share, @Ctx() ctx: IGraphQLContext): Promise<string[]> {
+		return this.services.permissionService.getPermissionsForUser(share.id.toString(), ctx.userID!)
 	}
 
 	@Authorized()
 	@Mutation(() => Share)
-	public async createShare(
-		@Args() { name }: ShareNameArg,
-		@Ctx() ctx: IGraphQLContext
-	): Promise<Share> {
+	public async createShare(@Args() { name }: ShareNameArg, @Ctx() ctx: IGraphQLContext): Promise<Share> {
 		const createdShare = await this.services.shareService.create(ctx.userID!, name, false)
 
 		await expireAuthToken(ctx)
@@ -139,7 +115,7 @@ export class ShareResolver {
 	public async renameShare(
 		@Args() { shareID }: ShareIDArg,
 		@Args() { name }: ShareNameArg,
-		@Ctx() ctx: IGraphQLContext
+		@Ctx() ctx: IGraphQLContext,
 	): Promise<Share> {
 		await this.services.shareService.rename(shareID, name)
 
@@ -149,10 +125,7 @@ export class ShareResolver {
 	@Authorized()
 	@ShareAuth({ permissions: ["share:owner"] })
 	@Mutation(() => Boolean)
-	public async deleteShare(
-		@Args() { shareID }: ShareIDArg,
-		@Ctx() ctx: IGraphQLContext,
-	): Promise<boolean> {
+	public async deleteShare(@Args() { shareID }: ShareIDArg, @Ctx() ctx: IGraphQLContext): Promise<boolean> {
 		await this.services.shareService.remove(shareID)
 		await expireAuthToken(ctx)
 
@@ -161,24 +134,27 @@ export class ShareResolver {
 
 	@Authorized()
 	@ShareAuth({ permissions: ["share:owner"] })
-	@Mutation(() => String, { nullable: true, description: 'Returns an invitation link or null if user already existed and has been added to the share' })
+	@Mutation(() => String, {
+		nullable: true,
+		description: "Returns an invitation link or null if user already existed and has been added to the share",
+	})
 	public async inviteToShare(
-		@Arg('input') { shareID, email }: InviteToShareInput,
+		@Arg("input") { shareID, email }: InviteToShareInput,
 		@Ctx() { userID, share }: IGraphQLContext,
 	): Promise<string | null> {
 		if (!share || share.isLibrary === true) {
-			throw new ForbiddenError('Invitations to user libraries is not possible')
+			throw new ForbiddenError("Invitations to user libraries is not possible")
 		}
 
 		try {
 			const user = await this.services.userService.getUserByEMail(email)
 			const userShares = await this.services.shareService.getSharesOfUser(user.id)
 
-			if (userShares.some(share => share.id === shareID)) {
-				throw new ForbiddenError('User already member of share')
+			if (userShares.some((share) => share.id === shareID)) {
+				throw new ForbiddenError("User already member of share")
 			}
 
-			const userLibrary = userShares.find(share => share.isLibrary)!
+			const userLibrary = userShares.find((share) => share.isLibrary)!
 			await this.services.shareService.addUser(shareID, user.id, Permissions.NEW_MEMBER)
 			await this.services.songService.addLibrarySongsToShare(shareID, userLibrary.id)
 
@@ -194,7 +170,7 @@ export class ShareResolver {
 
 	@Mutation(() => AcceptInviationPayload)
 	public async acceptInvitation(
-		@Arg('input') { invitationToken, name, password }: AcceptInvitationInput,
+		@Arg("input") { invitationToken, name, password }: AcceptInvitationInput,
 	): Promise<AcceptInviationPayload> {
 		const user = await this.services.userService.acceptInvitation(invitationToken, name, password)
 		const restoreToken = await this.services.passwordLoginService.getRestoreToken(user.id)
@@ -204,9 +180,7 @@ export class ShareResolver {
 
 	@Mutation(() => Boolean)
 	@ShareAuth({ permissions: ["share:owner"] })
-	public async revokeInvitation(
-		@Arg('input') { userID }: RevokeInvitationInput,
-	): Promise<boolean> {
+	public async revokeInvitation(@Arg("input") { userID }: RevokeInvitationInput): Promise<boolean> {
 		await this.services.userService.revokeInvitation(userID)
 
 		return true
@@ -215,7 +189,7 @@ export class ShareResolver {
 	@Mutation(() => Boolean)
 	@ShareAuth()
 	public async leaveShare(
-		@Arg('input') { shareID }: ShareIDInput,
+		@Arg("input") { shareID }: ShareIDInput,
 		@Ctx() { userID }: IGraphQLContext,
 	): Promise<boolean> {
 		await this.services.shareService.removeUser(shareID, userID!)

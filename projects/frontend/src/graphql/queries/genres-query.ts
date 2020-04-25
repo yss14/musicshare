@@ -1,24 +1,24 @@
-import { IGenre } from "../types";
-import gql from "graphql-tag";
-import { useQuery } from "@apollo/react-hooks";
+import { IGenre } from "../types"
+import gql from "graphql-tag"
+import { useQuery } from "@apollo/react-hooks"
 
 export interface IGetGenreData {
 	viewer: {
-		genres: IGenre[];
+		genres: IGenre[]
 	}
 }
 
 export const GET_GENRES = gql`
 	query genres {
 		viewer {
-			id,
+			id
 			genres {
-				name,
+				name
 				group
 			}
 		}
 	}
-`;
+`
 
 export const useGenres = () => {
 	const { data, ...rest } = useQuery<IGetGenreData>(GET_GENRES)

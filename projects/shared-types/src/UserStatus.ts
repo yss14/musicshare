@@ -1,4 +1,4 @@
 export enum UserStatus {
-	Pending = 'Pending',
-	Accepted = 'Accepted',
+	Pending = "Pending",
+	Accepted = "Accepted",
 }

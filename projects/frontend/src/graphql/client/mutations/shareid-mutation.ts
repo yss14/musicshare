@@ -1,16 +1,16 @@
-import gql from "graphql-tag";
-import { useMutation } from "@apollo/react-hooks";
-import { useEffect } from "react";
+import gql from "graphql-tag"
+import { useMutation } from "@apollo/react-hooks"
+import { useEffect } from "react"
 
 export interface IUpdateShareIDVariables {
-	shareID: string | null;
+	shareID: string | null
 }
 
 const UPDATE_SHARE_ID = gql`
-  mutation updateShareId($shareID: String!) {
-    updateShareId(shareID: $shareID) @client
-  }
-`;
+	mutation updateShareId($shareID: String!) {
+		updateShareId(shareID: $shareID) @client
+	}
+`
 
 export const useUpdateShareID = (shareID: string | null) => {
 	const [updateShareID] = useMutation<{}, IUpdateShareIDVariables>(UPDATE_SHARE_ID)
@@ -18,8 +18,8 @@ export const useUpdateShareID = (shareID: string | null) => {
 	useEffect(() => {
 		updateShareID({
 			variables: {
-				shareID
-			}
+				shareID,
+			},
 		})
 	}, [shareID, updateShareID])
 

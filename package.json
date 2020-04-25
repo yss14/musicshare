@@ -24,7 +24,7 @@
 		"test:ci": "lerna run test:ci --stream --scope @musicshare/backend",
 		"test:cov": "lerna run test:cov --stream",
 		"postinstall": "npm run bootstrap",
-		"prettify": "prettier --config .prettierrc.js --ignore-path .prettierignore --write ./projects/**/*.{ts,tsx,js,jsx}"
+		"prettify": "prettier --config .prettierrc.js --ignore-path .prettierignore --write ./projects/**/*.{ts,tsx,js}"
 	},
 	"dependencies": {
 		"@apollo/react-common": "^3.0.0",

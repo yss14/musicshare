@@ -1,20 +1,20 @@
-import gql from "graphql-tag";
-import { useQuery } from "@apollo/react-hooks";
+import gql from "graphql-tag"
+import { useQuery } from "@apollo/react-hooks"
 
 export interface IGetTagsData {
 	viewer: {
-		tags: string[];
+		tags: string[]
 	}
 }
 
 export const GET_TAGS = gql`
 	query tags {
 		viewer {
-			id,
+			id
 			tags
 		}
 	}
-`;
+`
 
 export const useTags = () => {
 	const { data, ...rest } = useQuery<IGetTagsData>(GET_TAGS)

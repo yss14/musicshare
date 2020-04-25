@@ -1,19 +1,19 @@
-import gql from "graphql-tag";
-import { useMutation, MutationResult } from "react-apollo";
-import { useCallback } from "react";
-import { IMutationOptions } from "../hook-types";
+import gql from "graphql-tag"
+import { useMutation, MutationResult } from "react-apollo"
+import { useCallback } from "react"
+import { IMutationOptions } from "../hook-types"
 
 interface IChangePasswordData {
-	changePassword: boolean;
+	changePassword: boolean
 }
 
 interface IChangePasswordInput {
-	oldPassword: string;
-	newPassword: string;
+	oldPassword: string
+	newPassword: string
 }
 
 interface IChangePasswordVariables {
-	input: IChangePasswordInput;
+	input: IChangePasswordInput
 }
 
 const CHANGE_PASSWORD = gql`
@@ -23,13 +23,19 @@ const CHANGE_PASSWORD = gql`
 `
 
 export const useChangePassword = (opts?: IMutationOptions<IChangePasswordData>) => {
-	const [changePasswordMutation, other] = useMutation<IChangePasswordData, IChangePasswordVariables>(CHANGE_PASSWORD, opts)
+	const [changePasswordMutation, other] = useMutation<IChangePasswordData, IChangePasswordVariables>(
+		CHANGE_PASSWORD,
+		opts,
+	)
 
-	const changePassword = useCallback((input: IChangePasswordInput) => {
-		changePasswordMutation({
-			variables: { input },
-		})
-	}, [changePasswordMutation])
+	const changePassword = useCallback(
+		(input: IChangePasswordInput) => {
+			changePasswordMutation({
+				variables: { input },
+			})
+		},
+		[changePasswordMutation],
+	)
 
 	return [changePassword, other] as [(input: IChangePasswordInput) => void, MutationResult<IChangePasswordData>]
 }

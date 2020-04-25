@@ -1,15 +1,15 @@
-import React, { useState } from 'react'
-import { Modal, Select } from 'antd'
-import { useSharePlaylists } from '../../../graphql/queries/playlists-query'
-import { IPlaylist } from '../../../graphql/types';
-import { filterUndefined } from '../../../utils/filter-null';
-import { useShareID } from '../../../graphql/client/queries/shareid-query';
+import React, { useState } from "react"
+import { Modal, Select } from "antd"
+import { useSharePlaylists } from "../../../graphql/queries/playlists-query"
+import { IPlaylist } from "../../../graphql/types"
+import { filterUndefined } from "../../../utils/filter-null"
+import { useShareID } from "../../../graphql/client/queries/shareid-query"
 
-const { Option } = Select;
+const { Option } = Select
 
 interface IPlaylistPickerProps {
-	visible: boolean;
-	onSubmit: (playlists: IPlaylist[]) => void;
+	visible: boolean
+	onSubmit: (playlists: IPlaylist[]) => void
 }
 
 export const PlaylistPicker: React.FC<IPlaylistPickerProps> = ({ visible, onSubmit }) => {
@@ -22,14 +22,14 @@ export const PlaylistPicker: React.FC<IPlaylistPickerProps> = ({ visible, onSubm
 	}
 
 	const onDeselectPlaylist = (playlistID: string) => {
-		setSelectedPlaylists(playlistIDs => playlistIDs.filter(id => id !== playlistID))
+		setSelectedPlaylists((playlistIDs) => playlistIDs.filter((id) => id !== playlistID))
 	}
 
 	if (loading || error || !data) return null
 
 	const onSubmitModal = () => {
 		const playlists = selectedPlaylists
-			.map(playlistID => data.find(playlist => playlist.id === playlistID))
+			.map((playlistID) => data.find((playlist) => playlist.id === playlistID))
 			.filter(filterUndefined)
 
 		setSelectedPlaylists([])
@@ -49,7 +49,7 @@ export const PlaylistPicker: React.FC<IPlaylistPickerProps> = ({ visible, onSubm
 		<Modal title="Pick playlist(s)" visible={visible} onOk={onSubmitModal} onCancel={onCancelModal}>
 			<Select
 				mode="multiple"
-				style={{ width: '100%' }}
+				style={{ width: "100%" }}
 				placeholder="Select one or more playlists"
 				defaultValue={[]}
 				onChange={onSelectPlaylist}
@@ -57,9 +57,11 @@ export const PlaylistPicker: React.FC<IPlaylistPickerProps> = ({ visible, onSubm
 				optionLabelProp="title"
 			>
 				{data.map((playlist) => (
-					<Option value={playlist.id} title={playlist.name}>{playlist.name}</Option>
+					<Option value={playlist.id} title={playlist.name}>
+						{playlist.name}
+					</Option>
 				))}
 			</Select>
-		</Modal >
+		</Modal>
 	)
 }

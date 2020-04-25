@@ -1,7 +1,7 @@
 export function filterNull<Value>(value: Value | null): value is Value {
-	return value !== null;
+	return value !== null
 }
 
 export function filterUndefined<Value>(value: Value | undefined): value is Value {
-	return value !== undefined;
+	return value !== undefined
 }

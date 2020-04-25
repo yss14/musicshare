@@ -1,60 +1,63 @@
-import React, { useCallback } from 'react'
-import { Modal, Form, Input, Icon, Alert, message } from 'antd'
-import { useFormik } from 'formik'
-import { useChangePassword } from '../../graphql/mutations/change-password-mutation'
+import React, { useCallback } from "react"
+import { Modal, Form, Input, Icon, Alert, message } from "antd"
+import { useFormik } from "formik"
+import { useChangePassword } from "../../graphql/mutations/change-password-mutation"
 
 interface IFormValues {
-	oldPassword: string;
-	newPassword: string;
-	newPasswordRepitition: string;
+	oldPassword: string
+	newPassword: string
+	newPasswordRepitition: string
 }
 
 const initialFormValues: IFormValues = {
-	oldPassword: '',
-	newPassword: '',
-	newPasswordRepitition: '',
+	oldPassword: "",
+	newPassword: "",
+	newPasswordRepitition: "",
 }
 
 const validateForm = ({ oldPassword, newPassword, newPasswordRepitition }: IFormValues) => {
 	const errors: Partial<IFormValues> = {}
 
 	if (oldPassword.trim().length < 8) {
-		errors.oldPassword = 'Password must be at least 8 characters long'
+		errors.oldPassword = "Password must be at least 8 characters long"
 	}
 
 	if (newPassword.trim().length < 8) {
-		errors.newPassword = 'Password must be at least 8 characters long'
+		errors.newPassword = "Password must be at least 8 characters long"
 	}
 
 	if (newPassword !== newPasswordRepitition) {
-		errors.newPasswordRepitition = 'Passwords must match'
+		errors.newPasswordRepitition = "Passwords must match"
 	}
 
 	return errors
 }
 
 interface IChangePasswordModalProps {
-	onClose: () => any;
+	onClose: () => any
 }
 
 export const ChangePasswordModal: React.FC<IChangePasswordModalProps> = ({ onClose }) => {
 	const [changePassword, { error }] = useChangePassword({
 		onError: console.error,
 		onCompleted: () => {
-			message.success('Password has been changed')
+			message.success("Password has been changed")
 			onClose()
 		},
 	})
-	const onSubmit = useCallback(({ newPasswordRepitition, ...input }: IFormValues) => {
-		changePassword(input)
-	}, [changePassword])
+	const onSubmit = useCallback(
+		({ newPasswordRepitition, ...input }: IFormValues) => {
+			changePassword(input)
+		},
+		[changePassword],
+	)
 	const { handleSubmit, errors, values, handleChange, isValid, handleBlur, touched, dirty } = useFormik({
 		initialValues: initialFormValues,
 		onSubmit,
 		validate: validateForm,
 	})
 
-	const errorAlert = error && <Alert message={error.message.replace('GraphQL error: ', '')} type="error" />
+	const errorAlert = error && <Alert message={error.message.replace("GraphQL error: ", "")} type="error" />
 
 	return (
 		<Form>
@@ -65,13 +68,13 @@ export const ChangePasswordModal: React.FC<IChangePasswordModalProps> = ({ onClo
 				okText="Change Password"
 				onOk={() => handleSubmit()}
 				okButtonProps={{
-					htmlType: 'submit',
+					htmlType: "submit",
 					disabled: !(isValid && dirty),
 				}}
 			>
 				{errorAlert}
 				<Form.Item
-					validateStatus={touched.oldPassword && errors.oldPassword ? 'error' : 'success'}
+					validateStatus={touched.oldPassword && errors.oldPassword ? "error" : "success"}
 					help={errors.oldPassword}
 				>
 					<Input
@@ -85,7 +88,7 @@ export const ChangePasswordModal: React.FC<IChangePasswordModalProps> = ({ onClo
 					/>
 				</Form.Item>
 				<Form.Item
-					validateStatus={touched.newPassword && errors.newPassword ? 'error' : 'success'}
+					validateStatus={touched.newPassword && errors.newPassword ? "error" : "success"}
 					help={errors.newPassword}
 				>
 					<Input
@@ -99,7 +102,7 @@ export const ChangePasswordModal: React.FC<IChangePasswordModalProps> = ({ onClo
 					/>
 				</Form.Item>
 				<Form.Item
-					validateStatus={touched.newPasswordRepitition && errors.newPasswordRepitition ? 'error' : 'success'}
+					validateStatus={touched.newPasswordRepitition && errors.newPasswordRepitition ? "error" : "success"}
 					help={errors.newPasswordRepitition}
 				>
 					<Input
@@ -116,4 +119,3 @@ export const ChangePasswordModal: React.FC<IChangePasswordModalProps> = ({ onClo
 		</Form>
 	)
 }
-

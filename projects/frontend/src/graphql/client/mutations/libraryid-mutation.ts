@@ -1,4 +1,4 @@
-import { useApolloClient } from "@apollo/react-hooks";
+import { useApolloClient } from "@apollo/react-hooks"
 
 export const useUpdateLibraryID = () => {
 	const client = useApolloClient()
@@ -6,8 +6,8 @@ export const useUpdateLibraryID = () => {
 	return (libraryID: string | null) => {
 		client.writeData({
 			data: {
-				libraryID
-			}
+				libraryID,
+			},
 		})
 	}
 }

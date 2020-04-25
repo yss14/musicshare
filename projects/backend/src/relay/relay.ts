@@ -1,6 +1,6 @@
 import { ObjectType, Field } from "type-graphql"
 import { TypeValue } from "type-graphql/dist/decorators/types"
-import * as Relay from 'graphql-relay'
+import * as Relay from "graphql-relay"
 import { PageInfo } from "../args/pagination-args"
 
 export function connectionTypes<T extends TypeValue>(name: string, nodeType: T) {
@@ -9,7 +9,7 @@ export function connectionTypes<T extends TypeValue>(name: string, nodeType: T) 
 		@Field(() => nodeType)
 		public readonly node!: T
 
-		@Field({ description: 'Used in `before` and `after` args' })
+		@Field({ description: "Used in `before` and `after` args" })
 		public readonly cursor!: string
 	}
 

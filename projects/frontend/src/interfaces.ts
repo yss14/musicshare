@@ -1,7 +1,7 @@
 export interface IShareRoute {
-	shareID: string;
+	shareID: string
 }
 
 export interface ISharePlaylistRoute extends IShareRoute {
-	playlistID: string;
+	playlistID: string
 }

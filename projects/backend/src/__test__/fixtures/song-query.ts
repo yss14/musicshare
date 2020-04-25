@@ -1,7 +1,7 @@
 export const songKeysFileSources = (subqueries: string[]) => `
 	sources {
 		__typename
-		${subqueries.join('\n')}
+		${subqueries.join("\n")}
 	}
 `
 
@@ -11,7 +11,7 @@ export const songKeysFileSourceUpload = (props?: string) => `
 		blob
 		fileExtension
 		originalFilename
-		${props || ''}
+		${props || ""}
 	}
 `
 
@@ -34,7 +34,7 @@ export const songKeys = `
 	tags
 	dateAdded
 	libraryID
-`;
+`
 
 export const playlistSongKeys = `
 	${songKeys}

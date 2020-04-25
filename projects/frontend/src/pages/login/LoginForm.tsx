@@ -1,31 +1,31 @@
-import React, { useCallback } from "react";
-import { Form, Icon, Input, Button, Alert } from "antd";
-import { useLogin } from "../../graphql/mutations/login-mutation";
-import { useHistory } from "react-router";
-import { useFormik } from "formik";
-import { Link } from "react-router-dom";
+import React, { useCallback } from "react"
+import { Form, Icon, Input, Button, Alert } from "antd"
+import { useLogin } from "../../graphql/mutations/login-mutation"
+import { useHistory } from "react-router"
+import { useFormik } from "formik"
+import { Link } from "react-router-dom"
 
 interface IFormValues {
-	email: string;
-	password: string;
+	email: string
+	password: string
 }
 
 const validateForm = ({ email, password }: IFormValues) => {
 	const errors: Partial<IFormValues> = {}
 
 	if (email.trim().length < 5) {
-		errors.email = 'Please enter your email'
+		errors.email = "Please enter your email"
 	}
 
 	if (password.trim().length < 8) {
-		errors.password = 'This password seems to be too short'
+		errors.password = "This password seems to be too short"
 	}
 
 	return errors
 }
 
 interface ILoginFormProps {
-	email?: string;
+	email?: string
 }
 
 export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
@@ -33,21 +33,24 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 	const [login, { error }] = useLogin({
 		onCompleted: () => history.push("/"),
 		onError: console.error,
-	});
-	const onSubmit = useCallback(({ email, password }: IFormValues) => {
-		login(email, password)
-	}, [login])
+	})
+	const onSubmit = useCallback(
+		({ email, password }: IFormValues) => {
+			login(email, password)
+		},
+		[login],
+	)
 	const { handleSubmit, touched, values, handleBlur, handleChange, errors, isValid } = useFormik<IFormValues>({
-		initialValues: { email: email || '', password: '' },
+		initialValues: { email: email || "", password: "" },
 		validate: validateForm,
 		onSubmit: onSubmit,
-		initialTouched: { email: email !== undefined }
+		initialTouched: { email: email !== undefined },
 	})
 
 	return (
 		<Form onSubmit={handleSubmit} style={{ width: 250 }}>
-			{error && <Alert message={error.message.replace('GraphQL error: ', '')} type="error" />}
-			<Form.Item validateStatus={touched.email && errors.email ? 'error' : 'success'} help={errors.email}>
+			{error && <Alert message={error.message.replace("GraphQL error: ", "")} type="error" />}
+			<Form.Item validateStatus={touched.email && errors.email ? "error" : "success"} help={errors.email}>
 				<Input
 					prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
 					placeholder="E-Mail"
@@ -57,7 +60,10 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 					onBlur={handleBlur}
 				/>
 			</Form.Item>
-			<Form.Item validateStatus={touched.password && errors.password ? 'error' : 'success'} help={errors.password}>
+			<Form.Item
+				validateStatus={touched.password && errors.password ? "error" : "success"}
+				help={errors.password}
+			>
 				<Input
 					prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
 					type="password"
@@ -69,21 +75,13 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 				/>
 			</Form.Item>
 			<Form.Item>
-				<Link to="/password/restore">
-					Forgot password
-        		</Link>
+				<Link to="/password/restore">Forgot password</Link>
 			</Form.Item>
 			<Form.Item>
-				<Button
-					style={{ width: "100%" }}
-					type="primary"
-					key="submit"
-					htmlType="submit"
-					disabled={!isValid}
-				>
+				<Button style={{ width: "100%" }} type="primary" key="submit" htmlType="submit" disabled={!isValid}>
 					Sign in
-        		</Button>
+				</Button>
 			</Form.Item>
 		</Form>
-	);
+	)
 }

@@ -1,19 +1,19 @@
-import { shareSongKeys, IScopedSong } from "../types";
-import gql from "graphql-tag";
-import { useLazyQuery } from "react-apollo";
-import { useCallback, useState } from "react";
-import { makeScopedSong } from "../utils/data-transformations";
+import { shareSongKeys, IScopedSong } from "../types"
+import gql from "graphql-tag"
+import { useLazyQuery } from "react-apollo"
+import { useCallback, useState } from "react"
+import { makeScopedSong } from "../utils/data-transformations"
 
 export interface ISongSearchData {
 	viewer: {
-		searchSongs: IScopedSong[];
+		searchSongs: IScopedSong[]
 	}
 }
 
 export interface ISongSearchVariables {
-	query: string;
-	matcher?: string[];
-	limit?: number;
+	query: string
+	matcher?: string[]
+	limit?: number
 }
 
 export const SEARCH_SONG = gql`
@@ -30,16 +30,21 @@ export const SEARCH_SONG = gql`
 export const useSongSearch = () => {
 	const [cachedData, setCachedData] = useState<ISongSearchData | null>(null)
 	const [searchSong, { data, ...rest }] = useLazyQuery<ISongSearchData, ISongSearchVariables>(SEARCH_SONG, {
-		fetchPolicy: 'cache-and-network',
-		onCompleted: (data) => setCachedData(data)
+		fetchPolicy: "cache-and-network",
+		onCompleted: (data) => setCachedData(data),
 	})
 
-	const search = useCallback((query: string, matcher?: string[], limit?: number) => {
-		searchSong({ variables: { query, matcher, limit } })
-	}, [searchSong])
+	const search = useCallback(
+		(query: string, matcher?: string[], limit?: number) => {
+			searchSong({ variables: { query, matcher, limit } })
+		},
+		[searchSong],
+	)
 
 	return {
-		data: cachedData ? cachedData.viewer.searchSongs.map(song => makeScopedSong(song, song.libraryID)) : undefined,
+		data: cachedData
+			? cachedData.viewer.searchSongs.map((song) => makeScopedSong(song, song.libraryID))
+			: undefined,
 		search,
 		...rest,
 	}

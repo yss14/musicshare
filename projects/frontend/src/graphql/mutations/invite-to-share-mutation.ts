@@ -1,15 +1,15 @@
-import gql from "graphql-tag";
-import { useMutation } from "react-apollo";
-import { IMutationOptions } from "../hook-types";
+import gql from "graphql-tag"
+import { useMutation } from "react-apollo"
+import { IMutationOptions } from "../hook-types"
 
 interface IInviteToShareData {
-	inviteToShare: string | null;
+	inviteToShare: string | null
 }
 
 interface IInviteToShareVariables {
 	input: {
-		shareID: string;
-		email: string;
+		shareID: string
+		email: string
 	}
 }
 
