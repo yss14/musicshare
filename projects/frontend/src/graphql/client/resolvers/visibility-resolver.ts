@@ -1,14 +1,14 @@
-import { InMemoryCache } from "apollo-cache-inmemory";
+import { InMemoryCache } from "apollo-cache-inmemory"
 
 export interface IVisibilityVariables {
-  visibilityFilter: string;
+	visibilityFilter: string
 }
 
 export const updateVisibilityFilter = (
-  _: any,
-  { visibilityFilter }: IVisibilityVariables,
-  { cache }: { cache: InMemoryCache }
+	_: any,
+	{ visibilityFilter }: IVisibilityVariables,
+	{ cache }: { cache: InMemoryCache },
 ) => {
-  const data = { visibilityFilter, __typename: "Filter" };
-  cache.writeData({ data });
-};
+	const data = { visibilityFilter, __typename: "Filter" }
+	cache.writeData({ data })
+}

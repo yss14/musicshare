@@ -1,22 +1,22 @@
-import { IShareSong, shareSongKeys } from "../types";
-import gql from "graphql-tag";
-import { useQuery, useApolloClient } from "react-apollo";
-import { useCallback, useRef } from "react";
-import { GET_SHARE_WITH_SONGS, IGetShareWithSongsData, IGetShareWithSongsVariables } from "./share-songs-query";
-import { ITimedstampedResults } from "@musicshare/shared-types";
-import { useInterval } from "../../hooks/use-interval";
+import { IShareSong, shareSongKeys } from "../types"
+import gql from "graphql-tag"
+import { useQuery, useApolloClient } from "react-apollo"
+import { useCallback, useRef } from "react"
+import { GET_SHARE_WITH_SONGS, IGetShareWithSongsData, IGetShareWithSongsVariables } from "./share-songs-query"
+import { ITimedstampedResults } from "@musicshare/shared-types"
+import { useInterval } from "../../hooks/use-interval"
 
 export interface IGetShareDirtySongsData {
 	share: {
-		id: string;
-		name: string;
-		songsDirty: ITimedstampedResults<IShareSong>;
+		id: string
+		name: string
+		songsDirty: ITimedstampedResults<IShareSong>
 	}
 }
 
 export interface IGetShareDirtySongsVariables {
-	shareID: string;
-	lastTimestamp: Date;
+	shareID: string
+	lastTimestamp: Date
 }
 
 export const GET_SHARE_DIRTY_SONGS = gql`
@@ -32,46 +32,52 @@ export const GET_SHARE_DIRTY_SONGS = gql`
       		}
     	}
   	}
-`;
+`
 
 export const useShareDirtySongs = (shareID: string) => {
 	const cache = useApolloClient()
 	const lastUpdateTimestamp = useRef<Date>(new Date())
 
-	const updateCache = useCallback((data: IGetShareDirtySongsData) => {
-		lastUpdateTimestamp.current = data.share.songsDirty.timestamp
+	const updateCache = useCallback(
+		(data: IGetShareDirtySongsData) => {
+			lastUpdateTimestamp.current = data.share.songsDirty.timestamp
 
-		if (data.share.songsDirty.nodes.length === 0) return
+			if (data.share.songsDirty.nodes.length === 0) return
 
-		const currentShareSongs = cache.readQuery<IGetShareWithSongsData, IGetShareWithSongsVariables>({
-			query: GET_SHARE_WITH_SONGS,
-			variables: {
-				shareID,
-			},
-		})
-
-		if (!currentShareSongs) return
-
-		const dirtySongIDs = new Set(data.share.songsDirty.nodes.map(song => song.id))
-		const currentSongIDs = new Set(currentShareSongs.share.songs.map(song => song.id))
-		const newSongs = data.share.songsDirty.nodes.filter(newSong => !currentSongIDs.has(newSong.id))
-
-		cache.writeQuery<IGetShareWithSongsData, IGetShareWithSongsVariables>({
-			query: GET_SHARE_WITH_SONGS,
-			variables: {
-				shareID,
-			},
-			data: {
-				share: {
-					...currentShareSongs.share,
-					songs: currentShareSongs.share.songs.map(song => dirtySongIDs.has(song.id)
-						? data.share.songsDirty.nodes.find(dirtySong => dirtySong.id === song.id) || song
-						: song
-					).concat(newSongs)
+			const currentShareSongs = cache.readQuery<IGetShareWithSongsData, IGetShareWithSongsVariables>({
+				query: GET_SHARE_WITH_SONGS,
+				variables: {
+					shareID,
 				},
-			}
-		})
-	}, [cache, shareID])
+			})
+
+			if (!currentShareSongs) return
+
+			const dirtySongIDs = new Set(data.share.songsDirty.nodes.map((song) => song.id))
+			const currentSongIDs = new Set(currentShareSongs.share.songs.map((song) => song.id))
+			const newSongs = data.share.songsDirty.nodes.filter((newSong) => !currentSongIDs.has(newSong.id))
+
+			cache.writeQuery<IGetShareWithSongsData, IGetShareWithSongsVariables>({
+				query: GET_SHARE_WITH_SONGS,
+				variables: {
+					shareID,
+				},
+				data: {
+					share: {
+						...currentShareSongs.share,
+						songs: currentShareSongs.share.songs
+							.map((song) =>
+								dirtySongIDs.has(song.id)
+									? data.share.songsDirty.nodes.find((dirtySong) => dirtySong.id === song.id) || song
+									: song,
+							)
+							.concat(newSongs),
+					},
+				},
+			})
+		},
+		[cache, shareID],
+	)
 
 	const { refetch } = useQuery<IGetShareDirtySongsData, IGetShareDirtySongsVariables>(GET_SHARE_DIRTY_SONGS, {
 		fetchPolicy: "network-only",
@@ -82,7 +88,7 @@ export const useShareDirtySongs = (shareID: string) => {
 		refetch({
 			shareID,
 			lastTimestamp: lastUpdateTimestamp.current,
-		}).then(result => {
+		}).then((result) => {
 			// onCompleted is broken for refetch, use this workaround for now
 			// https://github.com/apollographql/react-apollo/issues/3709
 			if (result.data) {

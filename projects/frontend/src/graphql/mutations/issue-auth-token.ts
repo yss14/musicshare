@@ -1,15 +1,15 @@
-import gql from "graphql-tag";
+import gql from "graphql-tag"
 
 export interface IIssueAuthTokenVariables {
-	refreshToken: string;
+	refreshToken: string
 }
 
 export interface IIssueAuthTokenData {
-	issueAuthToken: string;
+	issueAuthToken: string
 }
 
 export const ISSUE_AUTH_TOKEN = gql`
-	mutation issueAuthToken($refreshToken: String!){
+	mutation issueAuthToken($refreshToken: String!) {
 		issueAuthToken(refreshToken: $refreshToken)
 	}
 `

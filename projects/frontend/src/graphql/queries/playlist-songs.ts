@@ -1,21 +1,21 @@
-import { IPlaylistWithSongs, playlistSongKeys } from "../types";
-import gql from "graphql-tag";
-import { useQuery } from "@apollo/react-hooks";
-import { useHistory } from "react-router-dom";
-import { defaultGraphQLErrorHandler } from "../utils/default-graphql-errorhandler";
-import { makeScopedSongs } from "../utils/data-transformations";
+import { IPlaylistWithSongs, playlistSongKeys } from "../types"
+import gql from "graphql-tag"
+import { useQuery } from "@apollo/react-hooks"
+import { useHistory } from "react-router-dom"
+import { defaultGraphQLErrorHandler } from "../utils/default-graphql-errorhandler"
+import { makeScopedSongs } from "../utils/data-transformations"
 
 export interface IGetPlaylistSongsData {
 	share: {
-		id: string;
-		__typename: 'Share',
-		playlist: IPlaylistWithSongs;
+		id: string
+		__typename: "Share"
+		playlist: IPlaylistWithSongs
 	}
 }
 
 export interface IGetPlaylistSongsVariables {
-	shareID: string;
-	playlistID: string;
+	shareID: string
+	playlistID: string
 }
 
 export const PLAYLIST_WITH_SONGS = gql`
@@ -32,25 +32,24 @@ export const PLAYLIST_WITH_SONGS = gql`
 			}
     	}
   	}
-`;
+`
 
 export const usePlaylist = (variables: IGetPlaylistSongsVariables) => {
 	const history = useHistory()
 
-	const { data, ...rest } = useQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>(
-		PLAYLIST_WITH_SONGS,
-		{
-			variables,
-			fetchPolicy: 'network-only',
-			onError: defaultGraphQLErrorHandler(history),
-		}
-	);
+	const { data, ...rest } = useQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>(PLAYLIST_WITH_SONGS, {
+		variables,
+		fetchPolicy: "network-only",
+		onError: defaultGraphQLErrorHandler(history),
+	})
 
 	return {
-		data: data ? {
-			...data.share.playlist,
-			songs: makeScopedSongs(data.share.playlist.songs, data.share.id),
-		} : undefined,
+		data: data
+			? {
+					...data.share.playlist,
+					songs: makeScopedSongs(data.share.playlist.songs, data.share.id),
+			  }
+			: undefined,
 		...rest,
 	}
 }

@@ -1,105 +1,117 @@
-import React, { ChangeEvent, useMemo } from 'react';
-import { Tag, Input, Tooltip, Icon, AutoComplete } from 'antd';
-import { useState, useRef } from 'react';
-import { SelectValue } from 'antd/lib/select';
+import React, { ChangeEvent, useMemo, useState, useRef } from "react"
+import { Tag, Input, Tooltip, Icon, AutoComplete } from "antd"
+import { SelectValue } from "antd/lib/select"
 
 const isChangeEvent = (obj: any): obj is ChangeEvent<HTMLInputElement> =>
-	obj.target !== undefined && obj.target.value !== undefined;
+	obj.target !== undefined && obj.target.value !== undefined
 
 interface IEditableTagGroupProps {
-	values: string[];
-	onValuesChange: (newValues: string[]) => void;
-	placeholder?: string;
-	datasource?: string[];
-	readOnly?: boolean;
+	values: string[]
+	onValuesChange: (newValues: string[]) => void
+	placeholder?: string
+	datasource?: string[]
+	readOnly?: boolean
 }
 
 interface IEditableTagGroupState {
-	inputVisible: boolean;
-	inputValue: string;
+	inputVisible: boolean
+	inputValue: string
 }
 
-export const EditableTagGroup = ({ values, onValuesChange: onValueChange, placeholder, datasource, readOnly }: IEditableTagGroupProps) => {
+export const EditableTagGroup = ({
+	values,
+	onValuesChange: onValueChange,
+	placeholder,
+	datasource,
+	readOnly,
+}: IEditableTagGroupProps) => {
 	const [state, setState] = useState<IEditableTagGroupState>({
 		inputVisible: false,
-		inputValue: '',
-	});
+		inputValue: "",
+	})
 	const inputRef = useRef<Input>(null)
 
 	const handleClose = (removedValue: string) => {
-		const newValues = values.filter(value => value !== removedValue);
+		const newValues = values.filter((value) => value !== removedValue)
 
-		onValueChange(newValues);
-	};
+		onValueChange(newValues)
+	}
 
 	const showInput = () => {
-		setState({ ...state, inputVisible: true });
+		setState({ ...state, inputVisible: true })
 
 		if (inputRef.current) {
-			inputRef.current.focus();
+			inputRef.current.focus()
 		}
-	};
+	}
 
 	const handleInputChange = (e: SelectValue | ChangeEvent) => {
-		if (typeof e === 'string') {
-			setState({ ...state, inputValue: e });
+		if (typeof e === "string") {
+			setState({ ...state, inputValue: e })
 		} else if (isChangeEvent(e)) {
-			setState({ ...state, inputValue: e.target.value });
+			setState({ ...state, inputValue: e.target.value })
 		}
-	};
+	}
 
 	const handleInputSelect = (e: SelectValue) => {
-		if (typeof e === 'string') {
-			handleInputConfirm(e);
+		if (typeof e === "string") {
+			handleInputConfirm(e)
 		}
 	}
 
 	const handleInputConfirm = (value?: SelectValue) => {
-		const { inputValue } = state;
-		let newValues = [...values];
+		const { inputValue } = state
+		let newValues = [...values]
 
-		let finalInputValue = inputValue;
+		let finalInputValue = inputValue
 
-		if (typeof value === 'string') {
-			finalInputValue = value;
+		if (typeof value === "string") {
+			finalInputValue = value
 		}
 
 		if (finalInputValue && values.indexOf(finalInputValue) === -1) {
-			newValues.push(finalInputValue);
+			newValues.push(finalInputValue)
 		}
 
-		setTimeout(() => setState({
-			...state,
-			inputVisible: false,
-			inputValue: '',
-		}), 100);
+		setTimeout(
+			() =>
+				setState({
+					...state,
+					inputVisible: false,
+					inputValue: "",
+				}),
+			100,
+		)
 
-		onValueChange(newValues);
-	};
+		onValueChange(newValues)
+	}
 
-	const { inputVisible, inputValue } = state;
+	const { inputVisible, inputValue } = state
 
-	const datasourceFiltered = useMemo(() => (datasource || [])
-		.filter(data => !values.includes(data))
-		.filter(data => data.toLowerCase().indexOf(inputValue.toLowerCase()) > -1),
-		[datasource, inputValue, values]);
+	const datasourceFiltered = useMemo(
+		() =>
+			(datasource || [])
+				.filter((data) => !values.includes(data))
+				.filter((data) => data.toLowerCase().indexOf(inputValue.toLowerCase()) > -1),
+		[datasource, inputValue, values],
+	)
 
 	return (
 		<div>
-			{values.map((value, index) => {
-				const isLongValue = value.length > 30;
+			{values.map((value) => {
+				const isLongValue = value.length > 30
 				const valueElement = (
 					<Tag key={value} closable={!readOnly} onClose={() => handleClose(value)}>
 						{isLongValue ? `${value.slice(0, 20)}...` : value}
 					</Tag>
-				);
+				)
 				return isLongValue ? (
 					<Tooltip title={value} key={value}>
 						{valueElement}
 					</Tooltip>
 				) : (
-						valueElement
-					);
+					valueElement
+				)
 			})}
 			{inputVisible && (
 				<AutoComplete
@@ -128,11 +140,11 @@ export const EditableTagGroup = ({ values, onValuesChange: onValueChange, placeh
 				</AutoComplete>
 			)}
 			{!inputVisible && !readOnly && (
-				<Tag onClick={showInput} style={{ background: '#fff', borderStyle: 'dashed', cursor: 'pointer' }}>
+				<Tag onClick={showInput} style={{ background: "#fff", borderStyle: "dashed", cursor: "pointer" }}>
 					<Icon type="plus" />
-					{placeholder || 'New Tag'}
+					{placeholder || "New Tag"}
 				</Tag>
 			)}
 		</div>
-	);
+	)
 }

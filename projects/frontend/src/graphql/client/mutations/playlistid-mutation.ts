@@ -1,4 +1,4 @@
-import { useApolloClient } from "@apollo/react-hooks";
+import { useApolloClient } from "@apollo/react-hooks"
 
 export const useUpdateplaylistID = () => {
 	const client = useApolloClient()
@@ -6,8 +6,8 @@ export const useUpdateplaylistID = () => {
 	return (playlistID: string | null) => {
 		client.writeData({
 			data: {
-				playlistID
-			}
+				playlistID,
+			},
 		})
 	}
 }

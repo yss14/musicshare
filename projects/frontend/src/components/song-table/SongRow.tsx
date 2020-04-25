@@ -1,27 +1,39 @@
-import React, { useRef, useEffect } from 'react'
-import { ListRowProps } from 'react-virtualized'
-import { IRowEvents } from './SongTable'
-import { DragElementWrapper, DragPreviewOptions, DragPreviewImage, useDrop } from 'react-dnd'
-import { IScopedSong } from '../../graphql/types'
-import { Row, Col } from './SongTableUI'
-import songDragPreviewImg from '../../images/playlist_add.png'
-import { DragNDropItem, ISongDNDItem } from '../../types/DragNDropItems'
-import { MoveSong } from './MoveSong'
-import { IColumn, CalculatedColumnWidths } from './song-table-columns'
+import React, { useRef, useEffect } from "react"
+import { ListRowProps } from "react-virtualized"
+import { IRowEvents } from "./SongTable"
+import { DragElementWrapper, DragPreviewOptions, DragPreviewImage, useDrop } from "react-dnd"
+import { IScopedSong } from "../../graphql/types"
+import { Row, Col } from "./SongTableUI"
+import songDragPreviewImg from "../../images/playlist_add.png"
+import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
+import { MoveSong } from "./MoveSong"
+import { IColumn, CalculatedColumnWidths } from "./song-table-columns"
 
 interface ISongRowProps extends ListRowProps {
-	columns: IColumn[];
-	song: IScopedSong;
-	rowEvents?: IRowEvents;
-	hovered: boolean;
-	onMouseEnter?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, ref: React.Ref<HTMLDivElement>) => void;
-	dragPreview: DragElementWrapper<DragPreviewOptions>;
-	moveSong?: MoveSong;
-	isPlaylist: boolean;
-	calculatedColumnWidths: CalculatedColumnWidths;
+	columns: IColumn[]
+	song: IScopedSong
+	rowEvents?: IRowEvents
+	hovered: boolean
+	onMouseEnter?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, ref: React.Ref<HTMLDivElement>) => void
+	dragPreview: DragElementWrapper<DragPreviewOptions>
+	moveSong?: MoveSong
+	isPlaylist: boolean
+	calculatedColumnWidths: CalculatedColumnWidths
 }
 
-export const SongRow: React.FC<ISongRowProps> = ({ index, style, rowEvents, columns, song, hovered, onMouseEnter, dragPreview, moveSong, isPlaylist, calculatedColumnWidths }) => {
+export const SongRow: React.FC<ISongRowProps> = ({
+	index,
+	style,
+	rowEvents,
+	columns,
+	song,
+	hovered,
+	onMouseEnter,
+	dragPreview,
+	moveSong,
+	isPlaylist,
+	calculatedColumnWidths,
+}) => {
 	const rowRef = useRef<HTMLDivElement>(null)
 
 	const [{ isOver }, drop] = useDrop<ISongDNDItem, void, { isOver: boolean }>({
@@ -41,9 +53,12 @@ export const SongRow: React.FC<ISongRowProps> = ({ index, style, rowEvents, colu
 		}
 	}, [rowRef, drop])
 
-	const onClick = (event: React.MouseEvent) => rowEvents && rowEvents.onClick ? rowEvents.onClick(event, song, index) : undefined
-	const onContextMenu = (event: React.MouseEvent) => rowEvents && rowEvents.onContextMenu ? rowEvents.onContextMenu(event, song, index) : undefined
-	const onDoubleClick = (event: React.MouseEvent) => rowEvents && rowEvents.onDoubleClick ? rowEvents.onDoubleClick(event, song, index) : undefined
+	const onClick = (event: React.MouseEvent) =>
+		rowEvents && rowEvents.onClick ? rowEvents.onClick(event, song, index) : undefined
+	const onContextMenu = (event: React.MouseEvent) =>
+		rowEvents && rowEvents.onContextMenu ? rowEvents.onContextMenu(event, song, index) : undefined
+	const onDoubleClick = (event: React.MouseEvent) =>
+		rowEvents && rowEvents.onDoubleClick ? rowEvents.onDoubleClick(event, song, index) : undefined
 
 	return (
 		<>
@@ -51,14 +66,14 @@ export const SongRow: React.FC<ISongRowProps> = ({ index, style, rowEvents, colu
 				ref={rowRef}
 				style={{
 					...style,
-					backgroundColor: isOver ? '#2587fa' : (hovered ? '#e6f6ff' : 'transparent'),
+					backgroundColor: isOver ? "#2587fa" : hovered ? "#e6f6ff" : "transparent",
 				}}
 				onClick={onClick}
 				onContextMenu={onContextMenu}
 				onDoubleClick={onDoubleClick}
-				onMouseEnter={e => onMouseEnter ? onMouseEnter(e, rowRef) : undefined}
+				onMouseEnter={(e) => (onMouseEnter ? onMouseEnter(e, rowRef) : undefined)}
 			>
-				{columns.map(column => (
+				{columns.map((column) => (
 					<Col
 						key={`song-${song.id}-${index}-${column.title}`}
 						style={{ width: calculatedColumnWidths[column.key] }}

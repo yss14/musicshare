@@ -1,4 +1,4 @@
 export interface IGenre {
-	name: string;
-	group: string;
+	name: string
+	group: string
 }

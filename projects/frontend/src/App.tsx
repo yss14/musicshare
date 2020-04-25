@@ -1,21 +1,20 @@
-import React from "react";
-import { ApolloProvider } from "react-apollo";
-import { ApolloProvider as ApolloProviderHooks } from "@apollo/react-hooks";
-import { Router } from "react-router-dom";
-import { client, cache } from "./Apollo";
-import { DndProvider } from 'react-dnd'
-import HTML5Backend from 'react-dnd-html5-backend'
-import { makeConfigFromEnv } from "./config";
-import { ThemeProvider } from "styled-components";
-import { ConfigContext } from "./context/configContext";
-import { Routing } from "./components/routing/Routing";
-import { PlayerContext } from "./player/player-context";
-import { Player } from "./player/player";
-import { IPrimaryTheme } from "./types/Theme";
-import { history } from "./components/routing/history";
-import { createGlobalStyle } from 'styled-components'
+import React from "react"
+import { ApolloProvider } from "react-apollo"
+import { ApolloProvider as ApolloProviderHooks } from "@apollo/react-hooks"
+import { Router } from "react-router-dom"
+import { client, cache } from "./Apollo"
+import { DndProvider } from "react-dnd"
+import HTML5Backend from "react-dnd-html5-backend"
+import { makeConfigFromEnv } from "./config"
+import { ThemeProvider, createGlobalStyle } from "styled-components"
+import { ConfigContext } from "./context/configContext"
+import { Routing } from "./components/routing/Routing"
+import { PlayerContext } from "./player/player-context"
+import { Player } from "./player/player"
+import { IPrimaryTheme } from "./types/Theme"
+import { history } from "./components/routing/history"
 
-const config = makeConfigFromEnv();
+const config = makeConfigFromEnv()
 
 const GlobalStyle = createGlobalStyle`
 	html, body, #root{
@@ -34,29 +33,29 @@ const data = {
 	loggedIn: false,
 	user: {
 		id: "",
-		shares: []
+		shares: [],
 	},
 	shareID: "",
 	visibilityFilter: "SHOW_ALL",
 	networkStatus: {
 		__typename: "NetworkStatus",
-		isConnected: false
-	}
-};
+		isConnected: false,
+	},
+}
 
-cache.writeData({ data });
+cache.writeData({ data })
 
-client.onResetStore(async () => cache.writeData({ data }));
+client.onResetStore(async () => cache.writeData({ data }))
 
 const theme: IPrimaryTheme = {
 	main: "#275dad",
 	white: "#ffffff",
 	lightgrey: "#aba9c3",
 	grey: "#ced3dc",
-	darkgrey: "#474350"
-};
+	darkgrey: "#474350",
+}
 
-const player = Player();
+const player = Player()
 
 const App = () => {
 	return (
@@ -78,7 +77,7 @@ const App = () => {
 				</ApolloProviderHooks>
 			</ApolloProvider>
 		</>
-	);
-};
+	)
+}
 
-export default App;
+export default App

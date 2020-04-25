@@ -1,9 +1,9 @@
-import axios from "axios";
-import { IConfig } from "../../config";
+import axios from "axios"
+import { IConfig } from "../../config"
 
 interface IAxiosProgress {
-	total?: number;
-	loaded?: number;
+	total?: number
+	loaded?: number
 }
 
 export const upload = async (
@@ -16,13 +16,15 @@ export const upload = async (
 	config: IConfig,
 ): Promise<void> => {
 	await axios.post<void>(
-		`${config.services.musicshare.backendURL}/users/${userID}/shares/${shareID}/files/${file.name}?${playlistIDs.map(id => `playlistID=${id}`).join('&')}`,
+		`${config.services.musicshare.backendURL}/users/${userID}/shares/${shareID}/files/${
+			file.name
+		}?${playlistIDs.map((id) => `playlistID=${id}`).join("&")}`,
 		buffer,
 		{
 			onUploadProgress: onProgress,
 			headers: {
 				authorization: localStorage.getItem("auth-token"),
-			}
-		}
-	);
-};
+			},
+		},
+	)
+}

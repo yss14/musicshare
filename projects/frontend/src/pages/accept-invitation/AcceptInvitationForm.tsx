@@ -1,43 +1,43 @@
-import React, { useCallback } from 'react'
-import { Form, Icon, Input, Button, Alert } from "antd";
-import { IInvitationPayload } from '@musicshare/shared-types'
-import { useFormik } from 'formik'
-import { useAcceptInvitation } from '../../graphql/mutations/accept-invitation-mutation';
-import { Link } from 'react-router-dom';
+import React, { useCallback } from "react"
+import { Form, Icon, Input, Button, Alert } from "antd"
+import { IInvitationPayload } from "@musicshare/shared-types"
+import { useFormik } from "formik"
+import { useAcceptInvitation } from "../../graphql/mutations/accept-invitation-mutation"
+import { Link } from "react-router-dom"
 
 interface IFormValues {
-	username: string;
-	password: string;
-	passwordRepitition: string;
+	username: string
+	password: string
+	passwordRepitition: string
 }
 
 const initialFormValues: IFormValues = {
-	username: '',
-	password: '',
-	passwordRepitition: '',
+	username: "",
+	password: "",
+	passwordRepitition: "",
 }
 
 const validateForm = ({ password, passwordRepitition, username }: IFormValues) => {
 	const errors: Partial<IFormValues> = {}
 
 	if (username.trim().length < 4) {
-		errors.username = 'Username must be at least 4 characters long'
+		errors.username = "Username must be at least 4 characters long"
 	}
 
 	if (password.trim().length < 8) {
-		errors.password = 'Password must be at least 8 characters long'
+		errors.password = "Password must be at least 8 characters long"
 	}
 
 	if (password !== passwordRepitition) {
-		errors.passwordRepitition = 'Passwords must match'
+		errors.passwordRepitition = "Passwords must match"
 	}
 
 	return errors
 }
 
 interface IAcceptInvitationFormProps {
-	invitationPayload: IInvitationPayload;
-	invitationToken: string;
+	invitationPayload: IInvitationPayload
+	invitationToken: string
 }
 
 export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ invitationPayload, invitationToken }) => {
@@ -45,13 +45,16 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 		onError: console.error,
 		onCompleted: () => resetForm(),
 	})
-	const onSubmit = useCallback(({ username, password }: IFormValues) => {
-		acceptInvitation({
-			name: username,
-			password,
-			invitationToken,
-		})
-	}, [acceptInvitation, invitationToken])
+	const onSubmit = useCallback(
+		({ username, password }: IFormValues) => {
+			acceptInvitation({
+				name: username,
+				password,
+				invitationToken,
+			})
+		},
+		[acceptInvitation, invitationToken],
+	)
 	const { handleSubmit, errors, values, handleChange, isValid, handleBlur, touched, resetForm, dirty } = useFormik({
 		initialValues: initialFormValues,
 		onSubmit,
@@ -62,7 +65,10 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 		<Alert
 			message={
 				<>
-					<p>Your account has been created. Please note the following token and keep it safe! In case you have to restore your password, you need this token!</p>
+					<p>
+						Your account has been created. Please note the following token and keep it safe! In case you
+						have to restore your password, you need this token!
+					</p>
 					<p>Your restore token: {data.acceptInvitation.restoreToken}</p>
 					<p>
 						Proceed to <Link to={`/login/${invitationPayload.email}`}>Sign In</Link>
@@ -88,7 +94,7 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 				/>
 			</Form.Item>
 			<Form.Item
-				validateStatus={touched.username && errors.username ? 'error' : 'success'}
+				validateStatus={touched.username && errors.username ? "error" : "success"}
 				help={errors.username}
 			>
 				<Input
@@ -102,7 +108,7 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 				/>
 			</Form.Item>
 			<Form.Item
-				validateStatus={touched.password && errors.password ? 'error' : 'success'}
+				validateStatus={touched.password && errors.password ? "error" : "success"}
 				help={errors.password}
 			>
 				<Input
@@ -116,7 +122,7 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 				/>
 			</Form.Item>
 			<Form.Item
-				validateStatus={touched.passwordRepitition && errors.passwordRepitition ? 'error' : 'success'}
+				validateStatus={touched.passwordRepitition && errors.passwordRepitition ? "error" : "success"}
 				help={errors.passwordRepitition}
 			>
 				<Input
@@ -138,7 +144,7 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 					disabled={!(isValid && dirty)}
 				>
 					Create
-        		</Button>
+				</Button>
 			</Form.Item>
 		</Form>
 	)

@@ -1,19 +1,19 @@
-import { playlistSongKeys, IScopedPlaylistSong } from "../types";
-import gql from "graphql-tag";
-import { IMutationOptions } from "../hook-types";
-import { useMutation, MutationResult } from "react-apollo";
-import { useCallback } from "react";
+import { playlistSongKeys, IScopedPlaylistSong } from "../types"
+import gql from "graphql-tag"
+import { IMutationOptions } from "../hook-types"
+import { useMutation, MutationResult } from "react-apollo"
+import { useCallback } from "react"
 
-type OrderUpdates = ([string, number])[]
+type OrderUpdates = [string, number][]
 
 interface IUpdatePlaylistSongOrderData {
-	updateOrderOfPlaylist: IScopedPlaylistSong[];
+	updateOrderOfPlaylist: IScopedPlaylistSong[]
 }
 
 interface IUpdatePlaylistSongOrderVariables {
-	shareID: string;
-	playlistID: string;
-	orderUpdates: OrderUpdates;
+	shareID: string
+	playlistID: string
+	orderUpdates: OrderUpdates
 }
 
 const UPDATE_PLAYLIST_SONG_ORDER = gql`
@@ -25,21 +25,26 @@ const UPDATE_PLAYLIST_SONG_ORDER = gql`
 `
 
 export const useUpdatePlaylistSongOrder = (opts?: IMutationOptions<IUpdatePlaylistSongOrderData>) => {
-	const [updatePlaylistSongOrderMutation, other] = useMutation<IUpdatePlaylistSongOrderData, IUpdatePlaylistSongOrderVariables>(
-		UPDATE_PLAYLIST_SONG_ORDER,
-		opts,
+	const [updatePlaylistSongOrderMutation, other] = useMutation<
+		IUpdatePlaylistSongOrderData,
+		IUpdatePlaylistSongOrderVariables
+	>(UPDATE_PLAYLIST_SONG_ORDER, opts)
+
+	const updateSongOrder = useCallback(
+		(shareID: string, playlistID: string, orderUpdates: OrderUpdates) => {
+			updatePlaylistSongOrderMutation({
+				variables: {
+					shareID,
+					playlistID,
+					orderUpdates,
+				},
+			})
+		},
+		[updatePlaylistSongOrderMutation],
 	)
 
-	const updateSongOrder = useCallback((shareID: string, playlistID: string, orderUpdates: OrderUpdates) => {
-		updatePlaylistSongOrderMutation({
-			variables: {
-				shareID,
-				playlistID,
-				orderUpdates,
-			}
-		})
-	}, [updatePlaylistSongOrderMutation])
-
-	return [updateSongOrder, other] as
-		[(shareID: string, playlistID: string, orderUpdates: OrderUpdates) => void, MutationResult<IUpdatePlaylistSongOrderData>]
+	return [updateSongOrder, other] as [
+		(shareID: string, playlistID: string, orderUpdates: OrderUpdates) => void,
+		MutationResult<IUpdatePlaylistSongOrderData>,
+	]
 }

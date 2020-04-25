@@ -1,4 +1,4 @@
-import { IMigration } from "postgres-schema-builder";
+import { IMigration } from "postgres-schema-builder"
 
 export const migrations = new Map<number, IMigration>()
 

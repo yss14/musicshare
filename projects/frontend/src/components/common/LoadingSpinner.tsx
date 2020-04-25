@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react'
-import Lottie, { Options } from 'react-lottie'
-import loadingAnimation from '../../images/animations/loading.lottie'
-import styled from 'styled-components'
-import { ColorType } from '../../types/ColorType'
+import React, { useMemo } from "react"
+import Lottie, { Options } from "react-lottie"
+import loadingAnimation from "../../images/animations/loading.lottie"
+import styled from "styled-components"
+import { ColorType } from "../../types/ColorType"
 
 const defaultDimension = 100
 
@@ -16,8 +16,8 @@ const AnimationContainer = styled.div<ILoadingSpinnerProps>`
 `
 
 interface ILoadingSpinnerProps {
-	dimension?: number;
-	color?: ColorType;
+	dimension?: number
+	color?: ColorType
 }
 
 export const LoadingSpinner: React.FC<ILoadingSpinnerProps> = ({ dimension, color }) => {
@@ -29,7 +29,7 @@ export const LoadingSpinner: React.FC<ILoadingSpinnerProps> = ({ dimension, colo
 		autoplay: true,
 		animationData,
 		rendererSettings: {
-			preserveAspectRatio: 'xMidYMid slice',
+			preserveAspectRatio: "xMidYMid slice",
 		},
 	}
 

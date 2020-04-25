@@ -1,17 +1,17 @@
-import { IPlaylist } from "../types";
-import gql from "graphql-tag";
-import { useQuery } from "@apollo/react-hooks";
+import { IPlaylist } from "../types"
+import gql from "graphql-tag"
+import { useQuery } from "@apollo/react-hooks"
 
 export interface IGetPlaylistsData {
 	share: {
-		id: string;
-		__typename: 'Share';
-		playlists: IPlaylist[];
+		id: string
+		__typename: "Share"
+		playlists: IPlaylist[]
 	}
 }
 
 export interface IGetPlaylistsVariables {
-	shareID: string;
+	shareID: string
 }
 
 export const playlistKeys = `
@@ -19,7 +19,7 @@ export const playlistKeys = `
 	name
 	shareID
 	dateAdded
-`;
+`
 
 export const GET_SHARE_PLAYLISTS = gql`
 	query getSharePlaylists($shareID: String!){
@@ -30,10 +30,12 @@ export const GET_SHARE_PLAYLISTS = gql`
 			}
 		}
 	}
-`;
+`
 
 export const useSharePlaylists = (vars: IGetPlaylistsVariables) => {
-	const { data, ...rest } = useQuery<IGetPlaylistsData, IGetPlaylistsVariables>(GET_SHARE_PLAYLISTS, { variables: vars })
+	const { data, ...rest } = useQuery<IGetPlaylistsData, IGetPlaylistsVariables>(GET_SHARE_PLAYLISTS, {
+		variables: vars,
+	})
 
 	return {
 		data: data ? data.share.playlists : null,

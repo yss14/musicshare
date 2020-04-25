@@ -1,8 +1,8 @@
-import React from 'react'
-import Dropzone from './Dropzone';
-import { Flex, Box } from '../Flex';
-import { Progress } from 'antd';
-import styled from 'styled-components';
+import React from "react"
+import Dropzone from "./Dropzone"
+import { Flex, Box } from "../Flex"
+import { Progress } from "antd"
+import styled from "styled-components"
 
 const UploadProgressContainer = styled(Box)`
 	background-color: white;
@@ -14,19 +14,16 @@ const UploadItem = styled.div`
 	width: 100%;
 	padding: 4px 12px;
 
-	& .ant-progress-outer{
+	& .ant-progress-outer {
 		width: calc(100% - 14px) !important;
 	}
-`;
+`
 
 export const UploadDropzone: React.FC = ({ children }) => (
 	<Dropzone>
-		{uploadItems => {
+		{(uploadItems) => {
 			return (
-				<Flex
-					direction="column"
-					style={{ width: "100%", height: "100%" }}
-				>
+				<Flex direction="column" style={{ width: "100%", height: "100%" }}>
 					{uploadItems.length > 0 ? (
 						<UploadProgressContainer>
 							{uploadItems.map((item, idx) => (
@@ -48,14 +45,14 @@ export const UploadDropzone: React.FC = ({ children }) => (
 							style={{
 								width: "100%",
 								height: "100%",
-								position: "relative"
+								position: "relative",
 							}}
 						>
 							{children}
 						</div>
 					</Box>
 				</Flex>
-			);
+			)
 		}}
 	</Dropzone>
 )

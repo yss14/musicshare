@@ -1,7 +1,7 @@
-import { IDatabaseClient } from "postgres-schema-builder";
+import { IDatabaseClient } from "postgres-schema-builder"
 
 interface IDatabaseClientMocked extends IDatabaseClient {
-	mocked: true;
+	mocked: true
 }
 
 export const makeMockedDatabase = (): IDatabaseClientMocked => ({
@@ -10,7 +10,7 @@ export const makeMockedDatabase = (): IDatabaseClientMocked => ({
 	transaction: jest.fn(),
 	close: jest.fn(),
 	mocked: true,
-});
+})
 
 export const isMockedDatabase = (obj: any): obj is IDatabaseClientMocked =>
-	obj.mocked === true && obj.query !== undefined && obj.close !== undefined;
+	obj.mocked === true && obj.query !== undefined && obj.close !== undefined

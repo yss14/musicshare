@@ -1,20 +1,20 @@
-import gql from "graphql-tag";
-import { shareSongKeys, IShareSong } from "../types";
-import { useQuery } from "@apollo/react-hooks";
-import { useHistory } from "react-router-dom";
-import { defaultGraphQLErrorHandler } from "../utils/default-graphql-errorhandler";
-import { makeScopedSongs } from "../utils/data-transformations";
+import gql from "graphql-tag"
+import { shareSongKeys, IShareSong } from "../types"
+import { useQuery } from "@apollo/react-hooks"
+import { useHistory } from "react-router-dom"
+import { defaultGraphQLErrorHandler } from "../utils/default-graphql-errorhandler"
+import { makeScopedSongs } from "../utils/data-transformations"
 
 export interface IGetShareWithSongsData {
 	share: {
-		id: string;
-		name: string;
-		songs: IShareSong[];
+		id: string
+		name: string
+		songs: IShareSong[]
 	}
 }
 
 export interface IGetShareWithSongsVariables {
-	shareID: string;
+	shareID: string
 }
 
 export const GET_SHARE_WITH_SONGS = gql`
@@ -27,23 +27,20 @@ export const GET_SHARE_WITH_SONGS = gql`
       		}
     	}
   	}
-`;
+`
 
 export const useShareSongs = (shareID: string) => {
 	const history = useHistory()
 
-	const { data, ...rest } = useQuery<IGetShareWithSongsData, IGetShareWithSongsVariables>(
-		GET_SHARE_WITH_SONGS,
-		{
-			variables: {
-				shareID
-			},
-			onError: defaultGraphQLErrorHandler(history),
-		}
-	)
+	const { data, ...rest } = useQuery<IGetShareWithSongsData, IGetShareWithSongsVariables>(GET_SHARE_WITH_SONGS, {
+		variables: {
+			shareID,
+		},
+		onError: defaultGraphQLErrorHandler(history),
+	})
 
 	return {
 		data: data ? makeScopedSongs(data.share.songs, shareID) : undefined,
-		...rest
+		...rest,
 	}
 }

@@ -1,15 +1,15 @@
-import gql from "graphql-tag";
-import { useQuery } from "@apollo/react-hooks";
+import gql from "graphql-tag"
+import { useQuery } from "@apollo/react-hooks"
 
 export interface IShareIDData {
-	shareID: string;
+	shareID: string
 }
 
 export const GET_SHARE_ID = gql`
-  	query {
-    	shareID @client
-  	}
-`;
+	query {
+		shareID @client
+	}
+`
 
 export const useShareID = () => {
 	const { data } = useQuery<IShareIDData, {}>(GET_SHARE_ID)

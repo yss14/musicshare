@@ -1,4 +1,4 @@
-import { IPlaylistService } from "../../services/PlaylistService";
+import { IPlaylistService } from "../../services/PlaylistService"
 
 export const PlaylistServiceMock = (): IPlaylistService => ({
 	addSongs: jest.fn(),

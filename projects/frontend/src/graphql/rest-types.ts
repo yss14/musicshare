@@ -1,23 +1,23 @@
 export enum UploadItemType {
 	Song,
-	Cover
+	Cover,
 }
 
 export enum UploadItemStatus {
 	Queued,
 	Uploading,
 	Uploaded,
-	Failed
+	Failed,
 }
 
 export interface IUploadItem {
-	type: UploadItemType;
-	filename: string;
-	size: number;
-	progress: number;
-	status: UploadItemStatus;
-	shareID: string;
-	hash: string;
+	type: UploadItemType
+	filename: string
+	size: number
+	progress: number
+	status: UploadItemStatus
+	shareID: string
+	hash: string
 }
 
-export type IUploadSchema = IUploadItem[];
+export type IUploadSchema = IUploadItem[]

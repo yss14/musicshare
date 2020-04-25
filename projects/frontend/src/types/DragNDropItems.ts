@@ -1,11 +1,11 @@
-import { IScopedSong } from "../graphql/types";
+import { IScopedSong } from "../graphql/types"
 
 export enum DragNDropItem {
-	Song = 'song'
+	Song = "song",
 }
 
 export interface ISongDNDItem {
-	type: DragNDropItem.Song;
-	song: IScopedSong;
-	idx: number;
+	type: DragNDropItem.Song
+	song: IScopedSong
+	idx: number
 }

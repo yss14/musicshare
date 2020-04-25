@@ -1,72 +1,72 @@
-import { Song } from "../models/SongModel";
-import { Field, InputType } from "type-graphql";
-import { MinLength, MaxLength, Min, Max, IsInt } from "class-validator";
+import { Song } from "../models/SongModel"
+import { Field, InputType } from "type-graphql"
+import { MinLength, MaxLength, Min, Max, IsInt } from "class-validator"
 
 @InputType()
-export class SongUpdateInput implements Partial<Song>{
+export class SongUpdateInput implements Partial<Song> {
 	@Field({ nullable: true })
 	@MinLength(1)
 	@MaxLength(200)
-	public readonly title?: string;
+	public readonly title?: string
 
 	@Field({ nullable: true })
 	@MaxLength(200)
-	public readonly suffix?: string;
+	public readonly suffix?: string
 
 	@Field({ nullable: true })
 	@IsInt()
 	@Min(1800)
 	@Max(2040)
-	public readonly year?: number;
+	public readonly year?: number
 
 	@Field({ nullable: true })
 	@IsInt()
 	@Min(40)
 	@Max(200)
-	public readonly bpm?: number;
+	public readonly bpm?: number
 
 	@Field({ nullable: true })
-	public readonly releaseDate?: string;
+	public readonly releaseDate?: string
 
 	@Field({ nullable: true })
-	public readonly isRip?: boolean;
+	public readonly isRip?: boolean
 
-	@Field(type => [String], { nullable: true })
+	@Field(() => [String], { nullable: true })
 	@MinLength(1, { each: true })
-	public readonly artists?: string[];
+	public readonly artists?: string[]
 
-	@Field(type => [String], { nullable: true })
+	@Field(() => [String], { nullable: true })
 	@MinLength(1, { each: true })
-	public readonly remixer?: string[];
+	public readonly remixer?: string[]
 
-	@Field(type => [String], { nullable: true })
+	@Field(() => [String], { nullable: true })
 	@MinLength(1, { each: true })
-	public readonly featurings?: string[];
+	public readonly featurings?: string[]
 
-	@Field(type => String, { nullable: true })
+	@Field(() => String, { nullable: true })
 	@MinLength(1)
-	public readonly type?: string | null;
+	public readonly type?: string | null
 
-	@Field(type => [String], { nullable: true })
+	@Field(() => [String], { nullable: true })
 	@MinLength(1, { each: true })
-	public readonly genres?: string[];
+	public readonly genres?: string[]
 
-	@Field(type => String, { nullable: true })
-	public readonly labels?: string[];
+	@Field(() => String, { nullable: true })
+	public readonly labels?: string[]
 
-	@Field(type => [String], { nullable: true })
+	@Field(() => [String], { nullable: true })
 	@MinLength(1, { each: true })
-	public readonly tags?: string[];
+	public readonly tags?: string[]
 
 	public isValid() {
-		const nonNullableAttributes: (keyof SongUpdateInput)[] = ['title', 'artists', 'type', 'isRip'];
+		const nonNullableAttributes: (keyof SongUpdateInput)[] = ["title", "artists", "type", "isRip"]
 
 		for (const nonNullableAttribute of nonNullableAttributes) {
 			if (this[nonNullableAttribute] === null) {
-				throw new Error(`SongInput attribute ${nonNullableAttribute} cannot be set null explicitly`);
+				throw new Error(`SongInput attribute ${nonNullableAttribute} cannot be set null explicitly`)
 			}
 		}
 
-		return true;
+		return true
 	}
 }

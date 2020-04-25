@@ -1,28 +1,28 @@
 export class InvalidIntegerError extends Error {
 	constructor(stringToParse: string | undefined) {
-		super(`Value ${stringToParse} can not be parsed as an integer value`);
+		super(`Value ${stringToParse} can not be parsed as an integer value`)
 	}
 }
 
 type ITryParseIntOverload = {
-	(stringToParse: string | undefined): number;
-	(stringToParse: string | undefined, defaultValue: number): number;
+	(stringToParse: string | undefined): number
+	(stringToParse: string | undefined, defaultValue: number): number
 }
 
 export const tryParseInt: ITryParseIntOverload = (stringToParse: string | undefined, defaultValue?: number): number => {
-	let returnValue = defaultValue;
+	let returnValue = defaultValue
 
 	if (stringToParse) {
-		let parsed = parseInt(stringToParse);
+		let parsed = parseInt(stringToParse)
 
 		if (!isNaN(parsed)) {
-			returnValue = parsed;
+			returnValue = parsed
 		}
 	}
 
 	if (returnValue === undefined) {
-		throw new InvalidIntegerError(stringToParse);
+		throw new InvalidIntegerError(stringToParse)
 	} else {
-		return returnValue;
+		return returnValue
 	}
 }

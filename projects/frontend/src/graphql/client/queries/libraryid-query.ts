@@ -1,15 +1,15 @@
-import gql from "graphql-tag";
-import { useQuery } from "@apollo/react-hooks";
+import gql from "graphql-tag"
+import { useQuery } from "@apollo/react-hooks"
 
 export interface ILibraryIDData {
-	libraryID: string;
+	libraryID: string
 }
 
 export const GET_LIBRARY_ID = gql`
-  	query {
-    	libraryID @client
-  	}
-`;
+	query {
+		libraryID @client
+	}
+`
 
 export const useLibraryID = () => {
 	const { data } = useQuery<ILibraryIDData, {}>(GET_LIBRARY_ID)

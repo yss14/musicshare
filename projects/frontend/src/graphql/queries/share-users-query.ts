@@ -1,16 +1,16 @@
-import { IUser, userKeys } from "../types";
-import gql from "graphql-tag";
-import { useQuery } from "react-apollo";
+import { IUser, userKeys } from "../types"
+import gql from "graphql-tag"
+import { useQuery } from "react-apollo"
 
 export interface IShareUsersData {
 	share: {
-		id: string;
-		users: IUser[];
+		id: string
+		users: IUser[]
 	}
 }
 
 export interface IShareUsersVariables {
-	shareID: string;
+	shareID: string
 }
 
 const SHARE_USERS = gql`

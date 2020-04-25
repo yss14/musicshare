@@ -1,17 +1,17 @@
-import React from 'react';
-import { useSong } from '../../../graphql/queries/song-query';
-import { useGenres } from '../../../graphql/queries/genres-query';
-import { useSongTypes } from '../../../graphql/queries/song-types-query';
-import { useArtists } from '../../../graphql/queries/artists-query';
-import { SongForm } from './SongForm';
-import { useTags } from '../../../graphql/queries/tags-query';
-import { IScopedSong } from '../../../graphql/types';
-import { useLibraryID } from '../../../graphql/client/queries/libraryid-query';
+import React from "react"
+import { useSong } from "../../../graphql/queries/song-query"
+import { useGenres } from "../../../graphql/queries/genres-query"
+import { useSongTypes } from "../../../graphql/queries/song-types-query"
+import { useArtists } from "../../../graphql/queries/artists-query"
+import { SongForm } from "./SongForm"
+import { useTags } from "../../../graphql/queries/tags-query"
+import { IScopedSong } from "../../../graphql/types"
+import { useLibraryID } from "../../../graphql/client/queries/libraryid-query"
 
 interface ISongModalProps {
-	song: IScopedSong;
-	playlistID?: string;
-	closeForm: () => void;
+	song: IScopedSong
+	playlistID?: string
+	closeForm: () => void
 }
 
 export const SongModal = ({ song, closeForm, playlistID }: ISongModalProps) => {
@@ -23,12 +23,12 @@ export const SongModal = ({ song, closeForm, playlistID }: ISongModalProps) => {
 	const userLibraryID = useLibraryID()
 
 	if (loadingSong || loadingGenres || loadingSongTypes || loadingArtists || loadingTags) {
-		return <div>Loading</div>;
+		return <div>Loading</div>
 	}
 	if (errorSong || errorGenres || errorSongTypes || errorArtists || errorTags) {
-		closeForm();
+		closeForm()
 
-		return null;
+		return null
 	}
 	if (songFromAPI && genres && songTypes && artists && tags) {
 		return (
@@ -44,10 +44,10 @@ export const SongModal = ({ song, closeForm, playlistID }: ISongModalProps) => {
 			/>
 		)
 	} else {
-		console.error('Some data is invalid', { songFromAPI, genres, songTypes, artists, tags });
+		console.error("Some data is invalid", { songFromAPI, genres, songTypes, artists, tags })
 
-		closeForm();
+		closeForm()
 
-		return null;
+		return null
 	}
 }

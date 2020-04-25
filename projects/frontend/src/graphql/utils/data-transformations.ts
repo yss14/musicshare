@@ -6,5 +6,5 @@ export function makeScopedSong<T>(song: T, shareID: string): T & { shareID: stri
 }
 
 export function makeScopedSongs<T>(songs: T[], shareID: string): (T & { shareID: string })[] {
-	return songs.map(song => makeScopedSong(song, shareID))
+	return songs.map((song) => makeScopedSong(song, shareID))
 }

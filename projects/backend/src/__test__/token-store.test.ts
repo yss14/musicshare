@@ -1,85 +1,85 @@
-import { PeristentTokenStore } from "../auth/TokenStore";
-import { makeMockedDatabase } from "./mocks/mock-database";
-import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env";
-import { IDatabaseClient } from "postgres-schema-builder";
-import { clearTables } from "../database/database";
+import { PeristentTokenStore } from "../auth/TokenStore"
+import { makeMockedDatabase } from "./mocks/mock-database"
+import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env"
+import { IDatabaseClient } from "postgres-schema-builder"
+import { clearTables } from "../database/database"
 
-const { cleanUp, getDatabase } = setupTestSuite();
-let database: IDatabaseClient;
+const { cleanUp, getDatabase } = setupTestSuite()
+let database: IDatabaseClient
 
 const setupTest = async (args: Partial<SetupTestEnvArgs>) => {
 	if (!args.database) {
-		await clearTables(database);
+		await clearTables(database)
 	}
 
-	const testEnv = await setupTestEnv({ ...args, database: args.database || database });
+	const testEnv = await setupTestEnv({ ...args, database: args.database || database })
 
-	return testEnv;
+	return testEnv
 }
 
 beforeAll(async () => {
-	database = await getDatabase();
-});
+	database = await getDatabase()
+})
 
 afterAll(async () => {
-	await cleanUp();
-});
+	await cleanUp()
+})
 
-describe('persistent store', () => {
-	const mockDatabase = makeMockedDatabase();
+describe("persistent store", () => {
+	const mockDatabase = makeMockedDatabase()
 
-	test('add token', () => {
-		const store = PeristentTokenStore({ database: mockDatabase, tokenGroup: 'group1' });
-		const token = 'some_token';
+	test("add token", () => {
+		const store = PeristentTokenStore({ database: mockDatabase, tokenGroup: "group1" })
+		const token = "some_token"
 
-		expect(store.hasToken(token)).toBeFalse();
-		store.addToken(token);
-		expect(store.hasToken(token)).toBeTrue();
-	});
+		expect(store.hasToken(token)).toBeFalse()
+		store.addToken(token)
+		expect(store.hasToken(token)).toBeTrue()
+	})
 
-	test('persist', async () => {
-		const { database } = await setupTest({});
+	test("persist", async () => {
+		const { database } = await setupTest({})
 
-		const store = PeristentTokenStore({ database, tokenGroup: 'group1' });
-		const tokensFirstRun = ['token1', 'token2', 'token3'];
-		const tokensSecondRun = ['token4', 'token5'];
+		const store = PeristentTokenStore({ database, tokenGroup: "group1" })
+		const tokensFirstRun = ["token1", "token2", "token3"]
+		const tokensSecondRun = ["token4", "token5"]
 
-		tokensFirstRun.forEach(token => store.addToken(token));
+		tokensFirstRun.forEach((token) => store.addToken(token))
 
-		await store.persist();
+		await store.persist()
 
-		tokensSecondRun.forEach(token => store.addToken(token));
+		tokensSecondRun.forEach((token) => store.addToken(token))
 
-		await store.persist();
-		await store.load();
+		await store.persist()
+		await store.load()
 
-		const allTokens = tokensFirstRun.concat(tokensSecondRun);
-		allTokens.forEach(token => expect(store.hasToken(token)));
+		const allTokens = tokensFirstRun.concat(tokensSecondRun)
+		allTokens.forEach((token) => expect(store.hasToken(token)))
 
-		const newStore = PeristentTokenStore({ database, tokenGroup: 'group1' });
-		await newStore.load();
+		const newStore = PeristentTokenStore({ database, tokenGroup: "group1" })
+		await newStore.load()
 
-		allTokens.forEach(token => expect(newStore.hasToken(token)));
-	});
+		allTokens.forEach((token) => expect(newStore.hasToken(token)))
+	})
 
-	test('no group collisions', async () => {
-		const { database } = await setupTest({});
+	test("no group collisions", async () => {
+		const { database } = await setupTest({})
 
-		const storeGroup1 = PeristentTokenStore({ database, tokenGroup: 'group1' });
-		const storeGroup2 = PeristentTokenStore({ database, tokenGroup: 'group2' });
-		const tokensGroup1 = ['g1_token1', 'g1_token2'];
-		const tokensGroup2 = ['g2_token1', 'g2_token2'];
+		const storeGroup1 = PeristentTokenStore({ database, tokenGroup: "group1" })
+		const storeGroup2 = PeristentTokenStore({ database, tokenGroup: "group2" })
+		const tokensGroup1 = ["g1_token1", "g1_token2"]
+		const tokensGroup2 = ["g2_token1", "g2_token2"]
 
-		tokensGroup1.forEach(token => storeGroup1.addToken(token));
-		tokensGroup2.forEach(token => storeGroup2.addToken(token));
+		tokensGroup1.forEach((token) => storeGroup1.addToken(token))
+		tokensGroup2.forEach((token) => storeGroup2.addToken(token))
 
-		await storeGroup1.persist();
-		await storeGroup2.persist();
+		await storeGroup1.persist()
+		await storeGroup2.persist()
 
-		await storeGroup1.load();
-		await storeGroup2.load();
+		await storeGroup1.load()
+		await storeGroup2.load()
 
-		tokensGroup1.forEach(token => expect(storeGroup1.hasToken(token)));
-		tokensGroup2.forEach(token => expect(storeGroup2.hasToken(token)));
-	});
-});
+		tokensGroup1.forEach((token) => expect(storeGroup1.hasToken(token)))
+		tokensGroup2.forEach((token) => expect(storeGroup2.hasToken(token)))
+	})
+})

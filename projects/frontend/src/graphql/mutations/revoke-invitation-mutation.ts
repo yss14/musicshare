@@ -1,15 +1,15 @@
-import gql from "graphql-tag";
-import { IMutationOptions } from "../hook-types";
-import { useMutation } from "react-apollo";
+import gql from "graphql-tag"
+import { IMutationOptions } from "../hook-types"
+import { useMutation } from "react-apollo"
 
 interface IRevokeInvitationData {
-	revokeInvitation: boolean;
+	revokeInvitation: boolean
 }
 
 interface IRevokeInvitationVariables {
 	input: {
-		shareID: string;
-		userID: string;
+		shareID: string
+		userID: string
 	}
 }
 

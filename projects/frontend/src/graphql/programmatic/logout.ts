@@ -8,6 +8,6 @@ export const logoutUser = (client: ApolloClient<object>) => {
 		data: {
 			authToken: null,
 			refreshToken: null,
-		}
-	});
+		},
+	})
 }

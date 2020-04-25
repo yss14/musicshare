@@ -1,5 +1,4 @@
-import React from 'react';
-import { IConfig } from '../config';
+import React from "react"
+import { IConfig } from "../config"
 
-export const ConfigContext = React.createContext<IConfig>(null as any);
-
+export const ConfigContext = React.createContext<IConfig>(null as any)
