@@ -37,7 +37,7 @@ We are working hard to release the first version of MusicShare. See the [roadmap
 
    Run `docker-compose up -d` to spin up a PostgreSQL database and the Minio (S3 compatible file storage) service.
 
-5. Run everything in `dev` mode by `npm run dev` or `yarn dev`
+5. Open two terminal tabs and start backend and frontend via `npm run start:backend` and `npm run start:frontend`, respectively.
 
 If you want to run parts of the project seperatly, have a look at the provided scripts of the root [package.json](package.json).
 
