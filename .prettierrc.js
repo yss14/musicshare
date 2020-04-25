@@ -1,1 +1,1 @@
-module.exports = require("./dist/@addbots/prettier-config")
+module.exports = require("@addbots/prettier-config")

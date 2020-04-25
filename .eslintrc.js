@@ -1,1 +1,1 @@
-module.exports = require("./dist/@addbots/eslint-config")
+module.exports = require("@addbots/eslint-config")
