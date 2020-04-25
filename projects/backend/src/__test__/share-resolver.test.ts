@@ -5,7 +5,7 @@ import { Share } from "../models/ShareModel";
 import { includesSong, compareSongs } from "./utils/compare-songs";
 import { v4 as uuid } from 'uuid';
 import { songKeys, songKeysFileSources, songKeysFileSourceUpload } from "./fixtures/song-query";
-import moment = require("moment");
+import moment from "moment";
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { Permissions } from '@musicshare/shared-types';
 import { IDatabaseClient } from "postgres-schema-builder";

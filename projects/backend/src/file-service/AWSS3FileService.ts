@@ -1,6 +1,6 @@
 import { IFileService, UploadFileArgs, GetLinkToFileArgs } from "./FileService";
 import { S3 } from 'aws-sdk';
-import moment = require("moment");
+import moment from "moment";
 
 export class AWSS3FileService implements IFileService {
 	constructor(

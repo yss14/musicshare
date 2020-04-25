@@ -5,7 +5,7 @@ import { v4 as uuid } from 'uuid';
 import * as fs from 'fs';
 import * as path from 'path';
 import { urlIsReachable } from './utils/url-is-reachable';
-import moment = require('moment');
+import moment from "moment";
 import { promises as fsPromises } from 'fs';
 
 const config = configFromEnv();

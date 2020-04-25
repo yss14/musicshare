@@ -1,7 +1,7 @@
 import { FileUpload } from "../models/FileSourceModels";
 import { IServices } from "../services/services";
 import { Authorized, FieldResolver, Root, Resolver } from "type-graphql";
-import moment = require("moment");
+import moment from "moment";
 
 @Resolver(of => FileUpload)
 export class FileUploadResolver {

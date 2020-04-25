@@ -1,7 +1,7 @@
 import { setupTestEnv, SetupTestEnvArgs, setupTestSuite } from "./utils/setup-test-env";
 import { testData } from "../database/seed";
 import { executeGraphQLQuery, argumentValidationError, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql";
-import moment = require("moment");
+import moment from "moment";
 import { songKeys, playlistSongKeys } from "./fixtures/song-query";
 import { includesSong } from "./utils/compare-songs";
 import { OrderUpdate } from "../services/PlaylistService";
