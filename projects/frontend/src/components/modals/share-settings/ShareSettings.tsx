@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react"
-import { Modal, Form, Input, Table, Button, Alert, Popconfirm, Icon } from "antd"
+import { Modal, Form, Input, Table, Button, Alert, Popconfirm, Icon, Typography } from "antd"
 import { IShare, IUser } from "../../../graphql/types"
 import { useDebounce } from "use-debounce/lib"
 import { useShareUsers } from "../../../graphql/queries/share-users-query"
 import Column from "antd/lib/table/Column"
 import { useInviteToShare } from "../../../graphql/mutations/invite-to-share-mutation"
-import { Typography } from "antd"
 import { ApolloError } from "apollo-client"
 import { useRevokeInvitation } from "../../../graphql/mutations/revoke-invitation-mutation"
 import { useRenameShare } from "../../../graphql/mutations/rename-share-mutation"
@@ -63,7 +62,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 			<Form>
 				{canChangeName && <ChangeSongName share={share} />}
 				{canInvite && <ShareUsers shareID={share.id} />}
-				{!isOwner && <div>You've missing the required permission to edit share settings</div>}
+				{!isOwner && <div>{"You've missing the required permission to edit share settings"}</div>}
 			</Form>
 		</Modal>
 	)

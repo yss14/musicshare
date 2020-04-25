@@ -57,7 +57,7 @@ export const PlaylistPicker: React.FC<IPlaylistPickerProps> = ({ visible, onSubm
 				optionLabelProp="title"
 			>
 				{data.map((playlist) => (
-					<Option value={playlist.id} title={playlist.name}>
+					<Option value={playlist.id} title={playlist.name} key={playlist.id}>
 						{playlist.name}
 					</Option>
 				))}

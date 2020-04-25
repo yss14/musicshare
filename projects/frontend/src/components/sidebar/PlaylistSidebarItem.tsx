@@ -30,7 +30,7 @@ export const PlaylistSidebarItem: React.FC<IPlaylistSidebarItemProps> = ({
 
 	const [{ canDrop, isOver }, drop] = useDrop<ISongDNDItem, void, IMonitorProps>({
 		accept: DragNDropItem.Song,
-		drop: (item, monitor) => {
+		drop: (item) => {
 			if (item && item.song) {
 				const song = item.song as IScopedSong
 

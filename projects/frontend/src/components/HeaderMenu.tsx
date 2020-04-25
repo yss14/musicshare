@@ -110,7 +110,6 @@ export const HeaderNavMenu = () => {
 								<Icon type="share-alt" />
 								{libraryShare.name}
 							</Link>
-							)}
 						</Menu.Item>
 					</ItemGroup>
 					<ItemGroup key="shares:own" title="Own Shares">

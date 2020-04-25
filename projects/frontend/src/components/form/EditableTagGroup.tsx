@@ -1,6 +1,5 @@
-import React, { ChangeEvent, useMemo } from "react"
+import React, { ChangeEvent, useMemo, useState, useRef } from "react"
 import { Tag, Input, Tooltip, Icon, AutoComplete } from "antd"
-import { useState, useRef } from "react"
 import { SelectValue } from "antd/lib/select"
 
 const isChangeEvent = (obj: any): obj is ChangeEvent<HTMLInputElement> =>
@@ -99,7 +98,7 @@ export const EditableTagGroup = ({
 
 	return (
 		<div>
-			{values.map((value, index) => {
+			{values.map((value) => {
 				const isLongValue = value.length > 30
 				const valueElement = (
 					<Tag key={value} closable={!readOnly} onClose={() => handleClose(value)}>

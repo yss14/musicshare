@@ -6,14 +6,13 @@ import { client, cache } from "./Apollo"
 import { DndProvider } from "react-dnd"
 import HTML5Backend from "react-dnd-html5-backend"
 import { makeConfigFromEnv } from "./config"
-import { ThemeProvider } from "styled-components"
+import { ThemeProvider, createGlobalStyle } from "styled-components"
 import { ConfigContext } from "./context/configContext"
 import { Routing } from "./components/routing/Routing"
 import { PlayerContext } from "./player/player-context"
 import { Player } from "./player/player"
 import { IPrimaryTheme } from "./types/Theme"
 import { history } from "./components/routing/history"
-import { createGlobalStyle } from "styled-components"
 
 const config = makeConfigFromEnv()
 

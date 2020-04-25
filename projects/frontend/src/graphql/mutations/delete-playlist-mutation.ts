@@ -27,7 +27,7 @@ export const useDeletePlaylist = (opts?: IMutationOptions<IDeletePlaylistData>) 
 	)
 
 	const makeUpdateCache = useCallback(
-		(shareID: string, playlistID: string): MutationUpdaterFn<IDeletePlaylistData> => (cache, { data }) => {
+		(shareID: string, playlistID: string): MutationUpdaterFn<IDeletePlaylistData> => (cache) => {
 			const currentData = cache.readQuery<IGetPlaylistsData, IGetPlaylistsVariables>({
 				query: GET_SHARE_PLAYLISTS,
 				variables: {

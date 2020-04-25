@@ -29,7 +29,7 @@ export const SEARCH_SONG = gql`
 
 export const useSongSearch = () => {
 	const [cachedData, setCachedData] = useState<ISongSearchData | null>(null)
-	const [searchSong, { data, ...rest }] = useLazyQuery<ISongSearchData, ISongSearchVariables>(SEARCH_SONG, {
+	const [searchSong, { ...rest }] = useLazyQuery<ISongSearchData, ISongSearchVariables>(SEARCH_SONG, {
 		fetchPolicy: "cache-and-network",
 		onCompleted: (data) => setCachedData(data),
 	})
