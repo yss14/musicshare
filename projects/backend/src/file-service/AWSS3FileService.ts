@@ -42,7 +42,7 @@ export class AWSS3FileService implements IFileService {
 		})
 	}
 
-	public getLinkToFile({ expireDate, filenameRemote, ipAddress }: GetLinkToFileArgs): Promise<string> {
+	public getLinkToFile({ expireDate, filenameRemote }: GetLinkToFileArgs): Promise<string> {
 		return new Promise<string>((resolve, reject) => {
 			const expireSecond = Math.round(
 				(moment(expireDate || moment().add(10, "minutes")).valueOf() - Date.now()) / 1000,

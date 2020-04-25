@@ -19,12 +19,12 @@ import { SongSearchInput, SongSearchMatcher } from "../inputs/SongSearchInput"
 import { ChangePasswordInput } from "../inputs/ChangePasswordInput"
 import { RestorePasswordInput } from "../inputs/RestorePasswordInput"
 
-@Resolver((of) => User)
+@Resolver(() => User)
 export class UserResolver {
 	constructor(private readonly services: IServices) {}
 
 	@Authorized()
-	@Query((returns) => User, { nullable: true })
+	@Query(() => User, { nullable: true })
 	public viewer(@Ctx() ctx: IGraphQLContext): Promise<User | null> {
 		return this.services.userService.getUserByID(ctx.userID!)
 	}

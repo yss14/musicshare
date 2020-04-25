@@ -2,10 +2,11 @@ import { MP3SongDuration } from "../utils/song-meta/song-meta-formats/id3/MP3Son
 import { IFile } from "../models/interfaces/IFile"
 import { promises as fsPromises } from "fs"
 import * as path from "path"
+import { ISongMetaDataSource } from "../utils/song-meta/song-meta-formats/ISongMetaDataSource"
 
 const mp3FilePath = path.join(__dirname, "assets", "SampleAudio.mp3")
 let mp3FileBuffer: Buffer
-const mp3FileDuration = new MP3SongDuration()
+const mp3FileDuration: ISongMetaDataSource = new MP3SongDuration()
 
 const validFile: IFile = {
 	blob: "",

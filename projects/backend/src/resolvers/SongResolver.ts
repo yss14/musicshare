@@ -11,7 +11,7 @@ import { IncreaseSongPlaycountInput } from "../inputs/IncreaseSongPlaycountInput
 import { SongPlay } from "../models/SongPlayModel"
 import { IGraphQLContext } from "../types/context"
 
-@Resolver((of) => Song)
+@Resolver(() => Song)
 export class SongResolver implements ResolverInterface<Song> {
 	constructor(private readonly services: IServices) {}
 

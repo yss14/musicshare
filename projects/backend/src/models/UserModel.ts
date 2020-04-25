@@ -20,10 +20,10 @@ export class User {
 	@Field()
 	public readonly email!: string
 
-	@Field((type) => UserStatus)
+	@Field(() => UserStatus)
 	public readonly status!: UserStatus
 
-	@Field((type) => [Share])
+	@Field(() => [Share])
 	public readonly shares!: Share[]
 
 	public static fromDBResult(dbResult: IUserDBResult): User {

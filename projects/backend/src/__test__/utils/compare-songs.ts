@@ -6,7 +6,7 @@ export const compareSongs = <S extends Song>(lhs: S, rhs: S) => {
 		remixer: lRemixer,
 		featurings: lFeaturings,
 		genres: lGenres,
-		releaseDate: lReleaseDate,
+		releaseDate: lReleaseDate, // eslint-disable-line @typescript-eslint/no-unused-vars
 		sources: lSources,
 		...lRest
 	} = lhs
@@ -15,7 +15,7 @@ export const compareSongs = <S extends Song>(lhs: S, rhs: S) => {
 		remixer: rRemixer,
 		featurings: rFeaturings,
 		genres: rGenres,
-		releaseDate: rReleaseDate,
+		releaseDate: rReleaseDate, // eslint-disable-line @typescript-eslint/no-unused-vars
 		sources: rSources,
 		...rRest
 	} = rhs
@@ -27,8 +27,8 @@ export const compareSongs = <S extends Song>(lhs: S, rhs: S) => {
 	expect(lGenres.sort()).toEqual(rGenres)
 
 	if (isPlaylistSongRest(lRest) && isPlaylistSongRest(rRest)) {
-		const { dateAdded: dateAddedL, ...lRestWithoutDate } = lRest
-		const { dateAdded: dateAddedR, ...rRestWithoutDate } = rRest
+		const { dateAdded: dateAddedL, ...lRestWithoutDate } = lRest // eslint-disable-line @typescript-eslint/no-unused-vars
+		const { dateAdded: dateAddedR, ...rRestWithoutDate } = rRest // eslint-disable-line @typescript-eslint/no-unused-vars
 
 		expect(lRestWithoutDate).toEqual(rRestWithoutDate)
 	} else {

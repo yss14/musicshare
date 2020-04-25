@@ -63,10 +63,7 @@ export const auth: CustomRequestHandler = (req, res, next) => {
 	next()
 }
 
-export const graphQLAuthChecker: AuthChecker<IGraphQLContext> = (
-	{ context: { userID, error }, root, args },
-	permissions = [],
-) => {
+export const graphQLAuthChecker: AuthChecker<IGraphQLContext> = ({ context: { userID, error } }, permissions = []) => {
 	if (error && (error.message === "AuthToken expired" || error.message === "AuthToken invalid")) {
 		// throw this error so we can distiguish whether authToken expired
 		throw new AuthenticationError(error.message)

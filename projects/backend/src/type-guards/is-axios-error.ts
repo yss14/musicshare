@@ -5,5 +5,7 @@ interface AxiosErrorWithResponse extends AxiosError {
 }
 
 export const isAxiosErrorWithResponse = (error: Object): error is AxiosErrorWithResponse => {
-	return error.hasOwnProperty("config") && error.hasOwnProperty("response")
+	return (
+		Object.prototype.hasOwnProperty.call(error, "config") && Object.prototype.hasOwnProperty.call(error, "response")
+	)
 }

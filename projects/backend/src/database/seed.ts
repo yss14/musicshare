@@ -289,7 +289,7 @@ export const testData: ITestDataSchema = {
 export const createTestSongs = (amount: number) => {
 	const prefilledArray = createPrefilledArray(amount, {})
 	const songInserts = prefilledArray.map(
-		(_, idx): Required<ISongDBResult> => ({
+		(): Required<ISongDBResult> => ({
 			song_id: uuid(),
 			title: faker.name.findName(),
 			suffix: null,

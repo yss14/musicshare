@@ -14,10 +14,10 @@ export class Share {
 	@Field()
 	public readonly isLibrary!: boolean
 
-	@Field((type) => [Song])
+	@Field(() => [Song])
 	public readonly songs!: Song[]
 
-	@Field((type) => Song, { nullable: true })
+	@Field(() => Song, { nullable: true })
 	public readonly song!: Song | null
 
 	public static fromDBResult(dbResult: IShareDBResult): Share {

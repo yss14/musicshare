@@ -1,14 +1,13 @@
 import { ISongMetaDataSource, ExtractedSongMetaData } from "../ISongMetaDataSource"
 import { IFile } from "../../../../models/interfaces/IFile"
-import { ISongType } from "../../../../models/interfaces/SongType"
-const mp3Duration = require("mp3-duration")
+import mp3Duration from "mp3-duration"
 
 export class MP3SongDuration implements ISongMetaDataSource {
 	public isApplicableForFile(file: IFile) {
 		return file.fileExtension.toLowerCase() === "mp3"
 	}
 
-	public async analyse(file: IFile, audioBuffer: Buffer, songTypes: ISongType[]): Promise<ExtractedSongMetaData> {
+	public async analyse(file: IFile, audioBuffer: Buffer): Promise<ExtractedSongMetaData> {
 		const duration = await this.getSongDurationFromBuffer(audioBuffer)
 
 		if (duration) {

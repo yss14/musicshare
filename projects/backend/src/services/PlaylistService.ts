@@ -29,7 +29,7 @@ interface IPlaylistServiceArgs {
 	songService: ISongService
 }
 
-export const PlaylistService = ({ database, songService }: IPlaylistServiceArgs) => {
+export const PlaylistService = ({ database }: IPlaylistServiceArgs) => {
 	const getByID = async (shareID: string, playlistID: string) => {
 		const playlists = await getPlaylistsForShare(shareID)
 

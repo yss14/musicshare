@@ -20,7 +20,7 @@ export class SongSearchInput {
 	@MinLength(2)
 	public readonly query!: string
 
-	@Field((type) => [SongSearchMatcher], { nullable: true })
+	@Field(() => [SongSearchMatcher], { nullable: true })
 	public readonly matcher!: SongSearchMatcher[] | null
 
 	@Field(() => Int, { defaultValue: 20 })

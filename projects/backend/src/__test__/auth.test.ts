@@ -7,7 +7,7 @@ import { testData } from "../database/seed"
 import { User } from "../models/UserModel"
 import { HTTPStatusCodes } from "../types/http-status-codes"
 import supertest = require("supertest")
-import { Resolver, Authorized, Query, ObjectType, Field, Arg } from "type-graphql"
+import { Resolver, Authorized, Query, ObjectType, Field } from "type-graphql"
 import { makeGraphQLServer } from "../server/GraphQLServer"
 import { makeGraphQLResponse } from "./utils/graphql"
 import { makeGraphQLContextProvider, Scopes, IGraphQLContext } from "../types/context"
@@ -60,16 +60,16 @@ const setupExpressTestEnv = async () => {
 const setupGraphQLTestEnv = async () => {
 	const { expressApp, ...expressTestEnv } = await setupExpressTestEnv()
 
-	@Resolver((of) => TestRouteReturnValue)
+	@Resolver(() => TestRouteReturnValue)
 	class TestResolver {
 		@Query(() => TestRouteReturnValue)
-		public publicQuery(@Arg("from", { nullable: true }) from?: number): TestRouteReturnValue {
+		public publicQuery(): TestRouteReturnValue {
 			return testRouteReturnValue
 		}
 
 		@Authorized()
 		@Query(() => TestRouteReturnValue)
-		public privateQuery(@Arg("from", { nullable: true }) from?: number): TestRouteReturnValue {
+		public privateQuery(): TestRouteReturnValue {
 			return testRouteReturnValue
 		}
 	}

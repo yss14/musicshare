@@ -22,7 +22,7 @@ import { AcceptInviationPayload } from "../models/return-models/AcceptInvitation
 
 const TimedstampSongResult = TimestampedResults(Song)
 
-@Resolver((of) => Share)
+@Resolver(() => Share)
 export class ShareResolver {
 	constructor(private readonly services: IServices) {}
 
@@ -65,7 +65,7 @@ export class ShareResolver {
 
 	@Authorized()
 	@FieldResolver()
-	public song(@Root() share: Share, @Arg("id") id: string, @Ctx() { userID }: IGraphQLContext): Promise<Song | null> {
+	public song(@Root() share: Share, @Arg("id") id: string): Promise<Song | null> {
 		return this.services.songService.getByID(share.id, id)
 	}
 
@@ -89,7 +89,7 @@ export class ShareResolver {
 
 	@Authorized()
 	@FieldResolver(() => [String])
-	public async permissions(@Root() share: Share): Promise<string[]> {
+	public async permissions(): Promise<string[]> {
 		return this.services.permissionService.getAvailablePermissions()
 	}
 

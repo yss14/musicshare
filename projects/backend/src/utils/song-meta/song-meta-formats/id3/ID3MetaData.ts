@@ -1,7 +1,6 @@
 import * as ID3Parser from "id3-parser"
-import urlRegex = require("url-regex")
+import urlRegex from "url-regex"
 import { defaultGenres } from "../../../../database/fixtures"
-import * as _ from "lodash"
 import { tryParseInt } from "../../../try-parse/try-parse-int"
 import { ISongMetaDataSource, ExtractedSongMetaData } from "../ISongMetaDataSource"
 import { IFile } from "../../../../models/interfaces/IFile"

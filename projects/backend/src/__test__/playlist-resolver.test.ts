@@ -224,7 +224,7 @@ describe("add songs to playlist", () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		const expectedSongs = songs.map((song, idx) =>
+		const expectedSongs = songs.map((song) =>
 			Song.fromDBResult(
 				{
 					...song,
@@ -269,7 +269,7 @@ describe("add songs to playlist", () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		const expectedSongs = songs.map((song, idx) =>
+		const expectedSongs = songs.map((song) =>
 			Song.fromDBResult(
 				{
 					...song,

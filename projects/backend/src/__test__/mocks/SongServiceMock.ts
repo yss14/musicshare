@@ -2,7 +2,6 @@ import { ISongService } from "../../services/SongService"
 import { Song } from "../../models/SongModel"
 import { v4 as uuid } from "uuid"
 import { Share } from "../../models/ShareModel"
-import { SongSearchMatcher } from "../../inputs/SongSearchInput"
 
 export class SongServiceMock implements ISongService {
 	public async getByID(): Promise<Song> {
@@ -13,19 +12,19 @@ export class SongServiceMock implements ISongService {
 		throw "Not implemented yet"
 	}
 
-	public async getSongOriginLibrary(songID: string): Promise<Share | null> {
+	public async getSongOriginLibrary(): Promise<Share | null> {
 		throw "Not implemented yet"
 	}
 
-	public async hasReadAccessToSongs(userID: string, songIDs: string[]): Promise<boolean> {
+	public async hasReadAccessToSongs(): Promise<boolean> {
 		throw "Not implemented yet"
 	}
 
-	public async hasWriteAccessToSongs(userID: string, songIDs: string[]): Promise<boolean> {
+	public async hasWriteAccessToSongs(): Promise<boolean> {
 		throw "Not implemented yet"
 	}
 
-	public async getByShareDirty(shareID: string, lastTimestamp: number): Promise<Song[]> {
+	public async getByShareDirty(): Promise<Song[]> {
 		throw "Not implemented yet"
 	}
 
@@ -37,7 +36,7 @@ export class SongServiceMock implements ISongService {
 		throw "Not implemented yet"
 	}
 
-	public async searchSongs(userID: string, query: string, matcher: SongSearchMatcher[]): Promise<Song[]> {
+	public async searchSongs(): Promise<Song[]> {
 		throw "Not implemented yet"
 	}
 
@@ -45,7 +44,7 @@ export class SongServiceMock implements ISongService {
 		throw "Not implemented yet"
 	}
 
-	public async increasePlayCount(songID: string, userID: string): Promise<void> {
+	public async increasePlayCount(): Promise<void> {
 		throw "Not implemented yet"
 	}
 

@@ -6,7 +6,8 @@ import * as fs from "fs"
 import * as path from "path"
 import { urlIsReachable } from "./utils/url-is-reachable"
 import moment from "moment"
-import { promises as fsPromises } from "fs"
+
+const fsPromises = fs.promises
 
 const config = configFromEnv()
 const s3Config = {

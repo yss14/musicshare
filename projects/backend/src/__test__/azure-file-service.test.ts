@@ -5,8 +5,9 @@ import * as fs from "fs"
 import { urlIsReachable } from "./utils/url-is-reachable"
 import moment from "moment"
 import { v4 as uuid } from "uuid"
-import { promises as fsPromises } from "fs"
 import * as azBlob from "azure-storage"
+
+const fsPromises = fs.promises
 
 const startAzurite = () => {
 	return new Promise<ChildProcess>((resolve, reject) => {

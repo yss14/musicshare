@@ -1,12 +1,11 @@
 import * as argon2 from "argon2"
 import { UserLoginCredentialsTable, Tables, UsersTable } from "../database/tables"
-import { IDatabaseClient, SQL } from "postgres-schema-builder"
+import { IDatabaseClient, SQL, Where } from "postgres-schema-builder"
 import { IAuthenticationService } from "./AuthenticationService"
 import { IUserService, UserNotFoundError } from "../services/UserService"
 import * as crypto from "crypto"
 import { v4 as uuid } from "uuid"
 import { NotFoundError } from "../types/errors/NotFound"
-import { Where } from "postgres-schema-builder"
 
 interface IRegsiterArgs {
 	password: string

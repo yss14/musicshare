@@ -4,10 +4,10 @@ import { User } from "./UserModel"
 
 @ObjectType()
 export class SongPlay {
-	@Field((type) => Song)
+	@Field(() => Song)
 	public readonly song!: Song
 
-	@Field((type) => User)
+	@Field(() => User)
 	public readonly user!: User
 
 	@Field()

@@ -180,7 +180,7 @@ test("three parameters failing", async () => {
 
 test("catching unhandled error", async () => {
 	const testRoute = wrapRequestHandler(
-		withMiddleware()(async (req) => {
+		withMiddleware()(async () => {
 			throw new Error("Some error")
 		}),
 	)

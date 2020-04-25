@@ -7,12 +7,11 @@ import { v4 as uuid } from "uuid"
 import { songKeys, songKeysFileSources, songKeysFileSourceUpload } from "./fixtures/song-query"
 import moment from "moment"
 import { makeMockedDatabase } from "./mocks/mock-database"
-import { Permissions } from "@musicshare/shared-types"
+import { Permissions, UserStatus } from "@musicshare/shared-types"
 import { IDatabaseClient } from "postgres-schema-builder"
 import { clearTables } from "../database/database"
 import { Song } from "../models/SongModel"
 import { ShareNotFoundError } from "../services/ShareService"
-import { UserStatus } from "@musicshare/shared-types"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
@@ -334,7 +333,7 @@ describe("get share playlists", () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 		const receivedSongs = body.data.share.playlist.songs
-		const expectedSongs = testData.playlists.playlist1_library_user1.songs.map((song, idx) =>
+		const expectedSongs = testData.playlists.playlist1_library_user1.songs.map((song) =>
 			Song.fromDBResult(
 				{
 					...song,

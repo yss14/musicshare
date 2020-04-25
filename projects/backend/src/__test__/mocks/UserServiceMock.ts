@@ -14,11 +14,11 @@ export class UserServiceMock implements IUserService {
 		return user
 	}
 
-	public async getUserByEMail(email: string): Promise<User> {
+	public async getUserByEMail(): Promise<User> {
 		throw "Not implemented yet"
 	}
 
-	public async create(name: string, email: string): Promise<User> {
+	public async create(): Promise<User> {
 		throw "Not implemented yet"
 	}
 
@@ -26,19 +26,19 @@ export class UserServiceMock implements IUserService {
 		throw "Not implemented yet"
 	}
 
-	public async getUsersOfShare(shareID: string): Promise<User[]> {
+	public async getUsersOfShare(): Promise<User[]> {
 		throw "Not implemented yet"
 	}
 
-	public async inviteToShare(shareID: string, inviterID: string, email: string): Promise<IInviteToShareReturnType> {
+	public async inviteToShare(): Promise<IInviteToShareReturnType> {
 		throw "Not implemented yet"
 	}
 
-	public async acceptInvitation(invitationToken: string, name: string, password: string): Promise<User> {
+	public async acceptInvitation(): Promise<User> {
 		throw "Not implemented yet"
 	}
 
-	public async revokeInvitation(userID: string): Promise<void> {
+	public async revokeInvitation(): Promise<void> {
 		throw "Not implemented yet"
 	}
 }

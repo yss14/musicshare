@@ -3,7 +3,7 @@ import { IServices } from "../services/services"
 import { Authorized, FieldResolver, Root, Resolver } from "type-graphql"
 import moment from "moment"
 
-@Resolver((of) => FileUpload)
+@Resolver(() => FileUpload)
 export class FileUploadResolver {
 	constructor(private readonly services: IServices) {}
 

@@ -11,7 +11,7 @@ import { IGraphQLContext } from "../types/context"
 import { ForbiddenError } from "apollo-server-core"
 import { PlaylistSong } from "../models/PlaylistSongModel"
 
-@Resolver((of) => Playlist)
+@Resolver(() => Playlist)
 export class PlaylistResolver {
 	constructor(private readonly services: IServices) {}
 
@@ -79,7 +79,7 @@ export class PlaylistResolver {
 	@PlaylistAuth(["playlist:mutate_songs"])
 	@Mutation(() => [PlaylistSong])
 	public async removeSongsFromPlaylist(
-		@Args() { shareID }: ShareIDArg,
+		@Args() { shareID }: ShareIDArg, // eslint-disable-line @typescript-eslint/no-unused-vars
 		@Args() { playlistID }: PlaylistIDArg,
 		@Args() { playlistSongIDs }: PlaylistSongIDsArg,
 	): Promise<PlaylistSong[]> {

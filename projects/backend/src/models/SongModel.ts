@@ -35,40 +35,40 @@ export class Song implements Nullable<ISong> {
 	@Field()
 	public readonly title!: string
 
-	@Field((type) => String, { nullable: true })
+	@Field(() => String, { nullable: true })
 	public readonly suffix!: string | null
 
-	@Field((type) => Number, { nullable: true })
+	@Field(() => Number, { nullable: true })
 	public readonly year!: number | null
 
-	@Field((type) => Number, { nullable: true })
+	@Field(() => Number, { nullable: true })
 	public readonly bpm!: number | null
 
-	@Field((type) => String)
+	@Field(() => String)
 	public readonly dateLastEdit!: string
 
-	@Field((type) => String, { nullable: true })
+	@Field(() => String, { nullable: true })
 	public readonly releaseDate!: string | null
 
 	@Field()
 	public readonly isRip!: boolean
 
-	@Field((type) => [String])
+	@Field(() => [String])
 	public readonly artists!: string[]
 
-	@Field((type) => [String])
+	@Field(() => [String])
 	public readonly remixer!: string[]
 
-	@Field((type) => [String])
+	@Field(() => [String])
 	public readonly featurings!: string[]
 
-	@Field((type) => String, { nullable: true })
+	@Field(() => String, { nullable: true })
 	public readonly type!: string | null
 
-	@Field((type) => [String])
+	@Field(() => [String])
 	public readonly genres!: string[]
 
-	@Field((type) => String)
+	@Field(() => String)
 	public readonly labels!: string[]
 
 	@Field(() => Share)
@@ -83,13 +83,13 @@ export class Song implements Nullable<ISong> {
 	@Field()
 	public readonly duration!: number
 
-	@Field((type) => [String])
+	@Field(() => [String])
 	public readonly tags!: string[]
 
-	@Field((type) => String)
+	@Field(() => String)
 	public readonly dateAdded!: string
 
-	@Field((type) => String)
+	@Field(() => String)
 	public readonly libraryID!: string
 
 	public static fromDBResult(row: ISongDBResultWithLibrary): Song

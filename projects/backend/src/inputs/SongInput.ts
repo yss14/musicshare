@@ -31,30 +31,30 @@ export class SongUpdateInput implements Partial<Song> {
 	@Field({ nullable: true })
 	public readonly isRip?: boolean
 
-	@Field((type) => [String], { nullable: true })
+	@Field(() => [String], { nullable: true })
 	@MinLength(1, { each: true })
 	public readonly artists?: string[]
 
-	@Field((type) => [String], { nullable: true })
+	@Field(() => [String], { nullable: true })
 	@MinLength(1, { each: true })
 	public readonly remixer?: string[]
 
-	@Field((type) => [String], { nullable: true })
+	@Field(() => [String], { nullable: true })
 	@MinLength(1, { each: true })
 	public readonly featurings?: string[]
 
-	@Field((type) => String, { nullable: true })
+	@Field(() => String, { nullable: true })
 	@MinLength(1)
 	public readonly type?: string | null
 
-	@Field((type) => [String], { nullable: true })
+	@Field(() => [String], { nullable: true })
 	@MinLength(1, { each: true })
 	public readonly genres?: string[]
 
-	@Field((type) => String, { nullable: true })
+	@Field(() => String, { nullable: true })
 	public readonly labels?: string[]
 
-	@Field((type) => [String], { nullable: true })
+	@Field(() => [String], { nullable: true })
 	@MinLength(1, { each: true })
 	public readonly tags?: string[]
 

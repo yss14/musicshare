@@ -22,11 +22,11 @@ export class ShareServiceMock implements IShareService {
 		throw "Not implemented yet"
 	}
 
-	public async getLinkedLibrariesOfUser(userID: string): Promise<Share[]> {
+	public async getLinkedLibrariesOfUser(): Promise<Share[]> {
 		throw "Not implemented yet"
 	}
 
-	public async getLinkedLibrariesOfShare(shareID: string): Promise<Share[]> {
+	public async getLinkedLibrariesOfShare(): Promise<Share[]> {
 		throw "Not implemented yet"
 	}
 
@@ -38,15 +38,15 @@ export class ShareServiceMock implements IShareService {
 		throw "Not implemented yet"
 	}
 
-	public async rename(shareID: string, name: string): Promise<void> {
+	public async rename(): Promise<void> {
 		throw "Not implemented yet"
 	}
 
-	public async remove(shareID: string): Promise<void> {
+	public async remove(): Promise<void> {
 		throw "Not implemented yet"
 	}
 
-	public async removeUser(shareID: string, userID: string): Promise<void> {
+	public async removeUser(): Promise<void> {
 		throw "Not implemented yet"
 	}
 }

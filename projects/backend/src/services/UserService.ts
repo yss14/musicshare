@@ -1,14 +1,12 @@
 import { User } from "../models/UserModel"
-import { UserStatus } from "@musicshare/shared-types"
+import { UserStatus, IInvitationPayload, isInvitationPayload, Permissions } from "@musicshare/shared-types"
 import { IDatabaseClient, SQL } from "postgres-schema-builder"
 import { UsersTable, UserSharesTable, Tables } from "../database/tables"
 import { v4 as uuid } from "uuid"
 import { ForbiddenError, ValidationError } from "apollo-server-core"
 import { IConfig } from "../types/config"
-import { IInvitationPayload, isInvitationPayload } from "@musicshare/shared-types"
 import * as JWT from "jsonwebtoken"
 import { IService, IServices } from "./services"
-import { Permissions } from "@musicshare/shared-types"
 
 export class UserNotFoundError extends ForbiddenError {
 	constructor(filterColumn: string, value: string) {
