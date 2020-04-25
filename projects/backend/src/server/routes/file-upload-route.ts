@@ -113,58 +113,62 @@ export const extractPlaylistIDs = (req: express.Request): string[] => {
 	return []
 }
 
-const requestHandler = (fileService: IFileService, uploadProcessingQueue: ISongUploadProcessingQueue) =>
-	// tslint:disable-next-line:max-func-args
-	async (req: express.Request, _: string, file: Buffer, userID: string, shareID: string): Promise<IResponse> => {
-		const originalFilename = decodeURI(path.basename(req.path))
-		const fileExtension = path.extname(originalFilename).split(".").join("")
-		const contentType = mime.getType(fileExtension)
+const requestHandler = (fileService: IFileService, uploadProcessingQueue: ISongUploadProcessingQueue) => async (
+	req: express.Request,
+	_: string,
+	file: Buffer,
+	userID: string,
+	shareID: string,
+): Promise<IResponse> => {
+	const originalFilename = decodeURI(path.basename(req.path))
+	const fileExtension = path.extname(originalFilename).split(".").join("")
+	const contentType = mime.getType(fileExtension)
 
-		if (!contentType) {
-			return ResponseError(HTTPStatusCodes.BAD_REQUEST, fileUploadErrors.headerContentTypeMissing)
-		}
-
-		const remoteFilename =
-			crypto
-				.createHash("sha256")
-				.update(uuid() + file.length)
-				.digest("hex") +
-			"." +
-			fileExtension
-
-		const readableStream = new Duplex()
-		readableStream.push(file)
-		readableStream.push(null)
-
-		try {
-			await fileService.uploadFile({
-				filenameRemote: remoteFilename,
-				contentType: contentType,
-				source: readableStream,
-			})
-
-			const jobQueuePayload: ISongProcessingQueuePayload = {
-				file: {
-					originalFilename: originalFilename,
-					container: fileService.container,
-					fileExtension: fileExtension,
-					blob: remoteFilename,
-				},
-				userID,
-				shareID,
-				playlistIDs: extractPlaylistIDs(req),
-			}
-
-			await uploadProcessingQueue.enqueueUpload(jobQueuePayload)
-
-			return ResponseSuccessJSON(HTTPStatusCodes.CREATED, {})
-		} catch (err) {
-			/* istanbul ignore if */
-			if (!__TEST__) console.error(err)
-
-			return ResponseError(HTTPStatusCodes.INTERNAL_SERVER_ERROR, commonRestErrors.internalServerError)
-		}
+	if (!contentType) {
+		return ResponseError(HTTPStatusCodes.BAD_REQUEST, fileUploadErrors.headerContentTypeMissing)
 	}
+
+	const remoteFilename =
+		crypto
+			.createHash("sha256")
+			.update(uuid() + file.length)
+			.digest("hex") +
+		"." +
+		fileExtension
+
+	const readableStream = new Duplex()
+	readableStream.push(file)
+	readableStream.push(null)
+
+	try {
+		await fileService.uploadFile({
+			filenameRemote: remoteFilename,
+			contentType: contentType,
+			source: readableStream,
+		})
+
+		const jobQueuePayload: ISongProcessingQueuePayload = {
+			file: {
+				originalFilename: originalFilename,
+				container: fileService.container,
+				fileExtension: fileExtension,
+				blob: remoteFilename,
+			},
+			userID,
+			shareID,
+			playlistIDs: extractPlaylistIDs(req),
+		}
+
+		await uploadProcessingQueue.enqueueUpload(jobQueuePayload)
+
+		return ResponseSuccessJSON(HTTPStatusCodes.CREATED, {})
+	} catch (err) {
+		/* istanbul ignore if */
+		if (!__TEST__) console.error(err)
+
+		return ResponseError(HTTPStatusCodes.INTERNAL_SERVER_ERROR, commonRestErrors.internalServerError)
+	}
+}
 
 const fileUploadRoute = (fileService: IFileService, uploadProcessingQueue: ISongUploadProcessingQueue) =>
 	wrapRequestHandler(

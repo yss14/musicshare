@@ -1,4 +1,3 @@
-// tslint:disable-next-line:no-import-side-effect
 import "reflect-metadata"
 import { executeGraphQLQuery, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql"
 import { testData, testPassword } from "../database/seed"

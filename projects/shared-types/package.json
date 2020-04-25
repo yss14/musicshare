@@ -7,8 +7,6 @@
 	"scripts": {
 		"build": "tsc --project tsconfig.json --noUnusedLocals",
 		"build:watch": "tsc --watch --preserveWatchOutput",
-		"lint": "tslint --project tsconfig.json",
-		"lint:fix": "tslint --fix --project tsconfig.json",
 		"verify": "tsc --incremental false --composite false --noEmit --noUnusedLocals",
 		"tsc:version": "tsc -v && pwd"
 	},

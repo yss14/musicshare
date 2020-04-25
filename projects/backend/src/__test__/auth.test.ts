@@ -1,4 +1,3 @@
-// tslint:disable-next-line:no-import-side-effect
 import "reflect-metadata"
 import express from "express"
 import { AuthenticationService } from "../auth/AuthenticationService"

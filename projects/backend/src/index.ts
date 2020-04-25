@@ -1,4 +1,3 @@
-// tslint:disable-next-line:no-import-side-effect
 import "reflect-metadata"
 import { HTTPServer } from "./server/HTTPServer"
 import Container from "typedi"

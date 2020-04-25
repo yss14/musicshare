@@ -134,10 +134,7 @@ test("three parameters success", async () => {
 			firstMiddleware,
 			secondMiddleware,
 			thirdMiddleware,
-		)(
-			// tslint:disable:max-func-args
-			async (req, v1, v2, v3) => ResponseSuccessJSON(HTTPStatusCodes.OK, { v1, v2, v3 }),
-		),
+		)(async (req, v1, v2, v3) => ResponseSuccessJSON(HTTPStatusCodes.OK, { v1, v2, v3 })),
 	)
 	const router = express.Router().post("/testroute", testRoute)
 	const expressApp = makeExpressApp({
@@ -159,10 +156,7 @@ test("three parameters failing", async () => {
 			firstMiddleware,
 			secondMiddleware,
 			thirdMiddleware,
-		)(
-			// tslint:disable:max-func-args
-			async (req, v1, v2, v3) => ResponseSuccessJSON(HTTPStatusCodes.OK, { v1, v2, v3 }),
-		),
+		)(async (req, v1, v2, v3) => ResponseSuccessJSON(HTTPStatusCodes.OK, { v1, v2, v3 })),
 	)
 	const router = express.Router().post("/testroute", testRoute)
 	const expressApp = makeExpressApp({

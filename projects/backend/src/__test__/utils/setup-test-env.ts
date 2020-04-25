@@ -1,4 +1,3 @@
-// tslint:disable-next-line:no-import-side-effect
 import "reflect-metadata"
 import Container from "typedi"
 import { makeGraphQLServer } from "../../server/GraphQLServer"
@@ -28,7 +27,6 @@ export interface SetupTestEnvArgs {
 	seed?: boolean
 }
 
-// tslint:disable:no-parameter-reassignment
 export const setupTestEnv = async ({ seed, database }: SetupTestEnvArgs) => {
 	let shouldSeedDatabase = seed === undefined ? true : seed
 

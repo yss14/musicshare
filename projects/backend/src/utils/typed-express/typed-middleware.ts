@@ -9,7 +9,6 @@ type TRM<R, T> = TypedRequestMiddleware<R, T>
 // Waiting for variadic generics to make this less verbose
 // https://github.com/Microsoft/TypeScript/issues/5453
 
-// tslint:disable:max-func-args
 export const withMiddleware: {
 	<R>(): (handler: (req: R) => Promise<IResponse>) => CustomExpressRequestHandler<R>
 	<R, T>(m1: TRM<R, T>): (handler: (req: R, v1: T) => Promise<IResponse>) => CustomExpressRequestHandler<R>

@@ -104,7 +104,6 @@ describe("file upload", () => {
 		async () => {
 			const blobService = azBlob.createBlobService()
 			blobService.createWriteStreamToBlockBlob = <any>jest.fn(
-				// tslint:disable:max-func-args
 				(container: string, blob: string, opts: any, callback: (err: Error) => void) => {
 					callback(new Error("Cannot create write stream to block blob"))
 				},
