@@ -26,6 +26,11 @@
 		"postinstall": "npm run bootstrap",
 		"prettify": "prettier --config .prettierrc.js --ignore-path .prettierignore --write ./projects/**/*.{ts,tsx,js}"
 	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "pretty-quick --staged"
+		}
+	},
 	"dependencies": {
 		"@apollo/react-common": "^3.0.0",
 		"@apollo/react-components": "^3.1.3",
