@@ -6,7 +6,7 @@
 	"scripts": {
 		"start:backend": "lerna run start --stream --scope @musicshare/backend",
 		"start:frontend": "lerna run start --stream --scope @musicshare/frontend",
-		"dev": "lerna run dev --stream --parallel",
+		"dev": "npm run build:shared-types && lerna run dev --stream --parallel",
 		"dev:backend": "lerna run dev --stream --scope @musicshare/backend",
 		"bootstrap": "lerna bootstrap",
 		"build": "lerna run build --stream",
