@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import * as validator from 'validator'
+import validator from 'validator'
 import { useFormik, } from "formik";
 import { Input, Icon, Form, Button, Alert } from "antd";
 import { Link } from "react-router-dom";
