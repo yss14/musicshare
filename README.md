@@ -41,6 +41,12 @@ We are working hard to release the first version of MusicShare. See the [roadmap
 
 If you want to run parts of the project seperatly, have a look at the provided scripts of the root [package.json](package.json).
 
+#### Troubleshooting
+
+- `SQLError: error: database "<user>" does not exist SQL: SELECT FROM pg_database WHERE datname = 'musicshare' Values:`
+  - connect to the PostgreSQL database first via a thrid party client or `psql` and create a database named `<user>`
+  - for more information on this problem you can also visit [this StackOverflow thread](https://stackoverflow.com/questions/17633422/psql-fatal-database-user-does-not-exist)
+
 ### Testing
 
 To execute the test cases, you need to create a separate `test.env` for the `backend`
