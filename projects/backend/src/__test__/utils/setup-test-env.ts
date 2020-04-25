@@ -7,7 +7,7 @@ import { SongResolver } from "../../resolvers/SongResolver";
 import { UserResolver } from "../../resolvers/UserResolver";
 import { makeTestDatabase, IDatabaseClient, DatabaseSchema, composeCreateTableStatements } from "postgres-schema-builder";
 import { seedDatabase, testData } from "../../database/seed";
-import uuid = require("uuid");
+import { v4 as uuid } from "uuid"
 import { PlaylistResolver } from "../../resolvers/PlaylistResolver";
 import { makeGraphQLContextProvider, Scopes } from "../../types/context";
 import { Permissions } from '@musicshare/shared-types';

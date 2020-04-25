@@ -3,7 +3,7 @@ import { FileServiceMock } from './mocks/FileServiceMock';
 import { promises as fsPromises } from 'fs';
 import { fileUploadRouter, fileUploadErrors, extractPlaylistIDs } from '../server/routes/file-upload-route';
 import { makeExpressApp } from './utils/make-express-app';
-import * as request from 'supertest';
+import request from "supertest";
 import { HTTPStatusCodes } from '../types/http-status-codes';
 import { commonRestErrors } from '../utils/typed-express/common-rest-errors';
 import { SongUploadProcessingQueueMock } from './mocks/SongUploadProcessingQueueMock';

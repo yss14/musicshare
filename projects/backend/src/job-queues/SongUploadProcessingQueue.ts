@@ -2,7 +2,7 @@ import { ISongService } from '../services/SongService';
 import { IFileService } from '../file-service/FileService';
 import { ISongMetaDataService } from '../utils/song-meta/SongMetaDataService';
 import { IFile } from '../models/interfaces/IFile';
-import * as BetterQueue from 'better-queue';
+import BetterQueue from 'better-queue';
 import bind from 'bind-decorator';
 import { v4 as uuid } from 'uuid';
 import { ISongTypeService } from '../services/SongTypeService';

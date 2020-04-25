@@ -8,7 +8,7 @@
 		"build": "react-app-rewired build",
 		"test": "react-app-rewired test",
 		"eject": "react-scripts eject",
-		"verify": "tsc --noEmit --noUnusedLocals --skipLibCheck",
+		"verify": "tsc --incremental false --composite false --noEmit --noUnusedLocals --skipLibCheck",
 		"lint": "eslint . --ext .js,.ts,.tsx,.jsx"
 	},
 	"eslintConfig": {

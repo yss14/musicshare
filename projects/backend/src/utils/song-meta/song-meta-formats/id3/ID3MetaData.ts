@@ -7,7 +7,7 @@ import { ISongMetaDataSource, ExtractedSongMetaData } from '../ISongMetaDataSour
 import { IFile } from '../../../../models/interfaces/IFile';
 import { ArtistExtractor, IArtist, ArtistType } from './ArtistExtractor';
 import { IID3Tag } from 'id3-parser/lib/interface';
-import moment = require('moment');
+import moment from "moment";
 import { ISongType } from '../../../../models/interfaces/SongType';
 const similarity = require('similarity');
 

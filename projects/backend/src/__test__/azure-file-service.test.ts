@@ -3,7 +3,7 @@ import * as path from 'path';
 import { AzureFileService } from '../file-service/AzureFileService';
 import * as fs from 'fs';
 import { urlIsReachable } from './utils/url-is-reachable';
-import moment = require('moment');
+import moment from "moment";
 import { v4 as uuid } from 'uuid';
 import { promises as fsPromises } from 'fs';
 import * as azBlob from 'azure-storage';

@@ -1,12 +1,15 @@
-import express = require("express");
+import express from "express";
 import * as BodyParser from "body-parser";
 
 interface IMakeExpressAppOpts {
 	routers?: express.Router[];
-	middleware?: express.RequestHandler[]
+	middleware?: express.RequestHandler[];
 }
 
-export const makeExpressApp = ({ routers, middleware }: IMakeExpressAppOpts) => {
+export const makeExpressApp = ({
+	routers,
+	middleware,
+}: IMakeExpressAppOpts) => {
 	const expressApp = express();
 
 	expressApp.use(BodyParser.urlencoded({ extended: true }));
@@ -20,4 +23,4 @@ export const makeExpressApp = ({ routers, middleware }: IMakeExpressAppOpts) => 
 	}
 
 	return expressApp;
-}
+};

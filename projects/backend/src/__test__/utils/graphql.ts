@@ -1,8 +1,8 @@
-import supertest = require("supertest");
+import supertest from "supertest";
 import { HTTPStatusCodes } from "../../types/http-status-codes";
 import { jsonParsedObject } from "./json-parsed-object";
 import { ApolloServer } from "apollo-server-express";
-import * as express from 'express';
+import express from "express";
 import { Scopes, ContextRequest } from "../../types/context";
 import { makeAllScopes } from "./setup-test-env";
 import { testData } from "../../database/seed";

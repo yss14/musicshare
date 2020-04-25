@@ -9,16 +9,18 @@
 			"esnext",
 			"dom"
 		],
-		"target": "ES2020",
+		"target": "ES2019",
 		"outDir": "build/",
 		"skipLibCheck": true,
 		"rootDir": "src",
 		"suppressImplicitAnyIndexErrors": true,
 		"incremental": true,
 		"noUnusedLocals": false,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true
 	},
 	"include": [
-		"src/**/*",
+		"src/**/*"
 	],
 	"exclude": [
 		"node_modules",

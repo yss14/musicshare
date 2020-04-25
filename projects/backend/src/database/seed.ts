@@ -2,7 +2,7 @@ import * as faker from 'faker';
 import { createPrefilledArray } from '../utils/array/create-prefilled-array';
 import { __PROD__, __DEV__, __TEST__ } from '../utils/env/env-constants';
 import { makeFileObject } from '../models/interfaces/IFile';
-import moment = require('moment');
+import moment from "moment";
 import { v4 as uuid } from 'uuid';
 import { UsersTable, IUserDBResult, IShareDBResult, ISongDBResult, IPlaylistDBResult } from './tables';
 import { IDatabaseClient } from 'postgres-schema-builder';

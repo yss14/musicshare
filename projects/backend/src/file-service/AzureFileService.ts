@@ -1,6 +1,6 @@
 import { IFileService, UploadFileArgs, GetLinkToFileArgs } from "./FileService";
 import * as azBlob from 'azure-storage';
-import moment = require("moment");
+import moment from "moment";
 import { ICreateBlockBlobRequestOptions } from "../types/azure-storage-additional-types";
 import { streamToBuffer } from "../utils/stream-to-buffer";
 
