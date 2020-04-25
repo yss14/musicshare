@@ -38,6 +38,7 @@ We are working hard to release the first version of MusicShare. See the [roadmap
    Run `docker-compose up -d` to spin up a PostgreSQL database and the Minio (S3 compatible file storage) service.
 
 5. Open two terminal tabs and start backend and frontend via `npm run start:backend` and `npm run start:frontend`, respectively.
+6. Once both parts are up and running, you can log in via the default user `test@musicshare.rocks` with the super-safe password `test1234`.
 
 If you want to run parts of the project seperatly, have a look at the provided scripts of the root [package.json](package.json).
 
