@@ -162,12 +162,12 @@ describe("native type-graphql auth middleware", () => {
 	) => {
 		const publicQuery = `
 			query{
-				publicQuery(from: 1){message}
+				publicQuery{message}
 			}
 		`
 		const privateQuery = `
 			query{
-				privateQuery(from: 1){message}
+				privateQuery{message}
 			}
 		`
 
