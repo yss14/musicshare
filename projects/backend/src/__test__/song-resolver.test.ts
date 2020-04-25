@@ -7,8 +7,8 @@ import { HTTPStatusCodes } from "../types/http-status-codes";
 import { makeMockedDatabase } from "./mocks/mock-database";
 import { IDatabaseClient } from "postgres-schema-builder";
 import { clearTables } from "../database/database";
-import moment = require("moment");
-import uuid = require("uuid");
+import moment from "moment"
+import { v4 as uuid } from "uuid"
 
 const { cleanUp, getDatabase } = setupTestSuite();
 let database: IDatabaseClient;
