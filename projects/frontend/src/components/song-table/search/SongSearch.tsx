@@ -96,7 +96,7 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 		onSearchFilterChange({ mode: searchOptions.mode, query: debouncedQuery, matcher: searchOptions.matcher })
 	}, [searchOptions, debouncedQuery, onSearchFilterChange])
 
-	let options = (songs || []).map((song) => (
+	let options = (songs?.viewer.searchSongs || []).map((song) => (
 		<SongSearchItem key={song.id} song={song} onClick={() => onSongClick(song)} onDrag={setIsDraggingSong} />
 	))
 
