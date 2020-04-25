@@ -9,7 +9,7 @@
 		"build:watch": "tsc --watch --preserveWatchOutput",
 		"lint": "tslint --project tsconfig.json",
 		"lint:fix": "tslint --fix --project tsconfig.json",
-		"verify": "tsc --noEmit --noUnusedLocals",
+		"verify": "tsc --incremental false --composite false --noEmit --noUnusedLocals",
 		"tsc:version": "tsc -v && pwd"
 	},
 	"author": "Yannick Stachelscheid",
