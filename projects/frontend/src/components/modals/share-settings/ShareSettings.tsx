@@ -125,6 +125,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 	const [revokeInvitation] = useRevokeInvitation({
 		onCompleted: () => {
 			refetch()
+			setInvitationLink(null)
 
 			message.success(`User invitation successfully revoked`)
 		},
