@@ -59,6 +59,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 			title="Share Settings"
 			okText="OK"
 			cancelText={cancelButton}
+			onCancel={onClose}
 			onOk={onClose}
 			visible={true}
 			width={800}
