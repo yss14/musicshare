@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react"
-import { Button } from "antd"
+import { Button, message } from "antd"
 import styled from "styled-components"
 import { Link, useRouteMatch, useHistory } from "react-router-dom"
 import { IShareRoute } from "../../interfaces"
@@ -53,6 +53,7 @@ const SharePlaylistsSidebar = () => {
 	const { loading, error, data } = useSharePlaylists({ shareID })
 	const [createPlaylist] = useCreatePlaylist({
 		onCompleted: ({ createPlaylist: createdPlaylist }) => {
+			message.success(`Playlist ${createdPlaylist.name} successfully created`)
 			history.push(`/shares/${createdPlaylist.shareID}/playlists/${createdPlaylist.id}`)
 		},
 	})

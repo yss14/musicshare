@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react"
 import validator from "validator"
 import { useFormik } from "formik"
-import { Input, Icon, Form, Button, Alert } from "antd"
+import { Input, Icon, Form, Button, Alert, message } from "antd"
 import { Link } from "react-router-dom"
 import { useRestorePassword } from "../../graphql/mutations/restore-password-mutation"
 
@@ -39,7 +39,10 @@ export const RestorePasswordForm: React.FC = () => {
 	const [email, setEMail] = useState("")
 	const [restorePassword, { error, data }] = useRestorePassword({
 		onError: console.error,
-		onCompleted: () => resetForm(),
+		onCompleted: () => {
+			resetForm()
+			message.success(`Password has been restored successfully`)
+		},
 	})
 	const onSubmit = useCallback(
 		(values: IFormValues) => {

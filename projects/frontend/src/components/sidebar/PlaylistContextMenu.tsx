@@ -11,7 +11,9 @@ interface IPlaylistSongContextMenuProps {
 export const PlaylistContextMenu = React.forwardRef<HTMLDivElement, IPlaylistSongContextMenuProps>((props, ref) => {
 	const { playlist } = props
 	const [deletePlaylist] = useDeletePlaylist({
-		onCompleted: () => message.success(`Playlist deleted`),
+		onCompleted: () => {
+			message.success(`Playlist successfully deleted`)
+		},
 		onError: console.error,
 	})
 

@@ -4,6 +4,7 @@ import { useMutation, MutationResult } from "react-apollo"
 import { useCallback } from "react"
 import { MutationUpdaterFn } from "apollo-client"
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
+import { IMutationOptions } from "../hook-types"
 
 interface IRemoveSongsFromPlaylistData {
 	removeSongsFromPlaylist: IPlaylistSong[]
@@ -23,11 +24,11 @@ const REMOVE_SONGS_FROM_PLAYLIST = gql`
 	}
 `
 
-export const useRemoveSongsFromPlaylist = () => {
+export const useRemoveSongsFromPlaylist = (opts?: IMutationOptions<IRemoveSongsFromPlaylistData>) => {
 	const [removeSongsFromPlaylistMutation, other] = useMutation<
 		IRemoveSongsFromPlaylistData,
 		IRemoveSongsFromPlaylistVariables
-	>(REMOVE_SONGS_FROM_PLAYLIST)
+	>(REMOVE_SONGS_FROM_PLAYLIST, opts)
 
 	const makeUpdateCache = useCallback(
 		(

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react"
-import { Modal, Form, Input, Table, Button, Alert, Popconfirm, Icon, Typography } from "antd"
+import { Modal, Form, Input, Table, Button, Alert, Popconfirm, Icon, Typography, message } from "antd"
 import { IShare, IUser } from "../../../graphql/types"
 import { useDebounce } from "use-debounce/lib"
 import { useShareUsers } from "../../../graphql/queries/share-users-query"
@@ -11,6 +11,7 @@ import { useRenameShare } from "../../../graphql/mutations/rename-share-mutation
 import { useDeleteShare } from "../../../graphql/mutations/delete-share-mutation"
 import { useLeaveShare } from "../../../graphql/mutations/leave-share-mutation"
 import { Permissions, UserStatus } from "@musicshare/shared-types"
+import { useHistory } from "react-router-dom"
 
 const { Text } = Typography
 
@@ -20,8 +21,13 @@ interface IShareSettingsProps {
 }
 
 export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose }) => {
+	const history = useHistory()
 	const [deleteShare] = useDeleteShare({
-		onCompleted: () => onClose(),
+		onCompleted: () => {
+			message.success("Share successfully deleted")
+			onClose()
+			history.push("/")
+		},
 	})
 	const [leaveShare] = useLeaveShare({
 		onCompleted: () => onClose(),
@@ -54,10 +60,9 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 			okText="OK"
 			cancelText={cancelButton}
 			onOk={onClose}
-			onCancel={onClose}
 			visible={true}
 			width={800}
-			cancelButtonProps={{ style: { border: "none", padding: "0px" } }}
+			cancelButtonProps={{ style: { border: "none", padding: "0px" }, onClick: (e) => e.preventDefault() }}
 		>
 			<Form>
 				{canChangeName && <ChangeSongName share={share} />}
@@ -70,17 +75,20 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 
 const ChangeSongName: React.FC<{ share: IShare }> = ({ share: { name, id } }) => {
 	const [shareName, setShareName] = useState(name)
+	const [inputBlured, setInputBlured] = useState(false)
 	const [debouncedShareName] = useDebounce(shareName, 1000)
 	const [renameShare] = useRenameShare()
 
 	useEffect(() => {
-		renameShare({
-			variables: {
-				shareID: id,
-				name: debouncedShareName,
-			},
-		})
-	}, [debouncedShareName, id, renameShare])
+		if (inputBlured) {
+			renameShare({
+				variables: {
+					shareID: id,
+					name: debouncedShareName,
+				},
+			})
+		}
+	}, [debouncedShareName, id, renameShare, inputBlured])
 
 	return (
 		<Form.Item label="Name" validateStatus={shareName.trim().length <= 2 ? "error" : "success"}>
@@ -89,6 +97,7 @@ const ChangeSongName: React.FC<{ share: IShare }> = ({ share: { name, id } }) =>
 				type="text"
 				onChange={(e) => setShareName(e.target.value)}
 				placeholder="Share name"
+				onBlur={() => setInputBlured(true)}
 			/>
 		</Form.Item>
 	)
@@ -105,13 +114,19 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 				setInvitationLink(data.inviteToShare)
 			}
 
+			message.success(`User ${email} succesfully invited`)
+
 			setEMail("")
 			refetch()
 		},
 		onError: setInviteError,
 	})
 	const [revokeInvitation] = useRevokeInvitation({
-		onCompleted: () => refetch(),
+		onCompleted: () => {
+			refetch()
+
+			message.success(`User invitation successfully revoked`)
+		},
 	})
 
 	const onInviteClick = useCallback(() => {

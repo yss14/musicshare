@@ -2,13 +2,14 @@ import React, { useCallback, useState } from "react"
 import { IPlaylist, IScopedSong, isPlaylistSong } from "../../graphql/types"
 import { usePlayer } from "../../player/player-hook"
 import { ContextMenu } from "../../components/modals/contextmenu/ContextMenu"
-import { Menu } from "antd"
+import { Menu, message } from "antd"
 import { useSongUtils } from "../../hooks/use-song-utils"
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist"
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 import { useRemoveSongFromLibrary } from "../../graphql/mutations/remove-song-from-library-mutation"
 import { useRemoveSongsFromPlaylist } from "../../graphql/mutations/remove-songs-from-playlist-mutation"
+import { buildSongName } from "../../utils/songname-builder"
 
 export interface ISongContextMenuEvents {
 	onShowInformation: (song: IScopedSong) => void
@@ -27,8 +28,12 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const { changeSong, enqueueSong, enqueueSongNext } = usePlayer()
 	const { makePlayableSong } = useSongUtils()
 	const addSongsToPlaylist = useAddSongsToPlaylist()
-	const [removeSongFromLibrary] = useRemoveSongFromLibrary()
-	const [removeSongsFromPlaylist] = useRemoveSongsFromPlaylist()
+	const [removeSongFromLibrary] = useRemoveSongFromLibrary({
+		onCompleted: () => message.success(`Song ${buildSongName(song!)} successfully removed from library`),
+	})
+	const [removeSongsFromPlaylist] = useRemoveSongsFromPlaylist({
+		onCompleted: () => message.success(`Song ${buildSongName(song!)} successfully removed from playlist`),
+	})
 	const userLibraryID = useLibraryID()
 
 	const onClickPlayNow = useCallback(() => {

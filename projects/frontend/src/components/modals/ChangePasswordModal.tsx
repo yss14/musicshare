@@ -46,7 +46,9 @@ export const ChangePasswordModal: React.FC<IChangePasswordModalProps> = ({ onClo
 		},
 	})
 	const onSubmit = useCallback(
-		({ ...input }: IFormValues) => {
+		(input: IFormValues) => {
+			delete input.newPasswordRepitition
+
 			changePassword(input)
 		},
 		[changePassword],

@@ -3,6 +3,7 @@ import { useCreateShare } from "../../graphql/mutations/create-share-mutation"
 import { Prompt } from "./promt/Prompt"
 import { useHistory } from "react-router-dom"
 import { IShare } from "../../graphql/types"
+import { message } from "antd"
 
 interface ICreateShareModalProps {
 	onSubmit: () => void
@@ -15,6 +16,7 @@ export const CreateShareModal: React.FC<ICreateShareModalProps> = ({ onSubmit, o
 		(share: IShare) => {
 			history.push(`/shares/${share.id}`)
 			onSubmit()
+			message.success("Share successfully created")
 		},
 		[history, onSubmit],
 	)
