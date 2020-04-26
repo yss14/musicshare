@@ -1,6 +1,6 @@
 import React, { useCallback, useReducer, ReactNode } from "react"
-import { useDropzone } from "react-dropzone"
-import { Icon, Typography } from "antd"
+import { useDropzone, FileRejection } from "react-dropzone"
+import { Icon, Typography, message } from "antd"
 import styled from "styled-components"
 import { uploadFile } from "../../utils/upload/uploadFile"
 import { reducer } from "../../utils/upload/upload.reducer"
@@ -8,6 +8,7 @@ import { useConfig } from "../../hooks/use-config"
 import { IUploadItem } from "../../graphql/rest-types"
 import { useUser } from "../../graphql/queries/user-query"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
+import { last } from "lodash"
 
 const StyledIcon = styled(Icon)`
 	font-size: 64px;
@@ -76,9 +77,17 @@ const Dropzone = ({ userID, shareID, children }: IDropzoneProps) => {
 		},
 		[shareID, userID, config],
 	)
+	const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
+		const rejectedFileExtension = fileRejections.map((reason) => last(reason.file.name.split(".")))
+
+		message.info(`Files with extension(s) ${rejectedFileExtension} are not supported yet!`)
+	}, [])
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
 		onDrop,
+		onDropRejected,
 		noClick: true,
+		accept: ["audio/mpeg"],
+		maxSize: 200 * 1024 * 1024, // 200 MB
 	})
 
 	return (
