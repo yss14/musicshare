@@ -1,5 +1,5 @@
 import express from "express"
-import * as BodyParser from "body-parser"
+import BodyParser from "body-parser"
 
 interface IMakeExpressAppOpts {
 	routers?: express.Router[]

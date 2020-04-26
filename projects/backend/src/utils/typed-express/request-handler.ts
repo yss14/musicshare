@@ -11,7 +11,10 @@ export const wrapRequestHandler = <T extends express.Request = express.Request>(
 	return (request, response) => {
 		handler(request).then(
 			(handlerResponse) => handlerResponse.apply(response),
-			() => response.status(500).json({ error: commonRestErrors.internalServerError }),
+			(err) => {
+				console.error(err)
+				response.status(500).json({ error: commonRestErrors.internalServerError })
+			},
 		)
 	}
 }
