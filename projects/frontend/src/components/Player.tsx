@@ -9,6 +9,7 @@ import controlVolumeImg from "../images/control_volume.png"
 import { usePlayer } from "../player/player-hook"
 import { buildSongName } from "../utils/songname-builder"
 import { formatDuration } from "../utils/format-duration"
+import { useDebounce } from "use-debounce/lib"
 
 const FlexWithStyles = styled(Flex)`
 	background: #3a3a3a;
@@ -124,7 +125,11 @@ const PlayerSlider: React.FC<IPlayerSliderProps> = ({ progresses, onClick, progr
 		>
 			<SliderCaption textColor={textColor}>{progressText}</SliderCaption>
 			{progresses.map((progress, idx) => (
-				<SliderFill fillColor={progress.fillColor || "white"} width={progress.percentage * 100} key={idx} />
+				<SliderFill
+					fillColor={progress.fillColor || "white"}
+					width={progress.percentage * 100 || 0}
+					key={idx}
+				/>
 			))}
 			{children}
 		</SliderContainer>
@@ -145,6 +150,7 @@ export const Player = () => {
 		duration,
 		seek,
 		bufferingProgress,
+		error,
 	} = usePlayer()
 
 	const handleClickMute = () => {
@@ -168,6 +174,11 @@ export const Player = () => {
 	const playedTime = Math.round(playpackProgress * duration)
 	const remainingTime = Math.round(duration - playedTime)
 
+	const [displayText] = useDebounce(
+		error ? error : currentSong ? `${currentSong.artists.join(", ")} - ${buildSongName(currentSong)}` : "",
+		250,
+	)
+
 	return (
 		<FlexWithStyles direction="row" align="center">
 			<ControlContainer>
@@ -181,9 +192,7 @@ export const Player = () => {
 						{ percentage: playpackProgress },
 						{ percentage: bufferingProgress, fillColor: "rgba(255, 255, 255, 0.1)" },
 					]}
-					progressText={
-						currentSong ? `${currentSong.artists.join(", ")} - ${buildSongName(currentSong)}` : ""
-					}
+					progressText={displayText}
 					onClick={handleSeek}
 				>
 					<SliderCaptionLeft>{formatDuration(playedTime)}</SliderCaptionLeft>

@@ -12,8 +12,12 @@ import { promiseToObservable } from "./graphql/utils/promise-to-observable"
 import { history } from "./components/routing/history"
 import { logoutUser } from "./graphql/programmatic/logout"
 import { isPlaylistSong } from "./graphql/types"
+import { ServerError } from "apollo-link-http-common"
 
 const config = makeConfigFromEnv()
+
+const isServerError = (obj: any): obj is ServerError =>
+	obj instanceof Error && typeof (obj as any).statusCode === "number"
 
 const typeDefs = `
 	type SongUpdateInput {
@@ -134,9 +138,11 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
 	}
 
 	if (networkError) {
-		console.error(networkError)
-
-		history.push("/offline")
+		if (isServerError(networkError)) {
+			console.log(networkError)
+		} else {
+			history.push("/offline")
+		}
 	}
 })
 

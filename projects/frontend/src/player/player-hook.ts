@@ -19,6 +19,7 @@ interface IPlayerState {
 	volume: number
 	currentSong: IBaseSongPlayable | null
 	duration: number
+	error: string | null
 }
 
 const playerReducer: React.Reducer<IPlayerState, PlayerAction> = (state, action) => {
@@ -32,9 +33,11 @@ const playerReducer: React.Reducer<IPlayerState, PlayerAction> = (state, action)
 		case "buffering_progress":
 			return { ...state, bufferingProgress: action.data }
 		case "song_change":
-			return { ...state, currentSong: action.data }
+			return { ...state, currentSong: action.data, error: null, playpackProgress: 0, bufferingProgress: 0 }
 		case "song_duration_change":
-			return { ...state, duration: action.data }
+			return { ...state, duration: action.data, error: null }
+		case "playback_error":
+			return { ...state, error: action.data }
 		default:
 			return state
 	}
@@ -47,14 +50,15 @@ const initialPlayerState: IPlayerState = {
 	bufferingProgress: 0,
 	currentSong: null,
 	duration: 0,
+	error: null,
 }
 
 export const usePlayer = () => {
 	const player = useContext(PlayerContext)
-	const [{ volume, playing, playpackProgress, currentSong, duration, bufferingProgress }, dispatch] = useReducer(
-		playerReducer,
-		initialPlayerState,
-	)
+	const [
+		{ volume, playing, playpackProgress, currentSong, duration, bufferingProgress, error },
+		dispatch,
+	] = useReducer(playerReducer, initialPlayerState)
 
 	useEffect(() => {
 		player.subscribeEvents(dispatch)
@@ -83,5 +87,6 @@ export const usePlayer = () => {
 		bufferingProgress,
 		currentSong,
 		duration,
+		error,
 	}
 }

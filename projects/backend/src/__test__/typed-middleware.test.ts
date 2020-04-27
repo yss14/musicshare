@@ -6,7 +6,7 @@ import { IResponse, ResponseError, ResponseSuccessJSON } from "../utils/typed-ex
 import { HTTPStatusCodes } from "../types/http-status-codes"
 import { makeExpressApp } from "./utils/make-express-app"
 import supertest from "supertest"
-import * as BodyParser from "body-parser"
+import BodyParser from "body-parser"
 
 const firstMiddlewareError = {
 	identifier: "1",

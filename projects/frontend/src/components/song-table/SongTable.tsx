@@ -227,6 +227,7 @@ export const SongTable: React.FC<ISongDataTableProps> = (props) => {
 							rowHeight={27}
 							rowRenderer={rowRenderer}
 							width={width}
+							style={{ outline: 0 }}
 						/>
 					)}
 				</AutoSizer>

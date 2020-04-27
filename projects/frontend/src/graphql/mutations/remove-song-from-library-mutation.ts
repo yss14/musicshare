@@ -3,6 +3,7 @@ import { useMutation, MutationResult } from "react-apollo"
 import { useCallback } from "react"
 import { MutationUpdaterFn } from "apollo-client"
 import { IGetShareWithSongsData, IGetShareWithSongsVariables, GET_SHARE_WITH_SONGS } from "../queries/share-songs-query"
+import { IMutationOptions } from "../hook-types"
 
 interface IRemoveSongFromLibraryData {
 	removeSongFromLibrary: boolean
@@ -21,11 +22,11 @@ const REMOVE_SONG_FROM_LIBRARY = gql`
 	}
 `
 
-export const useRemoveSongFromLibrary = () => {
+export const useRemoveSongFromLibrary = (opts?: IMutationOptions<IRemoveSongFromLibraryData>) => {
 	const [removeSongFromLibraryMutation, other] = useMutation<
 		IRemoveSongFromLibraryData,
 		IRemoveSongFromLibraryVariables
-	>(REMOVE_SONG_FROM_LIBRARY)
+	>(REMOVE_SONG_FROM_LIBRARY, opts)
 
 	const makeUpdateCache = useCallback(
 		(shareID: string, songID: string): MutationUpdaterFn<IRemoveSongFromLibraryData> => (cache, { data }) => {

@@ -1,10 +1,44 @@
 import { IBaseSongPlayable } from "../graphql/types"
 import { ISongMediaUrl } from "../graphql/queries/song-mediaurl-query"
+import { message } from "antd"
 
-const PlayerDeck = () => {
+const mapMediaElementEventError = (event: ErrorEvent) => {
+	if (!event.target) {
+		return "An unknown error occurred."
+	}
+
+	const target = event.target as HTMLAudioElement
+
+	if (!target.error) {
+		return "An unknown error occurred."
+	}
+
+	switch (target.error.code) {
+		case MediaError.MEDIA_ERR_ABORTED:
+			return "You aborted the video playback."
+		case MediaError.MEDIA_ERR_NETWORK:
+			return "A network error caused the audio download to fail."
+		case MediaError.MEDIA_ERR_DECODE:
+			return "The audio playback was aborted due to a corruption problem or because the video used features your browser did not support."
+		case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+			return "The audio cannot not be loaded because the server or network failed."
+		default:
+			return "An unknown error occurred."
+	}
+}
+
+interface IPlayerDeckArgs {
+	onError?: (error: string) => void
+}
+
+const PlayerDeck = ({ onError }: IPlayerDeckArgs) => {
 	const audio = document.createElement("audio")
 	audio.style.display = "none"
 	document.body.appendChild(audio)
+
+	audio.addEventListener("error", (err) => {
+		if (onError) onError(mapMediaElementEventError(err))
+	})
 
 	return audio
 }
@@ -55,12 +89,20 @@ const setSongDuration = (newDuration: number): ISongDurationChangeEvent => ({
 	data: newDuration,
 })
 
+interface IPlaybackErrorEvent extends ReturnType<typeof setPlaybackError> {}
+
+const setPlaybackError = (error: string) => ({
+	type: "playback_error" as const,
+	data: error,
+})
+
 export type PlayerEvent =
 	| IPlaybackStatusEvent
 	| IPlaybackProgressEvent
 	| ISongChangeEvent
 	| ISongDurationChangeEvent
 	| IBufferingProgressEvent
+	| IPlaybackErrorEvent
 
 type PlayerEventSubscriber = (event: PlayerEvent) => unknown
 
@@ -81,10 +123,6 @@ export interface IPlayer {
 }
 
 export const Player = (): IPlayer => {
-	const primaryDeck = PlayerDeck()
-	const bufferingDeck = PlayerDeck()
-	bufferingDeck.volume = 0
-
 	const songQueue: IBaseSongPlayable[] = []
 	const playedSongs: IBaseSongPlayable[] = []
 	let isBufferingNextSong = false
@@ -95,6 +133,14 @@ export const Player = (): IPlayer => {
 	const unsubscribeEvents = (callback: PlayerEventSubscriber) => eventSubscribers.delete(callback)
 
 	const dispatch = (event: PlayerEvent) => Array.from(eventSubscribers).forEach((subscriber) => subscriber(event))
+
+	const primaryDeck = PlayerDeck({
+		onError: (event) => dispatch(setPlaybackError(event)),
+	})
+	const bufferingDeck = PlayerDeck({
+		onError: (event) => dispatch(setPlaybackError(event)),
+	})
+	bufferingDeck.volume = 0
 
 	const play = () => primaryDeck.play()
 	const pause = () => primaryDeck.pause()
@@ -118,18 +164,25 @@ export const Player = (): IPlayer => {
 
 		if (!nextSong) return false
 
-		nextSong.getMediaURL().then((songMediaUrls) => {
-			dispatch(setSong(nextSong))
+		nextSong
+			.getMediaURL()
+			.then((songMediaUrls) => {
+				dispatch(setSong(nextSong))
 
-			const mediaUrl = pickMediaUrl(songMediaUrls)
+				const mediaUrl = pickMediaUrl(songMediaUrls)
 
-			if (mediaUrl) {
-				primaryDeck.src = mediaUrl
-				primaryDeck.play()
-			} else {
-				console.warn(`Cannot get a media url of song ${nextSong.id}`)
-			}
-		})
+				if (mediaUrl) {
+					primaryDeck.src = mediaUrl
+					primaryDeck.play()
+				} else {
+					console.warn(`Cannot get a media url of song ${nextSong.id}`)
+				}
+			})
+			.catch((err) => {
+				console.error(err)
+
+				message.error(err.message)
+			})
 
 		return true
 	}
@@ -139,16 +192,23 @@ export const Player = (): IPlayer => {
 
 		if (!prevSong) return
 
-		prevSong.getMediaURL().then((songMediaUrls) => {
-			const mediaUrl = pickMediaUrl(songMediaUrls)
+		prevSong
+			.getMediaURL()
+			.then((songMediaUrls) => {
+				const mediaUrl = pickMediaUrl(songMediaUrls)
 
-			if (mediaUrl) {
-				primaryDeck.src = mediaUrl
-				primaryDeck.play()
-			} else {
-				console.warn(`Cannot get a media url of song ${prevSong.id}`)
-			}
-		})
+				if (mediaUrl) {
+					primaryDeck.src = mediaUrl
+					primaryDeck.play()
+				} else {
+					console.warn(`Cannot get a media url of song ${prevSong.id}`)
+				}
+			})
+			.catch((err) => {
+				console.error(err)
+
+				message.error(err.message)
+			})
 	}
 
 	const changeSong = (newSong: IBaseSongPlayable) => {
@@ -210,15 +270,22 @@ export const Player = (): IPlayer => {
 			isBufferingNextSong = true
 			console.log("Start buffering next song")
 
-			nextSong.getMediaURL().then((songMediaUrls) => {
-				const mediaUrl = pickMediaUrl(songMediaUrls)
+			nextSong
+				.getMediaURL()
+				.then((songMediaUrls) => {
+					const mediaUrl = pickMediaUrl(songMediaUrls)
 
-				if (mediaUrl) {
-					bufferingDeck.src = mediaUrl
-				} else {
-					console.warn(`Cannot get a media url of song ${nextSong.id}`)
-				}
-			})
+					if (mediaUrl) {
+						bufferingDeck.src = mediaUrl
+					} else {
+						console.warn(`Cannot get a media url of song ${nextSong.id}`)
+					}
+				})
+				.catch((err) => {
+					console.error(err)
+
+					message.error(err.message)
+				})
 		}
 	}
 

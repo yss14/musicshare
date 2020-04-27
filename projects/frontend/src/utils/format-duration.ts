@@ -1,4 +1,8 @@
 export const formatDuration = (duration: number) => {
+	if (isNaN(duration)) {
+		return "00:00"
+	}
+
 	const hours = Math.floor(duration / 3600)
 	let remainder = duration - hours * 3600
 	const minutes = Math.floor(remainder / 60)

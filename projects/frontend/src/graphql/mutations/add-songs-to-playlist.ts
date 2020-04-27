@@ -5,6 +5,7 @@ import { useCallback } from "react"
 import { MutationUpdaterFn } from "apollo-client"
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
 import { IGetPlaylistsData, IGetPlaylistsVariables, GET_SHARE_PLAYLISTS } from "../queries/playlists-query"
+import { IMutationOptions } from "../hook-types"
 
 export interface IAddSongsToPlaylistVariables {
 	shareID: string
@@ -24,8 +25,11 @@ export const ADD_SONGS_TO_PLAYLIST = gql`
 	}
 `
 
-export const useAddSongsToPlaylist = () => {
-	const [invokeMutation] = useMutation<IAddSongsToPlaylistData, IAddSongsToPlaylistVariables>(ADD_SONGS_TO_PLAYLIST)
+export const useAddSongsToPlaylist = (opts?: IMutationOptions<IAddSongsToPlaylistData>) => {
+	const [invokeMutation] = useMutation<IAddSongsToPlaylistData, IAddSongsToPlaylistVariables>(
+		ADD_SONGS_TO_PLAYLIST,
+		opts,
+	)
 
 	const updatePlaylistSongsCache = useCallback(
 		(shareID: string, playlistID: string): MutationUpdaterFn<IAddSongsToPlaylistData> => (cache, { data }) => {

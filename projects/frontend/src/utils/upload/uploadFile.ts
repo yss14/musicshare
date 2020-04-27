@@ -4,6 +4,7 @@ import * as crypto from "js-sha256"
 import { upload } from "./upload"
 import { IConfig } from "../../config"
 import { UploadItemType, UploadItemStatus } from "../../graphql/rest-types"
+import { message } from "antd"
 
 interface IAxiosProgress {
 	total?: number
@@ -76,6 +77,8 @@ export const uploadFile = (
 				success: true,
 			},
 		})
+
+		message.success(`File ${file.name} successfully uploaded`)
 	} catch (err) {
 		console.error(err)
 
@@ -86,6 +89,8 @@ export const uploadFile = (
 				success: false,
 			},
 		})
+
+		message.error(`File ${file.name} upload failed`)
 	} finally {
 		currentUploads--
 
