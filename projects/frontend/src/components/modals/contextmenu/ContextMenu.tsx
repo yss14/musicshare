@@ -51,7 +51,7 @@ export const useContextMenu = () => {
 			setTimeout(() => {
 				const height = contextMenuElement.clientHeight
 				const windowHeight = window.innerHeight
-				console.log({ height, windowHeight })
+
 				if (posY + height < windowHeight) {
 					contextMenuElement.style.top = posY + "px"
 				} else {

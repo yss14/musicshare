@@ -2,7 +2,7 @@ import React from "react"
 import { useMergedSongs } from "../../graphql/queries/merged-songs-query"
 import { MainSongsView } from "./MainSongsView"
 import { LoadingSpinner } from "../../components/common/LoadingSpinner"
-import { SongTableColumn } from "../../components/song-table/song-table-columns"
+import { SongTableColumn } from "../../components/song-table/SongTableColumns"
 
 export const MergedSongs: React.FC = () => {
 	const { loading, error, data: songs } = useMergedSongs()
@@ -16,7 +16,13 @@ export const MergedSongs: React.FC = () => {
 		<MainSongsView
 			title="All songs"
 			songs={songs}
-			columns={[SongTableColumn.Title, SongTableColumn.Time, SongTableColumn.Artists, SongTableColumn.Genres]}
+			columns={[
+				SongTableColumn.Indicator,
+				SongTableColumn.Title,
+				SongTableColumn.Time,
+				SongTableColumn.Artists,
+				SongTableColumn.Genres,
+			]}
 		/>
 	)
 }

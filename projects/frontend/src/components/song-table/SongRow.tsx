@@ -7,7 +7,8 @@ import { Row, Col } from "./SongTableUI"
 import songDragPreviewImg from "../../images/playlist_add.png"
 import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
 import { MoveSong } from "./MoveSong"
-import { ISongTableColumn, CalculatedColumnWidths } from "./song-table-columns"
+import { ISongTableColumn, CalculatedColumnWidths } from "./SongTableColumns"
+import { useSongsViewContext } from "./SongsView"
 
 interface ISongRowProps extends ListRowProps {
 	columns: ISongTableColumn[]
@@ -37,6 +38,7 @@ export const SongRow: React.FC<ISongRowProps> = ({
 	calculatedColumnWidths,
 }) => {
 	const rowRef = useRef<HTMLDivElement>(null)
+	const songsViewContext = useSongsViewContext()
 
 	const [{ isOver }, drop] = useDrop<ISongDNDItem, void, { isOver: boolean }>({
 		accept: DragNDropItem.Song,
@@ -80,7 +82,7 @@ export const SongRow: React.FC<ISongRowProps> = ({
 						key={`song-${song.id}-${index}-${column.title}`}
 						style={{ width: calculatedColumnWidths[column.key] }}
 					>
-						{column.render(song, index)}
+						{column.render(song, index, songsViewContext)}
 					</Col>
 				))}
 			</Row>

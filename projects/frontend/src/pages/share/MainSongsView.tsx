@@ -8,7 +8,7 @@ import { SongModal } from "../../components/modals/song-modal/SongModal"
 import { ISongSearchFilter, allMatchingOptions } from "../../components/song-table/search/search-types"
 import styled from "styled-components"
 import { MoveSong } from "../../components/song-table/MoveSong"
-import { ISongTableColumn } from "../../components/song-table/song-table-columns"
+import { ISongTableColumn } from "../../components/song-table/SongTableColumns"
 import { SongsView } from "../../components/song-table/SongsView"
 
 const FlexContainer = styled.div`
@@ -42,7 +42,7 @@ interface ISongsViewProps {
 
 export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong, columns }) => {
 	const { makePlayableSong } = useSongUtils()
-	const { changeSong, enqueueSongs, clearQueue } = usePlayer()
+	const { changeSong, enqueueSongs, clearQueue, currentSong } = usePlayer()
 	const [editSong, setEditSong] = useState<IScopedSong | null>(null)
 	const [showSongModal, setShowSongModal] = useState(false)
 	const [searchFilter, setSearchFilter] = useState<ISongSearchFilter>({
@@ -109,6 +109,7 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 				filterQuery={searchFilter.query}
 				filter={songFilter}
 				initialSortColumn={playlistID ? "position" : "title"}
+				currentlyPlayedSong={currentSong}
 			>
 				{([{ songs }]) => (
 					<>

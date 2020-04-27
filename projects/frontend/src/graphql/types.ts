@@ -62,7 +62,7 @@ export interface IBaseSong {
 	libraryID: string
 }
 
-export interface IBaseSongPlayable extends IBaseSong {
+export interface IBaseSongPlayable extends IScopedSong {
 	getMediaURL: () => Promise<ISongMediaUrl[]>
 }
 

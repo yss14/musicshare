@@ -1,7 +1,19 @@
+import React, { useMemo } from "react"
 import { IScopedSong, IScopedPlaylistSong } from "../../graphql/types"
 import { buildSongName } from "../../utils/songname-builder"
 import { formatDuration } from "../../utils/format-duration"
-import { useMemo } from "react"
+import { ISongsViewContext } from "./SongsView"
+import styled from "styled-components"
+import imgSpeaker from "../../images/song_is_playing_gray.png"
+
+const CurrentlyPlayingIndicator = styled.div`
+	width: 20px;
+	height: 20px;
+	background-image: url(${imgSpeaker});
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 100%;
+`
 
 interface IColumnBase {
 	title: string
@@ -10,26 +22,53 @@ interface IColumnBase {
 	key: string
 }
 
-export interface ISongTableColumn extends IColumnBase {
-	render: (song: IScopedSong | IScopedPlaylistSong, index: number) => string
+interface ISongTableBaseColumn<T> extends IColumnBase {
+	render: (song: IScopedSong | IScopedPlaylistSong, index: number, ctx: ISongsViewContext) => T
 }
+
+interface ISongTableColumnSortable extends ISongTableBaseColumn<string> {
+	sortable: true
+}
+
+interface ISongTableColumnNotSortable extends ISongTableBaseColumn<React.ReactElement | null> {
+	sortable: false
+}
+
+export type ISongTableColumn = ISongTableColumnSortable | ISongTableColumnNotSortable
 
 export interface IColumnRendered extends IColumnBase {
 	displayValue: string
 }
 
-type ColumnNames = "Title" | "Time" | "Artists" | "Genres" | "Position"
+export const isSortableColumn = (col: ISongTableColumn): col is ISongTableColumnSortable => col.sortable === true
+
+type ColumnNames = "Title" | "Time" | "Artists" | "Genres" | "Position" | "Indicator"
 
 type SongTableColumnMap = {
 	[key in ColumnNames]: ISongTableColumn
 }
 
 export const SongTableColumn: SongTableColumnMap = {
+	Indicator: {
+		title: "",
+		width: 22,
+		fixWidth: true,
+		key: "indicator",
+		sortable: false,
+		render: (song, _, [{ currentlyPlayedSong }]) => {
+			if (currentlyPlayedSong && song.id === currentlyPlayedSong?.id) {
+				return <CurrentlyPlayingIndicator />
+			}
+
+			return null
+		},
+	},
 	Title: {
 		title: "Title",
 		width: 250,
 		fixWidth: false,
 		key: "title",
+		sortable: true,
 		render: (song) => buildSongName(song),
 	},
 	Time: {
@@ -37,6 +76,7 @@ export const SongTableColumn: SongTableColumnMap = {
 		width: 70,
 		fixWidth: true,
 		key: "duration",
+		sortable: true,
 		render: (song) => formatDuration(song.duration),
 	},
 	Artists: {
@@ -44,6 +84,7 @@ export const SongTableColumn: SongTableColumnMap = {
 		width: 150,
 		fixWidth: false,
 		key: "artists",
+		sortable: true,
 		render: (song) => song.artists.join(", "),
 	},
 	Genres: {
@@ -51,6 +92,7 @@ export const SongTableColumn: SongTableColumnMap = {
 		width: 150,
 		fixWidth: false,
 		key: "genres",
+		sortable: true,
 		render: (song) => song.genres.join(", "),
 	},
 	Position: {
@@ -58,6 +100,7 @@ export const SongTableColumn: SongTableColumnMap = {
 		width: 24,
 		fixWidth: true,
 		key: "position",
+		sortable: true,
 		render: (_, idx) => String(idx + 1),
 	},
 }
