@@ -3,7 +3,7 @@ import { IScopedSong, IBaseSong } from "../../graphql/types"
 import { useSongUtils } from "../../hooks/use-song-utils"
 import { usePlayer } from "../../player/player-hook"
 import { SongTableHeader } from "../../components/song-table/SongTableHeader"
-import { SongTable } from "../../components/song-table/SongTable"
+import { SongTable, IRowEventsArgs } from "../../components/song-table/SongTable"
 import { SongModal } from "../../components/modals/song-modal/SongModal"
 import { ISongSearchFilter, allMatchingOptions } from "../../components/song-table/search/search-types"
 import styled from "styled-components"
@@ -52,14 +52,14 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 	})
 
 	const onRowClick = useCallback(
-		(event: React.MouseEvent, song: IScopedSong) => {
+		({ song }: IRowEventsArgs) => {
 			setEditSong(song)
 		},
 		[setEditSong],
 	)
 
 	const onRowDoubleClick = useCallback(
-		(event: React.MouseEvent, song: IScopedSong, idx: number) => {
+		({ song, idx, songs }: IRowEventsArgs) => {
 			changeSong(makePlayableSong(song))
 
 			if (songs) {
@@ -69,7 +69,7 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 				enqueueSongs(followUpSongs.map(makePlayableSong))
 			}
 		},
-		[changeSong, makePlayableSong, clearQueue, enqueueSongs, songs],
+		[changeSong, makePlayableSong, clearQueue, enqueueSongs],
 	)
 
 	const songFilter = useCallback(

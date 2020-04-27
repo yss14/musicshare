@@ -1,6 +1,6 @@
 import React from "react"
 import { useMergedSongs } from "../../graphql/queries/merged-songs-query"
-import { MainSongsView } from "./SongsView"
+import { MainSongsView } from "./MainSongsView"
 import { LoadingSpinner } from "../../components/common/LoadingSpinner"
 import { SongTableColumn } from "../../components/song-table/song-table-columns"
 

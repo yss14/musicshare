@@ -26,10 +26,17 @@ const StyledScrollbars = styled(Scrollbars)`
 
 type Song = IScopedSong
 
+export interface IRowEventsArgs {
+	event: React.MouseEvent
+	songs: Song[]
+	song: Song
+	idx: number
+}
+
 export interface IRowEvents {
-	onClick?: (event: React.MouseEvent, song: Song, idx: number) => any
-	onContextMenu?: (event: React.MouseEvent, song: Song, idx: number) => any
-	onDoubleClick?: (event: React.MouseEvent, song: Song, idx: number) => any
+	onClick?: (args: IRowEventsArgs) => any
+	onContextMenu?: (args: IRowEventsArgs) => any
+	onDoubleClick?: (args: IRowEventsArgs) => any
 }
 
 const toggleDirection = (dir: SortOrder): SortOrder => (dir === "ascend" ? "descend" : "ascend")
@@ -59,8 +66,10 @@ export const SongTable: React.FC<ISongDataTableProps> = ({ rowEvents, playlistID
 	const hookedRowEvents = useMemo(
 		(): IRowEvents => ({
 			...rowEvents,
-			onContextMenu: (event: React.MouseEvent, song: Song, idx: number) => {
-				if (rowEvents.onContextMenu) rowEvents.onContextMenu(event, song, idx)
+			onContextMenu: ({ event, song, idx, songs }) => {
+				if (rowEvents.onContextMenu) {
+					rowEvents.onContextMenu({ event, song, idx, songs })
+				}
 
 				showContextMenu(event)
 			},
@@ -89,6 +98,7 @@ export const SongTable: React.FC<ISongDataTableProps> = ({ rowEvents, playlistID
 				<SongRow
 					{...props}
 					song={song}
+					songs={songs}
 					rowEvents={hookedRowEvents}
 					columns={columns}
 					hovered={hoveredSong === song}
