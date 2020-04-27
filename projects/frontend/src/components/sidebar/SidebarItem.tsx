@@ -24,7 +24,7 @@ export const SidebarItem = styled.div<ISidebarItemProps>`
 		color: ${(props) => (props.selected ? "black" : "white")};
 		font-size: 15px;
 		width: 100%;
-		font-weight: 500;
+		font-weight: 200;
 		user-select: none;
 		-moz-user-select: none;
 		-khtml-user-select: none;
