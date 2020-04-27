@@ -29,7 +29,7 @@ export const Prompt = ({
 	<Modal title={title} visible={true} onOk={onSubmit} onCancel={onCancel} okText={okText} cancelText={cancelText}>
 		<Form>
 			<Form.Item label={label} validateStatus={validationError ? "error" : "success"}>
-				<Input value={value} type="text" onChange={onChange} placeholder={placeholder} />
+				<Input value={value} type="text" onChange={onChange} placeholder={placeholder} autoFocus />
 			</Form.Item>
 		</Form>
 	</Modal>

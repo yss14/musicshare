@@ -15,6 +15,7 @@ import { IPlaylist } from "../../graphql/types"
 import { LoadingSpinner } from "../common/LoadingSpinner"
 import { useContextMenu } from "../modals/contextmenu/ContextMenu"
 import { PlaylistContextMenu } from "./PlaylistContextMenu"
+import Scrollbars from "react-custom-scrollbars"
 
 const Sidebar = styled.div`
 	width: 200px;
@@ -168,18 +169,20 @@ const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({
 					<Link to={targetUrlAllSongs}>All songs</Link>
 				</SidebarItem>
 			</SidebarSection>
-			<SidebarSection title="Playlists" overflowScroll>
-				{playlists.map((playlist) => (
-					<PlaylistSidebarItem
-						key={playlist.id}
-						playlist={playlist}
-						selected={playlist.id === playlistID}
-						targetUrl={playlist.targetUrl}
-						onContextMenu={showContextMenu}
-						onMouseEnter={isVisible ? () => undefined : () => setContextMenuPlaylist(playlist)}
-					/>
-				))}
-			</SidebarSection>
+			<Scrollbars autoHide>
+				<SidebarSection title="Playlists" overflowScroll>
+					{playlists.map((playlist) => (
+						<PlaylistSidebarItem
+							key={playlist.id}
+							playlist={playlist}
+							selected={playlist.id === playlistID}
+							targetUrl={playlist.targetUrl}
+							onContextMenu={showContextMenu}
+							onMouseEnter={isVisible ? () => undefined : () => setContextMenuPlaylist(playlist)}
+						/>
+					))}
+				</SidebarSection>
+			</Scrollbars>
 			{addButton && (
 				<SidebarButtonContainer style={{ position: "sticky", bottom: 0 }}>{addButton}</SidebarButtonContainer>
 			)}

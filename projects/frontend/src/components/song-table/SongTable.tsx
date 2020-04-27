@@ -14,6 +14,15 @@ import { MoveSong } from "./MoveSong"
 import { IColumn, useCalculatedColumnWidths } from "./song-table-columns"
 import { zip } from "lodash"
 import { filterUndefined } from "../../utils/filter-null"
+import Scrollbars from "react-custom-scrollbars"
+import styled from "styled-components"
+
+const StyledScrollbars = styled(Scrollbars)`
+	& > div:first-child {
+		overflow: visible !important; /* disable horizontal scroll bar*/
+		margin-bottom: 0px !important;
+	}
+`
 
 type Song = IScopedSong
 type OrderDirection = "asc" | "desc"
@@ -217,20 +226,22 @@ export const SongTable: React.FC<ISongDataTableProps> = (props) => {
 				))}
 			</Header>
 			<Body ref={bodyRef}>
-				<AutoSizer disableHeight>
-					{({ width }) => (
-						<List
-							height={height}
-							overscanRowCount={100}
-							noRowsRenderer={() => <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
-							rowCount={orderedSongs.length}
-							rowHeight={27}
-							rowRenderer={rowRenderer}
-							width={width}
-							style={{ outline: 0 }}
-						/>
-					)}
-				</AutoSizer>
+				<StyledScrollbars autoHide>
+					<AutoSizer disableHeight>
+						{({ width }) => (
+							<List
+								height={height}
+								overscanRowCount={100}
+								noRowsRenderer={() => <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+								rowCount={orderedSongs.length}
+								rowHeight={27}
+								rowRenderer={rowRenderer}
+								width={width}
+								style={{ outline: 0 }}
+							/>
+						)}
+					</AutoSizer>
+				</StyledScrollbars>
 			</Body>
 			<SongContextMenu
 				song={hoveredSong}
