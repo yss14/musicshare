@@ -10,7 +10,7 @@ interface IColumnBase {
 	key: string
 }
 
-export interface IColumn extends IColumnBase {
+export interface ISongTableColumn extends IColumnBase {
 	render: (song: IScopedSong | IScopedPlaylistSong, index: number) => string
 }
 
@@ -21,7 +21,7 @@ export interface IColumnRendered extends IColumnBase {
 type ColumnNames = "Title" | "Time" | "Artists" | "Genres" | "Position"
 
 type SongTableColumnMap = {
-	[key in ColumnNames]: IColumn
+	[key in ColumnNames]: ISongTableColumn
 }
 
 export const SongTableColumn: SongTableColumnMap = {
@@ -66,7 +66,7 @@ export type CalculatedColumnWidths = {
 	[key in ColumnNames]: string
 }
 
-export const useCalculatedColumnWidths = (columns: IColumn[]) => {
+export const useCalculatedColumnWidths = (columns: ISongTableColumn[]) => {
 	const percentageWidthColumns = useMemo(() => columns.filter((col) => !col.fixWidth), [columns])
 
 	const accumulatedColumnPercentageWidths = useMemo(

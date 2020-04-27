@@ -7,10 +7,10 @@ import { Row, Col } from "./SongTableUI"
 import songDragPreviewImg from "../../images/playlist_add.png"
 import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
 import { MoveSong } from "./MoveSong"
-import { IColumn, CalculatedColumnWidths } from "./song-table-columns"
+import { ISongTableColumn, CalculatedColumnWidths } from "./song-table-columns"
 
 interface ISongRowProps extends ListRowProps {
-	columns: IColumn[]
+	columns: ISongTableColumn[]
 	song: IScopedSong
 	rowEvents?: IRowEvents
 	hovered: boolean

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react"
+import React, { useState, useCallback } from "react"
 import { IScopedSong, IBaseSong } from "../../graphql/types"
 import { useSongUtils } from "../../hooks/use-song-utils"
 import { usePlayer } from "../../player/player-hook"
@@ -8,7 +8,8 @@ import { SongModal } from "../../components/modals/song-modal/SongModal"
 import { ISongSearchFilter, allMatchingOptions } from "../../components/song-table/search/search-types"
 import styled from "styled-components"
 import { MoveSong } from "../../components/song-table/MoveSong"
-import { IColumn } from "../../components/song-table/song-table-columns"
+import { ISongTableColumn } from "../../components/song-table/song-table-columns"
+import { SongsView } from "../../components/song-table/SongsView"
 
 const FlexContainer = styled.div`
 	width: 100%;
@@ -34,12 +35,12 @@ const tokenizeQuery = (query: string) =>
 interface ISongsViewProps {
 	title: string
 	songs: IScopedSong[]
-	columns: IColumn[]
+	columns: ISongTableColumn[]
 	playlistID?: string
 	moveSong?: MoveSong
 }
 
-export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong, columns }) => {
+export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong, columns }) => {
 	const { makePlayableSong } = useSongUtils()
 	const { changeSong, enqueueSongs, clearQueue } = usePlayer()
 	const [editSong, setEditSong] = useState<IScopedSong | null>(null)
@@ -72,61 +73,72 @@ export const SongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID,
 	)
 
 	const songFilter = useCallback(
-		(song: IBaseSong) => {
-			const { query, mode, matcher } = searchFilter
-			const tokenizedQuery = tokenizeQuery(query)
+		(filterValue: string, song: IBaseSong) => {
+			const tokenizedQuery = tokenizeQuery(filterValue)
 
-			if (tokenizedQuery.length === 0 || mode === "search") return true
+			if (tokenizedQuery.length === 0 || searchFilter.mode === "search") return true
 
-			let songTitle = matcher.includes("Title") ? song.title : ""
+			let songTitle = searchFilter.matcher.includes("Title") ? song.title : ""
 
-			if (matcher.includes("Artists")) {
+			if (searchFilter.matcher.includes("Artists")) {
 				songTitle += " " + [...song.artists, ...song.remixer, ...song.featurings].join(", ")
 			}
 
-			if (matcher.includes("Tags")) {
+			if (searchFilter.matcher.includes("Tags")) {
 				songTitle += " " + song.tags.join(", ")
 			}
 
-			if (matcher.includes("Genres")) {
+			if (searchFilter.matcher.includes("Genres")) {
 				songTitle += " " + song.genres.join(", ")
 			}
 
-			if (matcher.includes("Labels")) {
+			if (searchFilter.matcher.includes("Labels")) {
 				songTitle += " " + song.labels.join(", ")
 			}
 
 			return tokenizedQuery.some((token) => songTitle.toLowerCase().indexOf(token) > -1)
 		},
-		[searchFilter],
+		[searchFilter.mode, searchFilter.matcher],
 	)
-
-	const filteredSongs = useMemo(() => songs.filter(songFilter), [songs, songFilter])
 
 	return (
 		<FlexContainer>
-			<SongTableHeader title={title} songs={filteredSongs} onSearchFilterChange={setSearchFilter} />
-			<TableContainer>
-				<SongTable
-					songs={filteredSongs}
-					columns={columns}
-					rowEvents={{
-						onClick: onRowClick,
-						onDoubleClick: onRowDoubleClick,
-					}}
-					contextMenuEvents={{
-						onShowInformation: (song) => {
-							setEditSong(song)
-							setShowSongModal(true)
-						},
-					}}
-					moveSong={moveSong}
-					playlistID={playlistID}
-				/>
-			</TableContainer>
-			{editSong && showSongModal ? (
-				<SongModal song={editSong} playlistID={playlistID} closeForm={() => setShowSongModal(false)} />
-			) : null}
+			<SongsView
+				songs={songs}
+				columns={columns}
+				filterQuery={searchFilter.query}
+				filter={songFilter}
+				initialSortColumn={playlistID ? "position" : "title"}
+			>
+				{([{ songs }]) => (
+					<>
+						<SongTableHeader title={title} songs={songs} onSearchFilterChange={setSearchFilter} />
+						<TableContainer>
+							<SongTable
+								rowEvents={{
+									onClick: onRowClick,
+									onDoubleClick: onRowDoubleClick,
+								}}
+								contextMenuEvents={{
+									onShowInformation: (song) => {
+										setEditSong(song)
+										setShowSongModal(true)
+									},
+								}}
+								moveSong={moveSong}
+								playlistID={playlistID}
+							/>
+						</TableContainer>
+						{editSong && showSongModal ? (
+							<SongModal
+								song={editSong}
+								playlistID={playlistID}
+								closeForm={() => setShowSongModal(false)}
+							/>
+						) : null}
+					</>
+				)}
+			</SongsView>
 		</FlexContainer>
 	)
 }

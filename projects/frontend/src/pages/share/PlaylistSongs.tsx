@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react"
 import { ISharePlaylistRoute } from "../../interfaces"
 import { usePlaylist } from "../../graphql/queries/playlist-songs"
 import { useParams } from "react-router-dom"
-import { SongsView } from "./SongsView"
+import { MainSongsView } from "./SongsView"
 import { LoadingSpinner } from "../../components/common/LoadingSpinner"
 import { isPlaylistSong, IScopedPlaylistSong } from "../../graphql/types"
 import { useUpdatePlaylistSongOrder } from "../../graphql/mutations/update-playlist-song-order"
@@ -59,7 +59,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	if (!playlist || !songs) return <div>No data</div>
 
 	return (
-		<SongsView
+		<MainSongsView
 			title={playlist.name}
 			songs={songs}
 			playlistID={playlist.id}

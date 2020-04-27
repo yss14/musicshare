@@ -1,6 +1,7 @@
 import styled from "styled-components"
 import imgSelectedUp from "../../images/th_selected_up.png"
 import imgSelectedDown from "../../images/th_selected_down.png"
+import { SortOrder } from "antd/lib/table"
 
 export const Table = styled.div`
 	width: 100%;
@@ -26,7 +27,7 @@ export const Col = styled.div`
 
 interface IHeaderColProps {
 	selected: boolean
-	direction: "asc" | "desc"
+	direction: SortOrder
 }
 
 export const HeaderCol = styled(Col)<IHeaderColProps>`
@@ -34,7 +35,7 @@ export const HeaderCol = styled(Col)<IHeaderColProps>`
 	border-top: 1px solid #dcdcdc;
 	border-bottom: 1px solid #dcdcdc;
 	background-image: url(${(props) =>
-		props.selected ? (props.direction === "asc" ? imgSelectedUp : imgSelectedDown) : null});
+		props.selected ? (props.direction === "ascend" ? imgSelectedUp : imgSelectedDown) : null});
 	background-position: right 10px center;
 	background-repeat: no-repeat;
 `
