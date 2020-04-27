@@ -78,6 +78,7 @@ const Dropzone = ({ userID, shareID, children }: IDropzoneProps) => {
 		[shareID, userID, config],
 	)
 	const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
+		console.log(fileRejections)
 		const rejectedFileExtension = fileRejections.map((reason) => last(reason.file.name.split(".")))
 
 		message.info(`Files with extension(s) ${rejectedFileExtension} are not supported yet!`)
@@ -86,7 +87,7 @@ const Dropzone = ({ userID, shareID, children }: IDropzoneProps) => {
 		onDrop,
 		onDropRejected,
 		noClick: true,
-		accept: ["audio/mpeg"],
+		accept: ["audio/mpeg", "audio/mp3"],
 		maxSize: 200 * 1024 * 1024, // 200 MB
 	})
 
