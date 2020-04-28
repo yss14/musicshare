@@ -77,7 +77,10 @@ export const SongRow: React.FC<ISongRowProps> = ({
 				{columns.map((column) => (
 					<Col
 						key={`song-${song.id}-${index}-${column.title}`}
-						style={{ width: calculatedColumnWidths[column.key] }}
+						style={{
+							width: calculatedColumnWidths[column.key],
+							flexShrink: column.fixWidth ? 0 : undefined,
+						}}
 					>
 						{column.render(song, index, songsViewContext)}
 					</Col>

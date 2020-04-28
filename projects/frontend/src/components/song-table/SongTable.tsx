@@ -142,7 +142,10 @@ export const SongTable: React.FC<ISongDataTableProps> = ({ rowEvents, playlistID
 				{columns.map((column) => (
 					<HeaderCol
 						key={column.title}
-						style={{ width: calculatedColumnWidths[column.key] }}
+						style={{
+							width: calculatedColumnWidths[column.key],
+							flexShrink: column.fixWidth ? 0 : undefined,
+						}}
 						onClick={
 							enableOrdering && column.sortable
 								? () => setOrderCriteria(column.key, toggleDirection(sortOrder))
