@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react"
 import { Button, message } from "antd"
 import styled from "styled-components"
-import { Link, useRouteMatch, useHistory } from "react-router-dom"
+import { Link, useRouteMatch } from "react-router-dom"
 import { IShareRoute } from "../../interfaces"
 import { useSharePlaylists } from "../../graphql/queries/playlists-query"
 import { useCreatePlaylist } from "../../graphql/mutations/create-playlist-mutation"
