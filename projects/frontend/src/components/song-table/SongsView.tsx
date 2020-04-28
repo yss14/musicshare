@@ -4,6 +4,7 @@ import { ISongTableColumn, isSortableColumn } from "./SongTableColumns"
 import { zip } from "lodash"
 import { filterUndefined } from "../../utils/filter-null"
 import { SortOrder } from "antd/lib/table/interface"
+import useDeepCompareEffect from "use-deep-compare-effect"
 
 type Song = IScopedSong
 
@@ -47,7 +48,14 @@ const setColumns = (columns: ISongTableColumn[]) => ({
 	payload: columns,
 })
 
-type SongsViewAction = ISetHoveredSong | ISetOrderCriteria | ISetCurrentlyPlayedSong | ISetColumns
+interface ISetSongs extends ReturnType<typeof setSongs> {}
+
+const setSongs = (songs: Song[]) => ({
+	type: "set_songs" as const,
+	payload: songs,
+})
+
+type SongsViewAction = ISetHoveredSong | ISetOrderCriteria | ISetCurrentlyPlayedSong | ISetColumns | ISetSongs
 
 /******************** End Actions *******************/
 
@@ -76,8 +84,8 @@ const songsViewReducer = (state: ISongsViewState, action: SongsViewAction): ISon
 			return { ...state, currentlyPlayedSong: action.payload }
 		case "set_columns":
 			return { ...state, columns: action.payload }
-		default:
-			return state
+		case "set_songs":
+			return { ...state, songs: action.payload }
 	}
 }
 
@@ -128,10 +136,10 @@ export const SongsView: React.FC<ISongsViewProps> = ({ children, filterQuery, ..
 	}, [props.columns])
 
 	const filteredAndSortedSongs = useMemo(() => {
-		let finalSongList = songs
+		let finalSongList = props.songs
 
 		if (filterQuery) {
-			finalSongList = songs.filter((song) => filter(filterQuery, song))
+			finalSongList = props.songs.filter((song) => filter(filterQuery, song))
 		}
 
 		const column = columns.find((column) => column.key === sortColumn)
@@ -139,8 +147,8 @@ export const SongsView: React.FC<ISongsViewProps> = ({ children, filterQuery, ..
 		if (!column || !isSortableColumn(column)) {
 			console.warn(`Cannot order songs, column with key ${sortColumn} not found`)
 		} else {
-			const renderedSongColumn = songs.map((song, idx) => column.render(song, idx, {} as any))
-			const zippedSongs = zip(songs, renderedSongColumn)
+			const renderedSongColumn = props.songs.map((song, idx) => column.render(song, idx, {} as any))
+			const zippedSongs = zip(props.songs, renderedSongColumn)
 			finalSongList = zippedSongs
 				.sort((lhs, rhs) => lhs[1]!.localeCompare(rhs[1]!))
 				.map((zipped) => zipped[0])
@@ -152,7 +160,11 @@ export const SongsView: React.FC<ISongsViewProps> = ({ children, filterQuery, ..
 		}
 
 		return finalSongList
-	}, [songs, filterQuery, filter, sortOrder, sortColumn, columns]) // TODO deep equals songs array
+	}, [props.songs, filterQuery, filter, sortOrder, sortColumn, columns])
+
+	useDeepCompareEffect(() => {
+		dispatch(setSongs(filteredAndSortedSongs))
+	}, [filteredAndSortedSongs])
 
 	const contextActions = useMemo(
 		(): ISongsViewContextActions => ({
@@ -165,7 +177,7 @@ export const SongsView: React.FC<ISongsViewProps> = ({ children, filterQuery, ..
 	const contextValue = useMemo(
 		(): ISongsViewContext => [
 			{
-				songs: filteredAndSortedSongs,
+				songs,
 				columns,
 				sortOrder,
 				sortColumn,
@@ -175,16 +187,7 @@ export const SongsView: React.FC<ISongsViewProps> = ({ children, filterQuery, ..
 			},
 			contextActions,
 		],
-		[
-			filteredAndSortedSongs,
-			columns,
-			sortOrder,
-			sortColumn,
-			hoveredSong,
-			hoveredIdx,
-			contextActions,
-			currentlyPlayedSong,
-		],
+		[songs, columns, sortOrder, sortColumn, hoveredSong, hoveredIdx, contextActions, currentlyPlayedSong],
 	)
 
 	return <SongsViewContext.Provider value={contextValue}>{children(contextValue)}</SongsViewContext.Provider>

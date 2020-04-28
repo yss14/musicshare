@@ -40,8 +40,6 @@ export const useAddSongsToPlaylist = (opts?: IMutationOptions<IAddSongsToPlaylis
 				})!
 				.share.playlists.find((playlist) => playlist.id === playlistID)
 
-			console.log(currentPlaylist)
-
 			if (!currentPlaylist) {
 				console.error(`Cannot update playlist ${playlistID} due to missing cache entry`)
 
