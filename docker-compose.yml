@@ -1,17 +1,19 @@
-version: '2'
+version: "2"
 
 services:
-  minio:
-    image: 'bitnami/minio:latest'
-    ports:
-      - '9000:9000'
-    environment:
-      - MINIO_ACCESS_KEY=musicshare
-      - MINIO_SECRET_KEY=musicshare
-  postgres:
-    image: postgres:latest
-    ports: 
-      - 5433:5432
-    environment:
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_USER=postgres
+    minio:
+        image: "bitnami/minio:latest"
+        ports:
+            - 9000:9000
+        restart: unless-stopped
+        environment:
+            - MINIO_ACCESS_KEY=musicshare
+            - MINIO_SECRET_KEY=musicshare
+    postgres:
+        image: postgres:latest
+        ports:
+            - 5433:5432
+        restart: unless-stopped
+        environment:
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_USER=postgres

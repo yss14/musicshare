@@ -7,11 +7,13 @@ import { Row, Col } from "./SongTableUI"
 import songDragPreviewImg from "../../images/playlist_add.png"
 import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
 import { MoveSong } from "./MoveSong"
-import { IColumn, CalculatedColumnWidths } from "./song-table-columns"
+import { ISongTableColumn, CalculatedColumnWidths } from "./SongTableColumns"
+import { useSongsViewContext } from "./SongsView"
 
 interface ISongRowProps extends ListRowProps {
-	columns: IColumn[]
+	columns: ISongTableColumn[]
 	song: IScopedSong
+	songs: IScopedSong[]
 	rowEvents?: IRowEvents
 	hovered: boolean
 	onMouseEnter?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, ref: React.Ref<HTMLDivElement>) => void
@@ -27,6 +29,7 @@ export const SongRow: React.FC<ISongRowProps> = ({
 	rowEvents,
 	columns,
 	song,
+	songs,
 	hovered,
 	onMouseEnter,
 	dragPreview,
@@ -35,6 +38,7 @@ export const SongRow: React.FC<ISongRowProps> = ({
 	calculatedColumnWidths,
 }) => {
 	const rowRef = useRef<HTMLDivElement>(null)
+	const songsViewContext = useSongsViewContext()
 
 	const [{ isOver }, drop] = useDrop<ISongDNDItem, void, { isOver: boolean }>({
 		accept: DragNDropItem.Song,
@@ -54,11 +58,11 @@ export const SongRow: React.FC<ISongRowProps> = ({
 	}, [rowRef, drop])
 
 	const onClick = (event: React.MouseEvent) =>
-		rowEvents && rowEvents.onClick ? rowEvents.onClick(event, song, index) : undefined
+		rowEvents && rowEvents.onClick ? rowEvents.onClick({ event, song, idx: index, songs }) : undefined
 	const onContextMenu = (event: React.MouseEvent) =>
-		rowEvents && rowEvents.onContextMenu ? rowEvents.onContextMenu(event, song, index) : undefined
+		rowEvents && rowEvents.onContextMenu ? rowEvents.onContextMenu({ event, song, idx: index, songs }) : undefined
 	const onDoubleClick = (event: React.MouseEvent) =>
-		rowEvents && rowEvents.onDoubleClick ? rowEvents.onDoubleClick(event, song, index) : undefined
+		rowEvents && rowEvents.onDoubleClick ? rowEvents.onDoubleClick({ event, song, idx: index, songs }) : undefined
 
 	return (
 		<>
@@ -78,7 +82,7 @@ export const SongRow: React.FC<ISongRowProps> = ({
 						key={`song-${song.id}-${index}-${column.title}`}
 						style={{ width: calculatedColumnWidths[column.key] }}
 					>
-						{column.render(song, index)}
+						{column.render(song, index, songsViewContext)}
 					</Col>
 				))}
 			</Row>

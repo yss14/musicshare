@@ -2,13 +2,13 @@ import React, { useCallback, useState } from "react"
 import { ISharePlaylistRoute } from "../../interfaces"
 import { usePlaylist } from "../../graphql/queries/playlist-songs"
 import { useParams } from "react-router-dom"
-import { SongsView } from "./SongsView"
+import { MainSongsView } from "./MainSongsView"
 import { LoadingSpinner } from "../../components/common/LoadingSpinner"
 import { isPlaylistSong, IScopedPlaylistSong } from "../../graphql/types"
 import { useUpdatePlaylistSongOrder } from "../../graphql/mutations/update-playlist-song-order"
 import { useDeepCompareEffect } from "../../hooks/use-deep-compare-effect"
 import { MoveSong } from "../../components/song-table/MoveSong"
-import { SongTableColumn } from "../../components/song-table/song-table-columns"
+import { SongTableColumn } from "../../components/song-table/SongTableColumns"
 
 export interface IPlaylistSongsProps {
 	shareID: string
@@ -59,12 +59,13 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	if (!playlist || !songs) return <div>No data</div>
 
 	return (
-		<SongsView
+		<MainSongsView
 			title={playlist.name}
 			songs={songs}
 			playlistID={playlist.id}
 			moveSong={moveSong}
 			columns={[
+				SongTableColumn.Indicator,
 				SongTableColumn.Position,
 				SongTableColumn.Title,
 				SongTableColumn.Time,

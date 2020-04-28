@@ -1,0 +1,57 @@
+import React, { useEffect } from "react"
+import usePersistentState from "use-local-storage-state"
+import { Popover, Button, Form, Select } from "antd"
+import styled from "styled-components"
+
+const StyledPopover = styled(Popover)`
+	align-self: flex-end;
+	margin-right: 16px;
+`
+
+const fixColumns = ["playback_indicator", "title"]
+
+export interface ISongViewSettings {
+	columnKeys: string[]
+}
+
+interface ISongViewSettingsProps {
+	onChange: (newSettings: ISongViewSettings) => void
+}
+
+export const SongViewSettings: React.FC<ISongViewSettingsProps> = ({ onChange }) => {
+	const [columnKeys, setColumnKeys] = usePersistentState<string[]>("songview.settings.columnKeys", [
+		"duration",
+		"artists",
+		"genres",
+	])
+
+	useEffect(() => {
+		onChange({
+			columnKeys: fixColumns.concat(columnKeys),
+		})
+	}, [onChange, columnKeys])
+
+	const content = (
+		<Form.Item label="Columns">
+			<Select
+				mode="tags"
+				placeholder="Select columns"
+				value={columnKeys}
+				onChange={(newColumns: string[]) => setColumnKeys(newColumns)}
+				style={{ width: 300 }}
+			>
+				<Select.Option value="duration">Duration</Select.Option>
+				<Select.Option value="artists">Artists</Select.Option>
+				<Select.Option value="genres">Genres</Select.Option>
+				<Select.Option value="tags">Tags</Select.Option>
+				<Select.Option value="labels">Labels</Select.Option>
+			</Select>
+		</Form.Item>
+	)
+
+	return (
+		<StyledPopover placement="bottom" title={"View Settings"} content={content} trigger="click">
+			<Button icon="table" />
+		</StyledPopover>
+	)
+}

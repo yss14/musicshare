@@ -101,6 +101,7 @@
 		"typedi": "^0.8.0",
 		"url-regex": "^5.0.0",
 		"use-debounce": "^3.1.0",
+		"use-local-storage-state": "^2.0.0",
 		"use-react-router": "^1.0.6",
 		"uuid": "^7.0.3"
 	},

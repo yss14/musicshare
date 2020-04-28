@@ -2,10 +2,10 @@ import React from "react"
 import { useShareSongs } from "../../graphql/queries/share-songs-query"
 import { IShareRoute } from "../../interfaces"
 import { useParams } from "react-router-dom"
-import { SongsView } from "./SongsView"
+import { MainSongsView } from "./MainSongsView"
 import { LoadingSpinner } from "../../components/common/LoadingSpinner"
 import { useShareDirtySongs } from "../../graphql/queries/share-songs-dirty-query"
-import { SongTableColumn } from "../../components/song-table/song-table-columns"
+import { SongTableColumn } from "../../components/song-table/SongTableColumns"
 
 export const ShareSongs: React.FC = () => {
 	const { shareID } = useParams<IShareRoute>()
@@ -18,10 +18,16 @@ export const ShareSongs: React.FC = () => {
 	if (error) return <div>`Error!: ${error}`</div>
 
 	return (
-		<SongsView
+		<MainSongsView
 			title="All songs"
 			songs={songs}
-			columns={[SongTableColumn.Title, SongTableColumn.Time, SongTableColumn.Artists, SongTableColumn.Genres]}
+			columns={[
+				SongTableColumn.Indicator,
+				SongTableColumn.Title,
+				SongTableColumn.Time,
+				SongTableColumn.Artists,
+				SongTableColumn.Genres,
+			]}
 		/>
 	)
 }
