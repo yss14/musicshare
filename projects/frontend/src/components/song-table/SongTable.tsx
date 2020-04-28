@@ -147,7 +147,9 @@ export const SongTable: React.FC<ISongDataTableProps> = ({ rowEvents, playlistID
 						key={column.title}
 						style={{ width: calculatedColumnWidths[column.key] }}
 						onClick={
-							enableOrdering ? () => setOrderCriteria(column.key, toggleDirection(sortOrder)) : undefined
+							enableOrdering && column.sortable
+								? () => setOrderCriteria(column.key, toggleDirection(sortOrder))
+								: undefined
 						}
 						selected={enableOrdering && sortColumn === column.key}
 						direction={sortOrder}
