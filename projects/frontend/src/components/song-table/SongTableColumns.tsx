@@ -99,7 +99,7 @@ export const SongTableColumn: SongTableColumnMap = {
 	},
 	Position: {
 		title: "#",
-		width: 40,
+		width: 42,
 		fixWidth: true,
 		key: "position",
 		sortable: true,
