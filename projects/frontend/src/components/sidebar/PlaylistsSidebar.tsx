@@ -55,7 +55,6 @@ const SharePlaylistsSidebar = () => {
 	const [createPlaylist] = useCreatePlaylist({
 		onCompleted: ({ createPlaylist: createdPlaylist }) => {
 			message.success(`Playlist ${createdPlaylist.name} successfully created`)
-			history.push(`/shares/${createdPlaylist.shareID}/playlists/${createdPlaylist.id}`)
 		},
 	})
 
