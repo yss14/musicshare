@@ -18,9 +18,6 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	const { loading, data: playlist, error } = usePlaylist({ playlistID, shareID })
 	const [songs, setSongs] = useState<IScopedPlaylistSong[]>(playlist?.songs || [])
 	const [updateOrder] = useUpdatePlaylistSongOrder({
-		onCompleted: (data) => {
-			setSongs(data.updateOrderOfPlaylist)
-		},
 		onError: console.error,
 	})
 
@@ -29,7 +26,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 			if (!songs || !playlist || !isPlaylistSong(sourceSong) || !isPlaylistSong(targetSong)) return
 			if (sourceSong.playlistSongID === targetSong.playlistSongID) return
 
-			const newSongs = songs.concat([])
+			const newSongs = [...songs]
 
 			const sourceSongIdx = newSongs.findIndex((song) => song.playlistSongID === sourceSong.playlistSongID)
 			const targetSongIdx = newSongs.findIndex((song) => song.playlistSongID === targetSong.playlistSongID)

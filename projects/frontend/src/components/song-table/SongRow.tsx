@@ -7,13 +7,11 @@ import { Row, Col } from "./SongTableUI"
 import songDragPreviewImg from "../../images/playlist_add.png"
 import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
 import { MoveSong } from "./MoveSong"
-import { ISongTableColumn, CalculatedColumnWidths } from "./SongTableColumns"
+import { CalculatedColumnWidths } from "./SongTableColumns"
 import { useSongsViewContext } from "./SongsView"
 
 interface ISongRowProps extends ListRowProps {
-	columns: ISongTableColumn[]
 	song: IScopedSong
-	songs: IScopedSong[]
 	rowEvents?: IRowEvents
 	hovered: boolean
 	onMouseEnter?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, ref: React.Ref<HTMLDivElement>) => void
@@ -27,9 +25,7 @@ export const SongRow: React.FC<ISongRowProps> = ({
 	index,
 	style,
 	rowEvents,
-	columns,
 	song,
-	songs,
 	hovered,
 	onMouseEnter,
 	dragPreview,
@@ -39,6 +35,7 @@ export const SongRow: React.FC<ISongRowProps> = ({
 }) => {
 	const rowRef = useRef<HTMLDivElement>(null)
 	const songsViewContext = useSongsViewContext()
+	const { columns, songs } = songsViewContext[0]
 
 	const [{ isOver }, drop] = useDrop<ISongDNDItem, void, { isOver: boolean }>({
 		accept: DragNDropItem.Song,
@@ -80,7 +77,10 @@ export const SongRow: React.FC<ISongRowProps> = ({
 				{columns.map((column) => (
 					<Col
 						key={`song-${song.id}-${index}-${column.title}`}
-						style={{ width: calculatedColumnWidths[column.key] }}
+						style={{
+							width: calculatedColumnWidths[column.key],
+							flexShrink: column.fixWidth ? 0 : undefined,
+						}}
 					>
 						{column.render(song, index, songsViewContext)}
 					</Col>

@@ -98,9 +98,7 @@ export const SongTable: React.FC<ISongDataTableProps> = ({ rowEvents, playlistID
 				<SongRow
 					{...props}
 					song={song}
-					songs={songs}
 					rowEvents={hookedRowEvents}
-					columns={columns}
 					hovered={hoveredSong === song}
 					onMouseEnter={(e, ref) => onRowMouseEnter(song, ref, props.index)}
 					dragPreview={dragPreview}
@@ -113,7 +111,6 @@ export const SongTable: React.FC<ISongDataTableProps> = ({ rowEvents, playlistID
 		[
 			hoveredSong,
 			hookedRowEvents,
-			columns,
 			songs,
 			dragPreview,
 			onRowMouseEnter,
@@ -145,7 +142,10 @@ export const SongTable: React.FC<ISongDataTableProps> = ({ rowEvents, playlistID
 				{columns.map((column) => (
 					<HeaderCol
 						key={column.title}
-						style={{ width: calculatedColumnWidths[column.key] }}
+						style={{
+							width: calculatedColumnWidths[column.key],
+							flexShrink: column.fixWidth ? 0 : undefined,
+						}}
 						onClick={
 							enableOrdering && column.sortable
 								? () => setOrderCriteria(column.key, toggleDirection(sortOrder))

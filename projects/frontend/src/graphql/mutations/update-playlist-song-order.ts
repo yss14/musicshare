@@ -3,6 +3,9 @@ import gql from "graphql-tag"
 import { IMutationOptions } from "../hook-types"
 import { useMutation, MutationResult } from "react-apollo"
 import { useCallback } from "react"
+import { MutationUpdaterFn } from "apollo-client"
+import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
+import { makeScopedSongs } from "../utils/data-transformations"
 
 type OrderUpdates = [string, number][]
 
@@ -30,6 +33,42 @@ export const useUpdatePlaylistSongOrder = (opts?: IMutationOptions<IUpdatePlayli
 		IUpdatePlaylistSongOrderVariables
 	>(UPDATE_PLAYLIST_SONG_ORDER, opts)
 
+	const updatePlaylistSongsCache = useCallback(
+		(shareID: string, playlistID: string): MutationUpdaterFn<IUpdatePlaylistSongOrderData> => (cache, { data }) => {
+			if (!data) {
+				console.error(`Cannot update playlist ${playlistID} songs due to missing return data from mutation`)
+
+				return
+			}
+
+			const currentPlaylistQuery = cache.readQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>({
+				query: PLAYLIST_WITH_SONGS,
+				variables: { shareID, playlistID },
+			})
+
+			if (!currentPlaylistQuery) {
+				console.error(`Cannot update playlist ${playlistID} songs due to missing cache entry`)
+
+				return
+			}
+
+			cache.writeQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>({
+				query: PLAYLIST_WITH_SONGS,
+				data: {
+					...currentPlaylistQuery,
+					share: {
+						...currentPlaylistQuery.share,
+						playlist: {
+							...currentPlaylistQuery.share.playlist,
+							songs: makeScopedSongs(data.updateOrderOfPlaylist, shareID),
+						},
+					},
+				},
+			})
+		},
+		[],
+	)
+
 	const updateSongOrder = useCallback(
 		(shareID: string, playlistID: string, orderUpdates: OrderUpdates) => {
 			updatePlaylistSongOrderMutation({
@@ -38,9 +77,10 @@ export const useUpdatePlaylistSongOrder = (opts?: IMutationOptions<IUpdatePlayli
 					playlistID,
 					orderUpdates,
 				},
+				update: updatePlaylistSongsCache(shareID, playlistID),
 			})
 		},
-		[updatePlaylistSongOrderMutation],
+		[updatePlaylistSongOrderMutation, updatePlaylistSongsCache],
 	)
 
 	return [updateSongOrder, other] as [

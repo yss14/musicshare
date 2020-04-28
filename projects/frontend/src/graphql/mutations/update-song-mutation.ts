@@ -3,6 +3,7 @@ import { Nullable } from "../../types/Nullable"
 import { shareSongKeys, IBaseSong } from "../types"
 import { MutationUpdaterFn } from "apollo-client/core/watchQueryOptions"
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
+import { addArtistsToCache } from "../programmatic/add-artist-to-cache"
 
 export const UPDATE_SONG = gql`
 	mutation UpdateSong($shareID: String!, $songID: String!, $song: SongUpdateInput!){
@@ -38,12 +39,20 @@ export interface IUpdateSongData {
 	updateSong: IBaseSong
 }
 
-//export class UpdateSongMutation extends Mutation<IUpdateSongData, IUpdateSongVariables>{ }
-
 export const makeUpdateSongCache = (shareID: string, playlistID?: string): MutationUpdaterFn<IUpdateSongData> => (
 	cache,
 	{ data },
 ) => {
+	if (data) {
+		addArtistsToCache(
+			cache,
+			data.updateSong.artists
+				.concat(data.updateSong.remixer)
+				.concat(data.updateSong.featurings)
+				.map((artist) => ({ name: artist })),
+		)
+	}
+
 	if (!playlistID) return
 
 	const currentPlaylist = cache.readQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>({
