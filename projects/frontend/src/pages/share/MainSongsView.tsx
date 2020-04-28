@@ -8,8 +8,9 @@ import { SongModal } from "../../components/modals/song-modal/SongModal"
 import { ISongSearchFilter, allMatchingOptions } from "../../components/song-table/search/search-types"
 import styled from "styled-components"
 import { MoveSong } from "../../components/song-table/MoveSong"
-import { ISongTableColumn } from "../../components/song-table/SongTableColumns"
+import { ISongTableColumn, SongTableColumn } from "../../components/song-table/SongTableColumns"
 import { SongsView } from "../../components/song-table/SongsView"
+import { ISongViewSettings } from "../../components/song-table/search/SongViewSettings"
 
 const FlexContainer = styled.div`
 	width: 100%;
@@ -50,6 +51,7 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 		query: "",
 		matcher: allMatchingOptions,
 	})
+	const [renderedColumns, setRenderedColumns] = useState(columns)
 
 	const onRowClick = useCallback(
 		({ song }: IRowEventsArgs) => {
@@ -101,11 +103,19 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 		[searchFilter.mode, searchFilter.matcher],
 	)
 
+	const onSongViewSettingsChange = useCallback((newSettings: ISongViewSettings) => {
+		const newColumns = Object.values(SongTableColumn).filter((column) =>
+			newSettings.columnKeys.includes(column.key),
+		)
+
+		setRenderedColumns(newColumns)
+	}, [])
+
 	return (
 		<FlexContainer>
 			<SongsView
 				songs={songs}
-				columns={columns}
+				columns={renderedColumns}
 				filterQuery={searchFilter.query}
 				filter={songFilter}
 				initialSortColumn={playlistID ? "position" : "title"}
@@ -113,7 +123,12 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 			>
 				{([{ songs }]) => (
 					<>
-						<SongTableHeader title={title} songs={songs} onSearchFilterChange={setSearchFilter} />
+						<SongTableHeader
+							title={title}
+							songs={songs}
+							onSearchFilterChange={setSearchFilter}
+							onSongViewSettingsChange={onSongViewSettingsChange}
+						/>
 						<TableContainer>
 							<SongTable
 								rowEvents={{

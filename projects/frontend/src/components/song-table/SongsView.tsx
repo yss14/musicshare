@@ -40,7 +40,14 @@ const setCurrentlyPlayedSong = (song: Song | null) => ({
 	payload: song,
 })
 
-type SongsViewAction = ISetHoveredSong | ISetOrderCriteria | ISetCurrentlyPlayedSong
+interface ISetColumns extends ReturnType<typeof setColumns> {}
+
+const setColumns = (columns: ISongTableColumn[]) => ({
+	type: "set_columns" as const,
+	payload: columns,
+})
+
+type SongsViewAction = ISetHoveredSong | ISetOrderCriteria | ISetCurrentlyPlayedSong | ISetColumns
 
 /******************** End Actions *******************/
 
@@ -67,6 +74,8 @@ const songsViewReducer = (state: ISongsViewState, action: SongsViewAction): ISon
 			return { ...state, sortColumn: action.payload.column, sortOrder: action.payload.direction }
 		case "currently_played_song":
 			return { ...state, currentlyPlayedSong: action.payload }
+		case "set_columns":
+			return { ...state, columns: action.payload }
 		default:
 			return state
 	}
@@ -113,6 +122,10 @@ export const SongsView: React.FC<ISongsViewProps> = ({ children, filterQuery, ..
 	useEffect(() => {
 		dispatch(setCurrentlyPlayedSong(props.currentlyPlayedSong))
 	}, [props.currentlyPlayedSong])
+
+	useEffect(() => {
+		dispatch(setColumns(props.columns))
+	}, [props.columns])
 
 	const filteredAndSortedSongs = useMemo(() => {
 		let finalSongList = songs

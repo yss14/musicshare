@@ -53,7 +53,7 @@ export const SongTableColumn: SongTableColumnMap = {
 		title: "",
 		width: 22,
 		fixWidth: true,
-		key: "indicator",
+		key: "playback_indicator",
 		sortable: false,
 		render: (song, _, [{ currentlyPlayedSong }]) => {
 			if (currentlyPlayedSong && song.id === currentlyPlayedSong?.id) {
