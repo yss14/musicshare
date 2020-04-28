@@ -49,7 +49,6 @@ const SharePlaylistsSidebar = () => {
 	const {
 		params: { shareID },
 	} = useRouteMatch<IShareRoute>()!
-	const history = useHistory()
 	const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null)
 	const { loading, error, data } = useSharePlaylists({ shareID })
 	const [createPlaylist] = useCreatePlaylist({
