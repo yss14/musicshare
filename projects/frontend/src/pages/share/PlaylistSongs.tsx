@@ -8,7 +8,6 @@ import { isPlaylistSong, IScopedPlaylistSong } from "../../graphql/types"
 import { useUpdatePlaylistSongOrder } from "../../graphql/mutations/update-playlist-song-order"
 import { useDeepCompareEffect } from "../../hooks/use-deep-compare-effect"
 import { MoveSong } from "../../components/song-table/MoveSong"
-import { SongTableColumn } from "../../components/song-table/SongTableColumns"
 
 export interface IPlaylistSongsProps {
 	shareID: string
@@ -58,20 +57,5 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	if (error) return <div>{error.message}</div>
 	if (!playlist || !songs) return <div>No data</div>
 
-	return (
-		<MainSongsView
-			title={playlist.name}
-			songs={songs}
-			playlistID={playlist.id}
-			moveSong={moveSong}
-			columns={[
-				SongTableColumn.Indicator,
-				SongTableColumn.Position,
-				SongTableColumn.Title,
-				SongTableColumn.Time,
-				SongTableColumn.Artists,
-				SongTableColumn.Genres,
-			]}
-		/>
-	)
+	return <MainSongsView title={playlist.name} songs={songs} playlistID={playlist.id} moveSong={moveSong} />
 }

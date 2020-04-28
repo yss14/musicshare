@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react"
+import React, { useState, useCallback, useMemo } from "react"
 import { IScopedSong, IBaseSong } from "../../graphql/types"
 import { useSongUtils } from "../../hooks/use-song-utils"
 import { usePlayer } from "../../player/player-hook"
@@ -8,9 +8,10 @@ import { SongModal } from "../../components/modals/song-modal/SongModal"
 import { ISongSearchFilter, allMatchingOptions } from "../../components/song-table/search/search-types"
 import styled from "styled-components"
 import { MoveSong } from "../../components/song-table/MoveSong"
-import { ISongTableColumn, SongTableColumn } from "../../components/song-table/SongTableColumns"
+import { SongTableColumn } from "../../components/song-table/SongTableColumns"
 import { SongsView } from "../../components/song-table/SongsView"
 import { ISongViewSettings } from "../../components/song-table/search/SongViewSettings"
+import { filterUndefined } from "../../utils/filter-null"
 
 const FlexContainer = styled.div`
 	width: 100%;
@@ -33,15 +34,17 @@ const tokenizeQuery = (query: string) =>
 		.map((token) => token.trim())
 		.filter((token) => token.length > 0)
 
+const mapSongTableColumnKeys = (columnKeys: string[]) =>
+	columnKeys.map((key) => Object.values(SongTableColumn).find((column) => column.key === key)).filter(filterUndefined)
+
 interface ISongsViewProps {
 	title: string
 	songs: IScopedSong[]
-	columns: ISongTableColumn[]
 	playlistID?: string
 	moveSong?: MoveSong
 }
 
-export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong, columns }) => {
+export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong }) => {
 	const { makePlayableSong } = useSongUtils()
 	const { changeSong, enqueueSongs, clearQueue, currentSong } = usePlayer()
 	const [editSong, setEditSong] = useState<IScopedSong | null>(null)
@@ -51,7 +54,11 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 		query: "",
 		matcher: allMatchingOptions,
 	})
-	const [renderedColumns, setRenderedColumns] = useState(columns)
+	const [customColumns, setCustomColumns] = useState([
+		SongTableColumn.Artists,
+		SongTableColumn.Time,
+		SongTableColumn.Genres,
+	]) // will most likely be overriden
 
 	const onRowClick = useCallback(
 		({ song }: IRowEventsArgs) => {
@@ -104,12 +111,16 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 	)
 
 	const onSongViewSettingsChange = useCallback((newSettings: ISongViewSettings) => {
-		const newColumns = Object.values(SongTableColumn).filter((column) =>
-			newSettings.columnKeys.includes(column.key),
-		)
+		const newColumns = mapSongTableColumnKeys(newSettings.columnKeys)
 
-		setRenderedColumns(newColumns)
+		setCustomColumns(newColumns)
 	}, [])
+
+	const renderedColumns = useMemo(() => {
+		const fixColumnKeys = playlistID ? ["playback_indicator", "position", "title"] : ["playback_indicator", "title"]
+
+		return mapSongTableColumnKeys(fixColumnKeys).concat(customColumns)
+	}, [playlistID, customColumns])
 
 	return (
 		<FlexContainer>

@@ -8,8 +8,6 @@ const StyledPopover = styled(Popover)`
 	margin-right: 16px;
 `
 
-const fixColumns = ["playback_indicator", "title"]
-
 export interface ISongViewSettings {
 	columnKeys: string[]
 }
@@ -27,7 +25,7 @@ export const SongViewSettings: React.FC<ISongViewSettingsProps> = ({ onChange })
 
 	useEffect(() => {
 		onChange({
-			columnKeys: fixColumns.concat(columnKeys),
+			columnKeys,
 		})
 	}, [onChange, columnKeys])
 

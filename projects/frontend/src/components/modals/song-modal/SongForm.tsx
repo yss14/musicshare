@@ -230,7 +230,7 @@ export const SongForm = ({
 										</Form.Item>
 									</Col>
 									<Col span={12} style={{ paddingRight: 20 }}>
-										<Form.Item label="Labels">
+										<Form.Item label="Record Labels">
 											<EditableTagGroup
 												values={values.labels}
 												onValuesChange={(newValues) => setFieldValue("labels", newValues)}
