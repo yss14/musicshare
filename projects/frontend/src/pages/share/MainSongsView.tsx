@@ -46,7 +46,7 @@ interface ISongsViewProps {
 
 export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong }) => {
 	const { makePlayableSong } = useSongUtils()
-	const { changeSong, enqueueSongs, clearQueue, currentSong } = usePlayer()
+	const { changeSong, enqueueDefaultSongs, clearQueue, currentSong } = usePlayer()
 	const [editSong, setEditSong] = useState<IScopedSong | null>(null)
 	const [showSongModal, setShowSongModal] = useState(false)
 	const [searchFilter, setSearchFilter] = useState<ISongSearchFilter>({
@@ -75,10 +75,10 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 				const followUpSongs = songs.filter((_, songIdx) => songIdx > idx)
 
 				clearQueue()
-				enqueueSongs(followUpSongs.map(makePlayableSong))
+				enqueueDefaultSongs(followUpSongs.map(makePlayableSong))
 			}
 		},
-		[changeSong, makePlayableSong, clearQueue, enqueueSongs],
+		[changeSong, makePlayableSong, clearQueue, enqueueDefaultSongs],
 	)
 
 	const songFilter = useCallback(

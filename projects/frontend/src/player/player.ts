@@ -96,6 +96,13 @@ const setPlaybackError = (error: string) => ({
 	data: error,
 })
 
+interface IUpdateSongQueue extends ReturnType<typeof updateSongQueue> {}
+
+const updateSongQueue = (newSongQueue: IBaseSongPlayable[]) => ({
+	type: "update_song_queue" as const,
+	data: newSongQueue,
+})
+
 export type PlayerEvent =
 	| IPlaybackStatusEvent
 	| IPlaybackProgressEvent
@@ -103,6 +110,7 @@ export type PlayerEvent =
 	| ISongDurationChangeEvent
 	| IBufferingProgressEvent
 	| IPlaybackErrorEvent
+	| IUpdateSongQueue
 
 type PlayerEventSubscriber = (event: PlayerEvent) => unknown
 
@@ -159,6 +167,8 @@ export const Player = (): IPlayer => {
 
 	const next = () => {
 		const nextSong = songQueue.shift()
+		dispatch(updateSongQueue(songQueue))
+
 		isBufferingNextSong = false
 		bufferingDeck.src = ""
 
@@ -218,17 +228,23 @@ export const Player = (): IPlayer => {
 
 	const enqueueSong = (song: IBaseSongPlayable) => {
 		songQueue.push(song)
+		dispatch(updateSongQueue(songQueue))
 	}
 
 	const enqueueSongs = (songs: IBaseSongPlayable[]) => {
 		songs.forEach((song) => songQueue.push(song))
+		dispatch(updateSongQueue(songQueue))
 	}
 
 	const enqueueSongNext = (song: IBaseSongPlayable) => {
 		songQueue.unshift(song)
+		dispatch(updateSongQueue(songQueue))
 	}
 
-	const clearQueue = () => songQueue.splice(0, songQueue.length)
+	const clearQueue = () => {
+		songQueue.splice(0, songQueue.length)
+		dispatch(updateSongQueue(songQueue))
+	}
 
 	primaryDeck.addEventListener("ended", () => {
 		const isNextSong = next()
