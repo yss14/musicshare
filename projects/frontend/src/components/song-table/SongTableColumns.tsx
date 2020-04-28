@@ -6,6 +6,7 @@ import { ISongsViewContext } from "./SongsView"
 import styled from "styled-components"
 import imgSpeaker from "../../images/song_is_playing_gray.png"
 import { Tag } from "antd"
+import { padStart } from "lodash"
 
 const CurrentlyPlayingIndicator = styled.div`
 	width: 20px;
@@ -98,11 +99,11 @@ export const SongTableColumn: SongTableColumnMap = {
 	},
 	Position: {
 		title: "#",
-		width: 24,
+		width: 40,
 		fixWidth: true,
 		key: "position",
 		sortable: true,
-		render: (_, idx) => String(idx + 1),
+		render: (_, idx) => padStart(String(idx + 1), 3, "0"),
 	},
 	Tags: {
 		title: "Tags",
