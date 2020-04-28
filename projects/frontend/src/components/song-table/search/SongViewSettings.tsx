@@ -43,6 +43,8 @@ export const SongViewSettings: React.FC<ISongViewSettingsProps> = ({ onChange })
 				<Select.Option value="duration">Duration</Select.Option>
 				<Select.Option value="artists">Artists</Select.Option>
 				<Select.Option value="genres">Genres</Select.Option>
+				<Select.Option value="tags">Tags</Select.Option>
+				<Select.Option value="labels">Labels</Select.Option>
 			</Select>
 		</Form.Item>
 	)

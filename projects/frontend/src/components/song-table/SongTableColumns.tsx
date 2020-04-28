@@ -5,6 +5,7 @@ import { formatDuration } from "../../utils/format-duration"
 import { ISongsViewContext } from "./SongsView"
 import styled from "styled-components"
 import imgSpeaker from "../../images/song_is_playing_gray.png"
+import { Tag } from "antd"
 
 const CurrentlyPlayingIndicator = styled.div`
 	width: 20px;
@@ -42,7 +43,7 @@ export interface IColumnRendered extends IColumnBase {
 
 export const isSortableColumn = (col: ISongTableColumn): col is ISongTableColumnSortable => col.sortable === true
 
-type ColumnNames = "Title" | "Time" | "Artists" | "Genres" | "Position" | "Indicator"
+type ColumnNames = "Title" | "Time" | "Artists" | "Genres" | "Position" | "Indicator" | "Tags" | "Labels"
 
 type SongTableColumnMap = {
 	[key in ColumnNames]: ISongTableColumn
@@ -89,7 +90,7 @@ export const SongTableColumn: SongTableColumnMap = {
 	},
 	Genres: {
 		title: "Genres",
-		width: 150,
+		width: 100,
 		fixWidth: false,
 		key: "genres",
 		sortable: true,
@@ -102,6 +103,38 @@ export const SongTableColumn: SongTableColumnMap = {
 		key: "position",
 		sortable: true,
 		render: (_, idx) => String(idx + 1),
+	},
+	Tags: {
+		title: "Tags",
+		width: 150,
+		fixWidth: false,
+		key: "tags",
+		sortable: false,
+		render: (song) => (
+			<span>
+				{song.tags.map((tag, idx) => (
+					<Tag key={tag + idx} color="geekblue">
+						{tag}
+					</Tag>
+				))}
+			</span>
+		),
+	},
+	Labels: {
+		title: "Labels",
+		width: 80,
+		fixWidth: false,
+		key: "labels",
+		sortable: false,
+		render: (song) => (
+			<span>
+				{song.labels.map((label, idx) => (
+					<Tag key={label + idx} color="green">
+						{label}
+					</Tag>
+				))}
+			</span>
+		),
 	},
 }
 
