@@ -1,7 +1,7 @@
 import React from "react"
 import styled from "styled-components"
 import { HeaderNavMenu } from "./HeaderMenu"
-import { Player } from "./Player"
+import { Player } from "./player/Player"
 
 const Layout = styled.div`
 	width: 100%;

@@ -1,6 +1,7 @@
 import { IBaseSongPlayable } from "../graphql/types"
 import { ISongMediaUrl } from "../graphql/queries/song-mediaurl-query"
 import { message } from "antd"
+import { v4 as uuid } from "uuid"
 
 const mapMediaElementEventError = (event: ErrorEvent) => {
 	if (!event.target) {
@@ -98,10 +99,12 @@ const setPlaybackError = (error: string) => ({
 
 interface IUpdateSongQueue extends ReturnType<typeof updateSongQueue> {}
 
-const updateSongQueue = (newSongQueue: IBaseSongPlayable[]) => ({
-	type: "update_song_queue" as const,
-	data: newSongQueue,
-})
+export const updateSongQueue = (newSongQueue: ISongQueueItem[]) => {
+	return {
+		type: "update_song_queue" as const,
+		data: newSongQueue,
+	}
+}
 
 export type PlayerEvent =
 	| IPlaybackStatusEvent
@@ -114,6 +117,16 @@ export type PlayerEvent =
 
 type PlayerEventSubscriber = (event: PlayerEvent) => unknown
 
+export interface ISongQueueItem {
+	queueID: string
+	song: IBaseSongPlayable
+}
+
+export const makeSongQueueItem = (song: IBaseSongPlayable): ISongQueueItem => ({
+	queueID: uuid(),
+	song,
+})
+
 export interface IPlayer {
 	play: () => void
 	pause: () => void
@@ -121,6 +134,7 @@ export interface IPlayer {
 	prev: () => void
 	changeVolume: (newVolume: number) => void
 	changeSong: (newSong: IBaseSongPlayable) => void
+	setSongQueue: (items: ISongQueueItem[]) => void
 	enqueueSong: (song: IBaseSongPlayable) => void
 	enqueueSongs: (songs: IBaseSongPlayable[]) => void
 	enqueueSongNext: (song: IBaseSongPlayable) => void
@@ -131,7 +145,7 @@ export interface IPlayer {
 }
 
 export const Player = (): IPlayer => {
-	const songQueue: IBaseSongPlayable[] = []
+	const songQueue: ISongQueueItem[] = []
 	const playedSongs: IBaseSongPlayable[] = []
 	let isBufferingNextSong = false
 
@@ -166,18 +180,18 @@ export const Player = (): IPlayer => {
 	}
 
 	const next = () => {
-		const nextSong = songQueue.shift()
+		const nextItem = songQueue.shift()
 		dispatch(updateSongQueue(songQueue))
 
 		isBufferingNextSong = false
 		bufferingDeck.src = ""
 
-		if (!nextSong) return false
+		if (!nextItem) return false
 
-		nextSong
+		nextItem.song
 			.getMediaURL()
 			.then((songMediaUrls) => {
-				dispatch(setSong(nextSong))
+				dispatch(setSong(nextItem.song))
 
 				const mediaUrl = pickMediaUrl(songMediaUrls)
 
@@ -185,7 +199,7 @@ export const Player = (): IPlayer => {
 					primaryDeck.src = mediaUrl
 					primaryDeck.play()
 				} else {
-					console.warn(`Cannot get a media url of song ${nextSong.id}`)
+					console.warn(`Cannot get a media url of song ${nextItem.song.id}`)
 				}
 			})
 			.catch((err) => {
@@ -221,23 +235,29 @@ export const Player = (): IPlayer => {
 			})
 	}
 
+	const setSongQueue = (items: ISongQueueItem[]) => {
+		songQueue.splice(0, songQueue.length)
+		items.forEach((item) => songQueue.push(item))
+		dispatch(updateSongQueue(songQueue))
+	}
+
 	const changeSong = (newSong: IBaseSongPlayable) => {
-		songQueue.unshift(newSong)
+		songQueue.unshift(makeSongQueueItem(newSong))
 		next()
 	}
 
 	const enqueueSong = (song: IBaseSongPlayable) => {
-		songQueue.push(song)
+		songQueue.push(makeSongQueueItem(song))
 		dispatch(updateSongQueue(songQueue))
 	}
 
 	const enqueueSongs = (songs: IBaseSongPlayable[]) => {
-		songs.forEach((song) => songQueue.push(song))
+		songs.forEach((song) => songQueue.push(makeSongQueueItem(song)))
 		dispatch(updateSongQueue(songQueue))
 	}
 
 	const enqueueSongNext = (song: IBaseSongPlayable) => {
-		songQueue.unshift(song)
+		songQueue.unshift(makeSongQueueItem(song))
 		dispatch(updateSongQueue(songQueue))
 	}
 
@@ -282,11 +302,11 @@ export const Player = (): IPlayer => {
 		if (primaryDeck.paused || currentProgress < 0) return
 
 		if (currentProgress >= 0.9 && songQueue.length > 0 && !isBufferingNextSong) {
-			const nextSong = songQueue[0]
+			const nextItem = songQueue[0]
 			isBufferingNextSong = true
 			console.log("Start buffering next song")
 
-			nextSong
+			nextItem.song
 				.getMediaURL()
 				.then((songMediaUrls) => {
 					const mediaUrl = pickMediaUrl(songMediaUrls)
@@ -294,7 +314,7 @@ export const Player = (): IPlayer => {
 					if (mediaUrl) {
 						bufferingDeck.src = mediaUrl
 					} else {
-						console.warn(`Cannot get a media url of song ${nextSong.id}`)
+						console.warn(`Cannot get a media url of song ${nextItem.song.id}`)
 					}
 				})
 				.catch((err) => {
@@ -305,12 +325,17 @@ export const Player = (): IPlayer => {
 		}
 	}
 
+	let lastBufferingProgress = -1
+
 	const readAndDispatchBufferingProgress = () => {
 		if (primaryDeck.buffered.length === 0) return
 
 		const bufferingProgress = primaryDeck.buffered.end(0) / primaryDeck.duration
 
-		dispatch(setBufferingProgress(bufferingProgress))
+		if (Math.abs(lastBufferingProgress - bufferingProgress) > 0.01) {
+			lastBufferingProgress = bufferingProgress
+			dispatch(setBufferingProgress(bufferingProgress))
+		}
 	}
 
 	setInterval(() => {
@@ -325,6 +350,7 @@ export const Player = (): IPlayer => {
 		next,
 		prev,
 		changeSong,
+		setSongQueue,
 		enqueueSong,
 		enqueueSongs,
 		enqueueSongNext,
