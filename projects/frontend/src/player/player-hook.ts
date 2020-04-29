@@ -1,8 +1,7 @@
 import { useContext, useEffect, useCallback } from "react"
-import { PlayerContext, setIsDefaultSongQueue, setVolume } from "./PlayerContext"
+import { PlayerContext, setIsDefaultSongQueue, setVolume, usePlayerState } from "./PlayerContext"
 import { IBaseSongPlayable } from "../graphql/types"
 import { updateSongQueue, ISongQueueItem } from "./player"
-import { usePlayerState } from "./PlayerContext"
 
 export const usePlayer = () => {
 	const player = useContext(PlayerContext)[1]
