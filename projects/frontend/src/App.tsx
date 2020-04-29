@@ -9,8 +9,7 @@ import { makeConfigFromEnv } from "./config"
 import { ThemeProvider, createGlobalStyle } from "styled-components"
 import { ConfigContext } from "./context/configContext"
 import { Routing } from "./components/routing/Routing"
-import { PlayerContext } from "./player/player-context"
-import { Player } from "./player/player"
+import { PlayerProvider } from "./player/PlayerContext"
 import { IPrimaryTheme } from "./types/Theme"
 import { history } from "./components/routing/history"
 
@@ -26,6 +25,10 @@ const GlobalStyle = createGlobalStyle`
   		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   		-webkit-font-smoothing: antialiased;
   		-moz-osx-font-smoothing: grayscale;
+	}
+
+	.ant-popover-content-nopadding .ant-popover-inner-content{
+		padding: 0px !important;
 	}
 `
 
@@ -59,8 +62,6 @@ const theme: IPrimaryTheme = {
 	darkgrey: "#474350",
 }
 
-const player = Player()
-
 const App = () => {
 	return (
 		<>
@@ -69,13 +70,13 @@ const App = () => {
 				<ApolloProviderHooks client={client}>
 					<ThemeProvider theme={theme}>
 						<ConfigContext.Provider value={config}>
-							<PlayerContext.Provider value={player}>
+							<PlayerProvider>
 								<DndProvider backend={HTML5Backend}>
 									<Router history={history}>
 										<Routing />
 									</Router>
 								</DndProvider>
-							</PlayerContext.Provider>
+							</PlayerProvider>
 						</ConfigContext.Provider>
 					</ThemeProvider>
 				</ApolloProviderHooks>

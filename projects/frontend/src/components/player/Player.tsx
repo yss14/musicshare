@@ -1,15 +1,16 @@
 import React, { useRef, useState } from "react"
-import { Flex } from "./Flex"
+import { Flex } from "../Flex"
 import styled from "styled-components"
-import controlPlayImg from "../images/control_play.png"
-import controlPauseImg from "../images/control_pause.png"
-import controlNextImg from "../images/control_next.png"
-import controlPrevImg from "../images/control_prev.png"
-import controlVolumeImg from "../images/control_volume.png"
-import { usePlayer } from "../player/player-hook"
-import { buildSongName } from "../utils/songname-builder"
-import { formatDuration } from "../utils/format-duration"
+import controlPlayImg from "../../images/control_play.png"
+import controlPauseImg from "../../images/control_pause.png"
+import controlNextImg from "../../images/control_next.png"
+import controlPrevImg from "../../images/control_prev.png"
+import controlVolumeImg from "../../images/control_volume.png"
+import { usePlayer } from "../../player/player-hook"
+import { buildSongName } from "../../utils/songname-builder"
+import { formatDuration } from "../../utils/format-duration"
 import { useDebounce } from "use-debounce/lib"
+import { SongQueue } from "./SongQueue"
 
 const FlexWithStyles = styled(Flex)`
 	background: #3a3a3a;
@@ -186,6 +187,7 @@ export const Player = () => {
 				<ControlButton src={playing ? controlPauseImg : controlPlayImg} onClick={handleClickPlayPause} />
 				<ControlButton src={controlNextImg} onClick={next} />
 			</ControlContainer>
+			<SongQueue />
 			<ProgressBarContainer>
 				<PlayerSlider
 					progresses={[
