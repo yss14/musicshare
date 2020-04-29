@@ -9,7 +9,6 @@ export const SongQueue: React.FC = () => {
 
 	const moveItem = useCallback(
 		(dragIndex: number, hoverIndex: number) => {
-			console.log("moveItem")
 			if (dragIndex === hoverIndex) return
 
 			const newSongQueue = [...songQueue]
