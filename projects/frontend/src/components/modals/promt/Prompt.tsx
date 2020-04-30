@@ -12,6 +12,7 @@ interface IPromptProps {
 	placeholder?: string
 	value: string
 	validationError?: string
+	hint?: React.ReactElement
 }
 
 export const Prompt = ({
@@ -25,9 +26,11 @@ export const Prompt = ({
 	value,
 	label,
 	validationError,
+	hint,
 }: IPromptProps) => (
 	<Modal title={title} visible={true} onOk={onSubmit} onCancel={onCancel} okText={okText} cancelText={cancelText}>
 		<Form>
+			{hint}
 			<Form.Item label={label} validateStatus={validationError ? "error" : "success"}>
 				<Input value={value} type="text" onChange={onChange} placeholder={placeholder} autoFocus />
 			</Form.Item>
