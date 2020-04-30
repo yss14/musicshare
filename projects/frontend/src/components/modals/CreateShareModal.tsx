@@ -3,7 +3,7 @@ import { useCreateShare } from "../../graphql/mutations/create-share-mutation"
 import { Prompt } from "./promt/Prompt"
 import { useHistory } from "react-router-dom"
 import { IShare } from "../../graphql/types"
-import { message } from "antd"
+import { message, Alert } from "antd"
 
 interface ICreateShareModalProps {
 	onSubmit: () => void
@@ -41,6 +41,7 @@ export const CreateShareModal: React.FC<ICreateShareModalProps> = ({ onSubmit, o
 			placeholder="Some new share"
 			value={name}
 			validationError={name.trim().length < 2 ? "Min. 2 characters" : undefined}
+			hint={<Alert type="info" message="A share makes your library available to all (future) share memebers." />}
 		/>
 	)
 }

@@ -7,6 +7,7 @@ import styled from "styled-components"
 import imgSpeaker from "../../images/song_is_playing_gray.png"
 import { Tag } from "antd"
 import { padStart } from "lodash"
+import moment from "moment"
 
 const CurrentlyPlayingIndicator = styled.div`
 	width: 20px;
@@ -44,7 +45,17 @@ export interface IColumnRendered extends IColumnBase {
 
 export const isSortableColumn = (col: ISongTableColumn): col is ISongTableColumnSortable => col.sortable === true
 
-type ColumnNames = "Title" | "Time" | "Artists" | "Genres" | "Position" | "Indicator" | "Tags" | "Labels"
+type ColumnNames =
+	| "Title"
+	| "Time"
+	| "Artists"
+	| "Genres"
+	| "Position"
+	| "Indicator"
+	| "Tags"
+	| "Labels"
+	| "ReleaseDate"
+	| "DateAdded"
 
 type SongTableColumnMap = {
 	[key in ColumnNames]: ISongTableColumn
@@ -136,6 +147,22 @@ export const SongTableColumn: SongTableColumnMap = {
 				))}
 			</span>
 		),
+	},
+	ReleaseDate: {
+		title: "Release Date",
+		width: 50,
+		fixWidth: false,
+		key: "release_date",
+		sortable: true,
+		render: (song) => (song.releaseDate ? moment(song.releaseDate).format("YYYY-MM-DD") : ""),
+	},
+	DateAdded: {
+		title: "Date Added",
+		width: 80,
+		fixWidth: false,
+		key: "date_added",
+		sortable: true,
+		render: (song) => moment(song.dateAdded).format("YYYY-MM-DD HH:mm"),
 	},
 }
 

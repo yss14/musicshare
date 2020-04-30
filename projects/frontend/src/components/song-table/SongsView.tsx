@@ -9,9 +9,6 @@ import useDeepCompareEffect from "use-deep-compare-effect"
 type Song = IScopedSong
 
 export type SongsFilter = (filterValue: string, song: Song) => boolean
-const defaultSongFilter: SongsFilter = (filterValue, song) => {
-	return JSON.stringify(song).toLowerCase().indexOf(filterValue.toLowerCase()) > -1
-}
 
 /******************** Start Actions *******************/
 interface ISetHoveredSong extends ReturnType<typeof setHoveredSong> {}
@@ -62,14 +59,12 @@ type SongsViewAction = ISetHoveredSong | ISetOrderCriteria | ISetCurrentlyPlayed
 interface ISongsViewBaseState {
 	songs: Song[]
 	columns: ISongTableColumn[]
-	filter?: SongsFilter
 	currentlyPlayedSong: Song | null
 }
 
 export interface ISongsViewState extends ISongsViewBaseState {
 	sortOrder: SortOrder
 	sortColumn: string
-	filter: SongsFilter
 	hoveredSong: Song | null
 	hoveredIdx: number
 }
@@ -110,11 +105,12 @@ interface ISongsViewProps extends ISongsViewBaseState {
 	initialSortColumn?: string // if not defined will take first column
 	filterQuery?: string
 	children: (ctx: ISongsViewContext) => any
+	filter: SongsFilter
 }
 
-export const SongsView: React.FC<ISongsViewProps> = ({ children, filterQuery, ...props }) => {
+export const SongsView: React.FC<ISongsViewProps> = ({ children, filterQuery, filter, ...props }) => {
 	const [
-		{ songs, filter, columns, sortColumn, sortOrder, hoveredSong, hoveredIdx, currentlyPlayedSong },
+		{ songs, columns, sortColumn, sortOrder, hoveredSong, hoveredIdx, currentlyPlayedSong },
 		dispatch,
 	] = useReducer(songsViewReducer, {
 		songs: props.songs,
@@ -123,7 +119,6 @@ export const SongsView: React.FC<ISongsViewProps> = ({ children, filterQuery, ..
 		sortColumn: props.initialSortColumn || props.columns[0].key,
 		hoveredSong: null,
 		hoveredIdx: -1,
-		filter: props.filter || defaultSongFilter,
 		currentlyPlayedSong: props.currentlyPlayedSong,
 	})
 
@@ -147,8 +142,8 @@ export const SongsView: React.FC<ISongsViewProps> = ({ children, filterQuery, ..
 		if (!column || !isSortableColumn(column)) {
 			console.warn(`Cannot order songs, column with key ${sortColumn} not found`)
 		} else {
-			const renderedSongColumn = props.songs.map((song, idx) => column.render(song, idx, {} as any))
-			const zippedSongs = zip(props.songs, renderedSongColumn)
+			const renderedSongColumn = finalSongList.map((song, idx) => column.render(song, idx, {} as any))
+			const zippedSongs = zip(finalSongList, renderedSongColumn)
 			finalSongList = zippedSongs
 				.sort((lhs, rhs) => lhs[1]!.localeCompare(rhs[1]!))
 				.map((zipped) => zipped[0])
