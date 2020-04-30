@@ -9,7 +9,6 @@ import { makeConfigFromEnv } from "./config"
 import { ThemeProvider, createGlobalStyle } from "styled-components"
 import { ConfigContext } from "./context/configContext"
 import { Routing } from "./components/routing/Routing"
-import { PlayerProvider } from "./player/PlayerContext"
 import { IPrimaryTheme } from "./types/Theme"
 import { history } from "./components/routing/history"
 
