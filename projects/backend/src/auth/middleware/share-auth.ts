@@ -38,7 +38,8 @@ export const makeShareAuthMiddleware = ({
 		}
 
 		if (permissions) {
-			const isPermitted = hasAllPermissions(permissions, getCurrentPermissionsForShare(shareID, scopes))
+			const userSharePermissions = getCurrentPermissionsForShare(shareID, scopes)
+			const isPermitted = hasAllPermissions(permissions, userSharePermissions)
 
 			if (!isPermitted) {
 				throw new ForbiddenError(`User has insufficient permissions to perform this action!`)

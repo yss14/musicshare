@@ -23,5 +23,16 @@
 				"program": "${workspaceFolder}/node_modules/jest/bin/jest",
 			}
 		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Debug Production",
+			"program": "${workspaceFolder}/projects/backend/build/index.js",
+			"cwd": "${workspaceFolder}/projects/backend/",
+			"env": {
+				"NODE_ENV": "production",
+			},
+			"console": "integratedTerminal",
+		},
 	]
 }

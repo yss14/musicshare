@@ -9,7 +9,6 @@ import { makeConfigFromEnv } from "./config"
 import { ThemeProvider, createGlobalStyle } from "styled-components"
 import { ConfigContext } from "./context/configContext"
 import { Routing } from "./components/routing/Routing"
-import { PlayerProvider } from "./player/PlayerContext"
 import { IPrimaryTheme } from "./types/Theme"
 import { history } from "./components/routing/history"
 
@@ -70,13 +69,11 @@ const App = () => {
 				<ApolloProviderHooks client={client}>
 					<ThemeProvider theme={theme}>
 						<ConfigContext.Provider value={config}>
-							<PlayerProvider>
-								<DndProvider backend={HTML5Backend}>
-									<Router history={history}>
-										<Routing />
-									</Router>
-								</DndProvider>
-							</PlayerProvider>
+							<DndProvider backend={HTML5Backend}>
+								<Router history={history}>
+									<Routing />
+								</Router>
+							</DndProvider>
 						</ConfigContext.Provider>
 					</ThemeProvider>
 				</ApolloProviderHooks>
