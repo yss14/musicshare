@@ -151,13 +151,18 @@ const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({
 	const playlistID = usePlaylistID()
 	const { ref, showContextMenu, isVisible } = useContextMenu()
 	const [contextMenuPlaylist, setContextMenuPlaylist] = useState<IPlaylist | null>(null)
+	const [searchFilter, setSearchFilter] = useState("")
+
+	const filteredPlaylists = useMemo(() => {
+		return playlists.filter((playlist) => playlist.name.toLowerCase().indexOf(searchFilter.toLowerCase()) > -1)
+	}, [playlists, searchFilter])
 
 	if (loading === true) {
 		return <LoadingSpinner color="#FFFFFF" />
 	}
 
 	if (error) {
-		return <div>error</div>
+		return <div>{error}</div>
 	}
 
 	return (
@@ -168,8 +173,16 @@ const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({
 				</SidebarItem>
 			</SidebarSection>
 			<Scrollbars autoHide>
-				<SidebarSection title="Playlists" overflowScroll>
-					{playlists.map((playlist) => (
+				<SidebarSection
+					title="Playlists"
+					overflowScroll
+					filter={{
+						onFilter: setSearchFilter,
+						value: searchFilter,
+						placeholder: "Filter playlists",
+					}}
+				>
+					{filteredPlaylists.map((playlist) => (
 						<PlaylistSidebarItem
 							key={playlist.id}
 							playlist={playlist}
