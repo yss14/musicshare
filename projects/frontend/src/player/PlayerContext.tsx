@@ -87,9 +87,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 	const player = useMemo(() => Player(), [])
 
 	useEffect(() => {
-		console.log("Player provider mounts")
 		return () => {
-			console.log("Player provider unmounts")
 			player.destroy()
 		}
 	}, [player])
