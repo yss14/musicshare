@@ -156,6 +156,7 @@ export const Player = (): IPlayer => {
 	const playedSongs: IBaseSongPlayable[] = []
 	let currentSong: IBaseSongPlayable | null = null
 	let isBufferingNextSong = false
+	let playCountIncremented = false
 
 	const eventSubscribers: Set<PlayerEventSubscriber> = new Set()
 
@@ -238,6 +239,8 @@ export const Player = (): IPlayer => {
 				if (mediaUrl) {
 					primaryDeck.src = mediaUrl
 					primaryDeck.play()
+
+					playCountIncremented = false
 				} else {
 					console.warn(`Cannot get a media url of song ${nextItem.song.id}`)
 				}
@@ -270,6 +273,8 @@ export const Player = (): IPlayer => {
 				if (mediaUrl) {
 					primaryDeck.src = mediaUrl
 					primaryDeck.play()
+
+					playCountIncremented = false
 				} else {
 					console.warn(`Cannot get a media url of song ${prevSong.id}`)
 				}
@@ -342,6 +347,12 @@ export const Player = (): IPlayer => {
 		const progress = primaryDeck.currentTime / primaryDeck.duration
 
 		dispatch(setProgress(progress))
+
+		if (!playCountIncremented && progress >= 0.7 && currentSong) {
+			playCountIncremented = true
+
+			currentSong.incrementSongPlayCount().catch(console.error)
+		}
 	})
 	primaryDeck.addEventListener("durationchange", () => {
 		const { currentTime, duration } = primaryDeck

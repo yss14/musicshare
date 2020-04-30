@@ -34,6 +34,7 @@ export const songKeys = `
 	tags
 	dateAdded
 	libraryID
+	playCount
 `
 
 export const playlistSongKeys = `

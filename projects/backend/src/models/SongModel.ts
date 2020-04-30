@@ -1,5 +1,5 @@
 import { FileSource, FileUpload } from "./FileSourceModels"
-import { ObjectType, Field } from "type-graphql"
+import { ObjectType, Field, Int } from "type-graphql"
 import { Share } from "./ShareModel"
 import { Nullable } from "../types/Nullable"
 import { ISong } from "./interfaces/ISong"
@@ -26,6 +26,9 @@ export type ISongDBResultWithLibrary = ISongDBResult & { library_id: string }
 
 const isSongDBResultWithLibrary = (obj: any): obj is ISongDBResultWithLibrary =>
 	typeof obj === "object" && typeof obj.library_id === "string"
+
+export const isSongDBResultWithPlayCount = <T>(obj: T): obj is T & { play_count: number } =>
+	typeof obj === "object" && typeof (obj as any).play_count === "number"
 
 @ObjectType({ description: "This represents a song and its properties" })
 export class Song implements Nullable<ISong> {
@@ -92,6 +95,9 @@ export class Song implements Nullable<ISong> {
 	@Field(() => String)
 	public readonly libraryID!: string
 
+	@Field(() => Int)
+	public readonly playCount!: number
+
 	public static fromDBResult(row: ISongDBResultWithLibrary): Song
 	public static fromDBResult(row: ISongDBResult, libraryID: string): Song
 	public static fromDBResult(row: ISongDBResult, libraryID?: string): Song {
@@ -115,6 +121,7 @@ export class Song implements Nullable<ISong> {
 			tags: row.tags || [],
 			dateAdded: row.date_added.toISOString(),
 			libraryID: isSongDBResultWithLibrary(row) ? row.library_id : libraryID,
+			playCount: isSongDBResultWithPlayCount(row) ? row.play_count : 0,
 		})
 	}
 }

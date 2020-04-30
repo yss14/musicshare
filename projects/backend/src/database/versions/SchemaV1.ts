@@ -119,6 +119,11 @@ export namespace DatabaseV1 {
 				{ targetTable: "songs", targetColumn: "song_id", onDelete: ForeignKeyUpdateDeleteRule.Cascade },
 			],
 		},
+		play_count: {
+			type: ColumnType.Integer,
+			nullable: false,
+			defaultValue: 0,
+		},
 	})
 
 	export const playlist_songs = TableSchema({

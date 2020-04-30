@@ -1,5 +1,5 @@
 import { Song } from "../models/SongModel"
-import { IDatabaseClient, SQL, IDatabaseBaseClient } from "postgres-schema-builder"
+import { IDatabaseClient, SQL, IDatabaseBaseClient, IQuery } from "postgres-schema-builder"
 import { SongUpdateInput } from "../inputs/SongInput"
 import snakeCaseObjKeys from "snakecase-keys"
 import moment from "moment"
@@ -40,7 +40,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		const dbResults = await database.query(
 			SQL.raw<SongDBResultWithLibrary>(
 				`
-				SELECT s.*, l.share_id as library_id
+				SELECT s.*, l.share_id as library_id, ss.play_count
 				FROM ${SongsTable.name} s
 				INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
 				INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
@@ -66,7 +66,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		const dbResults = await database.query(
 			SQL.raw<SongDBResultWithLibrary>(
 				`
-					SELECT s.*, l.share_id as library_id
+					SELECT s.*, l.share_id as library_id, ss.play_count
 					FROM ${SongsTable.name} s
 					INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
 					INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
@@ -370,8 +370,13 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 			user_id_ref: userID,
 			share_id_ref: shareID,
 		})
+		const updateAccumulatedPlayCountQuery: IQuery<{}> = {
+			sql: `UPDATE share_songs SET play_count = play_count + 1 WHERE song_id_ref = $1 AND share_id_ref = $2;`,
+			values: [songID, shareID],
+		}
 
 		await database.query(insertPlayQuery)
+		await database.query(updateAccumulatedPlayCountQuery)
 	}
 
 	return {

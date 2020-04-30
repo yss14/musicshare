@@ -1,5 +1,6 @@
 import { ISongMediaUrl } from "./queries/song-mediaurl-query"
 import { Permission, UserStatus } from "@musicshare/shared-types"
+import { IIncrementSongPlayCountData } from "./programmatic/increment-song-playcount"
 
 export interface IShareVariables {
 	shareID: string
@@ -61,10 +62,12 @@ export interface IBaseSong {
 	tags: string[]
 	libraryID: string
 	dateAdded: string
+	playCount: number
 }
 
 export interface IBaseSongPlayable extends IScopedSong {
 	getMediaURL: () => Promise<ISongMediaUrl[]>
+	incrementSongPlayCount: () => Promise<IIncrementSongPlayCountData>
 }
 
 export interface IShareSong extends IBaseSong {
@@ -109,6 +112,7 @@ const baseSongKeys = `
 	duration
 	dateAdded
 	libraryID
+	playCount
 `
 
 export const shareSongKeys = `
