@@ -43,7 +43,7 @@ if (!isProductionEnvironment()) {
 	const songResolver = new SongResolver(services)
 	const userResolver = new UserResolver(services)
 	const playlistResolver = new PlaylistResolver(services)
-	const fileUploadResolver = new FileUploadResolver(services)
+	const fileUploadResolver = new FileUploadResolver(services, config)
 
 	Container.set(ShareResolver, shareResolver)
 	Container.set(SongResolver, songResolver)

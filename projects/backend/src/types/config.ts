@@ -41,6 +41,7 @@ export interface IConfig {
 		azureStorage?: {
 			container?: string
 		}
+		accessTokenExpiry: number
 	}
 	frontend: {
 		baseUrl: string
@@ -101,6 +102,7 @@ export const configFromEnv = (): IConfig => {
 			azureStorage: {
 				container: process.env[CustomEnv.AZURE_STORAGE_CONTAINER],
 			},
+			accessTokenExpiry: getInteger(process.env[CustomEnv.FILE_STORAGE_ACCESS_TOKEN_EXPIRY]) || 30,
 		},
 		frontend: {
 			baseUrl: process.env[CustomEnv.FRONTEND_BASEURL] || "http://localhost:3000",
