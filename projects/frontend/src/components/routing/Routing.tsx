@@ -15,6 +15,7 @@ import { Offline } from "../../pages/status/Offline"
 import { LoadingSpinner } from "../common/LoadingSpinner"
 import { AcceptInvitation } from "../../pages/accept-invitation/AcceptInvitation"
 import { RestorePassword } from "../../pages/restore-password/RestorePassword"
+import { PlayerProvider } from "../../player/PlayerContext"
 
 const Share = lazy(() => import("../../pages/share/Share").then((module) => ({ default: module.Share })))
 
@@ -81,7 +82,7 @@ const LoggedInRoutes = () => {
 	}
 
 	return (
-		<>
+		<PlayerProvider>
 			<Route
 				path="/all"
 				exact
@@ -98,6 +99,6 @@ const LoggedInRoutes = () => {
 			/>
 			<Route path={["/shares/:shareID", "/all/shares/:shareID"]} render={() => <ShareRoute />} />
 			{data && <Route exact path="/" render={() => <RedirectToLibrary shares={data.viewer.shares} />} />}
-		</>
+		</PlayerProvider>
 	)
 }

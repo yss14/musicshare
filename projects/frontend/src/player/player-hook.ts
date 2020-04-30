@@ -99,6 +99,7 @@ export const usePlayer = () => {
 		enqueueSongNext,
 		clearQueue: player.clearQueue,
 		setSongQueue,
+		destory: player.destroy,
 		volume,
 		playing,
 		playpackProgress,

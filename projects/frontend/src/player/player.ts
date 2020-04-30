@@ -148,6 +148,7 @@ export interface IPlayer {
 	subscribeEvents: (callback: PlayerEventSubscriber) => void
 	unsubscribeEvents: (callback: PlayerEventSubscriber) => void
 	seek: (newCurrentTime: number) => void
+	destroy: () => void
 }
 
 export const Player = (): IPlayer => {
@@ -311,6 +312,15 @@ export const Player = (): IPlayer => {
 		dispatch(updateSongQueue(songQueue))
 	}
 
+	const destroy = () => {
+		try {
+			primaryDeck.parentElement?.removeChild(primaryDeck)
+			bufferingDeck.parentElement?.removeChild(bufferingDeck)
+		} catch (err) {
+			console.log(err)
+		}
+	}
+
 	primaryDeck.addEventListener("ended", () => {
 		const isNextSong = next()
 
@@ -403,5 +413,6 @@ export const Player = (): IPlayer => {
 		unsubscribeEvents,
 		seek,
 		clearQueue,
+		destroy,
 	}
 }

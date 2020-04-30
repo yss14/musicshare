@@ -1,4 +1,4 @@
-import React, { useReducer, useContext, useMemo } from "react"
+import React, { useReducer, useContext, useMemo, useEffect } from "react"
 import { Player, PlayerEvent, ISongQueueItem, IPlayer } from "./player"
 import { IBaseSongPlayable } from "../graphql/types"
 
@@ -85,6 +85,14 @@ const initialPlayerState: IPlayerState = {
 export const PlayerProvider: React.FC = ({ children }) => {
 	const reducer = useReducer(playerReducer, initialPlayerState)
 	const player = useMemo(() => Player(), [])
+
+	useEffect(() => {
+		console.log("Player provider mounts")
+		return () => {
+			console.log("Player provider unmounts")
+			player.destroy()
+		}
+	}, [player])
 
 	return <PlayerContext.Provider value={[reducer, player]}>{children}</PlayerContext.Provider>
 }

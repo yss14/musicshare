@@ -70,13 +70,11 @@ const App = () => {
 				<ApolloProviderHooks client={client}>
 					<ThemeProvider theme={theme}>
 						<ConfigContext.Provider value={config}>
-							<PlayerProvider>
-								<DndProvider backend={HTML5Backend}>
-									<Router history={history}>
-										<Routing />
-									</Router>
-								</DndProvider>
-							</PlayerProvider>
+							<DndProvider backend={HTML5Backend}>
+								<Router history={history}>
+									<Routing />
+								</Router>
+							</DndProvider>
 						</ConfigContext.Provider>
 					</ThemeProvider>
 				</ApolloProviderHooks>
