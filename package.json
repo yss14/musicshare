@@ -11,6 +11,7 @@
 		"bootstrap": "lerna bootstrap",
 		"build": "lerna run build --stream",
 		"build:backend": "lerna run build --stream --scope @musicshare/backend",
+		"build:backend:watch": "lerna run build:watch --stream --scope @musicshare/backend",
 		"build:frontend": "lerna run build --stream --scope @musicshare/frontend",
 		"build:shared-types": "lerna run build --stream --scope @musicshare/shared-types",
 		"build:watch:shared-types": "lerna run build:watch --stream --scope @musicshare/shared-types",
