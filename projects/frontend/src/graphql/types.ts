@@ -60,6 +60,7 @@ export interface IBaseSong {
 	duration: number
 	tags: string[]
 	libraryID: string
+	dateAdded: string
 }
 
 export interface IBaseSongPlayable extends IScopedSong {
