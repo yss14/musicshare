@@ -56,6 +56,7 @@ type ColumnNames =
 	| "Labels"
 	| "ReleaseDate"
 	| "DateAdded"
+	| "PlayCount"
 
 type SongTableColumnMap = {
 	[key in ColumnNames]: ISongTableColumn
@@ -163,6 +164,14 @@ export const SongTableColumn: SongTableColumnMap = {
 		key: "date_added",
 		sortable: true,
 		render: (song) => moment(song.dateAdded).format("YYYY-MM-DD HH:mm"),
+	},
+	PlayCount: {
+		title: "Plays",
+		width: 50,
+		fixWidth: true,
+		key: "play_count",
+		sortable: true,
+		render: (song) => String(song.playCount || 0),
 	},
 }
 
