@@ -316,7 +316,7 @@ describe("remove song from library", () => {
 describe("increase play count", () => {
 	const makeIncreaseSongPlayCountMutation = (shareID: string, songID: string) => `
 		mutation {
-			increaseSongPlayCount(input: {shareID: "${shareID}", songID: "${songID}"}){
+			incrementSongPlayCount(input: {shareID: "${shareID}", songID: "${songID}"}){
 				user{
 					id
 				}
@@ -337,7 +337,7 @@ describe("increase play count", () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body.data.increaseSongPlayCount).toMatchObject({
+		expect(body.data.incrementSongPlayCount).toMatchObject({
 			user: { id: testData.users.user1.user_id },
 			song: { id: songID },
 			dateAdded: expect.toBeString(),

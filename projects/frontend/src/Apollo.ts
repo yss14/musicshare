@@ -54,6 +54,11 @@ const typeDefs = `
 		shareID: String!
 		songID: String!
 	}
+
+	type IncrementSongPlayCountInput {
+		shareID: String!
+		songID: String!
+	}
 `
 
 const httpLink = new HttpLink({

@@ -7,7 +7,7 @@ import { IServices } from "../services/services"
 import { RemoveSongFromLibraryInput } from "../inputs/RemoveSongFromLibraryInput"
 import { ShareAuth } from "../auth/middleware/share-auth"
 import { Permissions } from "@musicshare/shared-types"
-import { IncreaseSongPlaycountInput } from "../inputs/IncreaseSongPlaycountInput"
+import { IncrementSongPlayCountInput } from "../inputs/IncreaseSongPlaycountInput"
 import { SongPlay } from "../models/SongPlayModel"
 import { IGraphQLContext } from "../types/context"
 
@@ -66,8 +66,8 @@ export class SongResolver implements ResolverInterface<Song> {
 	@Authorized()
 	@SongAuth()
 	@Mutation(() => SongPlay)
-	public async increaseSongPlayCount(
-		@Arg("input") { songID, shareID }: IncreaseSongPlaycountInput,
+	public async incrementSongPlayCount(
+		@Arg("input") { songID, shareID }: IncrementSongPlayCountInput,
 		@Ctx() { userID }: IGraphQLContext,
 	): Promise<SongPlay> {
 		await this.services.songService.increasePlayCount(shareID, songID, userID!)
