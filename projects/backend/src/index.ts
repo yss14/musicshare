@@ -27,10 +27,7 @@ if (!isValidNodeEnvironment(nodeEnv)) {
 	throw new Error(`Invalid node environment ${nodeEnv}`)
 }
 
-if (!isProductionEnvironment()) {
-	loadEnvsFromDotenvFile(nodeEnv)
-}
-
+loadEnvsFromDotenvFile(nodeEnv)
 ;(async () => {
 	const config = configFromEnv()
 	const { database, schema } = await connectAndSetupDatabase(config)

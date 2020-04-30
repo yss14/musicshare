@@ -11,6 +11,6 @@ export const loadEnvsFromDotenvFile = (environment: NodeEnv) => {
 			path: `./${environment}.env`,
 		})
 	} else {
-		console.warn(`Dotenv ${path} not found, environment variables might be empty`)
+		console.info(`Dotenv ${path} not found, taking environment variables which are passed to this node process`)
 	}
 }
