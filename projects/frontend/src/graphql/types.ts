@@ -61,6 +61,7 @@ export interface IBaseSong {
 	tags: string[]
 	libraryID: string
 	dateAdded: string
+	playCount: number
 }
 
 export interface IBaseSongPlayable extends IScopedSong {
@@ -109,6 +110,7 @@ const baseSongKeys = `
 	duration
 	dateAdded
 	libraryID
+	playCount
 `
 
 export const shareSongKeys = `

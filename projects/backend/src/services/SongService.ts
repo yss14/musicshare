@@ -40,7 +40,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		const dbResults = await database.query(
 			SQL.raw<SongDBResultWithLibrary>(
 				`
-				SELECT s.*, l.share_id as library_id
+				SELECT s.*, l.share_id as library_id, ss.play_count
 				FROM ${SongsTable.name} s
 				INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
 				INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
@@ -66,7 +66,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		const dbResults = await database.query(
 			SQL.raw<SongDBResultWithLibrary>(
 				`
-					SELECT s.*, l.share_id as library_id
+					SELECT s.*, l.share_id as library_id, ss.play_count
 					FROM ${SongsTable.name} s
 					INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
 					INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
