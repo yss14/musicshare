@@ -27,8 +27,8 @@ export type ISongDBResultWithLibrary = ISongDBResult & { library_id: string }
 const isSongDBResultWithLibrary = (obj: any): obj is ISongDBResultWithLibrary =>
 	typeof obj === "object" && typeof obj.library_id === "string"
 
-const isSongDBResultWithPlayCount = (obj: any): obj is ISongDBResult & { play_count: number } =>
-	typeof obj === "object" && typeof obj.play_count === "number"
+export const isSongDBResultWithPlayCount = <T>(obj: T): obj is T & { play_count: number } =>
+	typeof obj === "object" && typeof (obj as any).play_count === "number"
 
 @ObjectType({ description: "This represents a song and its properties" })
 export class Song implements Nullable<ISong> {
