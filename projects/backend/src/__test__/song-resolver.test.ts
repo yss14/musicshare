@@ -9,6 +9,7 @@ import { IDatabaseClient } from "postgres-schema-builder"
 import { clearTables } from "../database/database"
 import moment from "moment"
 import { v4 as uuid } from "uuid"
+import { ShareSongsTable } from "../database/tables"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
@@ -329,7 +330,7 @@ describe("increase play count", () => {
 	const shareID = testData.shares.library_user1.share_id
 
 	test("existing song id succeeds", async () => {
-		const { graphQLServer } = await setupTest({})
+		const { graphQLServer, database } = await setupTest({})
 
 		const songID = testData.songs.song1_library_user1.song_id
 		const query = makeIncreaseSongPlayCountMutation(shareID, songID)
@@ -341,6 +342,11 @@ describe("increase play count", () => {
 			song: { id: songID },
 			dateAdded: expect.toBeString(),
 		})
+
+		const rawResults = await database.query(
+			ShareSongsTable.select("*", ["song_id_ref", "share_id_ref"])([songID, shareID]),
+		)
+		expect(rawResults[0].play_count).toBe(1)
 	})
 
 	test("not existing song id fails", async () => {
