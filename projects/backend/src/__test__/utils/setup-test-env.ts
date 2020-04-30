@@ -44,7 +44,7 @@ export const setupTestEnv = async ({ seed, database }: SetupTestEnvArgs) => {
 	const songResolver = new SongResolver(services)
 	const userResolver = new UserResolver(services)
 	const playlistResolver = new PlaylistResolver(services)
-	const fileUploadResolver = new FileUploadResolver(services)
+	const fileUploadResolver = new FileUploadResolver(services, config)
 
 	Container.of(testID).set(ShareResolver, shareResolver)
 	Container.of(testID).set(SongResolver, songResolver)

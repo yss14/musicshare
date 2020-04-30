@@ -3,18 +3,24 @@ import { ISongMediaUrl } from "../graphql/queries/song-mediaurl-query"
 import { message } from "antd"
 import { v4 as uuid } from "uuid"
 
-const mapMediaElementEventError = (event: ErrorEvent) => {
+const getMediaErrorCode = (event: ErrorEvent) => {
 	if (!event.target) {
-		return "An unknown error occurred."
+		return -1
 	}
 
 	const target = event.target as HTMLAudioElement
 
 	if (!target.error) {
-		return "An unknown error occurred."
+		return -1
 	}
 
-	switch (target.error.code) {
+	return target.error.code
+}
+
+const mapMediaElementEventError = (event: ErrorEvent) => {
+	const mediaErrorCode = getMediaErrorCode(event)
+
+	switch (mediaErrorCode) {
 		case MediaError.MEDIA_ERR_ABORTED:
 			return "You aborted the video playback."
 		case MediaError.MEDIA_ERR_NETWORK:
@@ -29,7 +35,7 @@ const mapMediaElementEventError = (event: ErrorEvent) => {
 }
 
 interface IPlayerDeckArgs {
-	onError?: (error: string) => void
+	onError?: (error: string, code: number) => void
 }
 
 const PlayerDeck = ({ onError }: IPlayerDeckArgs) => {
@@ -38,7 +44,7 @@ const PlayerDeck = ({ onError }: IPlayerDeckArgs) => {
 	document.body.appendChild(audio)
 
 	audio.addEventListener("error", (err) => {
-		if (onError) onError(mapMediaElementEventError(err))
+		if (onError) onError(mapMediaElementEventError(err), getMediaErrorCode(err))
 	})
 
 	return audio
@@ -147,6 +153,7 @@ export interface IPlayer {
 export const Player = (): IPlayer => {
 	const songQueue: ISongQueueItem[] = []
 	const playedSongs: IBaseSongPlayable[] = []
+	let currentSong: IBaseSongPlayable | null = null
 	let isBufferingNextSong = false
 
 	const eventSubscribers: Set<PlayerEventSubscriber> = new Set()
@@ -157,10 +164,10 @@ export const Player = (): IPlayer => {
 	const dispatch = (event: PlayerEvent) => Array.from(eventSubscribers).forEach((subscriber) => subscriber(event))
 
 	const primaryDeck = PlayerDeck({
-		onError: (event) => dispatch(setPlaybackError(event)),
+		onError: (event, code) => onError(event, code, 1),
 	})
 	const bufferingDeck = PlayerDeck({
-		onError: (event) => dispatch(setPlaybackError(event)),
+		onError: (event, code) => onError(event, code, 2),
 	})
 	bufferingDeck.volume = 0
 
@@ -168,6 +175,33 @@ export const Player = (): IPlayer => {
 	const pause = () => primaryDeck.pause()
 	const changeVolume = (newVolume: number) => (primaryDeck.volume = newVolume)
 	const seek = (newCurrentTime: number) => (primaryDeck.currentTime = newCurrentTime)
+
+	const onError = (event: string, code: number, deck: number) => {
+		dispatch(setPlaybackError(event))
+
+		if (deck === 1 && code === MediaError.MEDIA_ERR_NETWORK && currentSong) {
+			const currentPlaybackProgress = primaryDeck.currentTime
+
+			currentSong
+				.getMediaURL()
+				.then((songMediaUrls) => {
+					const mediaUrl = pickMediaUrl(songMediaUrls)
+
+					if (mediaUrl) {
+						primaryDeck.src = mediaUrl
+						primaryDeck.currentTime = currentPlaybackProgress
+						primaryDeck.play()
+					} else {
+						console.warn(`Cannot get a media url of song ${currentSong!.id}`)
+					}
+				})
+				.catch((err) => {
+					console.error(err)
+
+					message.error(err.message)
+				})
+		}
+	}
 
 	const pickMediaUrl = (mediaUrls: ISongMediaUrl[]) => {
 		const fileUploadMedia = mediaUrls.find((mediaUrl) => mediaUrl.__typename === "FileUpload")
@@ -180,6 +214,10 @@ export const Player = (): IPlayer => {
 	}
 
 	const next = () => {
+		if (currentSong) {
+			playedSongs.push(currentSong)
+		}
+
 		const nextItem = songQueue.shift()
 		dispatch(updateSongQueue(songQueue))
 
@@ -192,6 +230,7 @@ export const Player = (): IPlayer => {
 			.getMediaURL()
 			.then((songMediaUrls) => {
 				dispatch(setSong(nextItem.song))
+				currentSong = nextItem.song
 
 				const mediaUrl = pickMediaUrl(songMediaUrls)
 
@@ -214,11 +253,17 @@ export const Player = (): IPlayer => {
 	const prev = () => {
 		const prevSong = playedSongs.pop()
 
-		if (!prevSong) return
+		if (!prevSong) {
+			message.info("No songs found in the current sessions playback history")
+
+			return
+		}
 
 		prevSong
 			.getMediaURL()
 			.then((songMediaUrls) => {
+				dispatch(setSong(prevSong))
+
 				const mediaUrl = pickMediaUrl(songMediaUrls)
 
 				if (mediaUrl) {

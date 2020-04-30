@@ -45,6 +45,7 @@ export const useContextMenu = () => {
 
 		if (isVisible) {
 			contextMenuElement.style.display = "block"
+			contextMenuElement.style.visibility = "hidden"
 			contextMenuElement.style.left = posX + "px"
 
 			// otherwise height is 0 because div not rendered by browser
@@ -57,6 +58,8 @@ export const useContextMenu = () => {
 				} else {
 					contextMenuElement.style.top = posY - height + "px"
 				}
+
+				contextMenuElement.style.visibility = "visible"
 			}, 10)
 
 			document.addEventListener("click", hideContextMenu)
