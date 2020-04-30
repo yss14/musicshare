@@ -38,7 +38,6 @@ export const makeIncrementSongPlayCount = (client: ApolloClient<unknown>) => asy
 	songID: string,
 	shareID: string,
 ) => {
-	console.log("makeIncrementSongPlayCount")
 	const response = await client.mutate<IIncrementSongPlayCountData, IIncrementSongPlayCountVariables>({
 		mutation: INCREMENT_SONG_PLAYCOUNT,
 		variables: {
