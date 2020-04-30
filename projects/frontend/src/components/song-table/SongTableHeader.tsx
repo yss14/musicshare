@@ -45,7 +45,6 @@ export const SongTableHeader = ({
 	const durationSum = songs.reduce((acc, song) => acc + song.duration, 0)
 
 	const onClickSong = (song: IScopedSong) => {
-		console.log(song)
 		changeSong(makePlayableSong(song))
 	}
 

@@ -1,7 +1,7 @@
 import { shareSongKeys, IScopedSong } from "../types"
 import gql from "graphql-tag"
 import { useLazyQuery } from "react-apollo"
-import { useCallback, useState } from "react"
+import { useCallback, useState, useMemo } from "react"
 import { makeScopedSong } from "../utils/data-transformations"
 
 export interface ISongSearchData {
@@ -30,7 +30,7 @@ export const SEARCH_SONG = gql`
 export const useSongSearch = () => {
 	const [cachedData, setCachedData] = useState<ISongSearchData | null>(null)
 	const [searchSong, { ...rest }] = useLazyQuery<ISongSearchData, ISongSearchVariables>(SEARCH_SONG, {
-		fetchPolicy: "cache-and-network",
+		fetchPolicy: "network-only",
 		onCompleted: (data) => setCachedData(data),
 	})
 
@@ -41,11 +41,19 @@ export const useSongSearch = () => {
 		[searchSong],
 	)
 
+	const data = useMemo(() => {
+		if (rest.data) {
+			return rest.data.viewer.searchSongs.map((song) => makeScopedSong(song, song.libraryID))
+		} else if (cachedData) {
+			return cachedData.viewer.searchSongs.map((song) => makeScopedSong(song, song.libraryID))
+		}
+
+		return undefined
+	}, [rest.data, cachedData])
+
 	return {
-		data: cachedData
-			? cachedData.viewer.searchSongs.map((song) => makeScopedSong(song, song.libraryID))
-			: undefined,
-		search,
 		...rest,
+		data,
+		search,
 	}
 }
