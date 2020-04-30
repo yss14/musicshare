@@ -147,6 +147,7 @@ export interface IPlayer {
 export const Player = (): IPlayer => {
 	const songQueue: ISongQueueItem[] = []
 	const playedSongs: IBaseSongPlayable[] = []
+	let currentSong: IBaseSongPlayable | null = null
 	let isBufferingNextSong = false
 
 	const eventSubscribers: Set<PlayerEventSubscriber> = new Set()
@@ -180,6 +181,10 @@ export const Player = (): IPlayer => {
 	}
 
 	const next = () => {
+		if (currentSong) {
+			playedSongs.push(currentSong)
+		}
+
 		const nextItem = songQueue.shift()
 		dispatch(updateSongQueue(songQueue))
 
@@ -192,6 +197,7 @@ export const Player = (): IPlayer => {
 			.getMediaURL()
 			.then((songMediaUrls) => {
 				dispatch(setSong(nextItem.song))
+				currentSong = nextItem.song
 
 				const mediaUrl = pickMediaUrl(songMediaUrls)
 
@@ -214,11 +220,17 @@ export const Player = (): IPlayer => {
 	const prev = () => {
 		const prevSong = playedSongs.pop()
 
-		if (!prevSong) return
+		if (!prevSong) {
+			message.info("No songs found in the current sessions playback history")
+
+			return
+		}
 
 		prevSong
 			.getMediaURL()
 			.then((songMediaUrls) => {
+				dispatch(setSong(prevSong))
+
 				const mediaUrl = pickMediaUrl(songMediaUrls)
 
 				if (mediaUrl) {
