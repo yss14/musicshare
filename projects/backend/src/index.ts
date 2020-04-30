@@ -1,7 +1,7 @@
 import "reflect-metadata"
 import { HTTPServer } from "./server/HTTPServer"
 import Container from "typedi"
-import { isProductionEnvironment, isValidNodeEnvironment } from "./utils/env/native-envs"
+import { isValidNodeEnvironment } from "./utils/env/native-envs"
 import { loadEnvsFromDotenvFile } from "./utils/env/load-envs-from-file"
 import { CustomEnv } from "./utils/env/CustomEnv"
 import { tryParseInt } from "./utils/try-parse/try-parse-int"
