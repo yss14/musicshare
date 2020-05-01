@@ -205,8 +205,7 @@ export const Player = (): IPlayer => {
 
 					message.error(err.message)
 				})
-		} else if (primaryDeck.src.length > 0) {
-			console.log(event, deck, primaryDeck.src)
+		} else if (deck === 1 && primaryDeck.src.length > 0) {
 			dispatch(setPlaybackError(event))
 		}
 	}
