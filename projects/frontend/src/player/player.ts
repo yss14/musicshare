@@ -236,8 +236,6 @@ export const Player = (): IPlayer => {
 			dispatch(setSong(null))
 			dispatch(setPaused())
 
-			console.log("no next item", primaryDeck.src)
-
 			return false
 		}
 
