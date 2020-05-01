@@ -165,7 +165,9 @@ export const SongTable: React.FC<ISongDataTableProps> = ({ rowEvents, playlistID
 							<List
 								height={height}
 								overscanRowCount={100}
-								noRowsRenderer={() => <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+								noRowsRenderer={() => (
+									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No songs" />
+								)}
 								rowCount={songs.length}
 								rowHeight={27}
 								rowRenderer={rowRenderer}
