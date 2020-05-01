@@ -131,6 +131,7 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 			SharesTable.insertFromObj({ share_id: id, name, date_added: date, is_library: isLib, date_removed: null }),
 		)
 		await addUserToShare(id, ownerUserID, Permissions.ALL)
+		await syncLibraryWithNewlyCreatedShare(ownerUserID, id)
 
 		return Share.fromDBResult({ share_id: id, name: name, is_library: true, date_added: date, date_removed: null })
 	}
@@ -149,6 +150,20 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 				date_removed: null,
 			}),
 		)
+	}
+
+	const syncLibraryWithNewlyCreatedShare = async (userID: string, shareID: string) => {
+		const { songService } = services()
+
+		const library = (await getSharesOfUser(userID)).find((share) => share.isLibrary)
+
+		if (!library) {
+			console.warn(`Library not found. Cannot sync library of user ${userID} with newly created share ${shareID}`)
+
+			return
+		}
+
+		await songService.addLibrarySongsToShare(shareID, library.id)
 	}
 
 	const removeUser = async (shareID: string, userID: string): Promise<void> => {

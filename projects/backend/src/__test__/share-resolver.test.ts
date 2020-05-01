@@ -12,6 +12,7 @@ import { IDatabaseClient } from "postgres-schema-builder"
 import { clearTables } from "../database/database"
 import { Song } from "../models/SongModel"
 import { ShareNotFoundError } from "../services/ShareService"
+import { sortBy } from "lodash"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
@@ -371,11 +372,16 @@ describe("get share users", () => {
 		const query = makeShareQuery(shareID, ["users{id, status}"])
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body.data.share.users).toEqual([
-			{ id: testData.users.user1.user_id, status: UserStatus.Accepted },
-			{ id: testData.users.user2.user_id, status: UserStatus.Accepted },
-			{ id: createdUserPending.id, status: UserStatus.Pending },
-		])
+		expect(sortBy(body.data.share.users, "id")).toEqual(
+			sortBy(
+				[
+					{ id: testData.users.user1.user_id, status: UserStatus.Accepted },
+					{ id: testData.users.user2.user_id, status: UserStatus.Accepted },
+					{ id: createdUserPending.id, status: UserStatus.Pending },
+				],
+				"id",
+			),
+		)
 	})
 })
 
@@ -407,7 +413,7 @@ describe("create share", () => {
 	`
 
 	test("valid share", async () => {
-		const { graphQLServer } = await setupTest({})
+		const { graphQLServer, songService } = await setupTest({})
 
 		const newShareName = "New Share"
 		const query = makeCreateShareMutation(newShareName)
@@ -416,6 +422,15 @@ describe("create share", () => {
 
 		expect(body.data.createShare.permissions).toBeArrayOfSize(Permissions.ALL.length)
 		expect(body.data.createShare.name).toEqual(newShareName)
+
+		// check user library songs are referenced in newly created share
+		const userLibrarySongs = await songService.getByShare(testData.shares.library_user1.share_id)
+		const newlyCreatedShareSongs = await songService.getByShare(body.data.createShare.id)
+
+		const userLibrarySongIDs = userLibrarySongs.map((song) => song.id)
+		const newlyCreatedShareSongIDs = newlyCreatedShareSongs.map((song) => song.id)
+
+		expect(newlyCreatedShareSongIDs.sort()).toEqual(userLibrarySongIDs.sort())
 	})
 
 	test("invalid share name", async () => {
