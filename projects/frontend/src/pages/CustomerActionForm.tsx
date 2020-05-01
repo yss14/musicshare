@@ -14,9 +14,12 @@ export const StyledTitle = styled.h1`
 	top: 20%;
 	font-size: 44px;
 	padding-bottom: 20px;
+	z-index: 10;
 `
 
-export const Title: React.FC = ({ children }) => {
+type TitleProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>
+
+export const Title: React.FC<TitleProps> = ({ children, ...props }) => {
 	const titleRef = useRef<HTMLHeadingElement>(null)
 
 	useLayoutEffect(() => {
@@ -25,5 +28,9 @@ export const Title: React.FC = ({ children }) => {
 		}
 	})
 
-	return <StyledTitle ref={titleRef}>{children}</StyledTitle>
+	return (
+		<StyledTitle {...props} ref={titleRef}>
+			{children}
+		</StyledTitle>
+	)
 }
