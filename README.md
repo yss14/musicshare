@@ -1,4 +1,4 @@
-# MusicShare
+<img src="https://musicsharev2.blob.core.windows.net/musicsharestatic/musicshare_logo_gray.png" width="400">
 
 Simple yet powerful self-hosted open-source music library.
 
@@ -29,13 +29,13 @@ We are working hard to release the first version of MusicShare. See the [roadmap
 3. Create local configurations for `frontend` and `backend` by copying the sample `.env` files (`cp projects/backend/config/development_sample.env projects/backend/development.env && cp projects/frontend/config/sample.env projects/frontend/.env`)
 4. Create and start MusicShares dependencies PostgreSQL database with docker (`docker-compose up`)
 
-   a) **If your system already runs a PostgreSQL database:**
+    a) **If your system already runs a PostgreSQL database:**
 
-   In this case, you only need to spin up the Minio (S3 compatible file storage) service. Just run `docker-compose up -d minio`.
+    In this case, you only need to spin up the Minio (S3 compatible file storage) service. Just run `docker-compose up -d minio`.
 
-   b) **If your system does no already run a PostgreSQL database:**
+    b) **If your system does no already run a PostgreSQL database:**
 
-   Run `docker-compose up -d` to spin up a PostgreSQL database and the Minio (S3 compatible file storage) service.
+    Run `docker-compose up -d` to spin up a PostgreSQL database and the Minio (S3 compatible file storage) service.
 
 5. Open two terminal tabs and start backend and frontend via `npm run start:backend` and `npm run start:frontend`, respectively.
 6. Once both parts are up and running, you can log in via the default user `test@musicshare.rocks` with the super-safe password `test1234`.
@@ -44,9 +44,9 @@ If you want to run parts of the project seperatly, have a look at the provided s
 
 #### Troubleshooting
 
-- `SQLError: error: database "<user>" does not exist SQL: SELECT FROM pg_database WHERE datname = 'musicshare' Values:`
-  - connect to the PostgreSQL database first via a thrid party client or `psql` and create a database named `<user>`
-  - for more information on this problem you can also visit [this StackOverflow thread](https://stackoverflow.com/questions/17633422/psql-fatal-database-user-does-not-exist)
+-   `SQLError: error: database "<user>" does not exist SQL: SELECT FROM pg_database WHERE datname = 'musicshare' Values:`
+    -   connect to the PostgreSQL database first via a thrid party client or `psql` and create a database named `<user>`
+    -   for more information on this problem you can also visit [this StackOverflow thread](https://stackoverflow.com/questions/17633422/psql-fatal-database-user-does-not-exist)
 
 ### Testing
 
@@ -56,8 +56,8 @@ and adjust the database connection variables accordingly.
 
 **Important notes**
 
-- Be sure to always run tsc in watch mode (e.g. via `dev:backend` npm script) when writing test cases since `ts-jest` is configured to skip type checking
-- When calling `executeGraphQLQuery` function in integration tests, the default _logged-in_ user is `testData.users.user1`
+-   Be sure to always run tsc in watch mode (e.g. via `dev:backend` npm script) when writing test cases since `ts-jest` is configured to skip type checking
+-   When calling `executeGraphQLQuery` function in integration tests, the default _logged-in_ user is `testData.users.user1`
 
 ## Contributing
 
@@ -65,10 +65,10 @@ We are always happy welcoming new people contributing to this project. [Here's](
 
 ## Contributors
 
-- Yannick Stachelscheid ([@yss14](https://github.com/yss14))
-- Felix Wohnhaas ([@fewhnhouse](https://github.com/fewhnhouse))
-- Tobias Klesel ([@tobi12345](https://github.com/tobi12345))
-- Christian Diemers ([@Freshchris01](https://github.com/Freshchris01))
+-   Yannick Stachelscheid ([@yss14](https://github.com/yss14))
+-   Felix Wohnhaas ([@fewhnhouse](https://github.com/fewhnhouse))
+-   Tobias Klesel ([@tobi12345](https://github.com/tobi12345))
+-   Christian Diemers ([@Freshchris01](https://github.com/Freshchris01))
 
 ## License
 
