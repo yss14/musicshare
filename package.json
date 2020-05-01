@@ -150,7 +150,7 @@
 		"eslint": "^6.8.0",
 		"eslint-config-prettier": "^6.11.0",
 		"eslint-plugin-react": "^7.19.0",
-		"eslint-plugin-react-hooks": "^3.0.0",
+		"eslint-plugin-react-hooks": "^4.0.0",
 		"find-free-port": "^2.0.0",
 		"husky": "^4.2.5",
 		"jest": "^25.4.0",
