@@ -12,6 +12,8 @@ import { IDatabaseClient } from "postgres-schema-builder"
 import { clearTables } from "../database/database"
 import { Song } from "../models/SongModel"
 import { ShareNotFoundError } from "../services/ShareService"
+import { sortBy } from "lodash"
+import { isFileUpload } from "../models/FileSourceModels"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
@@ -371,11 +373,16 @@ describe("get share users", () => {
 		const query = makeShareQuery(shareID, ["users{id, status}"])
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body.data.share.users).toEqual([
-			{ id: testData.users.user1.user_id, status: UserStatus.Accepted },
-			{ id: testData.users.user2.user_id, status: UserStatus.Accepted },
-			{ id: createdUserPending.id, status: UserStatus.Pending },
-		])
+		expect(sortBy(body.data.share.users, "id")).toEqual(
+			sortBy(
+				[
+					{ id: testData.users.user1.user_id, status: UserStatus.Accepted },
+					{ id: testData.users.user2.user_id, status: UserStatus.Accepted },
+					{ id: createdUserPending.id, status: UserStatus.Pending },
+				],
+				"id",
+			),
+		)
 	})
 })
 
@@ -407,7 +414,7 @@ describe("create share", () => {
 	`
 
 	test("valid share", async () => {
-		const { graphQLServer } = await setupTest({})
+		const { graphQLServer, songService } = await setupTest({})
 
 		const newShareName = "New Share"
 		const query = makeCreateShareMutation(newShareName)
@@ -416,6 +423,15 @@ describe("create share", () => {
 
 		expect(body.data.createShare.permissions).toBeArrayOfSize(Permissions.ALL.length)
 		expect(body.data.createShare.name).toEqual(newShareName)
+
+		// check user library songs are referenced in newly created share
+		const userLibrarySongs = await songService.getByShare(testData.shares.library_user1.share_id)
+		const newlyCreatedShareSongs = await songService.getByShare(body.data.createShare.id)
+
+		const userLibrarySongIDs = userLibrarySongs.map((song) => song.id)
+		const newlyCreatedShareSongIDs = newlyCreatedShareSongs.map((song) => song.id)
+
+		expect(newlyCreatedShareSongIDs.sort()).toEqual(userLibrarySongIDs.sort())
 	})
 
 	test("invalid share name", async () => {
@@ -737,9 +753,21 @@ describe("leave share", () => {
 	`
 
 	test("user is member succeeds", async () => {
-		const { graphQLServer, userService } = await setupTest({})
-
+		const { graphQLServer, userService, playlistService, songService } = await setupTest({})
+		const libraryID = testData.shares.library_user1.share_id
+		const foreignLibraryID = testData.shares.library_user2.share_id
+		const libraryPlaylistID = testData.playlists.playlist1_library_user1.playlist_id
+		const sharePlaylistID = testData.playlists.playlist_some_shared_library.playlist_id
+		const foreignPlaylistID = testData.playlists.playlist_library_user2.playlist_id
+		const foreignSongID = testData.songs.song4_library_user2.song_id
+		const librarySongID = testData.songs.song1_library_user1.song_id
 		const shareID = testData.shares.some_share.share_id
+
+		// prepare song structure for later testing
+		await playlistService.addSongs(libraryID, libraryPlaylistID, [foreignSongID])
+		await playlistService.addSongs(shareID, sharePlaylistID, [librarySongID])
+		await playlistService.addSongs(foreignLibraryID, foreignPlaylistID, [librarySongID])
+
 		const query = makeLeaveShareMutation(shareID)
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
@@ -748,6 +776,33 @@ describe("leave share", () => {
 
 		const shareUsers = await userService.getUsersOfShare(shareID)
 		expect(shareUsers.map((user) => user.id)).not.toContain(testData.users.user1.user_id)
+
+		// check if songs are transfered and removed correctly
+
+		/* check if referenced songs from other user libraties have been deleted from library playlists
+		and do not occur in users library songs */
+		const librarySongs = await songService.getByShare(libraryID)
+		const copiedSongs = librarySongs.filter((song) => song.title === testData.songs.song4_library_user2.title)
+		expect(copiedSongs).toEqual([])
+
+		const playlistSongs = (await playlistService.getSongs(libraryPlaylistID)).filter(
+			(song) => song.title === testData.songs.song4_library_user2.title,
+		)
+		expect(playlistSongs).toEqual([])
+
+		// check if songs from this library, which are referenced in other users libraries, are copied correctly to those foreign libraries
+		const foreignLibrarySongs = (await songService.getByShare(testData.shares.library_user2.share_id)).filter(
+			(song) => song.title === testData.songs.song1_library_user1.title,
+		)
+		expect(foreignLibrarySongs).toBeArrayOfSize(1)
+		expect(foreignLibrarySongs[0].sources.filter(isFileUpload)).toEqual([])
+
+		const foreignPlaylistSongs = await playlistService.getSongs(foreignPlaylistID)
+		expect(foreignPlaylistSongs.map((song) => song.id)).toContain(foreignLibrarySongs[0].id)
+
+		// check if user library song has been removed from share playlist
+		const sharePlaylistSongs = await playlistService.getSongs(sharePlaylistID)
+		expect(sharePlaylistSongs.map((song) => song.id)).not.toContain(testData.songs.song1_library_user1.song_id)
 	})
 
 	test("user is not member fails", async () => {
