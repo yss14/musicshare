@@ -13,6 +13,7 @@ import { history } from "./components/routing/history"
 import { logoutUser } from "./graphql/programmatic/logout"
 import { isPlaylistSong } from "./graphql/types"
 import { ServerError } from "apollo-link-http-common"
+import { message } from "antd"
 
 const config = makeConfigFromEnv()
 
@@ -113,6 +114,8 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
 		for (const error of graphQLErrors) {
 			if (error.message === "Access denied! You need to be authorized to perform this action!") {
 				if (window.location.pathname !== "/login") {
+					logoutUser(client)
+					message.error("You need to be authenticated to access this ressource. Please sign in!")
 					history.push("/login")
 				}
 			} else if (error.extensions && error.extensions.code === "UNAUTHENTICATED") {
@@ -127,8 +130,8 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
 
 						return forward(operation)
 					} else {
-						localStorage.removeItem("auth-token")
-
+						logoutUser(client)
+						message.error("It seems like your session expired. Please sign in again!")
 						history.push("/login")
 
 						return Observable.of()
@@ -136,7 +139,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
 				})
 			} else if (error.message.startsWith("User with id") && error.message.endsWith("not found")) {
 				logoutUser(client)
-
+				message.error("Ups, this operation failed. We logged you out for safety reasons. Please sign in again!")
 				history.push("/login")
 			}
 		}
@@ -161,6 +164,7 @@ const cache = new InMemoryCache({
 		}
 	},
 })
+
 const client = new ApolloClient({
 	link: ApolloLink.from([errorLink, authMiddlewareLink, httpLink]),
 	cache,
