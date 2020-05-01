@@ -4,6 +4,18 @@ import { useLogin } from "../../graphql/mutations/login-mutation"
 import { useHistory } from "react-router"
 import { useFormik } from "formik"
 import { Link } from "react-router-dom"
+import styled from "styled-components"
+
+const StyledSubmitButton = styled(Button)`
+	background-color: #e74c3c;
+	border-color: white;
+	width: 100%;
+
+	&:hover {
+		border-color: white;
+		background-color: #3498db;
+	}
+`
 
 interface IFormValues {
 	email: string
@@ -75,12 +87,14 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 				/>
 			</Form.Item>
 			<Form.Item>
-				<Link to="/password/restore">Forgot password</Link>
+				<Link to="/password/restore" style={{ color: "#e74c3c" }}>
+					Forgot password
+				</Link>
 			</Form.Item>
 			<Form.Item>
-				<Button style={{ width: "100%" }} type="primary" key="submit" htmlType="submit" disabled={!isValid}>
+				<StyledSubmitButton type="primary" key="submit" htmlType="submit" disabled={!isValid}>
 					Sign in
-				</Button>
+				</StyledSubmitButton>
 			</Form.Item>
 		</Form>
 	)
