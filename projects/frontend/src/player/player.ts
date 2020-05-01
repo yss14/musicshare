@@ -44,7 +44,12 @@ const PlayerDeck = ({ onError }: IPlayerDeckArgs) => {
 	document.body.appendChild(audio)
 
 	audio.addEventListener("error", (err) => {
-		if (onError) onError(mapMediaElementEventError(err), getMediaErrorCode(err))
+		const target = err.target as HTMLAudioElement
+
+		// don't propagate error if we manually cleared the audio src attribute
+		if (!((target && target.src.length === 0) || target.src === window.location.href)) {
+			if (onError) onError(mapMediaElementEventError(err), getMediaErrorCode(err))
+		}
 	})
 
 	return audio
@@ -179,8 +184,6 @@ export const Player = (): IPlayer => {
 	const seek = (newCurrentTime: number) => (primaryDeck.currentTime = newCurrentTime)
 
 	const onError = (event: string, code: number, deck: number) => {
-		dispatch(setPlaybackError(event))
-
 		if (deck === 1 && code === MediaError.MEDIA_ERR_NETWORK && currentSong) {
 			const currentPlaybackProgress = primaryDeck.currentTime
 
@@ -202,6 +205,9 @@ export const Player = (): IPlayer => {
 
 					message.error(err.message)
 				})
+		} else if (primaryDeck.src.length > 0) {
+			console.log(event, deck, primaryDeck.src)
+			dispatch(setPlaybackError(event))
 		}
 	}
 
@@ -225,8 +231,16 @@ export const Player = (): IPlayer => {
 
 		isBufferingNextSong = false
 		bufferingDeck.src = ""
+		primaryDeck.setAttribute("src", "")
 
-		if (!nextItem) return false
+		if (!nextItem) {
+			dispatch(setSong(null))
+			dispatch(setPaused())
+
+			console.log("no next item", primaryDeck.src)
+
+			return false
+		}
 
 		nextItem.song
 			.getMediaURL()
@@ -243,6 +257,7 @@ export const Player = (): IPlayer => {
 					playCountIncremented = false
 				} else {
 					console.warn(`Cannot get a media url of song ${nextItem.song.id}`)
+					next()
 				}
 			})
 			.catch((err) => {
