@@ -86,7 +86,7 @@ const SharePlaylistsSidebar = () => {
 		<>
 			<PlaylistSidebarContent
 				playlists={playlists}
-				targetUrlAllSongs="/all"
+				targetUrlAllSongs={`/shares/${shareID}`}
 				addButton={addPlaylistButton}
 				loading={loading}
 				error={error ? error.message : undefined}
