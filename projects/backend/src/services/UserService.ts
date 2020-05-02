@@ -7,10 +7,17 @@ import { ForbiddenError, ValidationError } from "apollo-server-core"
 import { IConfig } from "../types/config"
 import * as JWT from "jsonwebtoken"
 import { IService, IServices } from "./services"
+import { ShareNotFoundError } from "./ShareService"
 
 export class UserNotFoundError extends ForbiddenError {
 	constructor(filterColumn: string, value: string) {
 		super(`User with ${filterColumn} ${value} not found`)
+	}
+}
+
+export class ShareHasBeenDeleted extends Error {
+	constructor() {
+		super("The share you have been invited has been deleted in the meantime")
 	}
 }
 
@@ -146,6 +153,18 @@ export class UserService implements IUserService, IService {
 			const payload: IInvitationPayload = tokenDecoded
 			const user = await this.getUserByInvitationToken(payload.invitationToken)
 
+			try {
+				await this.services.shareService.getShareByID(payload.shareID, user.id)
+			} catch (err) {
+				if (err instanceof ShareNotFoundError) {
+					await this.deleteUser(user.id)
+
+					throw new ShareHasBeenDeleted()
+				} else {
+					throw err
+				}
+			}
+
 			await this.database.query(
 				UsersTable.update(["name", "invitation_token"], ["user_id"])([name, null], [user.id]),
 			)
@@ -155,7 +174,7 @@ export class UserService implements IUserService, IService {
 
 			return this.getUserByID(user.id)
 		} catch (err) {
-			if (err instanceof UserNotFoundError) throw err
+			if (err instanceof UserNotFoundError || err instanceof ShareHasBeenDeleted) throw err
 
 			console.error(err)
 			throw new ValidationError("invitationToken is invalid")
@@ -184,6 +203,18 @@ export class UserService implements IUserService, IService {
 				`
 				DELETE FROM ${UsersTable.name}
 				WHERE user_id = $1 AND invitation_token IS NOT NULL AND date_removed IS NULL;
+			`,
+				[userID],
+			),
+		)
+	}
+
+	public async deleteUser(userID: string): Promise<void> {
+		await this.database.query(
+			SQL.raw(
+				`
+				DELETE FROM ${UsersTable.name}
+				WHERE user_id = $1 AND date_removed IS NULL;
 			`,
 				[userID],
 			),
