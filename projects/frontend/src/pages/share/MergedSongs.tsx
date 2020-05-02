@@ -2,9 +2,11 @@ import React from "react"
 import { useMergedSongs } from "../../graphql/queries/merged-songs-query"
 import { MainSongsView } from "./MainSongsView"
 import { LoadingSpinner } from "../../components/common/LoadingSpinner"
+import { useMergedViewDirtySongs } from "../../graphql/queries/share-songs-dirty-query"
 
 export const MergedSongs: React.FC = () => {
 	const { loading, error, data: songs } = useMergedSongs()
+	useMergedViewDirtySongs()
 
 	if (loading || !songs) {
 		return <LoadingSpinner />
