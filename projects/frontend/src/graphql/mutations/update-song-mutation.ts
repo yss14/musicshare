@@ -56,6 +56,7 @@ const makeUpdateSongCache = (shareID: string, playlistID?: string): MutationUpda
 		)
 	}
 
+	// share song is automatically updated by apollo
 	if (!playlistID) return
 
 	const currentPlaylist = cache.readQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>({
@@ -85,7 +86,7 @@ export const useUpdateSongMutation = (
 	playlistID?: string,
 	opts?: IMutationOptions<IUpdateSongData>,
 ) => {
-	const updateSongCache = useMemo(() => makeUpdateSongCache(song.libraryID, playlistID), [song.libraryID, playlistID])
+	const updateSongCache = useMemo(() => makeUpdateSongCache(song.shareID, playlistID), [song.shareID, playlistID])
 
 	const mutation = useMutation(UPDATE_SONG, { ...opts, update: updateSongCache })
 
