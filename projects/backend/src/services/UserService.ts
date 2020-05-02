@@ -17,7 +17,7 @@ export class UserNotFoundError extends ForbiddenError {
 
 export class ShareHasBeenDeleted extends Error {
 	constructor() {
-		super("The share you have been invited has been deleted in the meantime")
+		super("The share you have been invited to has been deleted in the meantime")
 	}
 }
 

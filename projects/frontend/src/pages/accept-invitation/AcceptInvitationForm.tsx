@@ -1,5 +1,5 @@
 import React, { useCallback } from "react"
-import { Form, Icon, Input, Button, Alert } from "antd"
+import { Form, Icon, Input, Button, Alert, message } from "antd"
 import { IInvitationPayload } from "@musicshare/shared-types"
 import { useFormik } from "formik"
 import { useAcceptInvitation } from "../../graphql/mutations/accept-invitation-mutation"
@@ -42,7 +42,10 @@ interface IAcceptInvitationFormProps {
 
 export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ invitationPayload, invitationToken }) => {
 	const [acceptInvitation, { error, data }] = useAcceptInvitation({
-		onError: console.error,
+		onError: (err) => {
+			console.error(err)
+			message.error(err.message)
+		},
 		onCompleted: () => resetForm(),
 	})
 	const onSubmit = useCallback(
@@ -78,7 +81,7 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 			type="success"
 		/>
 	)
-	const errorAlert = error && <Alert message="Invitation expired" type="error" />
+	const errorAlert = error && <Alert message={error.message} type="error" />
 
 	return (
 		<Form onSubmit={handleSubmit} style={{ width: 250 }}>
