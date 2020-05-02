@@ -708,7 +708,7 @@ describe("accept invitation", () => {
 
 		expect(body).toMatchObject(
 			makeGraphQLResponse(null, [
-				{ message: "The share you have been invited has been deleted in the meantime" },
+				{ message: "The share you have been invited to has been deleted in the meantime" },
 			]),
 		)
 
