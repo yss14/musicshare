@@ -200,6 +200,7 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 
 		const libraryIDs = new Set(affectedPlaylistSongs.map((row) => row.share_id_ref))
 
+		// copy affected playlist songs to corresponding libraries and replace reference in playlist_songs
 		for (const libraryID of libraryIDs) {
 			const libraryPlaylistSongs = new Set(
 				affectedPlaylistSongs.filter((row) => row.share_id_ref === libraryID).map((row) => row.song_id_ref),
@@ -231,7 +232,8 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 			}
 		}
 
-		const librarySongs = await songService.getByShare(shareID)
+		// remove songs from left share playlists which belong to the leaving users library
+		const librarySongs = await songService.getByShare(userLibrary.id)
 		const librarySongIDs = Array.from(new Set(librarySongs.map((song) => song.id)))
 
 		await database.query(
@@ -244,11 +246,15 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 				[shareID, librarySongIDs],
 			),
 		)
+
+		// remove leaving users library songs from share-song relation
 		await database.batch(
 			librarySongIDs.map((librarySongID) =>
 				ShareSongsTable.delete(["share_id_ref", "song_id_ref"])([shareID, librarySongID]),
 			),
 		)
+
+		// remove leaving user from share
 		await database.query(UserSharesTable.delete(["share_id_ref", "user_id_ref"])([shareID, userID]))
 
 		// remove all songs in users playlists referenced from other libraries
