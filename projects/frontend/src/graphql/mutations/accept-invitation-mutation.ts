@@ -1,8 +1,7 @@
 import { IUser, userKeys } from "../types"
 import gql from "graphql-tag"
-import { useMutation, MutationResult } from "react-apollo"
+import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
 import { useCallback } from "react"
-import { IMutationOptions } from "../hook-types"
 
 interface IAcceptInvitationData {
 	acceptInvitation: {
@@ -32,7 +31,7 @@ const ACCEPT_INVITATION = gql`
 	}
 `
 
-export const useAcceptInvitation = (opts?: IMutationOptions<IAcceptInvitationData>) => {
+export const useAcceptInvitation = (opts?: MutationHookOptions<IAcceptInvitationData, IAcceptInvitationVariables>) => {
 	const [acceptInvitationMutation, other] = useMutation<IAcceptInvitationData, IAcceptInvitationVariables>(
 		ACCEPT_INVITATION,
 		opts,

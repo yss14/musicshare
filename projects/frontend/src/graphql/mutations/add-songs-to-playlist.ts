@@ -1,11 +1,10 @@
 import { IPlaylistSong, playlistSongKeys } from "../types"
-import { useMutation } from "@apollo/react-hooks"
+import { useMutation, MutationHookOptions } from "@apollo/react-hooks"
 import gql from "graphql-tag"
 import { useCallback } from "react"
 import { MutationUpdaterFn } from "apollo-client"
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
 import { IGetPlaylistsData, IGetPlaylistsVariables, GET_SHARE_PLAYLISTS } from "../queries/playlists-query"
-import { IMutationOptions } from "../hook-types"
 
 export interface IAddSongsToPlaylistVariables {
 	shareID: string
@@ -25,7 +24,9 @@ export const ADD_SONGS_TO_PLAYLIST = gql`
 	}
 `
 
-export const useAddSongsToPlaylist = (opts?: IMutationOptions<IAddSongsToPlaylistData>) => {
+export const useAddSongsToPlaylist = (
+	opts?: MutationHookOptions<IAddSongsToPlaylistData, IAddSongsToPlaylistVariables>,
+) => {
 	const [invokeMutation] = useMutation<IAddSongsToPlaylistData, IAddSongsToPlaylistVariables>(
 		ADD_SONGS_TO_PLAYLIST,
 		opts,

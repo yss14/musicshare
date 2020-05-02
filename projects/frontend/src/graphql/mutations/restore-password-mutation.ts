@@ -1,6 +1,5 @@
 import gql from "graphql-tag"
-import { IMutationOptions } from "../hook-types"
-import { useMutation, MutationResult } from "react-apollo"
+import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
 import { useCallback } from "react"
 
 interface IRestorePasswordData {
@@ -23,7 +22,7 @@ const RESTORE_PASSWORD = gql`
 	}
 `
 
-export const useRestorePassword = (opts?: IMutationOptions<IRestorePasswordData>) => {
+export const useRestorePassword = (opts?: MutationHookOptions<IRestorePasswordData, IRestorePasswordVariables>) => {
 	const [restorePasswordMutation, other] = useMutation<IRestorePasswordData, IRestorePasswordVariables>(
 		RESTORE_PASSWORD,
 		opts,

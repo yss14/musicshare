@@ -1,6 +1,5 @@
 import gql from "graphql-tag"
-import { useMutation } from "react-apollo"
-import { IMutationOptions } from "../hook-types"
+import { useMutation, MutationHookOptions } from "react-apollo"
 import { IShare, shareKeys } from "../types"
 
 interface IRenameShareData {
@@ -20,7 +19,7 @@ const RENAME_SHARE = gql`
 	}
 `
 
-export const useRenameShare = (opts?: IMutationOptions<IRenameShareData>) => {
+export const useRenameShare = (opts?: MutationHookOptions<IRenameShareData, IRenameShareVariables>) => {
 	const hook = useMutation<IRenameShareData, IRenameShareVariables>(RENAME_SHARE, opts)
 
 	return hook

@@ -1,7 +1,6 @@
 import gql from "graphql-tag"
-import { useMutation, MutationResult } from "react-apollo"
+import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
 import { useCallback } from "react"
-import { IMutationOptions } from "../hook-types"
 
 interface IChangePasswordData {
 	changePassword: boolean
@@ -22,7 +21,7 @@ const CHANGE_PASSWORD = gql`
 	}
 `
 
-export const useChangePassword = (opts?: IMutationOptions<IChangePasswordData>) => {
+export const useChangePassword = (opts?: MutationHookOptions<IChangePasswordData, IChangePasswordVariables>) => {
 	const [changePasswordMutation, other] = useMutation<IChangePasswordData, IChangePasswordVariables>(
 		CHANGE_PASSWORD,
 		opts,

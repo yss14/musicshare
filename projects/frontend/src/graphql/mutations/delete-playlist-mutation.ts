@@ -1,6 +1,5 @@
 import gql from "graphql-tag"
-import { IMutationOptions } from "../hook-types"
-import { useMutation, MutationResult } from "react-apollo"
+import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
 import { useCallback } from "react"
 import { MutationUpdaterFn } from "apollo-client"
 import { IGetPlaylistsData, IGetPlaylistsVariables, GET_SHARE_PLAYLISTS } from "../queries/playlists-query"
@@ -20,7 +19,7 @@ const DELETE_PLAYLIST = gql`
 	}
 `
 
-export const useDeletePlaylist = (opts?: IMutationOptions<IDeletePlaylistData>) => {
+export const useDeletePlaylist = (opts?: MutationHookOptions<IDeletePlaylistData, IDeletePlaylistVariables>) => {
 	const [deletePlaylistMutation, other] = useMutation<IDeletePlaylistData, IDeletePlaylistVariables>(
 		DELETE_PLAYLIST,
 		opts,

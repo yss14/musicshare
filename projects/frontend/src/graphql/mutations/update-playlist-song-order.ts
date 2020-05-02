@@ -1,7 +1,6 @@
 import { playlistSongKeys, IScopedPlaylistSong } from "../types"
 import gql from "graphql-tag"
-import { IMutationOptions } from "../hook-types"
-import { useMutation, MutationResult } from "react-apollo"
+import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
 import { useCallback } from "react"
 import { MutationUpdaterFn } from "apollo-client"
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
@@ -27,7 +26,9 @@ const UPDATE_PLAYLIST_SONG_ORDER = gql`
 	}
 `
 
-export const useUpdatePlaylistSongOrder = (opts?: IMutationOptions<IUpdatePlaylistSongOrderData>) => {
+export const useUpdatePlaylistSongOrder = (
+	opts?: MutationHookOptions<IUpdatePlaylistSongOrderData, IUpdatePlaylistSongOrderVariables>,
+) => {
 	const [updatePlaylistSongOrderMutation, other] = useMutation<
 		IUpdatePlaylistSongOrderData,
 		IUpdatePlaylistSongOrderVariables

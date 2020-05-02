@@ -1,7 +1,6 @@
 import gql from "graphql-tag"
-import { useMutation } from "@apollo/react-hooks"
+import { useMutation, MutationHookOptions } from "@apollo/react-hooks"
 import { DataProxy } from "apollo-cache"
-import { IMutationOptions } from "../hook-types"
 import { useCallback } from "react"
 import { MutationUpdaterFn } from "apollo-client"
 import { MutationResult } from "react-apollo"
@@ -27,7 +26,7 @@ export const LOGIN = gql`
 	}
 `
 
-export const useLogin = (opts?: IMutationOptions<ILoginData>) => {
+export const useLogin = (opts?: MutationHookOptions<ILoginData, ILoginVariables>) => {
 	const [loginMutation, other] = useMutation<ILoginData, ILoginVariables>(LOGIN, opts)
 
 	const updateCache = useCallback<MutationUpdaterFn<ILoginData>>((cache: DataProxy, { data }) => {

@@ -1,7 +1,6 @@
 import { IShare, shareKeys } from "../types"
 import gql from "graphql-tag"
-import { useMutation } from "react-apollo"
-import { IMutationOptions } from "../hook-types"
+import { useMutation, MutationHookOptions } from "react-apollo"
 import { useCallback } from "react"
 import { MutationUpdaterFn } from "apollo-client"
 import { IGetSharesData, IGetSharesVariables, GET_SHARES } from "../queries/shares-query"
@@ -22,7 +21,7 @@ const CREATE_SHARE = gql`
 	}
 `
 
-export const useCreateShare = (opts?: IMutationOptions<ICreateShareData>) => {
+export const useCreateShare = (opts?: MutationHookOptions<ICreateShareData, ICreateShareVariables>) => {
 	const updateSharesCache = useCallback<MutationUpdaterFn<ICreateShareData>>((cache, { data }) => {
 		if (!data) return
 

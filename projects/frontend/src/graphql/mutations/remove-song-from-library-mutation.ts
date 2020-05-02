@@ -1,9 +1,8 @@
 import gql from "graphql-tag"
-import { useMutation, MutationResult } from "react-apollo"
+import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
 import { useCallback } from "react"
 import { MutationUpdaterFn } from "apollo-client"
 import { IGetShareWithSongsData, IGetShareWithSongsVariables, GET_SHARE_WITH_SONGS } from "../queries/share-songs-query"
-import { IMutationOptions } from "../hook-types"
 
 interface IRemoveSongFromLibraryData {
 	removeSongFromLibrary: boolean
@@ -22,7 +21,9 @@ const REMOVE_SONG_FROM_LIBRARY = gql`
 	}
 `
 
-export const useRemoveSongFromLibrary = (opts?: IMutationOptions<IRemoveSongFromLibraryData>) => {
+export const useRemoveSongFromLibrary = (
+	opts?: MutationHookOptions<IRemoveSongFromLibraryData, IRemoveSongFromLibraryVariables>,
+) => {
 	const [removeSongFromLibraryMutation, other] = useMutation<
 		IRemoveSongFromLibraryData,
 		IRemoveSongFromLibraryVariables

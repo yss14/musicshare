@@ -5,12 +5,11 @@ import {
 	IGetPlaylistsVariables,
 	GET_SHARE_PLAYLISTS,
 } from "../queries/playlists-query"
-import { useMutation } from "@apollo/react-hooks"
+import { useMutation, MutationHookOptions } from "@apollo/react-hooks"
 import { MutationUpdaterFn } from "apollo-client/core/watchQueryOptions"
 import { IPlaylist } from "../types"
 import { useCallback } from "react"
 import { MutationResult } from "react-apollo"
-import { IMutationOptions } from "../hook-types"
 
 export interface ICreatePlaylistVariables {
 	shareID: string
@@ -29,7 +28,7 @@ export const CREATE_PLAYLIST = gql`
 	}
 `
 
-export const useCreatePlaylist = (opts?: IMutationOptions<ICreatePlaylistData>) => {
+export const useCreatePlaylist = (opts?: MutationHookOptions<ICreatePlaylistData, ICreatePlaylistVariables>) => {
 	const makeUpdatePlaylistCache = useCallback(
 		(shareID: string): MutationUpdaterFn<ICreatePlaylistData> => (cache, { data }) => {
 			const currentPlaylists = cache.readQuery<IGetPlaylistsData, IGetPlaylistsVariables>({
