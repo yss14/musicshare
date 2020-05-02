@@ -20,6 +20,10 @@ export interface IConfig {
 	}
 	server: {
 		enableGraphQLPlayground: boolean
+		apolloengine?: {
+			apiKey: string
+			schemaTag?: string
+		}
 	}
 	setup: {
 		seed: {
@@ -72,6 +76,15 @@ export const configFromEnv = (): IConfig => {
 		}
 	}
 
+	let apolloengine = undefined
+
+	if (process.env[CustomEnv.APOLLO_ENGINE_API_KEY]) {
+		apolloengine = {
+			apiKey: process.env[CustomEnv.APOLLO_ENGINE_API_KEY] || "nokey",
+			schemaTag: process.env[CustomEnv.APOLLO_ENGINE_SCHEMA_TAG],
+		}
+	}
+
 	return {
 		database: {
 			host: process.env[CustomEnv.POSTGRES_HOST] || "127.0.0.1",
@@ -87,6 +100,7 @@ export const configFromEnv = (): IConfig => {
 		},
 		server: {
 			enableGraphQLPlayground: getBoolean(process.env[CustomEnv.ENABLE_PLAYGROUND]) || !__PROD__,
+			apolloengine,
 		},
 		setup: {
 			seed: {

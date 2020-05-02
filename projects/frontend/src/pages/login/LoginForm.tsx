@@ -17,6 +17,12 @@ const StyledSubmitButton = styled(Button)`
 	}
 `
 
+const StyledFormItem = styled(Form.Item)`
+	& .ant-form-explain {
+		color: white;
+	}
+`
+
 interface IFormValues {
 	email: string
 	password: string
@@ -62,7 +68,7 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 	return (
 		<Form onSubmit={handleSubmit} style={{ width: 250 }}>
 			{error && <Alert message={error.message.replace("GraphQL error: ", "")} type="error" />}
-			<Form.Item validateStatus={touched.email && errors.email ? "error" : "success"} help={errors.email}>
+			<StyledFormItem validateStatus={touched.email && errors.email ? "error" : "success"} help={errors.email}>
 				<Input
 					prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
 					placeholder="E-Mail"
@@ -71,8 +77,8 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 					onChange={handleChange}
 					onBlur={handleBlur}
 				/>
-			</Form.Item>
-			<Form.Item
+			</StyledFormItem>
+			<StyledFormItem
 				validateStatus={touched.password && errors.password ? "error" : "success"}
 				help={errors.password}
 			>
@@ -85,7 +91,7 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 					onChange={handleChange}
 					onBlur={handleBlur}
 				/>
-			</Form.Item>
+			</StyledFormItem>
 			<Form.Item>
 				<Link to="/password/restore" style={{ color: "#e74c3c" }}>
 					Forgot password

@@ -46,7 +46,11 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 
 	const cancelButton = (
 		<Popconfirm
-			title="Are you sure? This action cannot be undone!"
+			title={
+				isOwner
+					? "Are you sure? This action cannot be undone (and is very unstable at the moment)!"
+					: "Are you sure? This action will remove all referenced songs from your library and cannot be undone!"
+			}
 			icon={<Icon type="question-circle-o" style={{ color: "red" }} />}
 			onConfirm={onLeaveDeleteClick}
 		>

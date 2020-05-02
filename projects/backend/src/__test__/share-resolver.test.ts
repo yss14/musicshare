@@ -14,6 +14,7 @@ import { Song } from "../models/SongModel"
 import { ShareNotFoundError } from "../services/ShareService"
 import { sortBy } from "lodash"
 import { isFileUpload } from "../models/FileSourceModels"
+import { UserNotFoundError } from "../services/UserService"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
@@ -692,6 +693,27 @@ describe("accept invitation", () => {
 				},
 			]),
 		)
+	})
+
+	test("share has been deleted in the meantime fails", async () => {
+		const { graphQLServer, userService, shareService } = await setupTest({})
+
+		const { invitationLink } = await userService.inviteToShare(shareID, inviterID, email)
+		const invitationToken = invitationLink.split("/")[invitationLink.split("/").length - 1]
+
+		await shareService.remove(shareID)
+
+		const query = makeAcceptInvitationMutation(invitationToken, "1337 User", "password")
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body).toMatchObject(
+			makeGraphQLResponse(null, [
+				{ message: "The share you have been invited to has been deleted in the meantime" },
+			]),
+		)
+
+		const invitedUser = userService.getUserByEMail(email)
+		expect(invitedUser).rejects.toThrowError(UserNotFoundError)
 	})
 })
 
