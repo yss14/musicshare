@@ -1,5 +1,4 @@
 import React, { useMemo, useCallback } from "react"
-import "./song-modal.css"
 import { IGenre, ISongType, IArtist, IScopedSong } from "../../../graphql/types"
 import { Formik } from "formik"
 import { Form, Input, Row, Col, DatePicker, Switch, Modal, Select } from "antd"
@@ -8,6 +7,17 @@ import moment from "moment"
 import { ISongUpdateInput, useUpdateSongMutation } from "../../../graphql/mutations/update-song-mutation"
 import { Nullable } from "../../../types/Nullable"
 import { buildSongName } from "../../../utils/songname-builder"
+import styled from "styled-components"
+
+const StyledModal = styled(Modal)`
+	& .ant-form-item-label {
+		line-height: 20px;
+	}
+
+	& .ant-row.ant-form-item {
+		margin-bottom: 4px;
+	}
+`
 
 interface ISongFormProps {
 	song: IScopedSong
@@ -60,7 +70,7 @@ export const SongForm = ({
 		<Formik initialValues={song} onSubmit={updateSong} validate={validateSong} initialErrors={validateSong(song)}>
 			{({ values, errors, handleChange, handleBlur, setFieldValue, submitForm }) => {
 				return (
-					<Modal
+					<StyledModal
 						title={buildSongName(song)}
 						visible={true}
 						onCancel={closeForm}
@@ -69,170 +79,168 @@ export const SongForm = ({
 						okText={readOnly ? "OK" : "Save"}
 						okButtonProps={{ loading }}
 					>
-						<div id="songmodal">
-							<Form>
-								<Form.Item label="Title" validateStatus={errors.title ? "error" : "success"}>
-									<Input
-										placeholder="Song title"
-										name="title"
-										value={values.title}
-										onChange={handleChange}
-										onBlur={handleBlur}
-										readOnly={readOnly}
-									/>
-								</Form.Item>
-								<Form.Item label="Artists">
-									<EditableTagGroup
-										values={values.artists}
-										onValuesChange={(newValues) => setFieldValue("artists", newValues)}
-										placeholder="Add artist"
-										datasource={artistsDataSource}
-										readOnly={readOnly}
-									/>
-								</Form.Item>
-								<Form.Item label="Remixer">
-									<EditableTagGroup
-										values={values.remixer}
-										onValuesChange={(newValues) => setFieldValue("remixer", newValues)}
-										placeholder="Add remixer"
-										datasource={artistsDataSource}
-										readOnly={readOnly}
-									/>
-								</Form.Item>
-								<Form.Item label="Featurings">
-									<EditableTagGroup
-										values={values.featurings}
-										onValuesChange={(newValues) => setFieldValue("featurings", newValues)}
-										placeholder="Add featurings"
-										datasource={artistsDataSource}
-										readOnly={readOnly}
-									/>
-								</Form.Item>
-								<Row>
-									<Col span={12} style={{ paddingRight: 20 }}>
-										<Form.Item label="Genres">
-											<EditableTagGroup
-												values={values.genres}
-												onValuesChange={(newValues) => setFieldValue("genres", newValues)}
-												placeholder="Add genre"
-												datasource={genresDataSource}
-												readOnly={readOnly}
-											/>
-										</Form.Item>
-									</Col>
-									<Col span={12} style={{ paddingRight: 20 }}>
-										<Form.Item label="Suffix" validateStatus={errors.suffix ? "error" : "success"}>
-											<Input
-												placeholder="Song suffix"
-												name="suffix"
-												value={values.suffix || ""}
-												onChange={handleChange}
-												onBlur={handleBlur}
-												readOnly={readOnly}
-											/>
-										</Form.Item>
-									</Col>
-								</Row>
-								<Row>
-									<Col span={12} style={{ paddingRight: 20 }}>
-										<Form.Item label="Year" validateStatus={errors.year ? "error" : "success"}>
-											<Input
-												placeholder="Year"
-												name="year"
-												value={values.year || ""}
-												onChange={handleChange}
-												onBlur={handleBlur}
-												type="number"
-												readOnly={readOnly}
-											/>
-										</Form.Item>
-									</Col>
-									<Col span={12} style={{ paddingRight: 20 }}>
-										<Form.Item label="BPM" validateStatus={errors.bpm ? "error" : "success"}>
-											<Input
-												placeholder="BPM"
-												name="bpm"
-												value={values.bpm || ""}
-												onChange={handleChange}
-												onBlur={handleBlur}
-												type="number"
-												readOnly={readOnly}
-											/>
-										</Form.Item>
-									</Col>
-								</Row>
-								<Row>
-									<Col span={12} style={{ paddingRight: 20 }}>
-										<Form.Item
-											label="Type"
-											validateStatus={errors.type ? "error" : "success"}
-											hasFeedback={!!errors.type}
+						<Form>
+							<Form.Item label="Title" validateStatus={errors.title ? "error" : "success"}>
+								<Input
+									placeholder="Song title"
+									name="title"
+									value={values.title}
+									onChange={handleChange}
+									onBlur={handleBlur}
+									readOnly={readOnly}
+								/>
+							</Form.Item>
+							<Form.Item label="Artists">
+								<EditableTagGroup
+									values={values.artists}
+									onValuesChange={(newValues) => setFieldValue("artists", newValues)}
+									placeholder="Add artist"
+									datasource={artistsDataSource}
+									readOnly={readOnly}
+								/>
+							</Form.Item>
+							<Form.Item label="Remixer">
+								<EditableTagGroup
+									values={values.remixer}
+									onValuesChange={(newValues) => setFieldValue("remixer", newValues)}
+									placeholder="Add remixer"
+									datasource={artistsDataSource}
+									readOnly={readOnly}
+								/>
+							</Form.Item>
+							<Form.Item label="Featurings">
+								<EditableTagGroup
+									values={values.featurings}
+									onValuesChange={(newValues) => setFieldValue("featurings", newValues)}
+									placeholder="Add featurings"
+									datasource={artistsDataSource}
+									readOnly={readOnly}
+								/>
+							</Form.Item>
+							<Row>
+								<Col span={12} style={{ paddingRight: 20 }}>
+									<Form.Item label="Genres">
+										<EditableTagGroup
+											values={values.genres}
+											onValuesChange={(newValues) => setFieldValue("genres", newValues)}
+											placeholder="Add genre"
+											datasource={genresDataSource}
+											readOnly={readOnly}
+										/>
+									</Form.Item>
+								</Col>
+								<Col span={12} style={{ paddingRight: 20 }}>
+									<Form.Item label="Suffix" validateStatus={errors.suffix ? "error" : "success"}>
+										<Input
+											placeholder="Song suffix"
+											name="suffix"
+											value={values.suffix || ""}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											readOnly={readOnly}
+										/>
+									</Form.Item>
+								</Col>
+							</Row>
+							<Row>
+								<Col span={12} style={{ paddingRight: 20 }}>
+									<Form.Item label="Year" validateStatus={errors.year ? "error" : "success"}>
+										<Input
+											placeholder="Year"
+											name="year"
+											value={values.year || ""}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											type="number"
+											readOnly={readOnly}
+										/>
+									</Form.Item>
+								</Col>
+								<Col span={12} style={{ paddingRight: 20 }}>
+									<Form.Item label="BPM" validateStatus={errors.bpm ? "error" : "success"}>
+										<Input
+											placeholder="BPM"
+											name="bpm"
+											value={values.bpm || ""}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											type="number"
+											readOnly={readOnly}
+										/>
+									</Form.Item>
+								</Col>
+							</Row>
+							<Row>
+								<Col span={12} style={{ paddingRight: 20 }}>
+									<Form.Item
+										label="Type"
+										validateStatus={errors.type ? "error" : "success"}
+										hasFeedback={!!errors.type}
+									>
+										<Select
+											value={values.type}
+											onSelect={(value: string | null) => setFieldValue("type", value)}
+											disabled={readOnly}
+											style={{ width: 200 }}
 										>
-											<Select
-												value={values.type}
-												onSelect={(value: string | null) => setFieldValue("type", value)}
-												disabled={readOnly}
-												style={{ width: 200 }}
-											>
-												{songTypeOptions.map((songType) => (
-													<Select.Option key={songType.value} value={songType.value}>
-														{songType.label}
-													</Select.Option>
-												))}
-											</Select>
-										</Form.Item>
-									</Col>
-									<Col span={12} style={{ paddingRight: 20 }}>
-										<Form.Item
-											label="Release Date"
-											validateStatus={errors.releaseDate ? "error" : "success"}
-										>
-											<DatePicker
-												value={values.releaseDate ? moment(values.releaseDate) : undefined}
-												onChange={(e) => setFieldValue("releaseDate", e!.toISOString())}
-												placeholder="Release Date"
-												disabled={readOnly}
-											/>
-										</Form.Item>
-									</Col>
-								</Row>
-								<Row>
-									<Col span={12} style={{ paddingRight: 20 }}>
-										<Form.Item label="Is rip" validateStatus={errors.isRip ? "error" : "success"}>
-											<Switch
-												checked={values.isRip}
-												onChange={(e) => setFieldValue("isRip", e)}
-												disabled={readOnly}
-											/>
-										</Form.Item>
-									</Col>
-								</Row>
-								<Row>
-									<Col span={12} style={{ paddingRight: 20 }}>
-										<Form.Item label="Tags">
-											<EditableTagGroup
-												values={values.tags}
-												onValuesChange={(newValues) => setFieldValue("tags", newValues)}
-												placeholder="Add tag"
-												datasource={tags}
-												readOnly={readOnly}
-											/>
-										</Form.Item>
-									</Col>
-									<Col span={12} style={{ paddingRight: 20 }}>
-										<Form.Item label="Record Labels">
-											<EditableTagGroup
-												values={values.labels}
-												onValuesChange={(newValues) => setFieldValue("labels", newValues)}
-												placeholder="Add label"
-												readOnly={readOnly}
-											/>
-										</Form.Item>
-									</Col>
-								</Row>
-							</Form>
-						</div>
-					</Modal>
+											{songTypeOptions.map((songType) => (
+												<Select.Option key={songType.value} value={songType.value}>
+													{songType.label}
+												</Select.Option>
+											))}
+										</Select>
+									</Form.Item>
+								</Col>
+								<Col span={12} style={{ paddingRight: 20 }}>
+									<Form.Item
+										label="Release Date"
+										validateStatus={errors.releaseDate ? "error" : "success"}
+									>
+										<DatePicker
+											value={values.releaseDate ? moment(values.releaseDate) : undefined}
+											onChange={(e) => setFieldValue("releaseDate", e!.toISOString())}
+											placeholder="Release Date"
+											disabled={readOnly}
+										/>
+									</Form.Item>
+								</Col>
+							</Row>
+							<Row>
+								<Col span={12} style={{ paddingRight: 20 }}>
+									<Form.Item label="Is rip" validateStatus={errors.isRip ? "error" : "success"}>
+										<Switch
+											checked={values.isRip}
+											onChange={(e) => setFieldValue("isRip", e)}
+											disabled={readOnly}
+										/>
+									</Form.Item>
+								</Col>
+							</Row>
+							<Row>
+								<Col span={12} style={{ paddingRight: 20 }}>
+									<Form.Item label="Tags">
+										<EditableTagGroup
+											values={values.tags}
+											onValuesChange={(newValues) => setFieldValue("tags", newValues)}
+											placeholder="Add tag"
+											datasource={tags}
+											readOnly={readOnly}
+										/>
+									</Form.Item>
+								</Col>
+								<Col span={12} style={{ paddingRight: 20 }}>
+									<Form.Item label="Record Labels">
+										<EditableTagGroup
+											values={values.labels}
+											onValuesChange={(newValues) => setFieldValue("labels", newValues)}
+											placeholder="Add label"
+											readOnly={readOnly}
+										/>
+									</Form.Item>
+								</Col>
+							</Row>
+						</Form>
+					</StyledModal>
 				)
 			}}
 		</Formik>
