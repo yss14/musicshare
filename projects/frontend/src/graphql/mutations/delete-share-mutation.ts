@@ -1,6 +1,5 @@
 import gql from "graphql-tag"
-import { useMutation, MutationResult } from "react-apollo"
-import { IMutationOptions } from "../hook-types"
+import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
 import { useCallback } from "react"
 import { MutationUpdaterFn } from "apollo-client"
 import { IGetSharesData, IGetSharesVariables, GET_SHARES } from "../queries/shares-query"
@@ -19,7 +18,7 @@ const DELETE_SHARE = gql`
 	}
 `
 
-export const useDeleteShare = (opts?: IMutationOptions<IDeleteShareData>) => {
+export const useDeleteShare = (opts?: MutationHookOptions<IDeleteShareData, IDeleteShareVariables>) => {
 	const makeUpdateSharesCache = useCallback(
 		(shareID: string): MutationUpdaterFn<IDeleteShareData> => (cache, { data }) => {
 			if (!data) return

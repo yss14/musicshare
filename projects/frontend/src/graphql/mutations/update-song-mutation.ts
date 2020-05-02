@@ -4,9 +4,8 @@ import { shareSongKeys, IBaseSong, IScopedSong } from "../types"
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
 import { addArtistsToCache } from "../programmatic/add-artist-to-cache"
 import { useMemo } from "react"
-import { useMutation } from "react-apollo"
+import { useMutation, MutationHookOptions } from "react-apollo"
 import { MutationUpdaterFn } from "apollo-client"
-import { IMutationOptions } from "../hook-types"
 
 export const UPDATE_SONG = gql`
 	mutation UpdateSong($shareID: String!, $songID: String!, $song: SongUpdateInput!){
@@ -84,7 +83,7 @@ const makeUpdateSongCache = (shareID: string, playlistID?: string): MutationUpda
 export const useUpdateSongMutation = (
 	song: IScopedSong,
 	playlistID?: string,
-	opts?: IMutationOptions<IUpdateSongData>,
+	opts?: MutationHookOptions<IUpdateSongData, IUpdateSongVariables>,
 ) => {
 	const updateSongCache = useMemo(() => makeUpdateSongCache(song.shareID, playlistID), [song.shareID, playlistID])
 

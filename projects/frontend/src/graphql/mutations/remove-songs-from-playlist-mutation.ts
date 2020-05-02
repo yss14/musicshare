@@ -1,10 +1,9 @@
 import { IPlaylistSong, playlistSongKeys } from "../types"
 import gql from "graphql-tag"
-import { useMutation, MutationResult } from "react-apollo"
+import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
 import { useCallback } from "react"
 import { MutationUpdaterFn } from "apollo-client"
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
-import { IMutationOptions } from "../hook-types"
 
 interface IRemoveSongsFromPlaylistData {
 	removeSongsFromPlaylist: IPlaylistSong[]
@@ -24,7 +23,9 @@ const REMOVE_SONGS_FROM_PLAYLIST = gql`
 	}
 `
 
-export const useRemoveSongsFromPlaylist = (opts?: IMutationOptions<IRemoveSongsFromPlaylistData>) => {
+export const useRemoveSongsFromPlaylist = (
+	opts?: MutationHookOptions<IRemoveSongsFromPlaylistData, IRemoveSongsFromPlaylistVariables>,
+) => {
 	const [removeSongsFromPlaylistMutation, other] = useMutation<
 		IRemoveSongsFromPlaylistData,
 		IRemoveSongsFromPlaylistVariables

@@ -1,6 +1,5 @@
 import gql from "graphql-tag"
-import { useMutation } from "react-apollo"
-import { IMutationOptions } from "../hook-types"
+import { useMutation, MutationHookOptions } from "react-apollo"
 
 interface IInviteToShareData {
 	inviteToShare: string | null
@@ -19,7 +18,7 @@ const INVITE_TO_SHARE = gql`
 	}
 `
 
-export const useInviteToShare = (opts?: IMutationOptions<IInviteToShareData>) => {
+export const useInviteToShare = (opts?: MutationHookOptions<IInviteToShareData, IInviteToShareVariables>) => {
 	const hook = useMutation<IInviteToShareData, IInviteToShareVariables>(INVITE_TO_SHARE, opts)
 
 	return hook

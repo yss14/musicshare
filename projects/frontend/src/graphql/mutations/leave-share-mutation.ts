@@ -2,8 +2,7 @@ import gql from "graphql-tag"
 import { useCallback } from "react"
 import { MutationUpdaterFn } from "apollo-client"
 import { IGetSharesData, IGetSharesVariables, GET_SHARES } from "../queries/shares-query"
-import { useMutation, MutationResult } from "react-apollo"
-import { IMutationOptions } from "../hook-types"
+import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
 
 interface ILeaveShareData {
 	leaveShare: boolean
@@ -21,7 +20,7 @@ const LEAVE_SHARE = gql`
 	}
 `
 
-export const useLeaveShare = (opts?: IMutationOptions<ILeaveShareData>) => {
+export const useLeaveShare = (opts?: MutationHookOptions<ILeaveShareData, ILeaveShareVariables>) => {
 	const makeUpdateSharesCache = useCallback(
 		(shareID: string): MutationUpdaterFn<ILeaveShareData> => (cache, { data }) => {
 			if (!data) return

@@ -1,6 +1,5 @@
 import gql from "graphql-tag"
-import { IMutationOptions } from "../hook-types"
-import { useMutation } from "react-apollo"
+import { useMutation, MutationHookOptions } from "react-apollo"
 
 interface IRevokeInvitationData {
 	revokeInvitation: boolean
@@ -19,7 +18,7 @@ const REVOKE_INVITATION = gql`
 	}
 `
 
-export const useRevokeInvitation = (opts?: IMutationOptions<IRevokeInvitationData>) => {
+export const useRevokeInvitation = (opts?: MutationHookOptions<IRevokeInvitationData, IRevokeInvitationVariables>) => {
 	const hook = useMutation<IRevokeInvitationData, IRevokeInvitationVariables>(REVOKE_INVITATION, opts)
 
 	return hook
