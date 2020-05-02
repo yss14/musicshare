@@ -5,16 +5,9 @@ import { Formik } from "formik"
 import { Form, Input, Row, Col, DatePicker, Switch, Modal, Select } from "antd"
 import { EditableTagGroup } from "../../form/EditableTagGroup"
 import moment from "moment"
-import {
-	UPDATE_SONG,
-	ISongUpdateInput,
-	IUpdateSongData,
-	makeUpdateSongCache,
-} from "../../../graphql/mutations/update-song-mutation"
+import { ISongUpdateInput, useUpdateSongMutation } from "../../../graphql/mutations/update-song-mutation"
 import { Nullable } from "../../../types/Nullable"
 import { buildSongName } from "../../../utils/songname-builder"
-import { MutationUpdaterFn } from "apollo-client"
-import { useMutation } from "react-apollo"
 
 interface ISongFormProps {
 	song: IScopedSong
@@ -44,14 +37,11 @@ export const SongForm = ({
 		[songTypes],
 	)
 
-	const updateSongCache = makeUpdateSongCache(song.libraryID, playlistID)
-
-	const songMutationOnUpdate: MutationUpdaterFn<IUpdateSongData> = (cache, data) => {
-		updateSongCache(cache, data)
-		closeForm()
-	}
-
-	const [updateSongMutation, { loading }] = useMutation(UPDATE_SONG, { update: songMutationOnUpdate })
+	const [updateSongMutation, { loading }] = useUpdateSongMutation(song, playlistID, {
+		onCompleted: () => {
+			closeForm()
+		},
+	})
 
 	const updateSong = useCallback(
 		(values: IScopedSong) => {
