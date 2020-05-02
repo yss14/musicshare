@@ -4,7 +4,7 @@ import { useQuery, useApolloClient } from "react-apollo"
 import { useCallback, useRef } from "react"
 import { GET_SHARE_WITH_SONGS, IGetShareWithSongsData, IGetShareWithSongsVariables } from "./share-songs-query"
 import { ITimedstampedResults } from "@musicshare/shared-types"
-import { useInterval } from "../../hooks/use-interval"
+import useInterval from "@use-it/interval"
 
 export interface IGetShareDirtySongsData {
 	share: {
@@ -20,7 +20,7 @@ export interface IGetShareDirtySongsVariables {
 }
 
 export const GET_SHARE_DIRTY_SONGS = gql`
-  	query share($shareID: String!, $lastTimestamp: DateTime!) {
+  	query ShareSongsDirty($shareID: String!, $lastTimestamp: DateTime!) {
     	share(shareID: $shareID) {
       		id
       		name
