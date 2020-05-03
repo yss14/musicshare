@@ -149,7 +149,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
 		if (isServerError(networkError)) {
 			console.log(networkError)
 		} else {
-			history.push("/offline")
+			message.warning("We detected some network issues. You may want check your internet connection.", 10)
 		}
 	}
 })

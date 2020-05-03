@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react"
+import React, { useCallback, useState, useRef } from "react"
 import { IPlaylist, IScopedSong, isPlaylistSong } from "../../graphql/types"
 import { usePlayer } from "../../player/player-hook"
 import { ContextMenu } from "../../components/modals/contextmenu/ContextMenu"
@@ -28,11 +28,14 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const { changeSong, enqueueSong, enqueueSongNext } = usePlayer()
 	const { makePlayableSong } = useSongUtils()
 	const addSongsToPlaylist = useAddSongsToPlaylist()
+	const mutatingSong = useRef<typeof song>(null)
 	const [removeSongFromLibrary] = useRemoveSongFromLibrary({
-		onCompleted: () => message.success(`Song ${buildSongName(song!)} successfully removed from library`),
+		onCompleted: () =>
+			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from library`),
 	})
 	const [removeSongsFromPlaylist] = useRemoveSongsFromPlaylist({
-		onCompleted: () => message.success(`Song ${buildSongName(song!)} successfully removed from playlist`),
+		onCompleted: () =>
+			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from playlist`),
 	})
 	const userLibraryID = useLibraryID()
 
@@ -74,12 +77,14 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const onRemoveFromLibrary = useCallback(() => {
 		if (!song) return
 
+		mutatingSong.current = song
 		removeSongFromLibrary(song.libraryID, song.id)
 	}, [song, removeSongFromLibrary])
 
 	const onRemoveFromPlaylist = useCallback(() => {
 		if (!song || !playlistID || !isPlaylistSong(song)) return
 
+		mutatingSong.current = song
 		removeSongsFromPlaylist(song.shareID, playlistID, [song.playlistSongID])
 	}, [song, playlistID, removeSongsFromPlaylist])
 
