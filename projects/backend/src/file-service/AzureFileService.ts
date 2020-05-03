@@ -1,8 +1,17 @@
-import { IFileService, UploadFileArgs, GetLinkToFileArgs } from "./FileService"
+import { IFileService, UploadFileArgs, GetLinkToFileArgs, FileAccessPermission } from "./FileService"
 import * as azBlob from "azure-storage"
 import moment from "moment"
 import { ICreateBlockBlobRequestOptions } from "../types/azure-storage-additional-types"
 import { streamToBuffer } from "../utils/stream-to-buffer"
+
+const mapPermission = (permission: FileAccessPermission) => {
+	switch (permission) {
+		case "read":
+			return azBlob.Constants.AccountSasConstants.Permissions.READ
+		case "write":
+			return azBlob.Constants.AccountSasConstants.Permissions.READ
+	}
+}
 
 export enum ContainerAccessLevel {
 	Private = "off",
@@ -76,10 +85,12 @@ export class AzureFileService implements IFileService {
 		const expireStartDate = moment()
 		const expireEndDate = moment(args.expireDate || moment())
 		const ipAddressRestriction = args.ipAddress || "0.0.0.0-255.255.255.255"
+		const defaultPermission = azBlob.Constants.AccountSasConstants.Permissions.READ
+		const permission = args.permission ? mapPermission(args.permission) : defaultPermission
 
 		const sharedAccessPolicy: azBlob.common.SharedAccessPolicy = {
 			AccessPolicy: {
-				Permissions: azBlob.Constants.AccountSasConstants.Permissions.READ,
+				Permissions: permission,
 				Start: expireStartDate.toDate(),
 				Expiry: expireEndDate.toDate(),
 				IPAddressOrRange: ipAddressRestriction,

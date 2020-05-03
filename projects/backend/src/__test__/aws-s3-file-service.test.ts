@@ -89,7 +89,7 @@ describe("file upload", () => {
 describe("get url to file", () => {
 	const mp3FilePath = path.join(__dirname, "assets", "SampleAudio.mp3")
 
-	test("get url to uploaded file", async () => {
+	test("get url to uploaded file read", async () => {
 		const fileService = new AWSS3FileService(s3Client, uuid())
 		await fileService.createContainerIfNotExists()
 		const filenameRemote = "SomeFile.mp3"
@@ -105,6 +105,19 @@ describe("get url to file", () => {
 		const urlToFileIsReachable = await urlIsReachable(urlToFile, "get")
 
 		expect(urlToFileIsReachable).toBeTruthy()
+	})
+
+	test("get url to uploaded file write", async () => {
+		const fileService = new AWSS3FileService(s3Client, uuid())
+		const filenameRemote = "SomeFile.mp3"
+
+		const urlToFile = await fileService.getLinkToFile({
+			filenameRemote,
+			expireDate: moment().add(20, "seconds"),
+			permission: "read",
+		})
+
+		expect(urlToFile).toBeString()
 	})
 
 	test("get url to uploaded file expired", async () => {

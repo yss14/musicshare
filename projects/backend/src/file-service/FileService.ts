@@ -7,10 +7,13 @@ export interface UploadFileArgs {
 	source: Readable
 }
 
+export type FileAccessPermission = "read" | "write"
+
 export interface GetLinkToFileArgs {
 	filenameRemote: string
 	expireDate?: Moment | Date
 	ipAddress?: string
+	permission?: FileAccessPermission
 }
 
 export interface IFileService {
