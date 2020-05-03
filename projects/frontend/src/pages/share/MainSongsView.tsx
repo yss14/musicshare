@@ -42,9 +42,10 @@ interface ISongsViewProps {
 	songs: IScopedSong[]
 	playlistID?: string
 	moveSong?: MoveSong
+	isShare: boolean
 }
 
-export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong }) => {
+export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong, isShare }) => {
 	const { makePlayableSong } = useSongUtils()
 	const { changeSong, enqueueDefaultSongs, clearQueue, currentSong } = usePlayer()
 	const [editSong, setEditSong] = useState<IScopedSong | null>(null)
@@ -119,8 +120,14 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 	const renderedColumns = useMemo(() => {
 		const fixColumnKeys = playlistID ? ["playback_indicator", "position", "title"] : ["playback_indicator", "title"]
 
-		return mapSongTableColumnKeys(fixColumnKeys).concat(customColumns)
-	}, [playlistID, customColumns])
+		const mappedSongTableColumns = mapSongTableColumnKeys(fixColumnKeys).concat(customColumns)
+
+		if (isShare) {
+			mappedSongTableColumns.push(SongTableColumn.Share)
+		}
+
+		return mappedSongTableColumns
+	}, [playlistID, customColumns, isShare])
 
 	return (
 		<FlexContainer>

@@ -8,6 +8,7 @@ import { isPlaylistSong, IScopedPlaylistSong } from "../../graphql/types"
 import { useUpdatePlaylistSongOrder } from "../../graphql/mutations/update-playlist-song-order"
 import { useDeepCompareEffect } from "../../hooks/use-deep-compare-effect"
 import { MoveSong } from "../../components/song-table/MoveSong"
+import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 
 export interface IPlaylistSongsProps {
 	shareID: string
@@ -20,6 +21,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	const [updateOrder] = useUpdatePlaylistSongOrder({
 		onError: console.error,
 	})
+	const libraryID = useLibraryID()
 
 	const moveSong = useCallback<MoveSong>(
 		(sourceSong, targetSong) => {
@@ -54,5 +56,13 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	if (error) return <div>{error.message}</div>
 	if (!playlist || !songs) return <div>No data</div>
 
-	return <MainSongsView title={playlist.name} songs={songs} playlistID={playlist.id} moveSong={moveSong} />
+	return (
+		<MainSongsView
+			title={playlist.name}
+			songs={songs}
+			playlistID={playlist.id}
+			moveSong={moveSong}
+			isShare={libraryID !== shareID}
+		/>
+	)
 }
