@@ -24,7 +24,7 @@ export const getCurrentPermissionsForShare = (shareID: string, scopes: Scopes) =
 	return shareScopes.permissions
 }
 
-export const getShareIDFromRequest = ({ args, root }: { args: ArgsDictionary; root: any }) => {
+export const getShareIDFromRequest = ({ args, root }: { args: ArgsDictionary; root: any }): string | null => {
 	if (root instanceof Share) {
 		return root.id
 	}

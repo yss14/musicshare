@@ -33,6 +33,13 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 		return dbResults.map(Share.fromDBResult)
 	}
 
+	const getUserLibrary = async (userID: string) => {
+		const userShares = await getSharesOfUser(userID)
+		const library = userShares.find((share) => share.isLibrary === true)
+
+		return library!
+	}
+
 	const getShareByID = async (shareID: string, userID: string): Promise<Share> => {
 		const dbResults = await database.query(
 			SQL.raw<typeof Tables.shares>(
@@ -282,6 +289,7 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 
 	return {
 		getSharesOfUser,
+		getUserLibrary,
 		getShareByID,
 		getLinkedLibrariesOfUser,
 		getLinkedShares,
