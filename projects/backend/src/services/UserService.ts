@@ -107,7 +107,7 @@ export class UserService implements IUserService, IService {
 		const invitationToken = uuid()
 		const userID = uuid()
 		const dateAdded = new Date()
-		const name = `Invited User ${inviterID}`
+		const name = `Invited User ${userID}`
 		const payload: IInvitationPayload = {
 			shareID,
 			inviterID,
