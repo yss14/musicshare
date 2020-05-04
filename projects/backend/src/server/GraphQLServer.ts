@@ -3,6 +3,7 @@ import { ApolloServer } from "apollo-server-express"
 import { ExpressContext } from "apollo-server-express/dist/ApolloServer"
 import { ContextFunction } from "apollo-server-core"
 import { IConfig } from "../types/config"
+import { SQLErrorInterceptor } from "../middleware/SQLErrorInterceptor"
 
 export const makeGraphQLServer = async <C = unknown>(
 	container: ContainerType,
@@ -15,6 +16,7 @@ export const makeGraphQLServer = async <C = unknown>(
 		resolvers,
 		container,
 		authChecker,
+		globalMiddlewares: [SQLErrorInterceptor],
 	})
 
 	const graphQLServer = new ApolloServer({
