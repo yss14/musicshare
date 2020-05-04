@@ -42,14 +42,16 @@ export class AWSS3FileService implements IFileService {
 		})
 	}
 
-	public getLinkToFile({ expireDate, filenameRemote }: GetLinkToFileArgs): Promise<string> {
+	public getLinkToFile({ expireDate, filenameRemote, permission }: GetLinkToFileArgs): Promise<string> {
 		return new Promise<string>((resolve, reject) => {
 			const expireSecond = Math.round(
 				(moment(expireDate || moment().add(10, "minutes")).valueOf() - Date.now()) / 1000,
 			)
 
+			const operation = permission === "write" ? "putObject" : "getObject"
+
 			this.s3Client.getSignedUrl(
-				"getObject",
+				operation,
 				{ Bucket: this.bucket, Key: filenameRemote, Expires: expireSecond },
 				(err, url) => {
 					// istanbul ignore if

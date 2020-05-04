@@ -6,6 +6,7 @@ import express from "express"
 import { Scopes, ContextRequest } from "../../types/context"
 import { makeAllScopes } from "./setup-test-env"
 import { testData } from "../../database/seed"
+import { Share } from "../../models/ShareModel"
 
 interface IExecuteGraphQLQueryArgs {
 	graphQLServer: ApolloServer
@@ -13,6 +14,7 @@ interface IExecuteGraphQLQueryArgs {
 	expectedHTTPCode?: HTTPStatusCodes
 	scopes?: Scopes
 	userID?: string
+	library?: Share
 }
 
 export const executeGraphQLQuery = async ({
@@ -21,12 +23,14 @@ export const executeGraphQLQuery = async ({
 	expectedHTTPCode,
 	scopes,
 	userID,
+	library,
 }: IExecuteGraphQLQueryArgs) => {
 	const expressApp = express()
 	expressApp.use((req, _, next) => {
 		;(<ContextRequest>req).context = {
 			userID: userID || testData.users.user1.user_id.toString(),
 			scopes: scopes || makeAllScopes(),
+			library: library || Share.fromDBResult(testData.shares.library_user1),
 		}
 
 		next()

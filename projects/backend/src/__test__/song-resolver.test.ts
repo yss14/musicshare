@@ -1,8 +1,8 @@
 import { SongUpdateInput } from "../inputs/SongInput"
 import { songKeys } from "./fixtures/song-query"
-import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env"
+import { setupTestEnv, setupTestSuite, SetupTestEnvArgs, makeAllScopes } from "./utils/setup-test-env"
 import { testData } from "../database/seed"
-import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql"
+import { executeGraphQLQuery, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql"
 import { HTTPStatusCodes } from "../types/http-status-codes"
 import { makeMockedDatabase } from "./mocks/mock-database"
 import { IDatabaseClient } from "postgres-schema-builder"
@@ -10,6 +10,9 @@ import { clearTables } from "../database/database"
 import moment from "moment"
 import { v4 as uuid } from "uuid"
 import { ShareSongsTable } from "../database/tables"
+import * as path from "path"
+import * as fs from "fs"
+import { Permissions } from "@musicshare/shared-types"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
@@ -373,5 +376,88 @@ describe("increase play count", () => {
 		expect(body).toMatchObject(
 			makeGraphQLResponse(null, [{ message: `Song with id ${songID} not found in share ${shareID}` }]),
 		)
+	})
+})
+
+describe("submit remote file", () => {
+	const makeSubmitRemoteFileMutation = (filename: string, remoteFileUrl: string, playlistIDs: string[] = []) => `
+		mutation {
+			submitSongFromRemoteFile(input: {filename: "${filename}", remoteFileUrl: "${remoteFileUrl}", playlistIDs: [${playlistIDs.map(
+		(id) => `"${id}"`,
+	)}]})
+		}
+	`
+
+	test("valid url succeeds", async () => {
+		const {
+			graphQLServer,
+			services: { songFileService },
+		} = await setupTest({})
+
+		const mp3FilePath = path.join(__dirname, "assets", "SampleAudio.mp3")
+		const filenameRemote = uuid().split("-").join("") + ".mp3"
+
+		await songFileService.uploadFile({
+			filenameRemote,
+			contentType: "audio/mp3",
+			source: fs.createReadStream(mp3FilePath),
+		})
+		const uploadLink = await songFileService.getLinkToFile({
+			filenameRemote,
+			expireDate: moment().add(1, "minute"),
+			permission: "write",
+		})
+
+		const query = makeSubmitRemoteFileMutation("SampleAudio.mp3", uploadLink, [])
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body.data.submitSongFromRemoteFile).toBeTrue()
+	})
+
+	test("invalid filename fails", async () => {
+		const {
+			graphQLServer,
+			services: { songFileService },
+		} = await setupTest({})
+
+		const filenameRemote = uuid().split("-").join("") + ".mp3"
+
+		const uploadLink = await songFileService.getLinkToFile({
+			filenameRemote,
+			expireDate: moment().add(1, "minute"),
+			permission: "write",
+		})
+
+		const query1 = makeSubmitRemoteFileMutation("some/dir/SampleAudio.mp3", uploadLink, [])
+		const { body: body1 } = await executeGraphQLQuery({ graphQLServer, query: query1 })
+		expect(body1).toMatchObject(makeGraphQLResponse(null, [{ message: `<filename> is not valid` }]))
+
+		const query2 = makeSubmitRemoteFileMutation("SampleAudio", uploadLink, [])
+		const { body: body2 } = await executeGraphQLQuery({ graphQLServer, query: query2 })
+		expect(body2).toMatchObject(makeGraphQLResponse(null, [{ message: `<filename> is not valid` }]))
+	})
+
+	test("insufficient permissions fails", async () => {
+		const {
+			graphQLServer,
+			services: { songFileService },
+		} = await setupTest({})
+
+		const filenameRemote = uuid().split("-").join("") + ".mp3"
+		const scopes = makeAllScopes()
+		scopes[0].permissions = scopes[0].permissions.filter((permission) => permission !== Permissions.SONG_UPLOAD)
+
+		const uploadLink = await songFileService.getLinkToFile({
+			filenameRemote,
+			expireDate: moment().add(1, "minute"),
+			permission: "write",
+		})
+
+		const query = makeSubmitRemoteFileMutation("SampleAudio.mp3", uploadLink, [])
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes })
+
+		expect(body).toMatchObject(insufficientPermissionsError())
 	})
 })

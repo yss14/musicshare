@@ -4,10 +4,12 @@ import { CustomRequestHandler, IGraphQLContext } from "../types/context"
 import { AuthChecker } from "type-graphql"
 import { IAuthTokenStore } from "./AuthTokenStore"
 import { AuthenticationError } from "apollo-server-core"
+import { IShareService } from "../services/ShareService"
 
 export const makeAuthExtractor = (
 	authService: IAuthenticationService,
 	invalidAuthTokenStore: IAuthTokenStore,
+	shareService: IShareService,
 ): CustomRequestHandler => async (req, res, next) => {
 	req.context = { userID: null, scopes: [] }
 
@@ -28,7 +30,9 @@ export const makeAuthExtractor = (
 
 		const { userID, scopes } = tokenDecoded
 
-		req.context = { userID, scopes, authToken }
+		const userLibrary = await shareService.getUserLibrary(userID)
+
+		req.context = { userID, scopes, authToken, library: userLibrary }
 
 		next()
 	} catch (err) {

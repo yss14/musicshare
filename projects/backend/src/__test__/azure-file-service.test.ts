@@ -151,6 +151,19 @@ if (process.env.IS_CI) {
 			expect(urlToFileIsReachable).toBeTruthy()
 		})
 
+		test("get uploadable url", async () => {
+			const fileService = new AzureFileService(container)
+			const filenameRemote = "SomeFile.mp3"
+
+			const urlToFile = await fileService.getLinkToFile({
+				filenameRemote,
+				expireDate: moment().add(20, "seconds"),
+				permission: "write",
+			})
+
+			expect(urlToFile).toBeString()
+		})
+
 		test("get url to uploaded file expired", async () => {
 			const fileService = new AzureFileService(container)
 			await fileService.createContainerIfNotExists()

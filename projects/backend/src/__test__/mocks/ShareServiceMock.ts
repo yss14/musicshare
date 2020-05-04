@@ -8,6 +8,10 @@ export class ShareServiceMock implements IShareService {
 		throw "Not implemented yet"
 	}
 
+	public async getUserLibrary(): Promise<Share> {
+		throw "Not implemented yet"
+	}
+
 	public async getShareByID(id: string): Promise<Share> {
 		const share = this.shares.find((share) => share.id === id)
 

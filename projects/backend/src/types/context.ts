@@ -13,6 +13,7 @@ export interface IBaseContext {
 		message: string
 	}
 	authToken?: string
+	library?: Share
 }
 
 export interface IGraphQLContext extends IBaseContext {
