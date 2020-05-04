@@ -434,7 +434,7 @@ describe("submit remote file", () => {
 		expect(body1).toMatchObject(makeGraphQLResponse(null, [{ message: `<filename> is not valid` }]))
 
 		const query2 = makeSubmitRemoteFileMutation("SampleAudio", uploadLink, [])
-		const { body: body2 } = await executeGraphQLQuery({ graphQLServer, query: query1 })
+		const { body: body2 } = await executeGraphQLQuery({ graphQLServer, query: query2 })
 		expect(body2).toMatchObject(makeGraphQLResponse(null, [{ message: `<filename> is not valid` }]))
 	})
 
