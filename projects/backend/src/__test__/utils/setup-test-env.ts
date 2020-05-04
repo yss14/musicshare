@@ -40,6 +40,8 @@ export const setupTestEnv = async ({ seed, database }: SetupTestEnvArgs) => {
 
 	const services = initServices(config, database)
 
+	await services.songFileService.createContainerIfNotExists()
+
 	const shareResolver = new ShareResolver(services)
 	const songResolver = new SongResolver(services)
 	const userResolver = new UserResolver(services)
