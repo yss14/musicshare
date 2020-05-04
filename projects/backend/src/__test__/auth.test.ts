@@ -22,7 +22,7 @@ import {
 import { Share } from "../models/ShareModel"
 import { Playlist } from "../models/PlaylistModel"
 import { makeShareAuthMiddleware } from "../auth/middleware/share-auth"
-import { ShareNotFoundError, ShareService } from "../services/ShareService"
+import { ShareNotFoundError, ShareService, IShareService } from "../services/ShareService"
 import { makeMockedDatabase } from "./mocks/mock-database"
 import { makePlaylistAuthMiddleware } from "../auth/middleware/playlist-auth"
 import { makeSongAuthMiddleware } from "../auth/middleware/song-auth"
@@ -30,6 +30,7 @@ import { AuthTokenStore } from "../auth/AuthTokenStore"
 import { configFromEnv } from "../types/config"
 import { Song } from "../models/SongModel"
 import { v4 as uuid } from "uuid"
+import { ShareServiceMock } from "./mocks/ShareServiceMock"
 
 const routePathProtected = "/some/protected/route"
 const routePathPublic = "/some/public/route"
@@ -46,8 +47,10 @@ const setupExpressTestEnv = async () => {
 	const database = makeMockedDatabase()
 	const authService = new AuthenticationService("topsecret")
 	const invalidAuthTokenStore = AuthTokenStore({ database, tokenGroup: "authtoken" })
+	const shareServiceMock: IShareService = new ShareServiceMock([])
+	shareServiceMock.getUserLibrary = jest.fn(async () => (null as unknown) as Share)
 	const expressApp = express()
-	expressApp.use(makeAuthExtractor(authService, invalidAuthTokenStore) as any)
+	expressApp.use(makeAuthExtractor(authService, invalidAuthTokenStore, shareServiceMock) as any)
 	expressApp.post(routePathProtected, auth as any, (req, res) =>
 		res.status(HTTPStatusCodes.OK).json(testRouteReturnValue),
 	)

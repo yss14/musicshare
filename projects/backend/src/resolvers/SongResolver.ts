@@ -10,6 +10,12 @@ import { Permissions } from "@musicshare/shared-types"
 import { IncrementSongPlayCountInput } from "../inputs/IncreaseSongPlaycountInput"
 import { SongPlay } from "../models/SongPlayModel"
 import { IGraphQLContext } from "../types/context"
+import { PermissionAuth } from "../auth/middleware/permission-auth"
+import { SubmitSongFromRemoteFileInput } from "../inputs/SubmitSongFromRemoteFileInput"
+import path from "path"
+import { ISongProcessingQueuePayload } from "../job-queues/SongUploadProcessingQueue"
+import { ValidationError } from "apollo-server-core"
+import { extractBlobNameFromUrl } from "../file-service/file-service-utils"
 
 @Resolver(() => Song)
 export class SongResolver implements ResolverInterface<Song> {
@@ -76,5 +82,36 @@ export class SongResolver implements ResolverInterface<Song> {
 		const song = await this.services.songService.getByID(shareID, songID)
 
 		return { user, song, dateAdded: new Date() }
+	}
+
+	@Authorized()
+	@PermissionAuth([Permissions.SONG_UPLOAD])
+	@Mutation(() => Boolean)
+	public async submitSongFromRemoteFile(
+		@Arg("input") { filename, playlistIDs, remoteFileUrl }: SubmitSongFromRemoteFileInput,
+		@Ctx() { userID, library }: IGraphQLContext,
+	): Promise<boolean> {
+		if (!filename.match(/^[^\\\/]*\.(\w+)$/)) {
+			throw new ValidationError("<filename> is not valid")
+		}
+
+		const fileExtension = path.extname(filename).split(".").join("")
+		const blob = extractBlobNameFromUrl(remoteFileUrl)
+
+		const jobQueuePayload: ISongProcessingQueuePayload = {
+			file: {
+				originalFilename: filename,
+				container: this.services.songFileService.container,
+				fileExtension,
+				blob,
+			},
+			userID: userID!,
+			shareID: library!.id,
+			playlistIDs,
+		}
+
+		await this.services.songProcessingQueue.enqueueUpload(jobQueuePayload)
+
+		return true
 	}
 }

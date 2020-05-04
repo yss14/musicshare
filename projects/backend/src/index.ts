@@ -84,7 +84,7 @@ loadEnvsFromDotenvFile(nodeEnv)
 		graphQLServer,
 		songFileService: services.songFileService,
 		uploadProcessingQueue: services.songProcessingQueue,
-		authExtractor: makeAuthExtractor(services.authService, services.invalidAuthTokenStore),
+		authExtractor: makeAuthExtractor(services.authService, services.invalidAuthTokenStore, services.shareService),
 	})
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000)
 	await server.start("/graphql", serverPort)

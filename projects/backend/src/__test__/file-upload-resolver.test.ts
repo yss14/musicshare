@@ -2,7 +2,7 @@ import { setupTestSuite, SetupTestEnvArgs, setupTestEnv, makeAllScopes } from ".
 import { IDatabaseClient } from "postgres-schema-builder"
 import { clearTables } from "../database/database"
 import { executeGraphQLQuery, insufficientPermissionsError } from "./utils/graphql"
-import { Permissions } from "@musicshare/shared-types/src"
+import { Permissions } from "@musicshare/shared-types"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient

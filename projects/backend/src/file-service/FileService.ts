@@ -1,6 +1,12 @@
 import { Readable } from "stream"
 import { Moment } from "moment"
 
+export class InvalidBlobUrl extends Error {
+	constructor(url: string) {
+		super(`${url} is not a valid blob url`)
+	}
+}
+
 export interface UploadFileArgs {
 	filenameRemote: string
 	contentType: string
