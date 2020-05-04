@@ -3,7 +3,7 @@ import { IGraphQLContext } from "../types/context"
 import { v4 as uuid } from "uuid"
 import { SQLError } from "postgres-schema-builder"
 
-export const SQLErrorInterceptor: MiddlewareFn<IGraphQLContext> = async ({ context, info }, next) => {
+export const SQLErrorInterceptor: MiddlewareFn<IGraphQLContext> = async (_, next) => {
 	try {
 		return await next()
 	} catch (err) {
