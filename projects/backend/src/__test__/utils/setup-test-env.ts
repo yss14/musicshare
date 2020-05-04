@@ -22,12 +22,15 @@ import { FileUploadResolver } from "../../resolvers/FileUploadResolver"
 import { migrations } from "../../database/migrations"
 import { Tables } from "../../database/tables"
 
+export type CustomResolver = [Function, unknown]
+
 export interface SetupTestEnvArgs {
 	database: IDatabaseClient
 	seed?: boolean
+	customResolvers?: () => CustomResolver[]
 }
 
-export const setupTestEnv = async ({ seed, database }: SetupTestEnvArgs) => {
+export const setupTestEnv = async ({ seed, database, customResolvers }: SetupTestEnvArgs) => {
 	let shouldSeedDatabase = seed === undefined ? true : seed
 
 	const config = configFromEnv()
@@ -53,6 +56,11 @@ export const setupTestEnv = async ({ seed, database }: SetupTestEnvArgs) => {
 	Container.of(testID).set(UserResolver, userResolver)
 	Container.of(testID).set(PlaylistResolver, playlistResolver)
 	Container.of(testID).set(FileUploadResolver, fileUploadResolver)
+
+	const resolvers = customResolvers ? customResolvers() : []
+	for (const [ResolverClass, resolverInstance] of resolvers) {
+		Container.of(testID).set(ResolverClass, resolverInstance)
+	}
 
 	if (shouldSeedDatabase) {
 		await seedDatabase({ database, services })
