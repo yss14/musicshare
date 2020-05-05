@@ -1,14 +1,13 @@
-import React, { useCallback, useReducer, ReactNode } from "react"
+import React, { useCallback, ReactNode } from "react"
 import { useDropzone, FileRejection } from "react-dropzone"
 import { Icon, Typography, message } from "antd"
 import styled from "styled-components"
 import { uploadFile } from "../../utils/upload/uploadFile"
-import { reducer } from "../../utils/upload/upload.reducer"
 import { useConfig } from "../../hooks/use-config"
-import { IUploadItem } from "../../graphql/rest-types"
 import { useUser } from "../../graphql/queries/user-query"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 import { last } from "lodash"
+import { useSongUploadQueue, ISongUploadItem } from "../../utils/upload/SongUploadContext"
 
 const StyledIcon = styled(Icon)`
 	font-size: 64px;
@@ -39,11 +38,11 @@ const Blur = styled.div`
 interface IDropzoneProps {
 	shareID: string
 	userID: string
-	children: (uploadItems: IUploadItem[]) => ReactNode
+	children: (uploadItems: ISongUploadItem[]) => ReactNode
 }
 
 interface WrapperProps {
-	children: (uploadItems: IUploadItem[]) => ReactNode
+	children: (uploadItems: ISongUploadItem[]) => ReactNode
 }
 
 const getPlaylistIDFromUrl = (): string[] => {
@@ -68,15 +67,17 @@ export default ({ children }: WrapperProps) => {
 }
 
 const Dropzone = ({ userID, shareID, children }: IDropzoneProps) => {
-	const [state, dispatch] = useReducer(reducer, [])
+	const [state, dispatch] = useSongUploadQueue()
 	const config = useConfig()
+
 	const onDrop = useCallback(
 		(acceptedFiles: File[]) => {
 			const playlistIDs = getPlaylistIDFromUrl()
 			acceptedFiles.forEach((file) => uploadFile(userID, shareID, playlistIDs, file, config)(dispatch))
 		},
-		[shareID, userID, config],
+		[shareID, userID, config, dispatch],
 	)
+
 	const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
 		console.log(fileRejections)
 		const rejectedFileExtension = fileRejections.map((reason) => last(reason.file.name.split(".")))
