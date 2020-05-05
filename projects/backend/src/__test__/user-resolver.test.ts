@@ -1,6 +1,6 @@
 import "reflect-metadata"
 import { executeGraphQLQuery, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql"
-import { testData, testPassword, songFileHash } from "../database/seed"
+import { testData, testPassword } from "../database/seed"
 import { Share } from "../models/ShareModel"
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env"
 import { v4 as uuid } from "uuid"
@@ -15,7 +15,6 @@ import { clearTables } from "../database/database"
 import { Artist } from "../models/ArtistModel"
 import { defaultGenres, defaultSongTypes } from "../database/fixtures"
 import { songKeys } from "./fixtures/song-query"
-import { FileUpload } from "../models/FileSourceModels"
 import { Song } from "../models/SongModel"
 
 const { cleanUp, getDatabase } = setupTestSuite()
