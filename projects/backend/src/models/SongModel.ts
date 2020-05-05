@@ -1,6 +1,5 @@
 import { FileSource, FileUpload } from "./FileSourceModels"
 import { ObjectType, Field, Int } from "type-graphql"
-import { Share } from "./ShareModel"
 import { Nullable } from "../types/Nullable"
 import { ISong } from "./interfaces/ISong"
 import { plainToClass } from "class-transformer"
@@ -73,9 +72,6 @@ export class Song implements Nullable<ISong> {
 
 	@Field(() => String)
 	public readonly labels!: string[]
-
-	@Field(() => Share)
-	public readonly share!: Share
 
 	@Field(() => [FileSource])
 	public readonly sources!: FileSource[]
