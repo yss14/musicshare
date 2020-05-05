@@ -9,7 +9,7 @@ const mapPermission = (permission: FileAccessPermission) => {
 		case "read":
 			return azBlob.Constants.AccountSasConstants.Permissions.READ
 		case "write":
-			return azBlob.Constants.AccountSasConstants.Permissions.READ
+			return azBlob.Constants.AccountSasConstants.Permissions.WRITE
 	}
 }
 

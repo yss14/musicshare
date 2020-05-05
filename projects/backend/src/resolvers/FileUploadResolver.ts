@@ -1,12 +1,13 @@
 import { FileUpload } from "../models/FileSourceModels"
 import { IServices } from "../services/services"
-import { Authorized, FieldResolver, Root, Resolver, Mutation } from "type-graphql"
+import { Authorized, FieldResolver, Root, Resolver, Mutation, Arg } from "type-graphql"
 import moment from "moment"
 import { IConfig } from "../types/config"
 import { PermissionAuth } from "../auth/middleware/permission-auth"
 import { Permissions } from "@musicshare/shared-types"
 import * as crypto from "crypto"
 import { v4 as uuid } from "uuid"
+import { ValidationError } from "apollo-server-core"
 
 @Resolver(() => FileUpload)
 export class FileUploadResolver {
@@ -24,8 +25,18 @@ export class FileUploadResolver {
 	@Authorized()
 	@PermissionAuth([Permissions.SONG_UPLOAD])
 	@Mutation(() => String)
-	public async generateUploadableUrl(): Promise<string> {
-		const blobName = crypto.createHash("sha256").update(uuid()).digest("hex")
+	public async generateUploadableUrl(@Arg("fileExtension") fileExtension: string): Promise<string> {
+		let finalFileExtension = fileExtension.trim()
+
+		if (finalFileExtension.length === 0) {
+			throw new ValidationError("file extension cannot be empty")
+		}
+
+		if (!finalFileExtension.startsWith(".")) {
+			finalFileExtension = "." + finalFileExtension
+		}
+
+		const blobName = crypto.createHash("sha256").update(uuid()).digest("hex") + finalFileExtension
 
 		return this.services.songFileService.getLinkToFile({
 			filenameRemote: blobName,
