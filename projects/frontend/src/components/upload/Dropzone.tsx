@@ -3,7 +3,6 @@ import { useDropzone, FileRejection } from "react-dropzone"
 import { Icon, Typography, message } from "antd"
 import styled from "styled-components"
 import { uploadFile } from "../../utils/upload/uploadFile"
-import { useConfig } from "../../hooks/use-config"
 import { useUser } from "../../graphql/queries/user-query"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 import { last } from "lodash"
@@ -71,7 +70,6 @@ export default ({ children }: WrapperProps) => {
 
 const Dropzone = ({ userID, shareID, children }: IDropzoneProps) => {
 	const [state, dispatch] = useSongUploadQueue()
-	const config = useConfig()
 	const client = useApolloClient()
 
 	const generateUploadableUrl = useMemo(() => makeGenerateUploadableUrl(client), [client])
