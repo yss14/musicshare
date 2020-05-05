@@ -9,6 +9,8 @@ import { useUpdatePlaylistSongOrder } from "../../graphql/mutations/update-playl
 import { useDeepCompareEffect } from "../../hooks/use-deep-compare-effect"
 import { MoveSong } from "../../components/song-table/MoveSong"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
+import { useSongUploadQueueEvents, ISongUploadItem } from "../../utils/upload/SongUploadContext"
+import { useDebouncedCallback } from "use-debounce/lib"
 
 export interface IPlaylistSongsProps {
 	shareID: string
@@ -16,12 +18,27 @@ export interface IPlaylistSongsProps {
 
 export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	const { playlistID } = useParams<ISharePlaylistRoute>()
-	const { loading, data: playlist, error } = usePlaylist({ playlistID, shareID })
+	const { loading, data: playlist, error, refetch } = usePlaylist({ playlistID, shareID })
 	const [songs, setSongs] = useState<IScopedPlaylistSong[]>(playlist?.songs || [])
 	const [updateOrder] = useUpdatePlaylistSongOrder({
 		onError: console.error,
 	})
 	const libraryID = useLibraryID()
+
+	const [refetchPlaylist] = useDebouncedCallback(refetch, 1000)
+
+	const onPlaylistSongUploaded = useCallback(
+		(item: ISongUploadItem) => {
+			if (item.playlistIDs && item.playlistIDs.includes(playlistID)) {
+				refetchPlaylist()
+			}
+		},
+		[refetchPlaylist, playlistID],
+	)
+
+	useSongUploadQueueEvents({
+		onSongUploaded: onPlaylistSongUploaded,
+	})
 
 	const moveSong = useCallback<MoveSong>(
 		(sourceSong, targetSong) => {

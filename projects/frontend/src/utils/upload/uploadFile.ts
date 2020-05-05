@@ -18,7 +18,6 @@ import { SubmitSongFromRemoteFile } from "../../graphql/programmatic/submit-song
 let currentUploads: number = 0
 
 export const uploadFile = (
-	userID: string,
 	shareID: string,
 	playlistIDs: string[],
 	file: File,
@@ -39,6 +38,7 @@ export const uploadFile = (
 			status: UploadItemStatus.Queued,
 			shareID: shareID,
 			hash: hash,
+			playlistIDs,
 		}),
 	)
 

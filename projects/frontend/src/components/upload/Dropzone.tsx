@@ -3,7 +3,6 @@ import { useDropzone, FileRejection } from "react-dropzone"
 import { Icon, Typography, message } from "antd"
 import styled from "styled-components"
 import { uploadFile } from "../../utils/upload/uploadFile"
-import { useUser } from "../../graphql/queries/user-query"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 import { last } from "lodash"
 import { useSongUploadQueue, ISongUploadItem } from "../../utils/upload/SongUploadContext"
@@ -39,7 +38,6 @@ const Blur = styled.div`
 
 interface IDropzoneProps {
 	shareID: string
-	userID: string
 	children: (uploadItems: ISongUploadItem[]) => ReactNode
 }
 
@@ -59,16 +57,11 @@ const getPlaylistIDFromUrl = (): string[] => {
 }
 
 export default ({ children }: WrapperProps) => {
-	const user = useUser()
 	const libraryID = useLibraryID()
-	return user.data && user.data.viewer && libraryID ? (
-		<Dropzone userID={user.data.viewer.id} shareID={libraryID}>
-			{(state) => children(state)}
-		</Dropzone>
-	) : null
+	return libraryID ? <Dropzone shareID={libraryID}>{(state) => children(state)}</Dropzone> : null
 }
 
-const Dropzone = ({ userID, shareID, children }: IDropzoneProps) => {
+const Dropzone = ({ shareID, children }: IDropzoneProps) => {
 	const [state, dispatch] = useSongUploadQueue()
 	const client = useApolloClient()
 
@@ -79,17 +72,10 @@ const Dropzone = ({ userID, shareID, children }: IDropzoneProps) => {
 		(acceptedFiles: File[]) => {
 			const playlistIDs = getPlaylistIDFromUrl()
 			acceptedFiles.forEach((file) =>
-				uploadFile(
-					userID,
-					shareID,
-					playlistIDs,
-					file,
-					generateUploadableUrl,
-					submitSongFromRemoteUrl,
-				)(dispatch),
+				uploadFile(shareID, playlistIDs, file, generateUploadableUrl, submitSongFromRemoteUrl)(dispatch),
 			)
 		},
-		[shareID, userID, dispatch, generateUploadableUrl, submitSongFromRemoteUrl],
+		[shareID, dispatch, generateUploadableUrl, submitSongFromRemoteUrl],
 	)
 
 	const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
