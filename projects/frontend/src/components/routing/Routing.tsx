@@ -16,6 +16,7 @@ import { LoadingSpinner } from "../common/LoadingSpinner"
 import { AcceptInvitation } from "../../pages/accept-invitation/AcceptInvitation"
 import { RestorePassword } from "../../pages/restore-password/RestorePassword"
 import { PlayerProvider } from "../../player/PlayerContext"
+import { SongUploadProvider } from "../../utils/upload/SongUploadContext"
 
 const Share = lazy(() => import("../../pages/share/Share").then((module) => ({ default: module.Share })))
 
@@ -83,22 +84,24 @@ const LoggedInRoutes = () => {
 
 	return (
 		<PlayerProvider>
-			<Route
-				path="/all"
-				exact
-				render={() => (
-					<MainLayout
-						content={
-							<UploadDropzone>
-								<MergedSongs />
-							</UploadDropzone>
-						}
-						sidebarLeft={<PlaylistSidebar merged={true} />}
-					/>
-				)}
-			/>
-			<Route path={["/shares/:shareID", "/all/shares/:shareID"]} render={() => <ShareRoute />} />
-			{data && <Route exact path="/" render={() => <RedirectToLibrary shares={data.viewer.shares} />} />}
+			<SongUploadProvider>
+				<Route
+					path="/all"
+					exact
+					render={() => (
+						<MainLayout
+							content={
+								<UploadDropzone>
+									<MergedSongs />
+								</UploadDropzone>
+							}
+							sidebarLeft={<PlaylistSidebar merged={true} />}
+						/>
+					)}
+				/>
+				<Route path={["/shares/:shareID", "/all/shares/:shareID"]} render={() => <ShareRoute />} />
+				{data && <Route exact path="/" render={() => <RedirectToLibrary shares={data.viewer.shares} />} />}
+			</SongUploadProvider>
 		</PlayerProvider>
 	)
 }

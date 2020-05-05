@@ -1,15 +1,19 @@
-import { UPLOAD_FINISHED, UPLOAD_PROGRESS, UPLOAD_QUEUED, UPLOAD_REMOVE, UPLOAD_STARTED } from "./constants"
 import { blobToArrayBuffer } from "./blob-to-arraybuffer"
 import * as crypto from "js-sha256"
-import { upload } from "./upload"
-import { IConfig } from "../../config"
-import { UploadItemType, UploadItemStatus } from "../../graphql/rest-types"
+import { last } from "lodash"
 import { message } from "antd"
-
-interface IAxiosProgress {
-	total?: number
-	loaded?: number
-}
+import {
+	addUpload,
+	UploadItemStatus,
+	uploadStart,
+	uploadProgress,
+	uploadFinish,
+	uploadRemove,
+} from "./SongUploadContext"
+import { v4 as uuid } from "uuid"
+import { GenerateUploadableUrl } from "../../graphql/programmatic/generate-file-uploadable-url"
+import { uploadFileToStorage } from "./uploadFileToStorage"
+import { SubmitSongFromRemoteFile } from "../../graphql/programmatic/submit-song-from-remote-file"
 
 let currentUploads: number = 0
 
@@ -18,23 +22,25 @@ export const uploadFile = (
 	shareID: string,
 	playlistIDs: string[],
 	file: File,
-	config: IConfig,
+	generateFileUploadableUrl: GenerateUploadableUrl,
+	submitSongFromremoteFile: SubmitSongFromRemoteFile,
 ) => async (dispatch: any) => {
 	const arrayBuffer = await blobToArrayBuffer(file)
 	const hash = crypto.sha256(arrayBuffer)
-	console.log(shareID)
-	dispatch({
-		type: UPLOAD_QUEUED,
-		payload: {
-			type: UploadItemType.Song,
+	const id = uuid()
+	const fileExtension = last(file.name.split("."))
+
+	dispatch(
+		addUpload({
+			id,
 			filename: file.name,
 			size: arrayBuffer.byteLength,
 			progress: 0,
 			status: UploadItemStatus.Queued,
 			shareID: shareID,
 			hash: hash,
-		},
-	})
+		}),
+	)
 
 	await new Promise<void>((resolve) => {
 		const checkIntervall = setInterval(() => {
@@ -46,61 +52,38 @@ export const uploadFile = (
 		}, 500)
 	})
 
-	dispatch({
-		type: UPLOAD_STARTED,
-		payload: {
-			fileHash: hash,
-		},
-	})
+	dispatch(uploadStart(id))
 
-	const onProgress = (progress: IAxiosProgress) => {
-		if (progress.loaded && progress.total) {
-			dispatch({
-				type: UPLOAD_PROGRESS,
-				payload: {
-					fileHash: hash,
-					progress: (progress.loaded / progress.total) * 100,
-				},
-			})
-		}
+	const onProgress = (progress: number) => {
+		dispatch(uploadProgress(id, progress))
 	}
 
 	try {
+		if (!fileExtension) {
+			throw new Error(`Cannot read file extension from filename ${file.name}`)
+		}
+
+		const targetFileUrl = await generateFileUploadableUrl(fileExtension)
+
 		currentUploads++
 
-		await upload(userID, shareID, playlistIDs, file, arrayBuffer, onProgress, config)
+		await uploadFileToStorage({ blob: file, targetFileUrl, contentType: file.type, onProgress })
+		await submitSongFromremoteFile({ filename: file.name, playlistIDs, remoteFileUrl: targetFileUrl })
 
-		dispatch({
-			type: UPLOAD_FINISHED,
-			payload: {
-				fileHash: hash,
-				success: true,
-			},
-		})
+		dispatch(uploadFinish(id, true))
 
 		message.success(`File ${file.name} successfully uploaded`)
 	} catch (err) {
 		console.error(err)
 
-		dispatch({
-			type: UPLOAD_FINISHED,
-			payload: {
-				fileHash: hash,
-				success: false,
-			},
-		})
+		dispatch(uploadFinish(id, false))
 
 		message.error(`File ${file.name} upload failed`)
 	} finally {
 		currentUploads--
 
 		setTimeout(() => {
-			dispatch({
-				type: UPLOAD_REMOVE,
-				payload: {
-					fileHash: hash,
-				},
-			})
+			dispatch(uploadRemove(id))
 		}, 2000)
 	}
 }

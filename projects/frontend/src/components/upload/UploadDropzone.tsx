@@ -4,6 +4,7 @@ import { Flex, Box } from "../Flex"
 import { Progress } from "antd"
 import styled from "styled-components"
 import Scrollbars from "react-custom-scrollbars"
+import { UploadItemStatus } from "../../utils/upload/SongUploadContext"
 
 const UploadProgressContainer = styled(Scrollbars)`
 	background-color: white;
@@ -36,10 +37,10 @@ export const UploadDropzone: React.FC = ({ children }) => (
 											percent={Math.round(item.progress)}
 											showInfo={true}
 											status={
-												item.status === 2
-													? item.status === 3
-														? "exception"
-														: "success"
+												item.status === UploadItemStatus.Failed
+													? "exception"
+													: item.status === UploadItemStatus.Uploaded
+													? "success"
 													: "active"
 											}
 										/>
