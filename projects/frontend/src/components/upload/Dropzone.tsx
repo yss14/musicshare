@@ -12,6 +12,7 @@ import { makeSubmitSongFromRemoteFile } from "../../graphql/programmatic/submit-
 
 const StyledIcon = styled(Icon)`
 	font-size: 64px;
+	color: white;
 `
 
 const { Title } = Typography
@@ -20,7 +21,7 @@ const UploadContainer = styled.div`
 	position: fixed;
 	top: 48px;
 	left: 200px;
-	width: 100%;
+	right: 0px;
 	height: calc(100% - 96px);
 	display: flex;
 	background-color: rgba(0, 0, 0, 0.6);
@@ -98,7 +99,9 @@ const Dropzone = ({ shareID, children }: IDropzoneProps) => {
 			{isDragActive ? (
 				<UploadContainer>
 					<StyledIcon type="upload" />
-					<Title level={1}>Drop here to upload track</Title>
+					<Title level={1} style={{ color: "white" }}>
+						Drop here to upload track
+					</Title>
 				</UploadContainer>
 			) : null}
 			<Blur active={isDragActive}>{children(state)}</Blur>
