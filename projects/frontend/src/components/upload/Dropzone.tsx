@@ -1,4 +1,4 @@
-import React, { useCallback, ReactNode } from "react"
+import React, { useCallback, ReactNode, useMemo } from "react"
 import { useDropzone, FileRejection } from "react-dropzone"
 import { Icon, Typography, message } from "antd"
 import styled from "styled-components"
@@ -8,6 +8,9 @@ import { useUser } from "../../graphql/queries/user-query"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 import { last } from "lodash"
 import { useSongUploadQueue, ISongUploadItem } from "../../utils/upload/SongUploadContext"
+import { useApolloClient } from "react-apollo"
+import { makeGenerateUploadableUrl } from "../../graphql/programmatic/generate-file-uploadable-url"
+import { makeSubmitSongFromRemoteFile } from "../../graphql/programmatic/submit-song-from-remote-file"
 
 const StyledIcon = styled(Icon)`
 	font-size: 64px;
@@ -69,13 +72,26 @@ export default ({ children }: WrapperProps) => {
 const Dropzone = ({ userID, shareID, children }: IDropzoneProps) => {
 	const [state, dispatch] = useSongUploadQueue()
 	const config = useConfig()
+	const client = useApolloClient()
+
+	const generateUploadableUrl = useMemo(() => makeGenerateUploadableUrl(client), [client])
+	const submitSongFromRemoteUrl = useMemo(() => makeSubmitSongFromRemoteFile(client), [client])
 
 	const onDrop = useCallback(
 		(acceptedFiles: File[]) => {
 			const playlistIDs = getPlaylistIDFromUrl()
-			acceptedFiles.forEach((file) => uploadFile(userID, shareID, playlistIDs, file, config)(dispatch))
+			acceptedFiles.forEach((file) =>
+				uploadFile(
+					userID,
+					shareID,
+					playlistIDs,
+					file,
+					generateUploadableUrl,
+					submitSongFromRemoteUrl,
+				)(dispatch),
+			)
 		},
-		[shareID, userID, config, dispatch],
+		[shareID, userID, dispatch, generateUploadableUrl, submitSongFromRemoteUrl],
 	)
 
 	const onDropRejected = useCallback((fileRejections: FileRejection[]) => {

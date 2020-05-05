@@ -72,7 +72,7 @@ const reducer = (state: ISongUploadItem[] = [], action: UploadAction) => {
 
 		case "upload_finish":
 			return state.map((upload) =>
-				upload.hash === action.payload.id
+				upload.id === action.payload.id
 					? {
 							...upload,
 							status: action.payload.success ? UploadItemStatus.Uploaded : UploadItemStatus.Failed,

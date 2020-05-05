@@ -1,7 +1,6 @@
 import { blobToArrayBuffer } from "./blob-to-arraybuffer"
 import * as crypto from "js-sha256"
-import { upload } from "./upload"
-import { IConfig } from "../../config"
+import { last } from "lodash"
 import { message } from "antd"
 import {
 	addUpload,
@@ -12,11 +11,9 @@ import {
 	uploadRemove,
 } from "./SongUploadContext"
 import { v4 as uuid } from "uuid"
-
-interface IAxiosProgress {
-	total?: number
-	loaded?: number
-}
+import { GenerateUploadableUrl } from "../../graphql/programmatic/generate-file-uploadable-url"
+import { uploadFileToStorage } from "./uploadFileToStorage"
+import { SubmitSongFromRemoteFile } from "../../graphql/programmatic/submit-song-from-remote-file"
 
 let currentUploads: number = 0
 
@@ -25,11 +22,13 @@ export const uploadFile = (
 	shareID: string,
 	playlistIDs: string[],
 	file: File,
-	config: IConfig,
+	generateFileUploadableUrl: GenerateUploadableUrl,
+	submitSongFromremoteFile: SubmitSongFromRemoteFile,
 ) => async (dispatch: any) => {
 	const arrayBuffer = await blobToArrayBuffer(file)
 	const hash = crypto.sha256(arrayBuffer)
 	const id = uuid()
+	const fileExtension = last(file.name.split("."))
 
 	dispatch(
 		addUpload({
@@ -55,16 +54,21 @@ export const uploadFile = (
 
 	dispatch(uploadStart(id))
 
-	const onProgress = (progress: IAxiosProgress) => {
-		if (progress.loaded && progress.total) {
-			dispatch(uploadProgress(id, (progress.loaded / progress.total) * 100))
-		}
+	const onProgress = (progress: number) => {
+		dispatch(uploadProgress(id, progress))
 	}
 
 	try {
+		if (!fileExtension) {
+			throw new Error(`Cannot read file extension from filename ${file.name}`)
+		}
+
+		const targetFileUrl = await generateFileUploadableUrl(fileExtension)
+
 		currentUploads++
 
-		await upload(userID, shareID, playlistIDs, file, arrayBuffer, onProgress, config)
+		await uploadFileToStorage({ blob: file, targetFileUrl, contentType: file.type, onProgress })
+		await submitSongFromremoteFile({ filename: file.name, playlistIDs, remoteFileUrl: targetFileUrl })
 
 		dispatch(uploadFinish(id, true))
 
