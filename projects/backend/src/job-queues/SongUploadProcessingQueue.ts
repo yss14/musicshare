@@ -11,6 +11,7 @@ import { makeFileSourceJSONType } from "../models/FileSourceModels"
 import { ILogger, Logger } from "../utils/Logger"
 import { IDatabaseClient } from "postgres-schema-builder"
 import { FileUploadLogsTable } from "../database/tables"
+import * as crypto from "crypto"
 
 export interface ISongProcessingQueuePayload {
 	file: IFile
@@ -81,6 +82,8 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 
 			const songMeta = await this.songMetaDataService.analyse(uploadMeta.file, audioBuffer, songTypes)
 
+			const hash = crypto.createHash("md5").update(audioBuffer).digest("hex")
+
 			const song = await this.songService.create(uploadMeta.shareID, {
 				song_id: uuid(),
 				title: songMeta.title || uploadMeta.file.originalFilename,
@@ -101,7 +104,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 					songMeta.title.trim().length === 0 ||
 					!songMeta.artists ||
 					songMeta.artists.length === 0,
-				sources: makeFileSourceJSONType(uploadMeta.file),
+				sources: makeFileSourceJSONType({ ...uploadMeta.file, hash }),
 				duration: songMeta.duration || 0,
 				tags: [],
 				date_added: new Date(),
