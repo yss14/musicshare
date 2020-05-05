@@ -74,9 +74,6 @@ export class Song implements Nullable<ISong> {
 	@Field(() => String)
 	public readonly labels!: string[]
 
-	@Field(() => Share)
-	public readonly share!: Share
-
 	@Field(() => [FileSource])
 	public readonly sources!: FileSource[]
 
