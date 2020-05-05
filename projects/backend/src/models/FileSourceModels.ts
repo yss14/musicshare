@@ -13,6 +13,9 @@ export class FileUpload {
 
 	@Field()
 	public readonly originalFilename!: string
+
+	@Field()
+	public readonly hash!: string
 }
 
 export const isFileUpload = (obj: any): obj is FileUpload =>
