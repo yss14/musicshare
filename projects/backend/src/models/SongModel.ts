@@ -1,6 +1,5 @@
 import { FileSource, FileUpload } from "./FileSourceModels"
 import { ObjectType, Field, Int } from "type-graphql"
-import { Share } from "./ShareModel"
 import { Nullable } from "../types/Nullable"
 import { ISong } from "./interfaces/ISong"
 import { plainToClass } from "class-transformer"
