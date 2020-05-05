@@ -13,6 +13,7 @@ import { IServices } from "../services/services"
 import { IConfig } from "../types/config"
 import { Permissions } from "@musicshare/shared-types"
 import { makeFileSourceJSONType } from "../models/FileSourceModels"
+import * as crypto from "crypto"
 
 type Users = "user1" | "user2" | "user3"
 type Shares = "library_user1" | "library_user2" | "some_share" | "some_unrelated_library" | "some_unrelated_share"
@@ -50,7 +51,13 @@ const playlist2LibraryUser1ID = "76ba6247-079f-4700-a711-92a504704213"
 const playlistSomeSharedLibraryID = "8d6fa7cf-f416-408d-b964-d154e256a4cd"
 const playlist1LibraryUser2ID = "7d25fbd2-aaac-4730-b5a3-2e77e4166607"
 
-const hash = "9e107d9d372bb6826bd81d3542a419d6"
+let hashCount = 0
+function nextFilehash() {
+	const hash = crypto.createHash("md5").update(String(hashCount)).digest("hex")
+	hashCount++
+
+	return hash
+}
 
 export const songZeroOliverSmith: ISongDBResult = {
 	song_id: "b5c143b5-0eb2-40d2-b098-8bd9a09a4492",
@@ -68,7 +75,10 @@ export const songZeroOliverSmith: ISongDBResult = {
 	genres: ["Trance"],
 	labels: null,
 	requires_user_action: false,
-	sources: makeFileSourceJSONType({ ...makeFileObject("songs", "zero", "zero_somesuffic", "mp3"), hash }),
+	sources: makeFileSourceJSONType({
+		...makeFileObject("songs", "zero", "zero_somesuffic", "mp3"),
+		hash: nextFilehash(),
+	}),
 	duration: 401,
 	tags: ["Anjuna", "Progressive"],
 	date_added: moment().subtract(3, "hours").toDate(),
@@ -91,7 +101,10 @@ export const songPerthDusky: ISongDBResult = {
 	genres: ["Deep House"],
 	labels: ["Anjunadeep"],
 	requires_user_action: false,
-	sources: makeFileSourceJSONType({ ...makeFileObject("songs", "perth", "perth_abgtrip", "mp3"), hash }),
+	sources: makeFileSourceJSONType({
+		...makeFileObject("songs", "perth", "perth_abgtrip", "mp3"),
+		hash: nextFilehash(),
+	}),
 	duration: 370,
 	tags: ["Anjuna", "Deep", "Funky"],
 	date_added: moment().subtract(2, "hours").toDate(),
@@ -114,7 +127,10 @@ export const songContactAlastor: ISongDBResult = {
 	genres: ["Progressive House"],
 	labels: ["Anjunadeep"],
 	requires_user_action: false,
-	sources: makeFileSourceJSONType({ ...makeFileObject("songs", "contact", "contact_rue_alastor", "mp3"), hash }),
+	sources: makeFileSourceJSONType({
+		...makeFileObject("songs", "contact", "contact_rue_alastor", "mp3"),
+		hash: nextFilehash(),
+	}),
 	duration: 248,
 	tags: ["Dark", "Party Chill"],
 	date_added: moment().subtract(1, "hour").toDate(),
@@ -137,7 +153,10 @@ export const songIsItLove: ISongDBResult = {
 	genres: ["Trance"],
 	labels: ["Anjunabeats"],
 	requires_user_action: false,
-	sources: makeFileSourceJSONType({ ...makeFileObject("songs", "isitlove", "is_it_love_beatport", "mp3"), hash }),
+	sources: makeFileSourceJSONType({
+		...makeFileObject("songs", "isitlove", "is_it_love_beatport", "mp3"),
+		hash: nextFilehash(),
+	}),
 	duration: 357,
 	tags: [],
 	date_added: moment().subtract(48, "hour").toDate(),
@@ -162,7 +181,7 @@ export const songThunder: ISongDBResult = {
 	requires_user_action: false,
 	sources: makeFileSourceJSONType({
 		...makeFileObject("songs", "thunder_imaginedragins", "thunder_imaginedragins_yt_downloader", "mp3"),
-		hash,
+		hash: nextFilehash(),
 	}),
 	duration: 234,
 	tags: ["Good Mood"],
@@ -310,7 +329,7 @@ export const createTestSongs = (amount: number) => {
 			requires_user_action: false,
 			sources: makeFileSourceJSONType({
 				...makeFileObject("songs", faker.name.lastName(), faker.name.firstName(), "mp3"),
-				hash,
+				hash: nextFilehash(),
 			}),
 			duration: 120 + Math.floor(Math.random() * 400),
 			tags: [],

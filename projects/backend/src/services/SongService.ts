@@ -379,6 +379,26 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		await database.query(updateAccumulatedPlayCountQuery)
 	}
 
+	const findSongFileDuplicates = async (userID: string, hash: string): Promise<Song[]> => {
+		const { shareService } = services()
+
+		const userShares = await shareService.getSharesOfUser(userID)
+
+		const sql = `
+			SELECT DISTINCT ON (s.song_id) s.* FROM songs s
+			INNER JOIN share_songs ss ON ss.song_id_ref = s.song_id
+			LEFT JOIN LATERAL json_array_elements(s.sources -> 'data') as song_source ON true
+			WHERE song_source ->> 'hash' = $2
+				AND s.date_removed IS NULL 
+				AND ss.share_id_ref = ANY($1);
+		`
+		const query = SQL.raw<SongDBResultWithLibrary>(sql, [userShares.map((share) => share.id), hash])
+
+		const dbResults = await database.query(query)
+
+		return dbResults.map(Song.fromDBResult)
+	}
+
 	return {
 		getByID,
 		getByShare,
@@ -391,5 +411,6 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		removeSongFromLibrary,
 		increasePlayCount,
 		addLibrarySongsToShare,
+		findSongFileDuplicates,
 	}
 }

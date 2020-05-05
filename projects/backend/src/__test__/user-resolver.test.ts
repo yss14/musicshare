@@ -1,6 +1,6 @@
 import "reflect-metadata"
 import { executeGraphQLQuery, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql"
-import { testData, testPassword } from "../database/seed"
+import { testData, testPassword, songFileHash } from "../database/seed"
 import { Share } from "../models/ShareModel"
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env"
 import { v4 as uuid } from "uuid"
@@ -14,6 +14,9 @@ import { IDatabaseClient } from "postgres-schema-builder"
 import { clearTables } from "../database/database"
 import { Artist } from "../models/ArtistModel"
 import { defaultGenres, defaultSongTypes } from "../database/fixtures"
+import { songKeys } from "./fixtures/song-query"
+import { FileUpload } from "../models/FileSourceModels"
+import { Song } from "../models/SongModel"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
@@ -419,6 +422,10 @@ describe("update user permissions", () => {
 })
 
 describe("aggregated user related data", () => {
+	const makeShareArtistsQuery = () => `artists{name}`
+	const makeShareGenresQuery = () => `genres{name,group}`
+	const makeShareSongTypesQuery = () => `songTypes{name,group,hasArtists,alternativeNames}`
+	const makeShareTagsQuery = () => "tags"
 	const makeUserQuery = (subQuery: string) => {
 		return `
 			query{
@@ -428,10 +435,6 @@ describe("aggregated user related data", () => {
 			}
 		`
 	}
-	const makeShareArtistsQuery = () => `artists{name}`
-	const makeShareGenresQuery = () => `genres{name,group}`
-	const makeShareSongTypesQuery = () => `songTypes{name,group,hasArtists,alternativeNames}`
-	const makeShareTagsQuery = () => "tags"
 
 	test("get aggregated artists", async () => {
 		const { graphQLServer } = await setupTest({})
@@ -473,5 +476,61 @@ describe("aggregated user related data", () => {
 		const expectedTags = ["Anjuna", "Progressive", "Deep", "Funky", "Dark", "Party Chill"].sort()
 
 		expect(body.data.viewer.tags.sort()).toEqual(expectedTags)
+	})
+})
+
+describe("find song file duplicates", () => {
+	const makeUserQuery = (subQuery: string) => {
+		return `
+			query{
+				viewer{
+					${subQuery}
+				}
+			}
+		`
+	}
+	const makeFindSongFileDuplicatesQuery = (hash: string) => `
+		findSongFileDuplicates(hash: "${hash}"){
+			${songKeys}
+		}
+	`
+
+	test("existing hash returns all duplicates", async () => {
+		const { graphQLServer } = await setupTest({})
+		const song = testData.songs.song1_library_user1
+		const hash = song.sources.data[0].hash
+
+		const query = makeUserQuery(makeFindSongFileDuplicatesQuery(hash))
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		const expectedDuplicateSongIDs = [song.song_id]
+
+		expect(body.data.viewer.findSongFileDuplicates.map((song: Song) => song.id)).toMatchObject(
+			expectedDuplicateSongIDs,
+		)
+	})
+
+	test("not existing file hash returns empty result", async () => {
+		const { graphQLServer } = await setupTest({})
+		const hash = "4fded1464736e77865df232cbcb4cd19"
+
+		const query = makeUserQuery(makeFindSongFileDuplicatesQuery(hash))
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body.data.viewer.findSongFileDuplicates).toEqual([])
+	})
+
+	test("test file hash of foreign library returns empty result", async () => {
+		const { graphQLServer } = await setupTest({})
+		const song = testData.songs.song5_library_user3
+		const hash = song.sources.data[0].hash
+
+		const query = makeUserQuery(makeFindSongFileDuplicatesQuery(hash))
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body.data.viewer.findSongFileDuplicates).toEqual([])
 	})
 })

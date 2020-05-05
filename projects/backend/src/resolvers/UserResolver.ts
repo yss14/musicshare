@@ -168,4 +168,10 @@ export class UserResolver {
 	public async searchSongs(@Root() user: User, @Args() { query, matcher, limit }: SongSearchInput): Promise<Song[]> {
 		return this.services.songService.searchSongs(user.id, query, matcher || Object.values(SongSearchMatcher), limit)
 	}
+
+	@Authorized()
+	@FieldResolver(() => [Song])
+	public async findSongFileDuplicates(@Root() user: User, @Arg("hash") hash: string): Promise<Song[]> {
+		return this.services.songService.findSongFileDuplicates(user.id, hash)
+	}
 }
