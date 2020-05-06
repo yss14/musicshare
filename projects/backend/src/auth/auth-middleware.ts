@@ -2,13 +2,13 @@ import { HTTPStatusCodes } from "../types/http-status-codes"
 import { IAuthenticationService } from "./AuthenticationService"
 import { CustomRequestHandler, IGraphQLContext } from "../types/context"
 import { AuthChecker } from "type-graphql"
-import { IAuthTokenStore } from "./AuthTokenStore"
 import { AuthenticationError } from "apollo-server-core"
 import { IShareService } from "../services/ShareService"
+import { IPermissionService } from "../services/PermissionsService"
 
 export const makeAuthExtractor = (
 	authService: IAuthenticationService,
-	invalidAuthTokenStore: IAuthTokenStore,
+	permissionService: IPermissionService,
 	shareService: IShareService,
 ): CustomRequestHandler => async (req, res, next) => {
 	req.context = { userID: null, scopes: [] }
@@ -21,14 +21,9 @@ export const makeAuthExtractor = (
 		}
 
 		const tokenDecoded = await authService.verifyToken(authToken)
+		const { userID } = tokenDecoded
 
-		if (invalidAuthTokenStore.isInvalid(tokenDecoded.tokenID)) {
-			req.context.error = { statusCode: HTTPStatusCodes.UNAUTHORIZED, message: "AuthToken invalid" }
-
-			return next()
-		}
-
-		const { userID, scopes } = tokenDecoded
+		const scopes = await permissionService.getPermissionsForUserShares(userID)
 
 		const userLibrary = await shareService.getUserLibrary(userID)
 
@@ -82,16 +77,4 @@ export const graphQLAuthChecker: AuthChecker<IGraphQLContext> = ({ context: { us
 	}
 
 	return true
-}
-
-export const expireAuthToken = async (context: IGraphQLContext) => {
-	if (!context.authToken) {
-		context.error = { statusCode: HTTPStatusCodes.UNAUTHORIZED, message: "AuthToken invalid" }
-
-		return
-	}
-
-	const tokenDecoded = await context.services.authService.verifyToken(context.authToken)
-
-	context.services.invalidAuthTokenStore.invalidate(tokenDecoded.tokenID)
 }

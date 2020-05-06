@@ -67,11 +67,6 @@ loadEnvsFromDotenvFile(nodeEnv)
 		}
 	}
 
-	await services.invalidAuthTokenStore.load()
-	setTimeout(async () => {
-		await services.invalidAuthTokenStore.persist()
-	}, 10000)
-
 	console.info("Create and start background tasks")
 	const [startBackgroundTasks, stopBackgroundTasks] = BackgroundTasks({
 		database,
@@ -93,7 +88,7 @@ loadEnvsFromDotenvFile(nodeEnv)
 		graphQLServer,
 		songFileService: services.songFileService,
 		uploadProcessingQueue: services.songProcessingQueue,
-		authExtractor: makeAuthExtractor(services.authService, services.invalidAuthTokenStore, services.shareService),
+		authExtractor: makeAuthExtractor(services.authService, services.permissionService, services.shareService),
 	})
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000)
 	await server.start("/graphql", serverPort)

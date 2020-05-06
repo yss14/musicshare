@@ -14,7 +14,6 @@ import { Permissions, ITimedstampedResults } from "@musicshare/shared-types"
 import { User } from "../models/UserModel"
 import { AcceptInvitationInput } from "../inputs/AcceptInvitationInput"
 import { RevokeInvitationInput } from "../inputs/RevokeInvitationInput"
-import { expireAuthToken } from "../auth/auth-middleware"
 import { ShareIDInput } from "../inputs/ShareIDInput"
 import { TimestampedResults } from "../models/helper/TimestampedResultModel"
 import { TimestampArgs } from "../args/pagination-args"
@@ -104,8 +103,6 @@ export class ShareResolver {
 	public async createShare(@Args() { name }: ShareNameArg, @Ctx() ctx: IGraphQLContext): Promise<Share> {
 		const createdShare = await this.services.shareService.create(ctx.userID!, name, false)
 
-		await expireAuthToken(ctx)
-
 		return createdShare
 	}
 
@@ -125,9 +122,8 @@ export class ShareResolver {
 	@Authorized()
 	@ShareAuth({ permissions: ["share:owner"] })
 	@Mutation(() => Boolean)
-	public async deleteShare(@Args() { shareID }: ShareIDArg, @Ctx() ctx: IGraphQLContext): Promise<boolean> {
+	public async deleteShare(@Args() { shareID }: ShareIDArg): Promise<boolean> {
 		await this.services.shareService.remove(shareID)
-		await expireAuthToken(ctx)
 
 		return true
 	}
