@@ -8,6 +8,6 @@ export const blobToArrayBuffer = (blob: Blob): Promise<ArrayBuffer> => {
 
 		fileReader.onerror = (err) => reject(err)
 
-		fileReader.readAsArrayBuffer(blob)
+		fileReader.readAsBinaryString(blob)
 	})
 }

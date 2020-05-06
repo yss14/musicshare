@@ -1,4 +1,4 @@
-import React, { useReducer, useContext } from "react"
+import React, { useReducer, useContext, useEffect, useRef } from "react"
 
 export enum UploadItemStatus {
 	Queued = "queued",
@@ -15,7 +15,7 @@ export interface ISongUploadItem {
 	status: UploadItemStatus
 	shareID: string
 	hash: string
-	playlistID?: string
+	playlistIDs?: string[]
 }
 
 type IAddUpload = ReturnType<typeof addUpload>
@@ -53,7 +53,7 @@ export const uploadRemove = (id: string) => ({
 	payload: id,
 })
 
-type UploadAction = IAddUpload | IUploadStart | IUploadProgress | IUploadFinish | IUploadRemove
+export type UploadAction = IAddUpload | IUploadStart | IUploadProgress | IUploadFinish | IUploadRemove
 
 const reducer = (state: ISongUploadItem[] = [], action: UploadAction) => {
 	switch (action.type) {
@@ -106,4 +106,37 @@ export const useSongUploadQueue = () => {
 	}
 
 	return contextValue
+}
+
+interface ISongUploadQueueEvents {
+	onSongUploaded?: (item: ISongUploadItem) => void
+}
+
+export const useSongUploadQueueEvents = ({ onSongUploaded }: ISongUploadQueueEvents) => {
+	const [queueState] = useSongUploadQueue()
+	const prevQueueState = useRef(queueState)
+	const alreadyNotifiedIDs = useRef<Set<string>>(new Set())
+
+	useEffect(() => {
+		if (!prevQueueState.current || !onSongUploaded) return
+
+		const currentQueueStateMap = new Map(queueState.map((item) => [item.id, item]))
+		for (const prevItem of prevQueueState.current) {
+			const currentItem = currentQueueStateMap.get(prevItem.id)
+
+			if (!currentItem) continue
+
+			if (
+				prevItem.status === UploadItemStatus.Uploading &&
+				currentItem.status === UploadItemStatus.Uploaded &&
+				!alreadyNotifiedIDs.current.has(currentItem.id)
+			) {
+				alreadyNotifiedIDs.current.add(currentItem.id)
+
+				onSongUploaded(currentItem)
+			}
+		}
+
+		prevQueueState.current = queueState
+	}, [queueState, onSongUploaded])
 }
