@@ -10,7 +10,7 @@ import { Resolver, Authorized, Query, ObjectType, Field } from "type-graphql"
 import { makeGraphQLServer } from "../server/GraphQLServer"
 import { makeGraphQLResponse } from "./utils/graphql"
 import { makeGraphQLContextProvider, Scopes, IGraphQLContext } from "../types/context"
-import { Permission } from "@musicshare/shared-types"
+import { Permission, Permissions } from "@musicshare/shared-types"
 import { makeAllScopes } from "./utils/setup-test-env"
 import {
 	hasAllPermissions,
@@ -31,6 +31,7 @@ import { configFromEnv } from "../types/config"
 import { Song } from "../models/SongModel"
 import { v4 as uuid } from "uuid"
 import { ShareServiceMock } from "./mocks/ShareServiceMock"
+import { IPermissionService } from "../services/PermissionsService"
 
 const routePathProtected = "/some/protected/route"
 const routePathPublic = "/some/public/route"
@@ -43,20 +44,37 @@ class TestRouteReturnValue {
 
 const testRouteReturnValue: TestRouteReturnValue = { message: "Hello test case!" }
 
+const makePermissionServiceMock = (): IPermissionService => ({
+	addPermissionsForUser: jest.fn(),
+	getAvailablePermissions: jest.fn(),
+	getPermissionsForUser: jest.fn(),
+	getPermissionsForUserShares: jest.fn(async () => {
+		return [
+			{
+				shareID: testData.shares.library_user1.share_id,
+				permissions: Permissions.ALL,
+			},
+			{
+				shareID: testData.shares.some_share.share_id,
+				permissions: Permissions.ALL,
+			},
+		]
+	}),
+})
+
 const setupExpressTestEnv = async () => {
-	const database = makeMockedDatabase()
 	const authService = new AuthenticationService("topsecret")
-	const invalidAuthTokenStore = AuthTokenStore({ database, tokenGroup: "authtoken" })
+	const permissionService = makePermissionServiceMock()
 	const shareServiceMock: IShareService = new ShareServiceMock([])
 	shareServiceMock.getUserLibrary = jest.fn(async () => (null as unknown) as Share)
 	const expressApp = express()
-	expressApp.use(makeAuthExtractor(authService, invalidAuthTokenStore, shareServiceMock) as any)
+	expressApp.use(makeAuthExtractor(authService, permissionService, shareServiceMock) as any)
 	expressApp.post(routePathProtected, auth as any, (req, res) =>
 		res.status(HTTPStatusCodes.OK).json(testRouteReturnValue),
 	)
 	expressApp.post(routePathPublic, (req, res) => res.status(HTTPStatusCodes.OK).json(testRouteReturnValue))
 
-	return { expressApp, authService, invalidAuthTokenStore }
+	return { expressApp, authService, permissionService }
 }
 
 const setupGraphQLTestEnv = async () => {
@@ -138,15 +156,6 @@ describe("express middleware", () => {
 		await executeTestRequests(expressApp, authToken, HTTPStatusCodes.UNAUTHORIZED, HTTPStatusCodes.OK)
 	})
 
-	test("invalidated token", async () => {
-		const { authService, expressApp, invalidAuthTokenStore } = await setupExpressTestEnv()
-		const authToken = await authService.issueAuthToken(user, [], "some_refresh_token")
-		const authTokenDecoded = await authService.verifyToken(authToken)
-		invalidAuthTokenStore.invalidate(authTokenDecoded.tokenID)
-
-		await executeTestRequests(expressApp, authToken, HTTPStatusCodes.UNAUTHORIZED, HTTPStatusCodes.OK)
-	})
-
 	test("no token", async () => {
 		const { expressApp } = await setupExpressTestEnv()
 		const authToken = undefined
@@ -206,15 +215,6 @@ describe("native type-graphql auth middleware", () => {
 		const authToken = (await authService.issueAuthToken(user, [], "some_refresh_token")) + "a"
 
 		await executeTestRequests(expressApp, authToken, false)
-	})
-
-	test("invalidated token", async () => {
-		const { expressApp, authService, invalidAuthTokenStore } = await setupGraphQLTestEnv()
-		const authToken = await authService.issueAuthToken(user, [], "some_refresh_token")
-		const authTokenDecoded = await authService.verifyToken(authToken)
-		invalidAuthTokenStore.invalidate(authTokenDecoded.tokenID)
-
-		await executeTestRequests(expressApp, authToken, false, "AuthToken invalid")
 	})
 
 	test("no token", async () => {

@@ -37,7 +37,6 @@ export interface IServices {
 	authService: IAuthenticationService
 	passwordLoginService: IPasswordLoginService
 	playlistService: IPlaylistService
-	invalidAuthTokenStore: IAuthTokenStore
 	permissionService: IPermissionService
 	tagService: ITagService
 	seedService: ISeedService
@@ -74,7 +73,6 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	)
 	const authService = new AuthenticationService(config.jwt.secret)
 	const passwordLoginService = PasswordLoginService({ authService, database, userService })
-	const invalidAuthTokenStore = AuthTokenStore({ database, tokenGroup: "authtoken" })
 	const permissionService = PermissionService({ database })
 	const tagService = TagService({ songService, shareService })
 	const seedService = SeedService(database, serviceFactory)
@@ -93,7 +91,6 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 		authService,
 		passwordLoginService,
 		playlistService,
-		invalidAuthTokenStore,
 		permissionService,
 		tagService,
 		seedService,
