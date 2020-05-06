@@ -18,7 +18,6 @@ import { configFromEnv } from "./types/config"
 import { connectAndSetupDatabase } from "./database/database"
 import { initServices } from "./services/services"
 import { FileUploadResolver } from "./resolvers/FileUploadResolver"
-import { BackgroundTasks } from "./utils/background-tasks"
 import { onShutdown } from "./utils/shutdown"
 
 require("source-map-support").install()
@@ -67,13 +66,6 @@ loadEnvsFromDotenvFile(nodeEnv)
 		}
 	}
 
-	console.info("Create and start background tasks")
-	const [startBackgroundTasks, stopBackgroundTasks] = BackgroundTasks({
-		database,
-		services,
-	})
-	await startBackgroundTasks()
-
 	const graphQLServer = await makeGraphQLServer<IGraphQLContext>(
 		Container,
 		makeGraphQLContextProvider(services),
@@ -97,7 +89,6 @@ loadEnvsFromDotenvFile(nodeEnv)
 
 	await onShutdown()
 
-	await stopBackgroundTasks()
 	await server.stop()
 })()
 	.then()
