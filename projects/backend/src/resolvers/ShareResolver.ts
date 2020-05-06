@@ -122,7 +122,7 @@ export class ShareResolver {
 	@Authorized()
 	@ShareAuth({ permissions: ["share:owner"] })
 	@Mutation(() => Boolean)
-	public async deleteShare(@Args() { shareID }: ShareIDArg, @Ctx() ctx: IGraphQLContext): Promise<boolean> {
+	public async deleteShare(@Args() { shareID }: ShareIDArg): Promise<boolean> {
 		await this.services.shareService.remove(shareID)
 
 		return true

@@ -1,6 +1,6 @@
 import { HTTPStatusCodes } from "../types/http-status-codes"
 import { IAuthenticationService } from "./AuthenticationService"
-import { CustomRequestHandler, IGraphQLContext, Scopes } from "../types/context"
+import { CustomRequestHandler, IGraphQLContext } from "../types/context"
 import { AuthChecker } from "type-graphql"
 import { AuthenticationError } from "apollo-server-core"
 import { IShareService } from "../services/ShareService"
