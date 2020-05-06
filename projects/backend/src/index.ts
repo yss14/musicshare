@@ -86,8 +86,6 @@ loadEnvsFromDotenvFile(nodeEnv)
 
 	const server = HTTPServer({
 		graphQLServer,
-		songFileService: services.songFileService,
-		uploadProcessingQueue: services.songProcessingQueue,
 		authExtractor: makeAuthExtractor(services.authService, services.permissionService, services.shareService),
 	})
 	const serverPort = tryParseInt(process.env[CustomEnv.REST_PORT], 4000)

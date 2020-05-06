@@ -1,7 +1,7 @@
 import "reflect-metadata"
 import express from "express"
 import { AuthenticationService } from "../auth/AuthenticationService"
-import { makeAuthExtractor, auth, graphQLAuthChecker } from "../auth/auth-middleware"
+import { makeAuthExtractor, graphQLAuthChecker } from "../auth/auth-middleware"
 import { testData } from "../database/seed"
 import { User } from "../models/UserModel"
 import { HTTPStatusCodes } from "../types/http-status-codes"
@@ -31,9 +31,6 @@ import { Song } from "../models/SongModel"
 import { v4 as uuid } from "uuid"
 import { ShareServiceMock } from "./mocks/ShareServiceMock"
 import { IPermissionService } from "../services/PermissionsService"
-
-const routePathProtected = "/some/protected/route"
-const routePathPublic = "/some/public/route"
 
 @ObjectType()
 class TestRouteReturnValue {
@@ -68,10 +65,6 @@ const setupExpressTestEnv = async () => {
 	shareServiceMock.getUserLibrary = jest.fn(async () => (null as unknown) as Share)
 	const expressApp = express()
 	expressApp.use(makeAuthExtractor(authService, permissionService, shareServiceMock) as any)
-	expressApp.post(routePathProtected, auth as any, (req, res) =>
-		res.status(HTTPStatusCodes.OK).json(testRouteReturnValue),
-	)
-	expressApp.post(routePathPublic, (req, res) => res.status(HTTPStatusCodes.OK).json(testRouteReturnValue))
 
 	return { expressApp, authService, permissionService }
 }
@@ -116,52 +109,6 @@ const setupSupertest = (expressApp: express.Application, authToken: string | und
 }
 
 const user = User.fromDBResult(testData.users.user1)
-
-describe("express middleware", () => {
-	const executeTestRequests = async (
-		expressApp: express.Application,
-		authToken: string | undefined,
-		statusProtected: HTTPStatusCodes,
-		statusPublic: HTTPStatusCodes,
-	) => {
-		const requestProtected = setupSupertest(expressApp, authToken, routePathProtected)
-		const responseProtected = await requestProtected.send()
-
-		expect(responseProtected.status).toBe(statusProtected)
-		if (statusProtected === HTTPStatusCodes.OK) {
-			expect(responseProtected.body).toEqual(testRouteReturnValue)
-		}
-
-		const requestPublic = setupSupertest(expressApp, authToken, routePathPublic)
-		const responsePublic = await requestPublic.send()
-
-		expect(responsePublic.status).toBe(statusPublic)
-		if (statusPublic === HTTPStatusCodes.OK) {
-			expect(responsePublic.body).toEqual(testRouteReturnValue)
-		}
-	}
-
-	test("valid token", async () => {
-		const { authService, expressApp } = await setupExpressTestEnv()
-		const authToken = await authService.issueAuthToken(user, [], "some_refresh_token")
-
-		await executeTestRequests(expressApp, authToken, HTTPStatusCodes.OK, HTTPStatusCodes.OK)
-	})
-
-	test("invalid token", async () => {
-		const { authService, expressApp } = await setupExpressTestEnv()
-		const authToken = (await authService.issueAuthToken(user, [], "some_refresh_token")) + "a"
-
-		await executeTestRequests(expressApp, authToken, HTTPStatusCodes.UNAUTHORIZED, HTTPStatusCodes.OK)
-	})
-
-	test("no token", async () => {
-		const { expressApp } = await setupExpressTestEnv()
-		const authToken = undefined
-
-		await executeTestRequests(expressApp, authToken, HTTPStatusCodes.UNAUTHORIZED, HTTPStatusCodes.OK)
-	})
-})
 
 describe("native type-graphql auth middleware", () => {
 	const executeTestRequests = async (
