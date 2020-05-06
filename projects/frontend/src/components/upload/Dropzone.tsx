@@ -1,14 +1,19 @@
-import React, { useCallback, ReactNode, useMemo } from "react"
+import React, { useCallback, ReactNode, useMemo, useState } from "react"
 import { useDropzone, FileRejection } from "react-dropzone"
 import { Icon, Typography, message } from "antd"
 import styled from "styled-components"
-import { uploadFile } from "../../utils/upload/uploadFile"
+import { uploadFile, IUploadFileArgs } from "../../utils/upload/uploadFile"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 import { last } from "lodash"
 import { useSongUploadQueue, ISongUploadItem } from "../../utils/upload/SongUploadContext"
 import { useApolloClient } from "react-apollo"
 import { makeGenerateUploadableUrl } from "../../graphql/programmatic/generate-file-uploadable-url"
 import { makeSubmitSongFromRemoteFile } from "../../graphql/programmatic/submit-song-from-remote-file"
+import { blobToArrayBuffer } from "../../utils/upload/blob-to-arraybuffer"
+import { findSongFileDuplicates } from "../../graphql/programmatic/find-song-file-duplicates"
+import { IBaseSong } from "../../graphql/types"
+import SparkMD5 from "spark-md5"
+import { v4 as uuid } from "uuid"
 
 const StyledIcon = styled(Icon)`
 	font-size: 64px;
@@ -37,14 +42,25 @@ const Blur = styled.div`
 	height: 100%;
 `
 
-interface IDropzoneProps {
-	shareID: string
-	children: (uploadItems: ISongUploadItem[]) => ReactNode
+export type DetectedDuplicate = [IUploadFileArgs, IBaseSong[]]
+export type DuplicateActions = {
+	proceed: (item: IUploadFileArgs) => void
+	abort: (item: IUploadFileArgs) => void
 }
 
-interface WrapperProps {
-	children: (uploadItems: ISongUploadItem[]) => ReactNode
+interface IBaseProps {
+	children: (
+		uploadItems: ISongUploadItem[],
+		duplicates: DetectedDuplicate[],
+		duplicateActions: DuplicateActions,
+	) => ReactNode
 }
+
+interface IDropzoneProps extends IBaseProps {
+	shareID: string
+}
+
+interface WrapperProps extends IBaseProps {}
 
 const getPlaylistIDFromUrl = (): string[] => {
 	const urlParts = window.location.href.split("/")
@@ -59,24 +75,68 @@ const getPlaylistIDFromUrl = (): string[] => {
 
 export default ({ children }: WrapperProps) => {
 	const libraryID = useLibraryID()
-	return libraryID ? <Dropzone shareID={libraryID}>{(state) => children(state)}</Dropzone> : null
+	return libraryID ? <Dropzone shareID={libraryID}>{(...args) => children(...args)}</Dropzone> : null
 }
 
 const Dropzone = ({ shareID, children }: IDropzoneProps) => {
 	const [state, dispatch] = useSongUploadQueue()
+	const [detectedDuplicates, setDetectedDuplicates] = useState<DetectedDuplicate[]>([])
 	const client = useApolloClient()
 
 	const generateUploadableUrl = useMemo(() => makeGenerateUploadableUrl(client), [client])
 	const submitSongFromRemoteUrl = useMemo(() => makeSubmitSongFromRemoteFile(client), [client])
 
+	const processFile = useCallback(
+		async (file: File) => {
+			const id = uuid()
+			const playlistIDs = getPlaylistIDFromUrl()
+
+			const buffer = await blobToArrayBuffer(file)
+			const spark = new SparkMD5()
+			spark.appendBinary(buffer as any)
+			const hash = spark.end()
+
+			const duplicateSongs = await findSongFileDuplicates(client, hash)
+
+			const uploadItem: IUploadFileArgs = {
+				id,
+				hash,
+				file,
+				buffer,
+				playlistIDs,
+				shareID,
+				generateUploadableUrl,
+				submitSongFromRemoteUrl,
+				dispatch,
+			}
+
+			if (duplicateSongs.length === 0) {
+				uploadFile(uploadItem)
+			} else {
+				setDetectedDuplicates((currentState) => [...currentState, [uploadItem, duplicateSongs]])
+			}
+		},
+		[client, submitSongFromRemoteUrl, generateUploadableUrl, dispatch, shareID],
+	)
+
+	const duplicateActions = useMemo(
+		() => ({
+			proceed: (item: IUploadFileArgs) => {
+				setDetectedDuplicates((currentState) => currentState.filter((duplicate) => duplicate[0].id !== item.id))
+				uploadFile(item)
+			},
+			abort: (item: IUploadFileArgs) => {
+				setDetectedDuplicates((currentState) => currentState.filter((duplicate) => duplicate[0].id !== item.id))
+			},
+		}),
+		[],
+	)
+
 	const onDrop = useCallback(
 		(acceptedFiles: File[]) => {
-			const playlistIDs = getPlaylistIDFromUrl()
-			acceptedFiles.forEach((file) =>
-				uploadFile(shareID, playlistIDs, file, generateUploadableUrl, submitSongFromRemoteUrl)(dispatch),
-			)
+			acceptedFiles.forEach((file) => processFile(file))
 		},
-		[shareID, dispatch, generateUploadableUrl, submitSongFromRemoteUrl],
+		[processFile],
 	)
 
 	const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
@@ -104,7 +164,7 @@ const Dropzone = ({ shareID, children }: IDropzoneProps) => {
 					</Title>
 				</UploadContainer>
 			) : null}
-			<Blur active={isDragActive}>{children(state)}</Blur>
+			<Blur active={isDragActive}>{children(state, detectedDuplicates, duplicateActions)}</Blur>
 		</div>
 	)
 }

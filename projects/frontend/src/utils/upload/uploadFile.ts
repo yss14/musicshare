@@ -1,5 +1,4 @@
-import { blobToArrayBuffer } from "./blob-to-arraybuffer"
-import * as crypto from "js-sha256"
+import React from "react"
 import { last } from "lodash"
 import { message } from "antd"
 import {
@@ -9,31 +8,44 @@ import {
 	uploadProgress,
 	uploadFinish,
 	uploadRemove,
+	UploadAction,
 } from "./SongUploadContext"
-import { v4 as uuid } from "uuid"
 import { GenerateUploadableUrl } from "../../graphql/programmatic/generate-file-uploadable-url"
 import { uploadFileToStorage } from "./uploadFileToStorage"
 import { SubmitSongFromRemoteFile } from "../../graphql/programmatic/submit-song-from-remote-file"
 
 let currentUploads: number = 0
 
-export const uploadFile = (
-	shareID: string,
-	playlistIDs: string[],
-	file: File,
-	generateFileUploadableUrl: GenerateUploadableUrl,
-	submitSongFromremoteFile: SubmitSongFromRemoteFile,
-) => async (dispatch: any) => {
-	const arrayBuffer = await blobToArrayBuffer(file)
-	const hash = crypto.sha256(arrayBuffer)
-	const id = uuid()
+export interface IUploadFileArgs {
+	id: string
+	shareID: string
+	playlistIDs: string[]
+	file: File
+	hash: string
+	buffer: ArrayBuffer
+	generateUploadableUrl: GenerateUploadableUrl
+	submitSongFromRemoteUrl: SubmitSongFromRemoteFile
+	dispatch: React.Dispatch<UploadAction>
+}
+
+export const uploadFile = async ({
+	id,
+	file,
+	hash,
+	buffer,
+	shareID,
+	playlistIDs,
+	generateUploadableUrl,
+	submitSongFromRemoteUrl,
+	dispatch,
+}: IUploadFileArgs) => {
 	const fileExtension = last(file.name.split("."))
 
 	dispatch(
 		addUpload({
 			id,
 			filename: file.name,
-			size: arrayBuffer.byteLength,
+			size: buffer.byteLength,
 			progress: 0,
 			status: UploadItemStatus.Queued,
 			shareID: shareID,
@@ -63,12 +75,12 @@ export const uploadFile = (
 			throw new Error(`Cannot read file extension from filename ${file.name}`)
 		}
 
-		const targetFileUrl = await generateFileUploadableUrl(fileExtension)
+		const targetFileUrl = await generateUploadableUrl(fileExtension)
 
 		currentUploads++
 
 		await uploadFileToStorage({ blob: file, targetFileUrl, contentType: file.type, onProgress })
-		await submitSongFromremoteFile({ filename: file.name, playlistIDs, remoteFileUrl: targetFileUrl })
+		await submitSongFromRemoteUrl({ filename: file.name, playlistIDs, remoteFileUrl: targetFileUrl })
 
 		dispatch(uploadFinish(id, true))
 

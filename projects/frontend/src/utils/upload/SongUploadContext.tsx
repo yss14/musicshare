@@ -53,7 +53,7 @@ export const uploadRemove = (id: string) => ({
 	payload: id,
 })
 
-type UploadAction = IAddUpload | IUploadStart | IUploadProgress | IUploadFinish | IUploadRemove
+export type UploadAction = IAddUpload | IUploadStart | IUploadProgress | IUploadFinish | IUploadRemove
 
 const reducer = (state: ISongUploadItem[] = [], action: UploadAction) => {
 	switch (action.type) {
