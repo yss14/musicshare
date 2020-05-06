@@ -93,7 +93,7 @@ const DuplicateUpload: React.FC<IDuplicateUploadProps> = ({ item, duplicateSongs
 				content={
 					<>
 						{duplicateSongs.map((song) => (
-							<div style={{ color: "#497aba" }}>
+							<div style={{ color: "#497aba" }} key={song.id}>
 								{song.artists.join(", ") + " - " + buildSongName(song)}
 							</div>
 						))}
