@@ -18,6 +18,8 @@ import { configFromEnv } from "./types/config"
 import { connectAndSetupDatabase } from "./database/database"
 import { initServices } from "./services/services"
 import { FileUploadResolver } from "./resolvers/FileUploadResolver"
+import { BackgroundTasks } from "./utils/background-tasks"
+import { onShutdown } from "./utils/shutdown"
 
 require("source-map-support").install()
 
@@ -70,6 +72,13 @@ loadEnvsFromDotenvFile(nodeEnv)
 		await services.invalidAuthTokenStore.persist()
 	}, 10000)
 
+	console.info("Create and start background tasks")
+	const [startBackgroundTasks, stopBackgroundTasks] = BackgroundTasks({
+		database,
+		services,
+	})
+	await startBackgroundTasks()
+
 	const graphQLServer = await makeGraphQLServer<IGraphQLContext>(
 		Container,
 		makeGraphQLContextProvider(services),
@@ -92,6 +101,11 @@ loadEnvsFromDotenvFile(nodeEnv)
 	console.info(`Server is running on http://localhost:${serverPort}`)
 	console.info(`GraphQL endpoint available at http://localhost:${serverPort}/graphql`)
 	if (__DEV__) console.info(`GraphQL Playground available at http://localhost:${serverPort}/playground`)
+
+	await onShutdown()
+
+	await stopBackgroundTasks()
+	await server.stop()
 })()
 	.then()
 	.catch(console.error)
