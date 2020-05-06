@@ -25,12 +25,16 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 	const [deleteShare] = useDeleteShare({
 		onCompleted: () => {
 			message.success("Share successfully deleted")
-			onClose()
 			history.push("/")
+			onClose()
 		},
 	})
 	const [leaveShare] = useLeaveShare({
-		onCompleted: () => onClose(),
+		onCompleted: () => {
+			message.success("Share successfully left")
+			history.push("/")
+			onClose()
+		},
 	})
 	const isOwner = useMemo(() => share.userPermissions.includes(Permissions.SHARE_OWNER), [share.userPermissions])
 	const canChangeName = isOwner

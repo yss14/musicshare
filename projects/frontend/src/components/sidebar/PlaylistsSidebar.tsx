@@ -99,6 +99,7 @@ const SharePlaylistsSidebar = () => {
 					onCancel={() => setNewPlaylistName(null)}
 					onChange={(e) => setNewPlaylistName(e.target.value)}
 					value={newPlaylistName}
+					validationError={newPlaylistName.trim().length === 0 ? "At least one character" : undefined}
 				/>
 			)}
 		</>
