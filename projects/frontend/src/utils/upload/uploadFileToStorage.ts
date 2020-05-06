@@ -53,7 +53,7 @@ export const uploadFileToAzureBlob = async ({
 export const uploadFileToS3 = async ({ targetFileUrl, blob, contentType, onProgress }: IUploadFileToStorageArgs) => {
 	const handleProgress = ({ total, loaded }: IAxiosProgress) => {
 		if (total && loaded) {
-			onProgress(loaded / total)
+			onProgress((loaded / total) * 100)
 		}
 	}
 
