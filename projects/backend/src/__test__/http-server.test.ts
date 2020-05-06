@@ -29,12 +29,10 @@ afterAll(async () => {
 const mockedAuthExtractor: CustomRequestHandler = (req, res, next) => next()
 
 test("start http server", async () => {
-	const { graphQLServer, songFileService, songProcessingQueue } = await setupTest({ seed: false })
+	const { graphQLServer } = await setupTest({ seed: false })
 
 	const httpServer = HTTPServer({
 		graphQLServer,
-		songFileService,
-		uploadProcessingQueue: songProcessingQueue,
 		authExtractor: mockedAuthExtractor,
 	})
 	const port = await findFreePort()
@@ -45,12 +43,10 @@ test("start http server", async () => {
 })
 
 test("start http server with graphql playground", async () => {
-	const { graphQLServer, songFileService, songProcessingQueue } = await setupTest({ seed: false })
+	const { graphQLServer } = await setupTest({ seed: false })
 
 	const httpServer = HTTPServer({
 		graphQLServer,
-		songFileService,
-		uploadProcessingQueue: songProcessingQueue,
 		authExtractor: mockedAuthExtractor,
 	})
 	const port = await findFreePort()

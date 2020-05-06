@@ -47,21 +47,6 @@ export const makeAuthExtractor = (
 	}
 }
 
-// this middleware is currently only used for the file upload router
-export const auth: CustomRequestHandler = (req, res, next) => {
-	const { context } = req
-
-	if (context.error) {
-		return res.status(context.error.statusCode).json({ error: context.error.message })
-	}
-
-	if (context.userID === null) {
-		return res.status(HTTPStatusCodes.UNAUTHORIZED).end()
-	}
-
-	next()
-}
-
 export const graphQLAuthChecker: AuthChecker<IGraphQLContext> = ({ context: { userID, error } }, permissions = []) => {
 	if (error && (error.message === "AuthToken expired" || error.message === "AuthToken invalid")) {
 		// throw this error so we can distiguish whether authToken expired
