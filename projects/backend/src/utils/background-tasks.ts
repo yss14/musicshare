@@ -4,6 +4,8 @@ import BetterQueue from "better-queue"
 import * as crypto from "crypto"
 import { Tables } from "../database/tables"
 
+/* istanbul ignore file */
+
 export interface IBackgroundTaskArgs {
 	database: IDatabaseClient
 	services: IServices
