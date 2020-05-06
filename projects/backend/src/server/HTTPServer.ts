@@ -1,7 +1,6 @@
 import express from "express"
 import Cors from "cors"
 import Morgan from "morgan"
-import { __PROD__ } from "../utils/env/env-constants"
 import { Server } from "net"
 import { ApolloServer } from "apollo-server-express"
 import { CustomRequestHandler } from "../types/context"
