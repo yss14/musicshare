@@ -26,7 +26,6 @@ import { ShareNotFoundError, ShareService, IShareService } from "../services/Sha
 import { makeMockedDatabase } from "./mocks/mock-database"
 import { makePlaylistAuthMiddleware } from "../auth/middleware/playlist-auth"
 import { makeSongAuthMiddleware } from "../auth/middleware/song-auth"
-import { AuthTokenStore } from "../auth/AuthTokenStore"
 import { configFromEnv } from "../types/config"
 import { Song } from "../models/SongModel"
 import { v4 as uuid } from "uuid"
