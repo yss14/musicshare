@@ -27,6 +27,7 @@ const SHARE_USERS = gql`
 export const useShareUsers = (shareID: string) => {
 	const { data, ...rest } = useQuery<IShareUsersData, IShareUsersVariables>(SHARE_USERS, {
 		variables: { shareID },
+		fetchPolicy: "network-only",
 	})
 
 	return {
