@@ -14,6 +14,7 @@ import { logoutUser } from "./graphql/programmatic/logout"
 import { isPlaylistSong } from "./graphql/types"
 import { ServerError } from "apollo-link-http-common"
 import { message } from "antd"
+import { playerStateTypeDefs, playerStateDefaultValue } from "./components/player/player-state"
 
 const config = makeConfigFromEnv()
 
@@ -60,6 +61,57 @@ const typeDefs = `
 		shareID: String!
 		songID: String!
 	}
+
+	type Song {
+		id: String!
+		title: String!
+		suffix: String
+		year: Float
+		bpm: Float
+		dateLastEdit: String!
+		releaseDate: String
+		isRip: Boolean!
+		artists: [String!]!
+		remixer: [String!]!
+		featurings: [String!]!
+		type: String
+		genres: [String!]!
+		labels: [String!]!
+		sources: [FileSource!]!
+		fileUploadAccessUrl: String!
+		duration: Float!
+		tags: [String!]!
+		dateAdded: String!
+		libraryID: String!
+		playCount: Int!
+	}
+
+	type ScopedSong {
+		id: String!
+		title: String!
+		suffix: String
+		year: Float
+		bpm: Float
+		dateLastEdit: String!
+		releaseDate: String
+		isRip: Boolean!
+		artists: [String!]!
+		remixer: [String!]!
+		featurings: [String!]!
+		type: String
+		genres: [String!]!
+		labels: [String!]!
+		sources: [FileSource!]!
+		fileUploadAccessUrl: String!
+		duration: Float!
+		tags: [String!]!
+		dateAdded: String!
+		libraryID: String!
+		playCount: Int!
+		shareID: String!
+	  }
+
+	${playerStateTypeDefs}
 `
 
 const httpLink = new HttpLink({
@@ -170,6 +222,12 @@ const client = new ApolloClient({
 	cache,
 	resolvers,
 	typeDefs,
+})
+
+cache.writeData({
+	data: {
+		player: playerStateDefaultValue,
+	},
 })
 
 export { client, cache }
