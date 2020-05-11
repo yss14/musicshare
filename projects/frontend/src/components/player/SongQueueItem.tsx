@@ -1,5 +1,5 @@
 import React, { useRef } from "react"
-import { IBaseSongPlayable } from "../../graphql/types"
+import { IScopedSong } from "../../graphql/types"
 import { buildSongName } from "../../utils/songname-builder"
 import styled from "styled-components"
 import { useDrop, DropTargetMonitor, XYCoord, useDrag } from "react-dnd"
@@ -27,7 +27,7 @@ const SubTitle = styled.div`
 `
 
 interface ISongQueueItemProps {
-	song: IBaseSongPlayable
+	song: IScopedSong
 	index: number
 	moveItem: (dragIndex: number, hoverIndex: number) => void
 }

@@ -147,7 +147,7 @@ export const Player = () => {
 		changeVolume,
 		playing,
 		currentSong,
-		playpackProgress,
+		playbackProgress,
 		duration,
 		seek,
 		bufferingProgress,
@@ -172,7 +172,7 @@ export const Player = () => {
 
 	const handleSeek = (newCurrentTimePercentage: number) => seek(newCurrentTimePercentage * duration)
 
-	const playedTime = Math.round(playpackProgress * duration)
+	const playedTime = Math.round(playbackProgress * duration)
 	const remainingTime = Math.round(duration - playedTime)
 
 	const [displayText] = useDebounce(
@@ -185,13 +185,13 @@ export const Player = () => {
 			<ControlContainer>
 				<ControlButton src={controlPrevImg} onClick={prev} />
 				<ControlButton src={playing ? controlPauseImg : controlPlayImg} onClick={handleClickPlayPause} />
-				<ControlButton src={controlNextImg} onClick={next} />
+				<ControlButton src={controlNextImg} onClick={() => next()} />
 			</ControlContainer>
 			<SongQueue />
 			<ProgressBarContainer>
 				<PlayerSlider
 					progresses={[
-						{ percentage: playpackProgress },
+						{ percentage: playbackProgress },
 						{ percentage: bufferingProgress, fillColor: "rgba(255, 255, 255, 0.1)" },
 					]}
 					progressText={displayText}

@@ -5,7 +5,6 @@ import styled from "styled-components"
 import { formatDuration } from "../../utils/format-duration"
 import { SongSearch } from "./search/SongSearch"
 import { usePlayer } from "../../player/player-hook"
-import { useSongUtils } from "../../hooks/use-song-utils"
 import { ISongSearchFilter } from "./search/search-types"
 import { SongViewSettings, ISongViewSettings } from "./search/SongViewSettings"
 
@@ -40,12 +39,11 @@ export const SongTableHeader = ({
 	onSongViewSettingsChange,
 }: ISongTableHeaderProps) => {
 	const { changeSong } = usePlayer()
-	const { makePlayableSong } = useSongUtils()
 
 	const durationSum = songs.reduce((acc, song) => acc + song.duration, 0)
 
 	const onClickSong = (song: IScopedSong) => {
-		changeSong(makePlayableSong(song))
+		changeSong(song)
 	}
 
 	return (

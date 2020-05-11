@@ -1,96 +1,229 @@
-import React, { useReducer, useContext, useMemo, useEffect } from "react"
-import { Player, PlayerEvent, ISongQueueItem, IPlayer } from "./player"
-import { IBaseSongPlayable } from "../graphql/types"
+import React, { useContext, useMemo, useEffect, useCallback, useState } from "react"
+import { PlayerDeck } from "./player"
+import useInterval from "@use-it/interval"
+import { useApolloClient } from "react-apollo"
+import { makeUpdatePlayerState, usePlayerState } from "../components/player/player-state"
+import { makeGetSongMediaUrls } from "../graphql/programmatic/get-song-mediaurl"
+import { ISongMediaUrl } from "../graphql/queries/song-mediaurl-query"
+import { makeIncrementSongPlayCount } from "../graphql/programmatic/increment-song-playcount"
 
-export const PlayerContext = React.createContext<[[IPlayerState, React.Dispatch<any>] | null, IPlayer]>([
-	null,
-	Player(),
-])
+const getPlaybackProgress = (deck: HTMLAudioElement) => {
+	return deck.currentTime / deck.duration || -1
+}
 
-export const usePlayerState = () => {
-	const state = useContext(PlayerContext)[0]
+export const pickMediaUrl = (mediaUrls: ISongMediaUrl[]) => {
+	const fileUploadMedia = mediaUrls.find((mediaUrl) => mediaUrl.__typename === "FileUpload")
 
-	if (!state) {
-		throw new Error(`usePlayerState() can only be used inside PlayerContext`)
+	if (fileUploadMedia) {
+		return fileUploadMedia.accessUrl
 	}
 
-	return state
+	return null
 }
 
-interface ISetVolume {
-	type: "set_volume"
-	data: number
+interface IPlayer {
+	primaryDeck: HTMLAudioElement
+	bufferingDeck: HTMLAudioElement
+
+	isBufferingNextSong: boolean
+	setIsBufferingNextSong: React.Dispatch<React.SetStateAction<boolean>>
+
+	playCountIncremented: boolean
+	setPlayCountIncremented: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const setVolume = (newVolume: number): ISetVolume => ({ type: "set_volume", data: newVolume })
+const PlayerContext = React.createContext<IPlayer | null>(null)
 
-interface ISetIsDefaultSongQueue extends ReturnType<typeof setIsDefaultSongQueue> {}
+export const usePlayerContext = () => {
+	const context = useContext(PlayerContext)
 
-export const setIsDefaultSongQueue = (isDefaultSongQueue: boolean) => ({
-	type: "set_is_default_song_queue" as const,
-	data: isDefaultSongQueue,
-})
-
-type PlayerAction = PlayerEvent | ISetVolume | ISetIsDefaultSongQueue
-
-interface IPlayerState {
-	playing: boolean
-	playpackProgress: number
-	bufferingProgress: number
-	volume: number
-	currentSong: IBaseSongPlayable | null
-	duration: number
-	error: string | null
-	songQueue: ISongQueueItem[]
-	isDefaultSongQueue: boolean
-}
-
-const playerReducer: React.Reducer<IPlayerState, PlayerAction> = (state, action) => {
-	switch (action.type) {
-		case "set_volume":
-			return { ...state, volume: action.data }
-		case "playback_status":
-			return { ...state, playing: action.data }
-		case "playback_progress":
-			return { ...state, playpackProgress: action.data }
-		case "buffering_progress":
-			return { ...state, bufferingProgress: action.data }
-		case "song_change":
-			return { ...state, currentSong: action.data, error: null, playpackProgress: 0, bufferingProgress: 0 }
-		case "song_duration_change":
-			return { ...state, duration: action.data, error: null }
-		case "playback_error":
-			return { ...state, error: action.data }
-		case "update_song_queue":
-			return { ...state, songQueue: action.data }
-		case "set_is_default_song_queue":
-			return { ...state, isDefaultSongQueue: action.data }
-		default:
-			return state
+	if (!context) {
+		throw new Error("usePlayerContext() can only be used inside PlayerProvider")
 	}
+
+	return context
 }
 
-const initialPlayerState: IPlayerState = {
-	volume: 0.5,
-	playing: false,
-	playpackProgress: 0,
-	bufferingProgress: 0,
-	currentSong: null,
-	duration: 0,
-	error: null,
-	songQueue: [],
-	isDefaultSongQueue: false,
-}
+let lastBufferingProgress = -1
+let playerInitialized = false
 
 export const PlayerProvider: React.FC = ({ children }) => {
-	const reducer = useReducer(playerReducer, initialPlayerState)
-	const player = useMemo(() => Player(), [])
+	const playerDecks = useMemo(
+		() => ({
+			primaryDeck: PlayerDeck({ onError: () => undefined }), // TODO add error handler
+			bufferingDeck: PlayerDeck({ onError: () => undefined }),
+		}),
+		[],
+	)
+	const { primaryDeck, bufferingDeck } = playerDecks
+
+	const [isBufferingNextSong, setIsBufferingNextSong] = useState(false)
+	const [playCountIncremented, setPlayCountIncremented] = useState(false)
+
+	const { data } = usePlayerState()
+	const { queue, currentSong } = data!.player
+
+	const client = useApolloClient()
+	const updatePlayerState = useMemo(() => makeUpdatePlayerState(client), [client])
+	const getMediaUrls = useMemo(() => makeGetSongMediaUrls(client), [client])
+	const incrementSongPlayCount = useMemo(() => makeIncrementSongPlayCount(client), [client])
+
+	const destroy = useCallback(() => {
+		try {
+			primaryDeck.parentElement?.removeChild(primaryDeck)
+			bufferingDeck.parentElement?.removeChild(bufferingDeck)
+		} catch (err) {
+			console.log(err)
+		}
+	}, [bufferingDeck, primaryDeck])
 
 	useEffect(() => {
-		return () => {
-			player.destroy()
+		if (playerInitialized) {
+			throw new Error(`PlayerProvider can only be used once`)
 		}
-	}, [player])
 
-	return <PlayerContext.Provider value={[reducer, player]}>{children}</PlayerContext.Provider>
+		playerInitialized = true
+
+		return () => destroy()
+	}, [destroy])
+
+	const onPlayerEnded = useCallback(() => {
+		updatePlayerState({
+			currentSong: null,
+			duration: 0,
+			playbackProgress: 0,
+			bufferingProgress: 0,
+		})
+
+		// TODO call playNextSong()
+	}, [updatePlayerState])
+
+	const onPlayerPlay = useCallback(() => {
+		updatePlayerState({
+			playing: true,
+		})
+	}, [updatePlayerState])
+
+	const onPlayerPause = useCallback(() => {
+		updatePlayerState({
+			playing: false,
+		})
+	}, [updatePlayerState])
+
+	const onPlayerTimeUpdate = useCallback(() => {
+		const progress = primaryDeck.currentTime / primaryDeck.duration
+
+		updatePlayerState({
+			playbackProgress: progress,
+		})
+
+		if (!playCountIncremented && progress >= 0.7 && currentSong) {
+			setPlayCountIncremented(true)
+
+			incrementSongPlayCount(currentSong.id, currentSong.shareID).catch(console.error)
+		}
+	}, [updatePlayerState, currentSong, incrementSongPlayCount, playCountIncremented, primaryDeck])
+
+	const onPlayerDurationChange = useCallback(() => {
+		const { currentTime, duration } = primaryDeck
+		const progress = currentTime / duration
+
+		updatePlayerState({
+			duration: duration,
+			playbackProgress: progress,
+		})
+	}, [updatePlayerState, primaryDeck])
+
+	useEffect(() => {
+		bufferingDeck.volume = 0
+
+		// TODO subscribe to error events
+
+		primaryDeck.addEventListener("ended", onPlayerEnded)
+		primaryDeck.addEventListener("play", onPlayerPlay)
+		primaryDeck.addEventListener("pause", onPlayerPause)
+		primaryDeck.addEventListener("timeupdate", onPlayerTimeUpdate)
+		primaryDeck.addEventListener("durationchange", onPlayerDurationChange)
+
+		return () => {
+			primaryDeck.removeEventListener("ended", onPlayerEnded)
+			primaryDeck.removeEventListener("play", onPlayerPlay)
+			primaryDeck.removeEventListener("pause", onPlayerPause)
+			primaryDeck.removeEventListener("timeupdate", onPlayerTimeUpdate)
+			primaryDeck.removeEventListener("durationchange", onPlayerDurationChange)
+		}
+	}, [
+		onPlayerEnded,
+		onPlayerPlay,
+		onPlayerPause,
+		onPlayerTimeUpdate,
+		onPlayerDurationChange,
+		primaryDeck,
+		bufferingDeck.volume,
+	])
+
+	const updateBufferingProgress = useCallback(() => {
+		if (primaryDeck.buffered.length === 0) return
+
+		const bufferingProgress = primaryDeck.buffered.end(0) / primaryDeck.duration
+
+		if (Math.abs(lastBufferingProgress - bufferingProgress) > 0.01) {
+			lastBufferingProgress = bufferingProgress
+
+			updatePlayerState({
+				bufferingProgress,
+			})
+		}
+	}, [updatePlayerState, primaryDeck])
+
+	const checkPrebufferingNextSong = useCallback(async () => {
+		const currentProgress = getPlaybackProgress(primaryDeck)
+
+		if (primaryDeck.paused || currentProgress < 0) return
+
+		if (currentProgress >= 0.9 && queue.length > 0 && !isBufferingNextSong) {
+			// TODO factor this out
+			const newQueue = [...queue]
+			const nextItem = newQueue.shift()
+			const nextSong = nextItem!.song
+
+			updatePlayerState({
+				queue: newQueue,
+			})
+
+			setIsBufferingNextSong(true)
+			console.log("Start buffering next song")
+
+			try {
+				const songMediaUrls = await getMediaUrls(nextSong.shareID, nextSong.id)
+				const mediaUrl = pickMediaUrl(songMediaUrls)
+
+				if (mediaUrl) {
+					bufferingDeck.src = mediaUrl
+				} else {
+					console.warn(`Cannot get a media url of song ${nextSong.id}`)
+				}
+			} catch (err) {
+				console.error(err)
+			}
+		}
+	}, [getMediaUrls, queue, updatePlayerState, bufferingDeck.src, isBufferingNextSong, primaryDeck])
+
+	useInterval(() => {
+		updateBufferingProgress()
+		checkPrebufferingNextSong()
+	}, 500)
+
+	const playerContextValue = useMemo(
+		(): IPlayer => ({
+			...playerDecks,
+			isBufferingNextSong,
+			setIsBufferingNextSong,
+			playCountIncremented,
+			setPlayCountIncremented,
+		}),
+		[playerDecks, isBufferingNextSong, playCountIncremented],
+	)
+
+	return <PlayerContext.Provider value={playerContextValue}>{children}</PlayerContext.Provider>
 }

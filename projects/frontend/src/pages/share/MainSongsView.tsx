@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react"
 import { IScopedSong, IBaseSong } from "../../graphql/types"
-import { useSongUtils } from "../../hooks/use-song-utils"
 import { usePlayer } from "../../player/player-hook"
 import { SongTableHeader } from "../../components/song-table/SongTableHeader"
 import { SongTable, IRowEventsArgs } from "../../components/song-table/SongTable"
@@ -46,7 +45,6 @@ interface ISongsViewProps {
 }
 
 export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong, isShare }) => {
-	const { makePlayableSong } = useSongUtils()
 	const { changeSong, enqueueDefaultSongs, clearQueue, currentSong } = usePlayer()
 	const [editSong, setEditSong] = useState<IScopedSong | null>(null)
 	const [showSongModal, setShowSongModal] = useState(false)
@@ -70,16 +68,16 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 
 	const onRowDoubleClick = useCallback(
 		({ song, idx, songs }: IRowEventsArgs) => {
-			changeSong(makePlayableSong(song))
+			changeSong(song)
 
 			if (songs) {
 				const followUpSongs = songs.filter((_, songIdx) => songIdx > idx)
 
 				clearQueue()
-				enqueueDefaultSongs(followUpSongs.map(makePlayableSong))
+				enqueueDefaultSongs(followUpSongs)
 			}
 		},
-		[changeSong, makePlayableSong, clearQueue, enqueueDefaultSongs],
+		[changeSong, clearQueue, enqueueDefaultSongs],
 	)
 
 	const songFilter = useCallback(

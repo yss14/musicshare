@@ -38,7 +38,7 @@ interface IPlayerDeckArgs {
 	onError?: (error: string, code: number) => void
 }
 
-const PlayerDeck = ({ onError }: IPlayerDeckArgs) => {
+export const PlayerDeck = ({ onError }: IPlayerDeckArgs) => {
 	const audio = document.createElement("audio")
 	audio.style.display = "none"
 	document.body.appendChild(audio)
