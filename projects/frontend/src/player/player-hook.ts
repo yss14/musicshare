@@ -18,7 +18,7 @@ const QueueItem = (song: IScopedSong): IPlayerQueueItem => ({
 	song,
 })
 
-export const usePlayer = () => {
+export const usePlayerActions = () => {
 	const {
 		primaryDeck,
 		bufferingDeck,
@@ -51,7 +51,6 @@ export const usePlayer = () => {
 					queue: newQueue,
 				})
 			}
-			console.log({ nextSong })
 
 			setIsBufferingNextSong(false)
 
@@ -167,9 +166,6 @@ export const usePlayer = () => {
 		prev,
 		changeSong,
 		seek,
-
-		// TODO remove
-		...data!.player,
 	}
 }
 

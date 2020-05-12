@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useRef } from "react"
 import { IPlaylist, IScopedSong, isPlaylistSong } from "../../graphql/types"
-import { usePlayer, usePlayerQueue } from "../../player/player-hook"
+import { usePlayerActions, usePlayerQueue } from "../../player/player-hook"
 import { ContextMenu } from "../../components/modals/contextmenu/ContextMenu"
 import { Menu, message } from "antd"
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist"
@@ -24,7 +24,7 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const { song, playlistID, events } = props
 	const { onShowInformation } = events
 	const [showPickPlaylistModal, setShowPickPlaylistModal] = useState(false)
-	const { changeSong } = usePlayer()
+	const { changeSong } = usePlayerActions()
 	const { enqueueSong, enqueueSongNext } = usePlayerQueue()
 	const addSongsToPlaylist = useAddSongsToPlaylist()
 	const mutatingSong = useRef<typeof song>(null)

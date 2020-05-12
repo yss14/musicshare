@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from "react"
 import { IScopedSong, IBaseSong } from "../../graphql/types"
-import { usePlayer, usePlayerQueue } from "../../player/player-hook"
+import { usePlayerActions, usePlayerQueue } from "../../player/player-hook"
 import { SongTableHeader } from "../../components/song-table/SongTableHeader"
 import { SongTable, IRowEventsArgs } from "../../components/song-table/SongTable"
 import { SongModal } from "../../components/modals/song-modal/SongModal"
@@ -11,6 +11,7 @@ import { SongTableColumn } from "../../components/song-table/SongTableColumns"
 import { SongsView } from "../../components/song-table/SongsView"
 import { ISongViewSettings } from "../../components/song-table/search/SongViewSettings"
 import { filterUndefined } from "../../utils/filter-null"
+import { usePlayerPlaybackState } from "../../components/player/player-state"
 
 const FlexContainer = styled.div`
 	width: 100%;
@@ -45,7 +46,9 @@ interface ISongsViewProps {
 }
 
 export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong, isShare }) => {
-	const { changeSong, currentSong } = usePlayer()
+	const { changeSong } = usePlayerActions()
+	const { data } = usePlayerPlaybackState()
+	const { currentSong } = data!.player
 	const { enqueueDefaultSongs, clearQueue } = usePlayerQueue()
 	const [editSong, setEditSong] = useState<IScopedSong | null>(null)
 	const [showSongModal, setShowSongModal] = useState(false)

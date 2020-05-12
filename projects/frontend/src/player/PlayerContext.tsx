@@ -229,8 +229,6 @@ export const PlayerProvider: React.FC = ({ children }) => {
 	useEffect(() => {
 		bufferingDeck.volume = 0
 
-		// TODO subscribe to error events
-
 		primaryDeck.addEventListener("ended", onPlayerEnded)
 		primaryDeck.addEventListener("play", onPlayerPlay)
 		primaryDeck.addEventListener("pause", onPlayerPause)

@@ -4,7 +4,7 @@ import { IBaseSong, IScopedSong } from "../../graphql/types"
 import styled from "styled-components"
 import { formatDuration } from "../../utils/format-duration"
 import { SongSearch } from "./search/SongSearch"
-import { usePlayer } from "../../player/player-hook"
+import { usePlayerActions } from "../../player/player-hook"
 import { ISongSearchFilter } from "./search/search-types"
 import { SongViewSettings, ISongViewSettings } from "./search/SongViewSettings"
 
@@ -38,7 +38,7 @@ export const SongTableHeader = ({
 	onSearchFilterChange,
 	onSongViewSettingsChange,
 }: ISongTableHeaderProps) => {
-	const { changeSong } = usePlayer()
+	const { changeSong } = usePlayerActions()
 
 	const durationSum = songs.reduce((acc, song) => acc + song.duration, 0)
 
