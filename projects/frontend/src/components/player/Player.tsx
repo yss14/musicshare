@@ -6,11 +6,12 @@ import controlPauseImg from "../../images/control_pause.png"
 import controlNextImg from "../../images/control_next.png"
 import controlPrevImg from "../../images/control_prev.png"
 import controlVolumeImg from "../../images/control_volume.png"
-import { usePlayer } from "../../player/player-hook"
+import { usePlayerActions } from "../../player/player-hook"
 import { buildSongName } from "../../utils/songname-builder"
 import { formatDuration } from "../../utils/format-duration"
 import { useDebounce } from "use-debounce/lib"
 import { SongQueue } from "./SongQueue"
+import { usePlayerState } from "./player-state"
 
 const FlexWithStyles = styled(Flex)`
 	background: #3a3a3a;
@@ -124,7 +125,6 @@ const PlayerSlider: React.FC<IPlayerSliderProps> = ({ progresses, onClick, progr
 			onMouseUp={() => setLeftMouseButtonIsClicked(false)}
 			ref={sliderContainerRef}
 		>
-			<SliderCaption textColor={textColor}>{progressText}</SliderCaption>
 			{progresses.map((progress, idx) => (
 				<SliderFill
 					fillColor={progress.fillColor || "white"}
@@ -132,27 +132,16 @@ const PlayerSlider: React.FC<IPlayerSliderProps> = ({ progresses, onClick, progr
 					key={idx}
 				/>
 			))}
+			<SliderCaption textColor={textColor}>{progressText}</SliderCaption>
 			{children}
 		</SliderContainer>
 	)
 }
 
 export const Player = () => {
-	const {
-		play,
-		pause,
-		next,
-		prev,
-		volume,
-		changeVolume,
-		playing,
-		currentSong,
-		playpackProgress,
-		duration,
-		seek,
-		bufferingProgress,
-		error,
-	} = usePlayer()
+	const { play, pause, next, prev, changeVolume, seek } = usePlayerActions()
+	const { data } = usePlayerState()
+	const { volume, playing, currentSong, playbackProgress, duration, bufferingProgress, error } = data!.player
 
 	const handleClickMute = () => {
 		if (volume <= 0) {
@@ -172,7 +161,7 @@ export const Player = () => {
 
 	const handleSeek = (newCurrentTimePercentage: number) => seek(newCurrentTimePercentage * duration)
 
-	const playedTime = Math.round(playpackProgress * duration)
+	const playedTime = Math.round(playbackProgress * duration)
 	const remainingTime = Math.round(duration - playedTime)
 
 	const [displayText] = useDebounce(
@@ -185,13 +174,13 @@ export const Player = () => {
 			<ControlContainer>
 				<ControlButton src={controlPrevImg} onClick={prev} />
 				<ControlButton src={playing ? controlPauseImg : controlPlayImg} onClick={handleClickPlayPause} />
-				<ControlButton src={controlNextImg} onClick={next} />
+				<ControlButton src={controlNextImg} onClick={() => next()} />
 			</ControlContainer>
 			<SongQueue />
 			<ProgressBarContainer>
 				<PlayerSlider
 					progresses={[
-						{ percentage: playpackProgress },
+						{ percentage: playbackProgress },
 						{ percentage: bufferingProgress, fillColor: "rgba(255, 255, 255, 0.1)" },
 					]}
 					progressText={displayText}

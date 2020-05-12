@@ -119,6 +119,11 @@ export const shareSongKeys = `
 	${baseSongKeys}
 `
 
+export const scopedSongKeys = `
+	${baseSongKeys}
+	shareID
+`
+
 export const playlistSongKeys = `
 	${baseSongKeys}
 	playlistSongID

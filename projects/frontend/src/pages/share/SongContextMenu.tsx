@@ -1,9 +1,8 @@
 import React, { useCallback, useState, useRef } from "react"
 import { IPlaylist, IScopedSong, isPlaylistSong } from "../../graphql/types"
-import { usePlayer } from "../../player/player-hook"
+import { usePlayerActions, usePlayerQueue } from "../../player/player-hook"
 import { ContextMenu } from "../../components/modals/contextmenu/ContextMenu"
 import { Menu, message } from "antd"
-import { useSongUtils } from "../../hooks/use-song-utils"
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist"
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
@@ -25,8 +24,8 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const { song, playlistID, events } = props
 	const { onShowInformation } = events
 	const [showPickPlaylistModal, setShowPickPlaylistModal] = useState(false)
-	const { changeSong, enqueueSong, enqueueSongNext } = usePlayer()
-	const { makePlayableSong } = useSongUtils()
+	const { changeSong } = usePlayerActions()
+	const { enqueueSong, enqueueSongNext } = usePlayerQueue()
 	const addSongsToPlaylist = useAddSongsToPlaylist()
 	const mutatingSong = useRef<typeof song>(null)
 	const [removeSongFromLibrary] = useRemoveSongFromLibrary({
@@ -42,20 +41,20 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const onClickPlayNow = useCallback(() => {
 		if (!song) return
 
-		changeSong(makePlayableSong(song))
-	}, [song, makePlayableSong, changeSong])
+		changeSong(song)
+	}, [song, changeSong])
 
 	const onClickPlayNext = useCallback(() => {
 		if (!song) return
 
-		enqueueSongNext(makePlayableSong(song))
-	}, [song, makePlayableSong, enqueueSongNext])
+		enqueueSongNext(song)
+	}, [song, enqueueSongNext])
 
 	const onClickPlayLater = useCallback(() => {
 		if (!song) return
 
-		enqueueSong(makePlayableSong(song))
-	}, [song, makePlayableSong, enqueueSong])
+		enqueueSong(song)
+	}, [song, enqueueSong])
 
 	const onClickAddSongToPlaylist = useCallback(() => {
 		if (!song) return
