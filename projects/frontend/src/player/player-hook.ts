@@ -5,6 +5,7 @@ import {
 	usePlayerState,
 	IPlayerQueueItem,
 	useSetPlayerQueue,
+	usePlayerQueueState,
 } from "../components/player/player-state"
 import { useApolloClient } from "react-apollo"
 import { makeGetSongMediaUrls } from "../graphql/programmatic/get-song-mediaurl"
@@ -27,9 +28,7 @@ export const usePlayer = () => {
 		setPlayedSongs,
 	} = usePlayerContext()
 	const { data } = usePlayerState()
-	const { currentSong, queue, isDefaultQueue } = data!.player
-
-	const [setPlayerQueue] = useSetPlayerQueue()
+	const { currentSong, queue } = data!.player
 
 	const client = useApolloClient()
 
@@ -131,6 +130,58 @@ export const usePlayer = () => {
 		}
 	}, [getMediaUrls, playedSongs, primaryDeck, setPlayCountIncremented, setPlayedSongs, updatePlayerState])
 
+	const changeSong = useCallback(
+		async (newSong: IScopedSong) => {
+			await next(newSong)
+		},
+		[next],
+	)
+
+	const play = useCallback(() => {
+		primaryDeck.play()
+	}, [primaryDeck])
+
+	const pause = useCallback(() => {
+		primaryDeck.pause()
+	}, [primaryDeck])
+
+	const changeVolume = useCallback(
+		(volume: number) => {
+			primaryDeck.volume = volume
+		},
+		[primaryDeck],
+	)
+
+	const seek = useCallback(
+		(newPos: number) => {
+			primaryDeck.currentTime = newPos
+		},
+		[primaryDeck],
+	)
+
+	return {
+		play,
+		pause,
+		changeVolume,
+		next,
+		prev,
+		changeSong,
+		seek,
+
+		// TODO remove
+		...data!.player,
+	}
+}
+
+export const usePlayerQueue = () => {
+	const { data } = usePlayerQueueState()
+	const { isDefaultQueue, queue } = data!.player
+
+	const client = useApolloClient()
+
+	const updatePlayerState = useMemo(() => makeUpdatePlayerState(client), [client])
+	const [setPlayerQueue] = useSetPlayerQueue()
+
 	const setSongQueue = useCallback(
 		(items: IPlayerQueueItem[]) => {
 			updatePlayerState({
@@ -138,13 +189,6 @@ export const usePlayer = () => {
 			})
 		},
 		[updatePlayerState],
-	)
-
-	const changeSong = useCallback(
-		async (newSong: IScopedSong) => {
-			await next(newSong)
-		},
-		[next],
 	)
 
 	const enqueueSong = useCallback(
@@ -204,44 +248,14 @@ export const usePlayer = () => {
 		})
 	}, [setPlayerQueue])
 
-	const play = useCallback(() => {
-		primaryDeck.play()
-	}, [primaryDeck])
-
-	const pause = useCallback(() => {
-		primaryDeck.pause()
-	}, [primaryDeck])
-
-	const changeVolume = useCallback(
-		(volume: number) => {
-			primaryDeck.volume = volume
-		},
-		[primaryDeck],
-	)
-
-	const seek = useCallback(
-		(newPos: number) => {
-			primaryDeck.currentTime = newPos
-		},
-		[primaryDeck],
-	)
-
 	return {
-		play,
-		pause,
-		changeVolume,
-		next,
-		prev,
-		changeSong,
 		setSongQueue,
 		enqueueSong,
 		enqueueSongs,
 		enqueueSongNext,
 		enqueueDefaultSongs,
-		seek,
 		clearQueue,
-
-		// TODO remove
-		...data!.player,
+		queue,
+		isDefaultQueue,
 	}
 }

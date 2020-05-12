@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from "react"
 import { IScopedSong, IBaseSong } from "../../graphql/types"
-import { usePlayer } from "../../player/player-hook"
+import { usePlayer, usePlayerQueue } from "../../player/player-hook"
 import { SongTableHeader } from "../../components/song-table/SongTableHeader"
 import { SongTable, IRowEventsArgs } from "../../components/song-table/SongTable"
 import { SongModal } from "../../components/modals/song-modal/SongModal"
@@ -45,7 +45,8 @@ interface ISongsViewProps {
 }
 
 export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong, isShare }) => {
-	const { changeSong, enqueueDefaultSongs, clearQueue, currentSong } = usePlayer()
+	const { changeSong, currentSong } = usePlayer()
+	const { enqueueDefaultSongs, clearQueue } = usePlayerQueue()
 	const [editSong, setEditSong] = useState<IScopedSong | null>(null)
 	const [showSongModal, setShowSongModal] = useState(false)
 	const [searchFilter, setSearchFilter] = useState<ISongSearchFilter>({

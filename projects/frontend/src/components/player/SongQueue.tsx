@@ -1,11 +1,11 @@
 import React, { useCallback } from "react"
 import { Popover, Button, Empty } from "antd"
-import { usePlayer } from "../../player/player-hook"
+import { usePlayerQueue } from "../../player/player-hook"
 import { SongQueueItem } from "./SongQueueItem"
 import Scrollbars from "react-custom-scrollbars"
 
 export const SongQueue: React.FC = () => {
-	const { queue, setSongQueue } = usePlayer()
+	const { queue, setSongQueue } = usePlayerQueue()
 
 	const moveItem = useCallback(
 		(dragIndex: number, hoverIndex: number) => {
