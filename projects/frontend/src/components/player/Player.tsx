@@ -124,7 +124,6 @@ const PlayerSlider: React.FC<IPlayerSliderProps> = ({ progresses, onClick, progr
 			onMouseUp={() => setLeftMouseButtonIsClicked(false)}
 			ref={sliderContainerRef}
 		>
-			<SliderCaption textColor={textColor}>{progressText}</SliderCaption>
 			{progresses.map((progress, idx) => (
 				<SliderFill
 					fillColor={progress.fillColor || "white"}
@@ -132,6 +131,7 @@ const PlayerSlider: React.FC<IPlayerSliderProps> = ({ progresses, onClick, progr
 					key={idx}
 				/>
 			))}
+			<SliderCaption textColor={textColor}>{progressText}</SliderCaption>
 			{children}
 		</SliderContainer>
 	)
