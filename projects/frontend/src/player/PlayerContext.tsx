@@ -257,7 +257,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 		onPlayerColumeChange,
 		onAudioError,
 		primaryDeck,
-		bufferingDeck.volume,
+		bufferingDeck,
 	])
 
 	const updateBufferingProgress = useCallback(() => {
@@ -305,7 +305,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 				console.error(err)
 			}
 		}
-	}, [getMediaUrls, queue, updatePlayerState, bufferingDeck.src, isBufferingNextSong, primaryDeck])
+	}, [getMediaUrls, queue, updatePlayerState, bufferingDeck, isBufferingNextSong, primaryDeck])
 
 	useInterval(() => {
 		updateBufferingProgress()
