@@ -6,6 +6,39 @@ import { makeUpdatePlayerState, usePlayerState } from "../components/player/play
 import { makeGetSongMediaUrls } from "../graphql/programmatic/get-song-mediaurl"
 import { ISongMediaUrl } from "../graphql/queries/song-mediaurl-query"
 import { makeIncrementSongPlayCount } from "../graphql/programmatic/increment-song-playcount"
+import { IScopedSong } from "../graphql/types"
+import { message } from "antd"
+
+const getMediaErrorCode = (event: ErrorEvent) => {
+	if (!event.target) {
+		return -1
+	}
+
+	const target = event.target as HTMLAudioElement
+
+	if (!target.error) {
+		return -1
+	}
+
+	return target.error.code
+}
+
+const mapMediaElementEventError = (event: ErrorEvent) => {
+	const mediaErrorCode = getMediaErrorCode(event)
+
+	switch (mediaErrorCode) {
+		case MediaError.MEDIA_ERR_ABORTED:
+			return "You aborted the video playback."
+		case MediaError.MEDIA_ERR_NETWORK:
+			return "A network error caused the audio download to fail."
+		case MediaError.MEDIA_ERR_DECODE:
+			return "The audio playback was aborted due to a corruption problem or because the video used features your browser did not support."
+		case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+			return "The audio cannot not be loaded because the server or network failed."
+		default:
+			return "An unknown error occurred."
+	}
+}
 
 const getPlaybackProgress = (deck: HTMLAudioElement) => {
 	return deck.currentTime / deck.duration || -1
@@ -30,6 +63,9 @@ interface IPlayer {
 
 	playCountIncremented: boolean
 	setPlayCountIncremented: React.Dispatch<React.SetStateAction<boolean>>
+
+	playedSongs: IScopedSong[]
+	setPlayedSongs: React.Dispatch<React.SetStateAction<IScopedSong[]>>
 }
 
 const PlayerContext = React.createContext<IPlayer | null>(null)
@@ -59,6 +95,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 
 	const [isBufferingNextSong, setIsBufferingNextSong] = useState(false)
 	const [playCountIncremented, setPlayCountIncremented] = useState(false)
+	const [playedSongs, setPlayedSongs] = useState<IScopedSong[]>([])
 
 	const { data } = usePlayerState()
 	const { queue, currentSong } = data!.player
@@ -134,6 +171,54 @@ export const PlayerProvider: React.FC = ({ children }) => {
 		})
 	}, [updatePlayerState, primaryDeck])
 
+	const onPlayerColumeChange = useCallback(() => {
+		updatePlayerState({
+			volume: primaryDeck.volume,
+		})
+	}, [updatePlayerState, primaryDeck])
+
+	const onAudioError = useCallback(
+		async (err: ErrorEvent) => {
+			const target = err.target as HTMLAudioElement
+
+			// don't propagate error if we manually cleared the audio src attribute
+			if ((target && target.src.length === 0) || target.src === window.location.href) {
+				return
+			}
+
+			const errorMessage = mapMediaElementEventError(err)
+			const code = getMediaErrorCode(err)
+
+			if (target === primaryDeck) {
+				if (code === MediaError.MEDIA_ERR_NETWORK && currentSong) {
+					try {
+						const currentPlaybackProgress = primaryDeck.currentTime
+
+						const songMediaUrls = await getMediaUrls(currentSong.shareID, currentSong.id)
+						const mediaUrl = pickMediaUrl(songMediaUrls)
+
+						if (mediaUrl) {
+							primaryDeck.src = mediaUrl
+							primaryDeck.currentTime = currentPlaybackProgress
+							primaryDeck.play()
+						} else {
+							console.warn(`Cannot get a media url of song ${currentSong.id}`)
+						}
+					} catch (err) {
+						console.error(err)
+
+						message.error(err.message)
+					}
+				} else if (primaryDeck.src.trim().length > 0) {
+					updatePlayerState({
+						error: errorMessage,
+					})
+				}
+			}
+		},
+		[getMediaUrls, currentSong, updatePlayerState, primaryDeck],
+	)
+
 	useEffect(() => {
 		bufferingDeck.volume = 0
 
@@ -144,6 +229,8 @@ export const PlayerProvider: React.FC = ({ children }) => {
 		primaryDeck.addEventListener("pause", onPlayerPause)
 		primaryDeck.addEventListener("timeupdate", onPlayerTimeUpdate)
 		primaryDeck.addEventListener("durationchange", onPlayerDurationChange)
+		primaryDeck.addEventListener("volumechange", onPlayerColumeChange)
+		primaryDeck.addEventListener("error", onAudioError)
 
 		return () => {
 			primaryDeck.removeEventListener("ended", onPlayerEnded)
@@ -151,6 +238,8 @@ export const PlayerProvider: React.FC = ({ children }) => {
 			primaryDeck.removeEventListener("pause", onPlayerPause)
 			primaryDeck.removeEventListener("timeupdate", onPlayerTimeUpdate)
 			primaryDeck.removeEventListener("durationchange", onPlayerDurationChange)
+			primaryDeck.removeEventListener("volumechange", onPlayerColumeChange)
+			primaryDeck.removeEventListener("error", onAudioError)
 		}
 	}, [
 		onPlayerEnded,
@@ -158,6 +247,8 @@ export const PlayerProvider: React.FC = ({ children }) => {
 		onPlayerPause,
 		onPlayerTimeUpdate,
 		onPlayerDurationChange,
+		onPlayerColumeChange,
+		onAudioError,
 		primaryDeck,
 		bufferingDeck.volume,
 	])
@@ -221,8 +312,10 @@ export const PlayerProvider: React.FC = ({ children }) => {
 			setIsBufferingNextSong,
 			playCountIncremented,
 			setPlayCountIncremented,
+			playedSongs,
+			setPlayedSongs,
 		}),
-		[playerDecks, isBufferingNextSong, playCountIncremented],
+		[playerDecks, isBufferingNextSong, playCountIncremented, playedSongs],
 	)
 
 	return <PlayerContext.Provider value={playerContextValue}>{children}</PlayerContext.Provider>

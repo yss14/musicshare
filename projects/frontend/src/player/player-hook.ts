@@ -126,7 +126,14 @@ const QueueItem = (song: IScopedSong): IPlayerQueueItem => ({
 })
 
 export const usePlayer = () => {
-	const { primaryDeck, bufferingDeck, setIsBufferingNextSong, setPlayCountIncremented } = usePlayerContext()
+	const {
+		primaryDeck,
+		bufferingDeck,
+		setIsBufferingNextSong,
+		setPlayCountIncremented,
+		playedSongs,
+		setPlayedSongs,
+	} = usePlayerContext()
 	const { data } = usePlayerState()
 	console.log(data)
 	const { currentSong, queue, isDefaultQueue } = data!.player
@@ -142,7 +149,7 @@ export const usePlayer = () => {
 	const next = useCallback(
 		async (song?: IScopedSong) => {
 			if (currentSong) {
-				//playedSongs.current.push(currentSong)
+				setPlayedSongs((currentPlayedSongs) => [...currentPlayedSongs, currentSong])
 			}
 			let nextSong = song
 
@@ -176,6 +183,7 @@ export const usePlayer = () => {
 
 			updatePlayerState({
 				currentSong: nextSong,
+				error: null,
 			})
 
 			const mediaUrl = pickMediaUrl(songMediaUrls)
@@ -200,10 +208,39 @@ export const usePlayer = () => {
 			primaryDeck,
 			setIsBufferingNextSong,
 			setPlayCountIncremented,
+			setPlayedSongs,
 		],
 	)
 
-	const prev = useCallback(() => {}, [])
+	const prev = useCallback(async () => {
+		const newLastPlayedSongs = [...playedSongs]
+		const prevSong = newLastPlayedSongs.pop()
+		setPlayedSongs(newLastPlayedSongs)
+
+		if (!prevSong) {
+			return
+		}
+
+		const songMediaUrls = await getMediaUrls(prevSong.shareID, prevSong.id)
+
+		updatePlayerState({
+			currentSong: prevSong,
+			error: null,
+		})
+
+		const mediaUrl = pickMediaUrl(songMediaUrls)
+
+		if (mediaUrl) {
+			primaryDeck.src = mediaUrl
+			primaryDeck.play()
+
+			setPlayCountIncremented(false)
+		} else {
+			console.warn(`Cannot get a media url of song ${prevSong.id}`)
+
+			await prev()
+		}
+	}, [getMediaUrls, playedSongs, primaryDeck, setPlayCountIncremented, setPlayedSongs, updatePlayerState])
 
 	const setSongQueue = useCallback(
 		(items: IPlayerQueueItem[]) => {
@@ -262,10 +299,6 @@ export const usePlayer = () => {
 
 	const enqueueDefaultSongs = useCallback(
 		(songs: IScopedSong[]) => {
-			console.log(
-				"Default songs",
-				songs.map((song) => QueueItem(song)),
-			)
 			updatePlayerState({
 				isDefaultQueue: true,
 			})
@@ -277,8 +310,10 @@ export const usePlayer = () => {
 	)
 
 	const clearQueue = useCallback(() => {
-		// TODO
-	}, [])
+		setPlayerQueue({
+			variables: { items: [] },
+		})
+	}, [setPlayerQueue])
 
 	const play = useCallback(() => {
 		primaryDeck.play()
