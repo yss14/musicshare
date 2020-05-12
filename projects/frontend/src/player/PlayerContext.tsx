@@ -1,5 +1,4 @@
 import React, { useContext, useMemo, useEffect, useCallback, useState } from "react"
-import { PlayerDeck } from "./player"
 import useInterval from "@use-it/interval"
 import { useApolloClient } from "react-apollo"
 import { makeUpdatePlayerState, usePlayerState } from "../components/player/player-state"
@@ -38,6 +37,14 @@ const mapMediaElementEventError = (event: ErrorEvent) => {
 		default:
 			return "An unknown error occurred."
 	}
+}
+
+const PlayerDeck = () => {
+	const audio = document.createElement("audio")
+	audio.style.display = "none"
+	document.body.appendChild(audio)
+
+	return audio
 }
 
 const getPlaybackProgress = (deck: HTMLAudioElement) => {
@@ -86,8 +93,8 @@ let playerInitialized = false
 export const PlayerProvider: React.FC = ({ children }) => {
 	const playerDecks = useMemo(
 		() => ({
-			primaryDeck: PlayerDeck({ onError: () => undefined }), // TODO add error handler
-			bufferingDeck: PlayerDeck({ onError: () => undefined }),
+			primaryDeck: PlayerDeck(),
+			bufferingDeck: PlayerDeck(),
 		}),
 		[],
 	)
