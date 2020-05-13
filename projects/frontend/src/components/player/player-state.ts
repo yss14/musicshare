@@ -4,6 +4,20 @@ import { useQuery, useMutation } from "react-apollo"
 import ApolloClient from "apollo-client"
 import { ApolloCache } from "apollo-cache"
 
+const VOLUME_PERSIST_KEY = "player.volume"
+
+export const persistVolume = (client: ApolloClient<unknown>) => {
+	const currentData = client.readQuery<IGetPlayerSettingsData, void>({
+		query: GET_PLAYER_SETTINGS_STATE,
+	})
+
+	if (currentData) {
+		window.localStorage.setItem(VOLUME_PERSIST_KEY, String(currentData.player.volume))
+	}
+}
+
+export const getPersistantVolume = () => parseFloat(window.localStorage.getItem(VOLUME_PERSIST_KEY) || "0.8")
+
 export const playerStateTypeDefs = gql`
 	type PlayerQueueItem {
 		id: String!
@@ -96,7 +110,7 @@ export const playerStateDefaultValue: IPlayerState = {
 	playing: false,
 	playbackProgress: 0,
 	bufferingProgress: 0,
-	volume: 0.8,
+	volume: getPersistantVolume(),
 	currentSong: null,
 	duration: 0,
 	error: null,
