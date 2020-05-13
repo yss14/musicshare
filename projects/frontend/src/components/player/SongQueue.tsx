@@ -3,9 +3,22 @@ import { Popover, Button, Empty } from "antd"
 import { usePlayerQueue } from "../../player/player-hook"
 import { SongQueueItem } from "./SongQueueItem"
 import Scrollbars from "react-custom-scrollbars"
+import styled from "styled-components"
+
+const TitleContainer = styled.div`
+	display: flex;
+	align-items: center;
+`
+
+const ClearButton = styled.div`
+	margin-left: auto;
+	color: rgba(0, 0, 0, 0.25);
+	cursor: pointer;
+	font-size: 12px;
+`
 
 export const SongQueue: React.FC = () => {
-	const { queue, setSongQueue } = usePlayerQueue()
+	const { queue, setSongQueue, clearQueue } = usePlayerQueue()
 
 	const moveItem = useCallback(
 		(dragIndex: number, hoverIndex: number) => {
@@ -29,10 +42,17 @@ export const SongQueue: React.FC = () => {
 		</Scrollbars>
 	)
 
+	const title = (
+		<TitleContainer>
+			<div>Song Queue</div>
+			<ClearButton onClick={clearQueue}>Clear</ClearButton>
+		</TitleContainer>
+	)
+
 	return (
 		<Popover
 			placement="top"
-			title="Song Queue"
+			title={title}
 			content={content}
 			trigger="click"
 			overlayClassName="ant-popover-content-nopadding"
