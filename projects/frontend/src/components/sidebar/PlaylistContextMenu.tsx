@@ -6,10 +6,11 @@ import { useDeletePlaylist } from "../../graphql/mutations/delete-playlist-mutat
 
 interface IPlaylistSongContextMenuProps {
 	playlist: IPlaylist
+	isMergedView: boolean
 }
 
 export const PlaylistContextMenu = React.forwardRef<HTMLDivElement, IPlaylistSongContextMenuProps>((props, ref) => {
-	const { playlist } = props
+	const { playlist, isMergedView } = props
 	const [deletePlaylist] = useDeletePlaylist({
 		onCompleted: () => {
 			message.success(`Playlist successfully deleted`)
@@ -18,8 +19,8 @@ export const PlaylistContextMenu = React.forwardRef<HTMLDivElement, IPlaylistSon
 	})
 
 	const onDeletePlaylist = useCallback(() => {
-		deletePlaylist(playlist.shareID, playlist.id)
-	}, [deletePlaylist, playlist])
+		deletePlaylist(playlist.shareID, playlist.id, isMergedView)
+	}, [deletePlaylist, playlist, isMergedView])
 
 	return (
 		<ContextMenu ref={ref}>

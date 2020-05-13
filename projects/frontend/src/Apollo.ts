@@ -14,7 +14,7 @@ import { logoutUser } from "./graphql/programmatic/logout"
 import { isPlaylistSong } from "./graphql/types"
 import { ServerError } from "apollo-link-http-common"
 import { message } from "antd"
-import { playerStateTypeDefs, playerStateDefaultValue } from "./components/player/player-state"
+import { playerStateTypeDefs, playerStateDefaultValue, persistVolume } from "./components/player/player-state"
 
 const config = makeConfigFromEnv()
 
@@ -229,5 +229,13 @@ cache.writeData({
 		player: playerStateDefaultValue,
 	},
 })
+
+setInterval(() => {
+	try {
+		persistVolume(client)
+	} catch (err) {
+		console.error(err)
+	}
+}, 1000)
 
 export { client, cache }

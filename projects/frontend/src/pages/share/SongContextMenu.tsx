@@ -28,14 +28,17 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const { enqueueSong, enqueueSongNext } = usePlayerQueue()
 	const addSongsToPlaylist = useAddSongsToPlaylist()
 	const mutatingSong = useRef<typeof song>(null)
+
 	const [removeSongFromLibrary] = useRemoveSongFromLibrary({
 		onCompleted: () =>
 			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from library`),
 	})
+
 	const [removeSongsFromPlaylist] = useRemoveSongsFromPlaylist({
 		onCompleted: () =>
 			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from playlist`),
 	})
+
 	const userLibraryID = useLibraryID()
 
 	const onClickPlayNow = useCallback(() => {
@@ -73,12 +76,17 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 		[song, setShowPickPlaylistModal, addSongsToPlaylist],
 	)
 
-	const onRemoveFromLibrary = useCallback(() => {
+	const onRemoveFromLibrary = useCallback(async () => {
 		if (!song) return
 
 		mutatingSong.current = song
-		removeSongFromLibrary(song.libraryID, song.id)
-	}, [song, removeSongFromLibrary])
+
+		if (playlistID && isPlaylistSong(song) && song.shareID === userLibraryID) {
+			await removeSongsFromPlaylist(song.shareID, playlistID, [song.playlistSongID])
+		}
+
+		await removeSongFromLibrary(song.libraryID, song.id)
+	}, [song, removeSongFromLibrary, playlistID, removeSongsFromPlaylist, userLibraryID])
 
 	const onRemoveFromPlaylist = useCallback(() => {
 		if (!song || !playlistID || !isPlaylistSong(song)) return
@@ -109,7 +117,7 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 						Add to playlist
 					</Menu.Item>
 					<Menu.Divider />
-					{!playlistID && song && song.libraryID === userLibraryID && (
+					{song && song.libraryID === userLibraryID && (
 						<Menu.Item key="removefromlibrary" onClick={onRemoveFromLibrary}>
 							Remove from library
 						</Menu.Item>
