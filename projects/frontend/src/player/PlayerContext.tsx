@@ -68,11 +68,8 @@ interface IPlayer {
 	isBufferingNextSong: boolean
 	setIsBufferingNextSong: React.Dispatch<React.SetStateAction<boolean>>
 
-	playCountIncremented: boolean
-	setPlayCountIncremented: React.Dispatch<React.SetStateAction<boolean>>
-
-	playedSongs: IScopedSong[]
-	setPlayedSongs: React.Dispatch<React.SetStateAction<IScopedSong[]>>
+	next: (song?: IScopedSong) => Promise<boolean>
+	prev: () => Promise<void>
 }
 
 const PlayerContext = React.createContext<IPlayer | null>(null)
@@ -117,7 +114,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 			primaryDeck.parentElement?.removeChild(primaryDeck)
 			bufferingDeck.parentElement?.removeChild(bufferingDeck)
 		} catch (err) {
-			console.log(err)
+			console.error(err)
 		}
 	}, [bufferingDeck, primaryDeck])
 
@@ -131,16 +128,114 @@ export const PlayerProvider: React.FC = ({ children }) => {
 		return () => destroy()
 	}, [destroy])
 
-	const onPlayerEnded = useCallback(() => {
+	const next = useCallback(
+		async (song?: IScopedSong): Promise<boolean> => {
+			if (currentSong) {
+				setPlayedSongs((currentPlayedSongs) => [...currentPlayedSongs, currentSong])
+			}
+			let nextSong = song
+
+			if (!nextSong) {
+				const newQueue = [...queue]
+				const nextItem = newQueue.shift()
+				nextSong = nextItem?.song
+
+				updatePlayerState({
+					queue: newQueue,
+				})
+			}
+
+			setIsBufferingNextSong(false)
+
+			bufferingDeck.src = ""
+			primaryDeck.setAttribute("src", "")
+
+			if (!nextSong) {
+				updatePlayerState({
+					currentSong: null,
+					playing: false,
+				})
+
+				return false
+			}
+
+			const songMediaUrls = await getMediaUrls(nextSong.shareID, nextSong.id)
+
+			updatePlayerState({
+				currentSong: nextSong,
+				error: null,
+			})
+
+			const mediaUrl = pickMediaUrl(songMediaUrls)
+
+			if (mediaUrl) {
+				primaryDeck.src = mediaUrl
+				primaryDeck.play()
+
+				setPlayCountIncremented(false)
+
+				return true
+			} else {
+				console.warn(`Cannot get a media url of song ${nextSong.id}`)
+
+				return await next()
+			}
+		},
+		[
+			currentSong,
+			getMediaUrls,
+			queue,
+			updatePlayerState,
+			bufferingDeck,
+			primaryDeck,
+			setIsBufferingNextSong,
+			setPlayCountIncremented,
+			setPlayedSongs,
+		],
+	)
+
+	const prev = useCallback(async () => {
+		const newLastPlayedSongs = [...playedSongs]
+		const prevSong = newLastPlayedSongs.pop()
+		setPlayedSongs(newLastPlayedSongs)
+
+		if (!prevSong) {
+			return
+		}
+
+		const songMediaUrls = await getMediaUrls(prevSong.shareID, prevSong.id)
+
 		updatePlayerState({
-			currentSong: null,
-			duration: 0,
-			playbackProgress: 0,
-			bufferingProgress: 0,
+			currentSong: prevSong,
+			error: null,
 		})
 
-		// TODO call playNextSong()
-	}, [updatePlayerState])
+		const mediaUrl = pickMediaUrl(songMediaUrls)
+
+		if (mediaUrl) {
+			primaryDeck.src = mediaUrl
+			primaryDeck.play()
+
+			setPlayCountIncremented(false)
+		} else {
+			console.warn(`Cannot get a media url of song ${prevSong.id}`)
+
+			await prev()
+		}
+	}, [getMediaUrls, playedSongs, primaryDeck, setPlayCountIncremented, setPlayedSongs, updatePlayerState])
+
+	const onPlayerEnded = useCallback(async () => {
+		const hasNext = await next()
+
+		if (!hasNext) {
+			updatePlayerState({
+				currentSong: null,
+				duration: 0,
+				playbackProgress: 0,
+				bufferingProgress: 0,
+			})
+		}
+	}, [updatePlayerState, next])
 
 	const onPlayerPlay = useCallback(() => {
 		updatePlayerState({
@@ -278,17 +373,9 @@ export const PlayerProvider: React.FC = ({ children }) => {
 		if (primaryDeck.paused || currentProgress < 0) return
 
 		if (currentProgress >= 0.9 && queue.length > 0 && !isBufferingNextSong) {
-			// TODO factor this out
-			const newQueue = [...queue]
-			const nextItem = newQueue.shift()
-			const nextSong = nextItem!.song
-
-			updatePlayerState({
-				queue: newQueue,
-			})
+			const nextSong = queue[0].song
 
 			setIsBufferingNextSong(true)
-			console.log("Start buffering next song")
 
 			try {
 				const songMediaUrls = await getMediaUrls(nextSong.shareID, nextSong.id)
@@ -303,7 +390,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 				console.error(err)
 			}
 		}
-	}, [getMediaUrls, queue, updatePlayerState, bufferingDeck, isBufferingNextSong, primaryDeck])
+	}, [getMediaUrls, queue, bufferingDeck, isBufferingNextSong, primaryDeck])
 
 	useInterval(() => {
 		updateBufferingProgress()
@@ -315,12 +402,10 @@ export const PlayerProvider: React.FC = ({ children }) => {
 			...playerDecks,
 			isBufferingNextSong,
 			setIsBufferingNextSong,
-			playCountIncremented,
-			setPlayCountIncremented,
-			playedSongs,
-			setPlayedSongs,
+			next,
+			prev,
 		}),
-		[playerDecks, isBufferingNextSong, playCountIncremented, playedSongs],
+		[playerDecks, isBufferingNextSong, next, prev],
 	)
 
 	return <PlayerContext.Provider value={playerContextValue}>{children}</PlayerContext.Provider>
