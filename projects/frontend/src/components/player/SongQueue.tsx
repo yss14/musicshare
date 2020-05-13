@@ -33,10 +33,17 @@ export const SongQueue: React.FC = () => {
 		[queue, setSongQueue],
 	)
 
+	const removeItem = useCallback(
+		(index: number) => {
+			setSongQueue(queue.filter((_, idx) => idx !== index))
+		},
+		[setSongQueue, queue],
+	)
+
 	const content = (
 		<Scrollbars autoHide style={{ height: 350, width: 250 }}>
 			{queue.map(({ song, id }, idx) => (
-				<SongQueueItem song={song} key={id} moveItem={moveItem} index={idx} />
+				<SongQueueItem song={song} key={id} moveItem={moveItem} onRemove={removeItem} index={idx} />
 			))}
 			{queue.length === 0 && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Empty Queue" />}
 		</Scrollbars>
