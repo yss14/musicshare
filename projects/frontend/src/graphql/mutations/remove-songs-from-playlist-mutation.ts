@@ -73,8 +73,8 @@ export const useRemoveSongsFromPlaylist = (
 	)
 
 	const removeSongsFromPlaylist = useCallback(
-		(shareID: string, playlistID: string, playlistSongIDs: string[]) => {
-			removeSongsFromPlaylistMutation({
+		async (shareID: string, playlistID: string, playlistSongIDs: string[]) => {
+			await removeSongsFromPlaylistMutation({
 				variables: {
 					shareID,
 					playlistID,
@@ -87,7 +87,7 @@ export const useRemoveSongsFromPlaylist = (
 	)
 
 	return [removeSongsFromPlaylist, other] as [
-		(shareID: string, playlistID: string, playlistSongIDs: string[]) => void,
+		(shareID: string, playlistID: string, playlistSongIDs: string[]) => Promise<void>,
 		MutationResult<IRemoveSongsFromPlaylistData>,
 	]
 }
