@@ -8,7 +8,6 @@ import { isPlaylistSong, IScopedPlaylistSong } from "../../graphql/types"
 import { useUpdatePlaylistSongOrder } from "../../graphql/mutations/update-playlist-song-order"
 import { useDeepCompareEffect } from "../../hooks/use-deep-compare-effect"
 import { MoveSong } from "../../components/song-table/MoveSong"
-import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 import { useSongUploadQueueEvents, ISongUploadItem } from "../../utils/upload/SongUploadContext"
 import { useDebouncedCallback } from "use-debounce/lib"
 
@@ -23,7 +22,6 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	const [updateOrder] = useUpdatePlaylistSongOrder({
 		onError: console.error,
 	})
-	const libraryID = useLibraryID()
 
 	const [refetchPlaylist] = useDebouncedCallback(refetch, 1000)
 
@@ -79,7 +77,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 			songs={songs}
 			playlistID={playlist.id}
 			moveSong={moveSong}
-			isShare={libraryID !== shareID}
+			isMergedView={false}
 		/>
 	)
 }

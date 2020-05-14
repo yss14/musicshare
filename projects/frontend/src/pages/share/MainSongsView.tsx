@@ -42,10 +42,10 @@ interface ISongsViewProps {
 	songs: IScopedSong[]
 	playlistID?: string
 	moveSong?: MoveSong
-	isShare: boolean
+	isMergedView: boolean
 }
 
-export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong, isShare }) => {
+export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong, isMergedView }) => {
 	const { changeSong } = usePlayerActions()
 	const { data } = usePlayerPlaybackState()
 	const { currentSong } = data!.player
@@ -124,12 +124,12 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 
 		const mappedSongTableColumns = mapSongTableColumnKeys(fixColumnKeys).concat(customColumns)
 
-		if (isShare) {
-			mappedSongTableColumns.push(SongTableColumn.Share)
+		if (isMergedView) {
+			mappedSongTableColumns.push(SongTableColumn.Origin)
 		}
 
 		return mappedSongTableColumns
-	}, [playlistID, customColumns, isShare])
+	}, [playlistID, customColumns, isMergedView])
 
 	return (
 		<FlexContainer>

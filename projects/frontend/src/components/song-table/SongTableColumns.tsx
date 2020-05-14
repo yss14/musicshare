@@ -58,7 +58,7 @@ type ColumnNames =
 	| "ReleaseDate"
 	| "DateAdded"
 	| "PlayCount"
-	| "Share"
+	| "Origin"
 
 type SongTableColumnMap = {
 	[key in ColumnNames]: ISongTableColumn
@@ -175,8 +175,8 @@ export const SongTableColumn: SongTableColumnMap = {
 		sortable: true,
 		render: (song) => String(song.playCount || 0),
 	},
-	Share: {
-		title: "Share",
+	Origin: {
+		title: "Origin",
 		width: 60,
 		fixWidth: false,
 		key: "share",
