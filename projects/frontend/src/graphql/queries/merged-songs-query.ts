@@ -2,7 +2,6 @@ import { shareSongKeys } from "../types"
 import gql from "graphql-tag"
 import { useQuery } from "react-apollo"
 import { flatten, uniqBy } from "lodash"
-import { makeScopedSongs } from "../utils/data-transformations"
 import { IShareSong } from "@musicshare/shared-types"
 
 export interface IGetMergedSongsData {
@@ -35,7 +34,7 @@ export const useMergedSongs = () => {
 	const { data, ...rest } = useQuery<IGetMergedSongsData, {}>(GET_MERGED_SONGS)
 
 	const mergedData = data
-		? uniqBy(flatten(data.viewer.shares.map((share) => makeScopedSongs(share.songs, share.id))), (song) => song.id)
+		? uniqBy(flatten(data.viewer.shares.map((share) => share.songs)), (song) => song.id)
 		: undefined
 
 	return { data: mergedData, ...rest }

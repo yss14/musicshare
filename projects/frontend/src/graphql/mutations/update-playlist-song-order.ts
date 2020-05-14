@@ -4,7 +4,6 @@ import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
 import { useCallback } from "react"
 import { MutationUpdaterFn } from "apollo-client"
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
-import { makeScopedSongs } from "../utils/data-transformations"
 import { IPlaylistSong } from "@musicshare/shared-types"
 
 type OrderUpdates = [string, number][]
@@ -62,7 +61,7 @@ export const useUpdatePlaylistSongOrder = (
 						...currentPlaylistQuery.share,
 						playlist: {
 							...currentPlaylistQuery.share.playlist,
-							songs: makeScopedSongs(data.updateOrderOfPlaylist, shareID),
+							songs: data.updateOrderOfPlaylist,
 						},
 					},
 				},

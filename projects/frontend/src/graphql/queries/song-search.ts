@@ -2,7 +2,6 @@ import { shareSongKeys } from "../types"
 import gql from "graphql-tag"
 import { useLazyQuery } from "react-apollo"
 import { useCallback, useState, useMemo } from "react"
-import { makeScopedSong } from "../utils/data-transformations"
 import { IShareSong } from "@musicshare/shared-types"
 
 export interface ISongSearchData {
@@ -44,9 +43,9 @@ export const useSongSearch = () => {
 
 	const data = useMemo(() => {
 		if (rest.data) {
-			return rest.data.viewer.searchSongs.map((song) => makeScopedSong(song, song.libraryID))
+			return rest.data.viewer.searchSongs.map((song) => song)
 		} else if (cachedData) {
-			return cachedData.viewer.searchSongs.map((song) => makeScopedSong(song, song.libraryID))
+			return cachedData.viewer.searchSongs.map((song) => song)
 		}
 
 		return undefined
