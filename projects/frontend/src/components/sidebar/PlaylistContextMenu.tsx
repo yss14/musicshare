@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react"
 import { Menu, message } from "antd"
-import { ContextMenu } from "../modals/contextmenu/ContextMenu"
+import { ContextMenu, ContextMenuItem } from "../modals/contextmenu/ContextMenu"
 import { IPlaylist } from "../../graphql/types"
 import { useDeletePlaylist } from "../../graphql/mutations/delete-playlist-mutation"
 import { useRenamePlaylist } from "../../graphql/mutations/rename-playlist-mutation"
@@ -46,12 +46,12 @@ export const PlaylistContextMenu = React.forwardRef<HTMLDivElement, IPlaylistSon
 		<>
 			<ContextMenu ref={ref}>
 				<Menu>
-					<Menu.Item key="delete" onClick={onDeletePlaylist}>
+					<ContextMenuItem key="delete" onClick={onDeletePlaylist}>
 						Delete
-					</Menu.Item>
-					<Menu.Item key="rename" onClick={onRenamePlaylist}>
+					</ContextMenuItem>
+					<ContextMenuItem key="rename" onClick={onRenamePlaylist}>
 						Rename
-					</Menu.Item>
+					</ContextMenuItem>
 				</Menu>
 			</ContextMenu>
 			{newPlaylistName !== null && (

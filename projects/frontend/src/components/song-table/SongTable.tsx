@@ -178,11 +178,13 @@ export const SongTable: React.FC<ISongDataTableProps> = ({ rowEvents, playlistID
 					</AutoSizer>
 				</StyledScrollbars>
 			</Body>
+
 			<SongContextMenu
 				song={hoveredSong}
 				playlistID={playlistID}
 				ref={contextMenuRef}
 				events={contextMenuEvents}
+				contextMenuVisible={contextMenuVisible}
 			/>
 		</Table>
 	)
