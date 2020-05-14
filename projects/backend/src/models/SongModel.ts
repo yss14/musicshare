@@ -1,12 +1,12 @@
 import { FileSource, FileUpload } from "./FileSourceModels"
 import { ObjectType, Field, Int } from "type-graphql"
 import { Nullable } from "../types/Nullable"
-import { ISong } from "./interfaces/ISong"
 import { plainToClass } from "class-transformer"
 import { ISongDBResult } from "../database/tables"
 import moment from "moment"
 import { filterNull } from "../utils/array/filter-null"
 import { connectionTypes } from "../relay/relay"
+import { IBaseSong } from "@musicshare/shared-types"
 
 const mapFileSourceModel = (entry: FileSource): FileSource | null => {
 	if (entry.fileExtension && entry.blob && entry.container) {
@@ -30,7 +30,7 @@ export const isSongDBResultWithPlayCount = <T>(obj: T): obj is T & { play_count:
 	typeof obj === "object" && typeof (obj as any).play_count === "number"
 
 @ObjectType({ description: "This represents a song and its properties" })
-export class Song implements Nullable<ISong> {
+export class Song implements Nullable<IBaseSong> {
 	@Field()
 	public readonly id!: string
 
