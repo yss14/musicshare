@@ -8,7 +8,6 @@ import imgSpeaker from "../../images/song_is_playing_gray.png"
 import { Tag } from "antd"
 import { padStart } from "lodash"
 import moment from "moment"
-import { useShares } from "../../graphql/queries/shares-query"
 import { useShareName } from "../../hooks/use-share-name"
 
 const CurrentlyPlayingIndicator = styled.div`
