@@ -8,7 +8,6 @@ import {
 	PlaylistSongsTable,
 	SongsTable,
 	Tables,
-	SongDBResultWithLibrary,
 	SongDBResultWithLibraryAndShare,
 } from "../database/tables"
 import { v4 as uuid } from "uuid"
