@@ -259,6 +259,7 @@ const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({
 							targetUrl={playlist.targetUrl}
 							onContextMenu={showContextMenu}
 							onMouseEnter={isVisible ? () => undefined : () => setContextMenuPlaylist(playlist)}
+							isMergedView={isMergedView}
 						/>
 					))}
 				</SidebarSection>
