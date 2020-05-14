@@ -14,7 +14,7 @@ import { IServices } from "../services/services"
 import { Artist } from "../models/ArtistModel"
 import { Genre } from "../models/GenreModel"
 import { SongType } from "../models/SongType"
-import { Song } from "../models/SongModel"
+import { ShareSong } from "../models/SongModel"
 import { SongSearchInput, SongSearchMatcher } from "../inputs/SongSearchInput"
 import { ChangePasswordInput } from "../inputs/ChangePasswordInput"
 import { RestorePasswordInput } from "../inputs/RestorePasswordInput"
@@ -164,14 +164,17 @@ export class UserResolver {
 	}
 
 	@Authorized()
-	@FieldResolver(() => [Song])
-	public async searchSongs(@Root() user: User, @Args() { query, matcher, limit }: SongSearchInput): Promise<Song[]> {
+	@FieldResolver(() => [ShareSong])
+	public async searchSongs(
+		@Root() user: User,
+		@Args() { query, matcher, limit }: SongSearchInput,
+	): Promise<ShareSong[]> {
 		return this.services.songService.searchSongs(user.id, query, matcher || Object.values(SongSearchMatcher), limit)
 	}
 
 	@Authorized()
-	@FieldResolver(() => [Song])
-	public async findSongFileDuplicates(@Root() user: User, @Arg("hash") hash: string): Promise<Song[]> {
+	@FieldResolver(() => [ShareSong])
+	public async findSongFileDuplicates(@Root() user: User, @Arg("hash") hash: string): Promise<ShareSong[]> {
 		return this.services.songService.findSongFileDuplicates(user.id, hash)
 	}
 }

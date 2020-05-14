@@ -1,5 +1,4 @@
 import { ObjectType, Field } from "type-graphql"
-import { Song } from "./SongModel"
 import { plainToClass } from "class-transformer"
 import { IShareDBResult } from "../database/tables"
 
@@ -13,12 +12,6 @@ export class Share {
 
 	@Field()
 	public readonly isLibrary!: boolean
-
-	@Field(() => [Song])
-	public readonly songs!: Song[]
-
-	@Field(() => Song, { nullable: true })
-	public readonly song!: Song | null
 
 	public static fromDBResult(dbResult: IShareDBResult): Share {
 		return plainToClass(Share, {

@@ -1,9 +1,9 @@
-import { Song } from "../models/SongModel"
+import { ShareSong } from "../models/SongModel"
 import { Field, InputType } from "type-graphql"
 import { MinLength, MaxLength, Min, Max, IsInt } from "class-validator"
 
 @InputType()
-export class SongUpdateInput implements Partial<Song> {
+export class SongUpdateInput implements Partial<ShareSong> {
 	@Field({ nullable: true })
 	@MinLength(1)
 	@MaxLength(200)

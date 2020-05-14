@@ -20,8 +20,6 @@ export interface IBaseSong {
 	playCount: number
 }
 
-export interface ILibrarySong extends IBaseSong {}
-
 export interface IShareSong extends IBaseSong {
 	shareID: string
 }

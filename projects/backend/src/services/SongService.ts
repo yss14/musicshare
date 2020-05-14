@@ -1,4 +1,4 @@
-import { Song } from "../models/SongModel"
+import { ShareSong } from "../models/SongModel"
 import { IDatabaseClient, SQL, IDatabaseBaseClient, IQuery } from "postgres-schema-builder"
 import { SongUpdateInput } from "../inputs/SongInput"
 import snakeCaseObjKeys from "snakecase-keys"
@@ -9,7 +9,7 @@ import {
 	SongsTable,
 	SongPlaysTable,
 	ShareSongsTable,
-	SongDBResultWithLibrary,
+	SongDBResultWithLibraryAndShare,
 } from "../database/tables"
 import { v4 as uuid } from "uuid"
 import { ForbiddenError, ValidationError } from "apollo-server-core"
@@ -36,11 +36,11 @@ const tokenizeQuery = (query: string) =>
 export type ISongService = ReturnType<typeof SongService>
 
 export const SongService = (database: IDatabaseClient, services: ServiceFactory) => {
-	const getByID = async (shareID: string, songID: string): Promise<Song> => {
+	const getByID = async (shareID: string, songID: string): Promise<ShareSong> => {
 		const dbResults = await database.query(
-			SQL.raw<SongDBResultWithLibrary>(
+			SQL.raw<SongDBResultWithLibraryAndShare>(
 				`
-				SELECT s.*, l.share_id as library_id, ss.play_count
+				SELECT s.*, l.share_id as library_id, ss.play_count, ss.share_id_ref as share_id
 				FROM ${SongsTable.name} s
 				INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
 				INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
@@ -59,14 +59,14 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 			throw new SongNotFoundError(shareID, songID)
 		}
 
-		return Song.fromDBResult(dbResults[0])
+		return ShareSong.fromDBResult(dbResults[0])
 	}
 
-	const getByShare = async (shareID: string): Promise<Song[]> => {
+	const getByShare = async (shareID: string): Promise<ShareSong[]> => {
 		const dbResults = await database.query(
-			SQL.raw<SongDBResultWithLibrary>(
+			SQL.raw<SongDBResultWithLibraryAndShare>(
 				`
-					SELECT s.*, l.share_id as library_id, ss.play_count
+					SELECT s.*, l.share_id as library_id, ss.play_count, ss.share_id_ref as share_id
 					FROM ${SongsTable.name} s
 					INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
 					INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
@@ -80,7 +80,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 			),
 		)
 
-		return dbResults.map(Song.fromDBResult)
+		return dbResults.map(ShareSong.fromDBResult)
 	}
 
 	const hasReadAccessToSongs = async (userID: string, songIDs: string[]): Promise<boolean> => {
@@ -130,7 +130,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		return songIDs.every((songID) => accessibleSongIDs.has(songID))
 	}
 
-	const getByShareDirty = async (shareID: string, lastTimestamp: number): Promise<Song[]> => {
+	const getByShareDirty = async (shareID: string, lastTimestamp: number): Promise<ShareSong[]> => {
 		const songs = await getByShare(shareID)
 
 		return songs.filter((song) => moment(song.dateLastEdit).valueOf() > lastTimestamp) // TODO do via SQL query
@@ -206,7 +206,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		query: string,
 		matchers: SongSearchMatcher[],
 		limit: number = 20,
-	): Promise<Song[]> => {
+	): Promise<ShareSong[]> => {
 		const { shareService } = services()
 		const tokenizedQuery = tokenizeQuery(query)
 
@@ -252,7 +252,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		const userShares = await shareService.getSharesOfUser(userID)
 
 		const sql = `
-			SELECT DISTINCT ON (s.song_id) s.*, l.share_id as library_id
+			SELECT DISTINCT ON (s.song_id) s.*, l.share_id as library_id, ss.play_count, ss.share_id_ref as share_id
 			FROM songs s
 			INNER JOIN share_songs ss ON s.song_id = ss.song_id_ref
 			INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
@@ -265,7 +265,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		`
 
 		const dbResults = await database.query(
-			SQL.raw<SongDBResultWithLibrary>(sql, [userShares.map((share) => share.id)]),
+			SQL.raw<SongDBResultWithLibraryAndShare>(sql, [userShares.map((share) => share.id)]),
 		)
 
 		const sum = (acc: number, value: number) => acc + value
@@ -293,7 +293,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 
 		return take(
 			dbResults
-				.map((result) => Song.fromDBResult(result as any))
+				.map((result) => ShareSong.fromDBResult(result as any))
 				.sort((lhs, rhs) => containmentScores[rhs.id] - containmentScores[lhs.id]),
 			limit, // cannot use limit in sql query because scoring happens in code
 		)
@@ -379,24 +379,25 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		await database.query(updateAccumulatedPlayCountQuery)
 	}
 
-	const findSongFileDuplicates = async (userID: string, hash: string): Promise<Song[]> => {
+	const findSongFileDuplicates = async (userID: string, hash: string): Promise<ShareSong[]> => {
 		const { shareService } = services()
 
 		const userShares = await shareService.getSharesOfUser(userID)
 
 		const sql = `
-			SELECT DISTINCT ON (s.song_id) s.* FROM songs s
+			SELECT DISTINCT ON (s.song_id) s.*, ss.share_id_ref as share_id 
+			FROM songs s
 			INNER JOIN share_songs ss ON ss.song_id_ref = s.song_id
 			LEFT JOIN LATERAL json_array_elements(s.sources -> 'data') as song_source ON true
 			WHERE song_source ->> 'hash' = $2
 				AND s.date_removed IS NULL 
 				AND ss.share_id_ref = ANY($1);
 		`
-		const query = SQL.raw<SongDBResultWithLibrary>(sql, [userShares.map((share) => share.id), hash])
+		const query = SQL.raw<SongDBResultWithLibraryAndShare>(sql, [userShares.map((share) => share.id), hash])
 
 		const dbResults = await database.query(query)
 
-		return dbResults.map(Song.fromDBResult)
+		return dbResults.map(ShareSong.fromDBResult)
 	}
 
 	return {
