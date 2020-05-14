@@ -8,7 +8,7 @@ import imgSpeaker from "../../images/song_is_playing_gray.png"
 import { Tag } from "antd"
 import { padStart } from "lodash"
 import moment from "moment"
-import { useShares } from "../../graphql/queries/shares-query"
+import { useShareName } from "../../hooks/use-share-name"
 
 const CurrentlyPlayingIndicator = styled.div`
 	width: 20px;
@@ -58,7 +58,7 @@ type ColumnNames =
 	| "ReleaseDate"
 	| "DateAdded"
 	| "PlayCount"
-	| "Share"
+	| "Origin"
 
 type SongTableColumnMap = {
 	[key in ColumnNames]: ISongTableColumn
@@ -175,8 +175,8 @@ export const SongTableColumn: SongTableColumnMap = {
 		sortable: true,
 		render: (song) => String(song.playCount || 0),
 	},
-	Share: {
-		title: "Share",
+	Origin: {
+		title: "Origin",
 		width: 60,
 		fixWidth: false,
 		key: "share",
@@ -190,22 +190,9 @@ interface ISongShareProps {
 }
 
 const SongShare: React.FC<ISongShareProps> = ({ song }) => {
-	const { loading, data: shares } = useShares()
+	const shareName = useShareName(song.shareID)
 
-	const sharesMap = useMemo(() => new Map((shares?.viewer.shares || []).map((share) => [share.id, share.name])), [
-		shares,
-	])
-
-	const displayName = useMemo(() => {
-		if (song.shareID === song.libraryID) return "Library"
-		if (sharesMap.has(song.shareID)) return sharesMap.get(song.shareID)
-
-		return "Unknown"
-	}, [sharesMap, song.shareID, song.libraryID])
-
-	if (loading) return <>Loading...</>
-
-	return <Tag>{displayName}</Tag>
+	return <Tag>{shareName}</Tag>
 }
 
 export type CalculatedColumnWidths = {

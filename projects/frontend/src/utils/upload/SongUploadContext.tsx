@@ -1,4 +1,4 @@
-import React, { useReducer, useContext, useEffect, useRef } from "react"
+import React, { useReducer, useContext, useEffect, useRef, useMemo } from "react"
 
 export enum UploadItemStatus {
 	Queued = "queued",
@@ -88,12 +88,26 @@ const reducer = (state: ISongUploadItem[] = [], action: UploadAction) => {
 	}
 }
 
-type ISongUploadContext = [ISongUploadItem[], React.Dispatch<UploadAction>]
+interface ISongUploadState {
+	uploadItems: ISongUploadItem[]
+}
+
+type ISongUploadContext = [ISongUploadState, React.Dispatch<UploadAction>]
 
 const SongUploadContext = React.createContext<ISongUploadContext | null>(null)
 
 export const SongUploadProvider: React.FC = ({ children }) => {
-	const context = useReducer(reducer, [])
+	const [uploadItems, dispatch] = useReducer(reducer, [])
+
+	const context = useMemo(
+		(): ISongUploadContext => [
+			{
+				uploadItems,
+			},
+			dispatch,
+		],
+		[uploadItems],
+	)
 
 	return <SongUploadContext.Provider value={context}>{children}</SongUploadContext.Provider>
 }
@@ -120,8 +134,8 @@ export const useSongUploadQueueEvents = ({ onSongUploaded }: ISongUploadQueueEve
 	useEffect(() => {
 		if (!prevQueueState.current || !onSongUploaded) return
 
-		const currentQueueStateMap = new Map(queueState.map((item) => [item.id, item]))
-		for (const prevItem of prevQueueState.current) {
+		const currentQueueStateMap = new Map(queueState.uploadItems.map((item) => [item.id, item]))
+		for (const prevItem of prevQueueState.current.uploadItems) {
 			const currentItem = currentQueueStateMap.get(prevItem.id)
 
 			if (!currentItem) continue

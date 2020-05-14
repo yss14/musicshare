@@ -1,5 +1,5 @@
-import React, { useCallback, ReactNode, useMemo, useState } from "react"
-import { useDropzone, FileRejection } from "react-dropzone"
+import React, { useCallback, ReactNode, useMemo, useState, useContext } from "react"
+import { useDropzone, FileRejection, DropzoneState } from "react-dropzone"
 import { Icon, Typography, message } from "antd"
 import styled from "styled-components"
 import { uploadFile, IUploadFileArgs } from "../../utils/upload/uploadFile"
@@ -78,6 +78,18 @@ export default ({ children }: WrapperProps) => {
 	return libraryID ? <Dropzone shareID={libraryID}>{(...args) => children(...args)}</Dropzone> : null
 }
 
+const SongDropzoneContext = React.createContext<DropzoneState | null>(null)
+
+export const useSongDropzone = () => {
+	const context = useContext(SongDropzoneContext)
+
+	if (!context) {
+		throw new Error(`useSongDropzone() can only be used inside a SongDropzoneContext`)
+	}
+
+	return context
+}
+
 const Dropzone = ({ shareID, children }: IDropzoneProps) => {
 	const [state, dispatch] = useSongUploadQueue()
 	const [detectedDuplicates, setDetectedDuplicates] = useState<DetectedDuplicate[]>([])
@@ -145,26 +157,29 @@ const Dropzone = ({ shareID, children }: IDropzoneProps) => {
 
 		message.info(`Files with extension(s) ${rejectedFileExtension} are not supported yet!`)
 	}, [])
-	const { getRootProps, getInputProps, isDragActive } = useDropzone({
+	const dropzoneState = useDropzone({
 		onDrop,
 		onDropRejected,
 		noClick: true,
 		accept: ["audio/mpeg", "audio/mp3"],
 		maxSize: 200 * 1024 * 1024, // 200 MB
 	})
+	const { getRootProps, getInputProps, isDragActive } = dropzoneState
 
 	return (
-		<div style={{ width: "100%", height: "100%" }} {...getRootProps()}>
-			<input {...getInputProps()} />
-			{isDragActive ? (
-				<UploadContainer>
-					<StyledIcon type="upload" />
-					<Title level={1} style={{ color: "white" }}>
-						Drop here to upload track
-					</Title>
-				</UploadContainer>
-			) : null}
-			<Blur active={isDragActive}>{children(state, detectedDuplicates, duplicateActions)}</Blur>
-		</div>
+		<SongDropzoneContext.Provider value={dropzoneState}>
+			<div style={{ width: "100%", height: "100%" }} {...getRootProps()}>
+				<input {...getInputProps()} />
+				{isDragActive ? (
+					<UploadContainer>
+						<StyledIcon type="upload" />
+						<Title level={1} style={{ color: "white" }}>
+							Drop here to upload track
+						</Title>
+					</UploadContainer>
+				) : null}
+				<Blur active={isDragActive}>{children(state.uploadItems, detectedDuplicates, duplicateActions)}</Blur>
+			</div>
+		</SongDropzoneContext.Provider>
 	)
 }

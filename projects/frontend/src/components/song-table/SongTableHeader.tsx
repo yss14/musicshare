@@ -1,5 +1,5 @@
 import React from "react"
-import { Typography } from "antd"
+import { Typography, Button } from "antd"
 import { IBaseSong, IScopedSong } from "../../graphql/types"
 import styled from "styled-components"
 import { formatDuration } from "../../utils/format-duration"
@@ -7,6 +7,7 @@ import { SongSearch } from "./search/SongSearch"
 import { usePlayerActions } from "../../player/player-hook"
 import { ISongSearchFilter } from "./search/search-types"
 import { SongViewSettings, ISongViewSettings } from "./search/SongViewSettings"
+import { useSongDropzone } from "../upload/Dropzone"
 
 const { Title, Text } = Typography
 
@@ -25,6 +26,11 @@ const MetaInfoContainer = styled.div`
 	flex-direction: column;
 `
 
+const HeaderButton = styled(Button)`
+	align-self: flex-end;
+	margin-right: 16px;
+`
+
 interface ISongTableHeaderProps {
 	songs: IBaseSong[]
 	title: string
@@ -39,6 +45,7 @@ export const SongTableHeader = ({
 	onSongViewSettingsChange,
 }: ISongTableHeaderProps) => {
 	const { changeSong } = usePlayerActions()
+	const { open: triggerUploadModal } = useSongDropzone()
 
 	const durationSum = songs.reduce((acc, song) => acc + song.duration, 0)
 
@@ -56,6 +63,7 @@ export const SongTableHeader = ({
 					{songs.length} songs | {formatDuration(durationSum)}
 				</Text>
 			</MetaInfoContainer>
+			<HeaderButton icon="arrow-up" onClick={triggerUploadModal} title="Upload" />
 			<SongViewSettings onChange={onSongViewSettingsChange} />
 			<SongSearch onClickSong={onClickSong} onSearchFilterChange={onSearchFilterChange} />
 		</SongTableHeaderFlexContainer>

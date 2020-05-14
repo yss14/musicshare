@@ -52,7 +52,7 @@ export const SongViewSettings: React.FC<ISongViewSettingsProps> = ({ onChange })
 
 	return (
 		<StyledPopover placement="bottom" title={"View Settings"} content={content} trigger="click">
-			<Button icon="table" />
+			<Button icon="table" title="Song View Settings" />
 		</StyledPopover>
 	)
 }
