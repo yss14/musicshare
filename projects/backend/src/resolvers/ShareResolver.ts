@@ -1,6 +1,6 @@
 import { Resolver, Query, Arg, FieldResolver, Root, Authorized, Args, Ctx, Mutation } from "type-graphql"
 import { Share } from "../models/ShareModel"
-import { Song } from "../models/SongModel"
+import { ShareSong } from "../models/SongModel"
 import { Playlist } from "../models/PlaylistModel"
 import { PlaylistIDArg } from "../args/playlist-args"
 import { ShareAuth } from "../auth/middleware/share-auth"
@@ -19,7 +19,7 @@ import { TimestampedResults } from "../models/helper/TimestampedResultModel"
 import { TimestampArgs } from "../args/pagination-args"
 import { AcceptInviationPayload } from "../models/return-models/AcceptInvitationPayloadModel"
 
-const TimedstampSongResult = TimestampedResults(Song)
+const TimedstampSongResult = TimestampedResults(ShareSong)
 
 @Resolver(() => Share)
 export class ShareResolver {
@@ -33,12 +33,12 @@ export class ShareResolver {
 	}
 
 	@Authorized()
-	@FieldResolver()
+	@FieldResolver(() => [ShareSong])
 	public async songs(
 		@Root() share: Share,
 		@Arg("from", { nullable: true }) from?: number,
 		@Arg("take", { nullable: true }) take?: number,
-	): Promise<Song[]> {
+	): Promise<ShareSong[]> {
 		const songs = await this.services.songService.getByShare(share.id)
 
 		const startIdx = (from || 1) - 1
@@ -52,7 +52,7 @@ export class ShareResolver {
 	public async songsDirty(
 		@Root() share: Share,
 		@Args() { lastTimestamp }: TimestampArgs,
-	): Promise<ITimedstampedResults<Song>> {
+	): Promise<ITimedstampedResults<ShareSong>> {
 		const dirtySongs = await this.services.songService.getByShareDirty(share.id, lastTimestamp.getTime())
 		const time = new Date()
 
@@ -63,8 +63,8 @@ export class ShareResolver {
 	}
 
 	@Authorized()
-	@FieldResolver()
-	public song(@Root() share: Share, @Arg("id") id: string): Promise<Song | null> {
+	@FieldResolver(() => ShareSong)
+	public song(@Root() share: Share, @Arg("id") id: string): Promise<ShareSong | null> {
 		return this.services.songService.getByID(share.id, id)
 	}
 

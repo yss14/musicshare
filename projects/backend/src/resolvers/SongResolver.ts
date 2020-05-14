@@ -1,4 +1,4 @@
-import { Song } from "../models/SongModel"
+import { ShareSong } from "../models/SongModel"
 import { Resolver, FieldResolver, Root, ResolverInterface, Mutation, Arg, Authorized, Ctx } from "type-graphql"
 import { FileSource } from "../models/FileSourceModels"
 import { SongUpdateInput } from "../inputs/SongInput"
@@ -17,24 +17,24 @@ import { ISongProcessingQueuePayload } from "../job-queues/SongUploadProcessingQ
 import { ValidationError } from "apollo-server-core"
 import { extractBlobNameFromUrl } from "../file-service/file-service-utils"
 
-@Resolver(() => Song)
-export class SongResolver implements ResolverInterface<Song> {
+@Resolver(() => ShareSong)
+export class SongResolver implements ResolverInterface<ShareSong> {
 	constructor(private readonly services: IServices) {}
 
 	@Authorized()
-	@FieldResolver()
-	public sources(@Root() song: Song): FileSource[] {
+	@FieldResolver(() => [FileSource])
+	public sources(@Root() song: ShareSong): FileSource[] {
 		return song.sources
 	}
 
 	@Authorized()
 	@SongAuth([Permissions.SONG_MODIFY])
-	@Mutation(() => Song, { nullable: true })
+	@Mutation(() => ShareSong, { nullable: true })
 	public async updateSong(
 		@Arg("songID") songID: string,
 		@Arg("shareID") shareID: string,
 		@Arg("song") song: SongUpdateInput,
-	): Promise<Song | null> {
+	): Promise<ShareSong | null> {
 		const { songService } = this.services
 
 		if (song.isValid()) {

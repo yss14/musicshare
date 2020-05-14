@@ -15,7 +15,7 @@ import { clearTables } from "../database/database"
 import { Artist } from "../models/ArtistModel"
 import { defaultGenres, defaultSongTypes } from "../database/fixtures"
 import { songKeys } from "./fixtures/song-query"
-import { Song } from "../models/SongModel"
+import { ShareSong } from "../models/SongModel"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
@@ -505,7 +505,7 @@ describe("find song file duplicates", () => {
 
 		const expectedDuplicateSongIDs = [song.song_id]
 
-		expect(body.data.viewer.findSongFileDuplicates.map((song: Song) => song.id)).toMatchObject(
+		expect(body.data.viewer.findSongFileDuplicates.map((song: ShareSong) => song.id)).toMatchObject(
 			expectedDuplicateSongIDs,
 		)
 	})

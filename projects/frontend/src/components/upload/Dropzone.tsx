@@ -11,9 +11,9 @@ import { makeGenerateUploadableUrl } from "../../graphql/programmatic/generate-f
 import { makeSubmitSongFromRemoteFile } from "../../graphql/programmatic/submit-song-from-remote-file"
 import { blobToArrayBuffer } from "../../utils/upload/blob-to-arraybuffer"
 import { findSongFileDuplicates } from "../../graphql/programmatic/find-song-file-duplicates"
-import { IBaseSong } from "../../graphql/types"
 import SparkMD5 from "spark-md5"
 import { v4 as uuid } from "uuid"
+import { IShareSong } from "@musicshare/shared-types"
 
 const StyledIcon = styled(Icon)`
 	font-size: 64px;
@@ -42,7 +42,7 @@ const Blur = styled.div`
 	height: 100%;
 `
 
-export type DetectedDuplicate = [IUploadFileArgs, IBaseSong[]]
+export type DetectedDuplicate = [IUploadFileArgs, IShareSong[]]
 export type DuplicateActions = {
 	proceed: (item: IUploadFileArgs) => void
 	abort: (item: IUploadFileArgs) => void

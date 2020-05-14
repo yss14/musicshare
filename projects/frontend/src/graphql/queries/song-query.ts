@@ -1,7 +1,7 @@
-import { IShareSong, shareSongKeys } from "../types"
+import { shareSongKeys } from "../types"
 import gql from "graphql-tag"
 import { useQuery } from "@apollo/react-hooks"
-import { makeScopedSong } from "../utils/data-transformations"
+import { IShareSong } from "@musicshare/shared-types"
 
 export interface ISongData {
 	share: {
@@ -29,7 +29,7 @@ export const useSong = (shareID: string, songID: string) => {
 	const { data, ...rest } = useQuery<ISongData, ISongVariables>(GET_SONG, { variables: { shareID, songID } })
 
 	return {
-		data: data ? makeScopedSong(data.share.song, shareID) : undefined,
+		data: data ? data.share.song : undefined,
 		...rest,
 	}
 }

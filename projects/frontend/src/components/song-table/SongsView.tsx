@@ -1,12 +1,12 @@
 import React, { useReducer, useContext, useMemo, useEffect } from "react"
-import { IScopedSong } from "../../graphql/types"
 import { ISongTableColumn, isSortableColumn } from "./SongTableColumns"
 import { zip } from "lodash"
 import { filterUndefined } from "../../utils/filter-null"
 import { SortOrder } from "antd/lib/table/interface"
 import useDeepCompareEffect from "use-deep-compare-effect"
+import { IShareSong } from "@musicshare/shared-types"
 
-type Song = IScopedSong
+type Song = IShareSong
 
 export type SongsFilter = (filterValue: string, song: Song) => boolean
 

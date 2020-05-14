@@ -1,5 +1,4 @@
 import React, { useMemo, useCallback, useState, useEffect, useRef } from "react"
-import { IScopedSong } from "../../graphql/types"
 import { List, ListRowProps, AutoSizer } from "react-virtualized"
 import { useContextMenu } from "../modals/contextmenu/ContextMenu"
 import { SongContextMenu, ISongContextMenuEvents } from "../../pages/share/SongContextMenu"
@@ -16,6 +15,7 @@ import Scrollbars from "react-custom-scrollbars"
 import styled from "styled-components"
 import { useSongsViewContext } from "./SongsView"
 import { SortOrder } from "antd/lib/table/interface"
+import { IShareSong } from "@musicshare/shared-types"
 
 const StyledScrollbars = styled(Scrollbars)`
 	& > div:first-child {
@@ -24,7 +24,7 @@ const StyledScrollbars = styled(Scrollbars)`
 	}
 `
 
-type Song = IScopedSong
+type Song = IShareSong
 
 export interface IRowEventsArgs {
 	event: React.MouseEvent

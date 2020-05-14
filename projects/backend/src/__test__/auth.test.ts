@@ -27,7 +27,7 @@ import { makeMockedDatabase } from "./mocks/mock-database"
 import { makePlaylistAuthMiddleware } from "../auth/middleware/playlist-auth"
 import { makeSongAuthMiddleware } from "../auth/middleware/song-auth"
 import { configFromEnv } from "../types/config"
-import { Song } from "../models/SongModel"
+import { ShareSong } from "../models/SongModel"
 import { v4 as uuid } from "uuid"
 import { ShareServiceMock } from "./mocks/ShareServiceMock"
 import { IPermissionService } from "../services/PermissionsService"
@@ -264,7 +264,7 @@ describe("auth selectors", () => {
 		const shareID = testData.shares.library_user1.share_id
 
 		test("root", () => {
-			const req = { args: {}, root: Song.fromDBResult(song, shareID) }
+			const req = { args: {}, root: ShareSong.fromDBResult(song, shareID, shareID) }
 			const songID = getSongIDFromRequest(req)
 
 			expect(songID).toBe(song.song_id.toString())

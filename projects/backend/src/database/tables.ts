@@ -36,3 +36,9 @@ const library_id_query = TableSchema({
 })
 
 export type SongDBResultWithLibrary = typeof Tables.songs & typeof library_id_query
+
+const share_id_query = TableSchema({
+	share_id: { type: ColumnType.UUID, nullable: false },
+})
+
+export type SongDBResultWithLibraryAndShare = SongDBResultWithLibrary & typeof share_id_query

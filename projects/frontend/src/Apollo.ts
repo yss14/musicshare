@@ -78,7 +78,6 @@ const typeDefs = `
 		genres: [String!]!
 		labels: [String!]!
 		sources: [FileSource!]!
-		fileUploadAccessUrl: String!
 		duration: Float!
 		tags: [String!]!
 		dateAdded: String!
@@ -102,7 +101,6 @@ const typeDefs = `
 		genres: [String!]!
 		labels: [String!]!
 		sources: [FileSource!]!
-		fileUploadAccessUrl: String!
 		duration: Float!
 		tags: [String!]!
 		dateAdded: String!

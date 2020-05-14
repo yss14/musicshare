@@ -5,8 +5,8 @@ import { makeUpdatePlayerState, usePlayerState } from "../components/player/play
 import { makeGetSongMediaUrls } from "../graphql/programmatic/get-song-mediaurl"
 import { ISongMediaUrl } from "../graphql/queries/song-mediaurl-query"
 import { makeIncrementSongPlayCount } from "../graphql/programmatic/increment-song-playcount"
-import { IScopedSong } from "../graphql/types"
 import { message } from "antd"
+import { IShareSong } from "@musicshare/shared-types"
 
 const getMediaErrorCode = (event: ErrorEvent) => {
 	if (!event.target) {
@@ -68,7 +68,7 @@ interface IPlayer {
 	isBufferingNextSong: boolean
 	setIsBufferingNextSong: React.Dispatch<React.SetStateAction<boolean>>
 
-	next: (song?: IScopedSong) => Promise<boolean>
+	next: (song?: IShareSong) => Promise<boolean>
 	prev: () => Promise<void>
 }
 
@@ -99,7 +99,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 
 	const [isBufferingNextSong, setIsBufferingNextSong] = useState(false)
 	const [playCountIncremented, setPlayCountIncremented] = useState(false)
-	const [playedSongs, setPlayedSongs] = useState<IScopedSong[]>([])
+	const [playedSongs, setPlayedSongs] = useState<IShareSong[]>([])
 
 	const { data } = usePlayerState()
 	const { queue, currentSong } = data!.player
@@ -129,7 +129,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 	}, [destroy])
 
 	const next = useCallback(
-		async (song?: IScopedSong): Promise<boolean> => {
+		async (song?: IShareSong): Promise<boolean> => {
 			if (currentSong) {
 				setPlayedSongs((currentPlayedSongs) => [...currentPlayedSongs, currentSong])
 			}

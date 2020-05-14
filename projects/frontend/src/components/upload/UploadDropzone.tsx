@@ -6,8 +6,8 @@ import styled from "styled-components"
 import Scrollbars from "react-custom-scrollbars"
 import { UploadItemStatus, ISongUploadItem } from "../../utils/upload/SongUploadContext"
 import { buildSongName } from "../../utils/songname-builder"
-import { IBaseSong } from "../../graphql/types"
 import { IUploadFileArgs } from "../../utils/upload/uploadFile"
+import { IShareSong } from "@musicshare/shared-types"
 
 const UploadProgressContainer = styled(Scrollbars)`
 	background-color: white;
@@ -76,7 +76,7 @@ export const UploadDropzone: React.FC = ({ children }) => (
 
 interface IDuplicateUploadProps {
 	item: IUploadFileArgs
-	duplicateSongs: IBaseSong[]
+	duplicateSongs: IShareSong[]
 	duplicateActions: DuplicateActions
 }
 

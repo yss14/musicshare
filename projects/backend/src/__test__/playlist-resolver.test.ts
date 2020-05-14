@@ -14,7 +14,7 @@ import { makeMockedDatabase } from "./mocks/mock-database"
 import { Scopes } from "../types/context"
 import { IDatabaseClient } from "postgres-schema-builder"
 import { clearTables } from "../database/database"
-import { Song } from "../models/SongModel"
+import { ShareSong } from "../models/SongModel"
 import { v4 as uuid } from "uuid"
 import { PlaylistSong } from "../models/PlaylistSongModel"
 
@@ -225,12 +225,13 @@ describe("add songs to playlist", () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		const expectedSongs = songs.map((song) =>
-			Song.fromDBResult(
+			ShareSong.fromDBResult(
 				{
 					...song,
 					date_added: new Date(),
 					date_removed: null,
 				},
+				shareID,
 				shareID,
 			),
 		)
@@ -270,12 +271,13 @@ describe("add songs to playlist", () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		const expectedSongs = songs.map((song) =>
-			Song.fromDBResult(
+			ShareSong.fromDBResult(
 				{
 					...song,
 					date_added: new Date(),
 					date_removed: null,
 				},
+				shareID,
 				shareID,
 			),
 		)
@@ -310,12 +312,13 @@ describe("add songs to playlist", () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		const expectedSongs = songs.map((song, idx) =>
-			Song.fromDBResult(
+			ShareSong.fromDBResult(
 				{
 					...song,
 					date_added: new Date(),
 					date_removed: null,
 				},
+				idx === 0 ? shareID : testData.shares.library_user2.share_id,
 				idx === 0 ? shareID : testData.shares.library_user2.share_id,
 			),
 		)
@@ -340,12 +343,13 @@ describe("add songs to playlist", () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		const expectedSongs = songs.map((song, idx) =>
-			Song.fromDBResult(
+			ShareSong.fromDBResult(
 				{
 					...song,
 					date_added: new Date(),
 					date_removed: null,
 				},
+				idx === 0 ? testData.shares.library_user1.share_id : testData.shares.library_user2.share_id,
 				idx === 0 ? testData.shares.library_user1.share_id : testData.shares.library_user2.share_id,
 			),
 		)

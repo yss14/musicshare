@@ -1,4 +1,4 @@
-import { IScopedSong } from "../graphql/types"
+import { IShareSong } from "@musicshare/shared-types"
 
 export enum DragNDropItem {
 	Song = "song",
@@ -7,6 +7,6 @@ export enum DragNDropItem {
 
 export interface ISongDNDItem {
 	type: DragNDropItem.Song | DragNDropItem.SongQueueItem
-	song: IScopedSong
+	song: IShareSong
 	idx: number
 }

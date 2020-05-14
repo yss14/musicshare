@@ -5,11 +5,11 @@ import { useSongTypes } from "../../../graphql/queries/song-types-query"
 import { useArtists } from "../../../graphql/queries/artists-query"
 import { SongForm } from "./SongForm"
 import { useTags } from "../../../graphql/queries/tags-query"
-import { IScopedSong } from "../../../graphql/types"
 import { useLibraryID } from "../../../graphql/client/queries/libraryid-query"
+import { IShareSong } from "@musicshare/shared-types"
 
 interface ISongModalProps {
-	song: IScopedSong
+	song: IShareSong
 	playlistID?: string
 	closeForm: () => void
 }

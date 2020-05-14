@@ -8,7 +8,7 @@ import {
 	PlaylistSongsTable,
 	SongsTable,
 	Tables,
-	SongDBResultWithLibrary,
+	SongDBResultWithLibraryAndShare,
 } from "../database/tables"
 import { v4 as uuid } from "uuid"
 import { ForbiddenError } from "apollo-server-core"
@@ -114,13 +114,14 @@ export const PlaylistService = ({ database }: IPlaylistServiceArgs) => {
 	}
 
 	const getSongs = async (playlistID: string): Promise<PlaylistSong[]> => {
-		const songQuery = SQL.raw<SongDBResultWithLibrary & typeof Tables.playlist_songs>(
+		const songQuery = SQL.raw<SongDBResultWithLibraryAndShare & typeof Tables.playlist_songs>(
 			`
-			SELECT s.*, l.share_id as library_id, ps.playlist_song_id, sls.play_count
+			SELECT s.*, l.share_id as library_id, ps.playlist_song_id, sls.play_count, sp.share_id_ref as share_id
 			FROM ${SongsTable.name} s
 			INNER JOIN ${PlaylistSongsTable.name} ps ON ps.song_id_ref = s.song_id
 			INNER JOIN share_songs sls ON sls.song_id_ref = s.song_id
 			INNER JOIN shares l ON l.share_id = sls.share_id_ref
+			INNER JOIN share_playlists sp ON sp.playlist_id_ref = ps.playlist_id_ref
 			WHERE ps.playlist_id_ref = $1 AND l.is_library = true
 			ORDER BY ps.position ASC;
 		`,

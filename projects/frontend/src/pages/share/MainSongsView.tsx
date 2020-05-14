@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo } from "react"
-import { IScopedSong, IBaseSong } from "../../graphql/types"
 import { usePlayerActions, usePlayerQueue } from "../../player/player-hook"
 import { SongTableHeader } from "../../components/song-table/SongTableHeader"
 import { SongTable, IRowEventsArgs } from "../../components/song-table/SongTable"
@@ -12,6 +11,7 @@ import { SongsView } from "../../components/song-table/SongsView"
 import { ISongViewSettings } from "../../components/song-table/search/SongViewSettings"
 import { filterUndefined } from "../../utils/filter-null"
 import { usePlayerPlaybackState } from "../../components/player/player-state"
+import { IShareSong } from "@musicshare/shared-types"
 
 const FlexContainer = styled.div`
 	width: 100%;
@@ -39,7 +39,7 @@ const mapSongTableColumnKeys = (columnKeys: string[]) =>
 
 interface ISongsViewProps {
 	title: string
-	songs: IScopedSong[]
+	songs: IShareSong[]
 	playlistID?: string
 	moveSong?: MoveSong
 	isMergedView: boolean
@@ -50,7 +50,7 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 	const { data } = usePlayerPlaybackState()
 	const { currentSong } = data!.player
 	const { enqueueDefaultSongs, clearQueue } = usePlayerQueue()
-	const [editSong, setEditSong] = useState<IScopedSong | null>(null)
+	const [editSong, setEditSong] = useState<IShareSong | null>(null)
 	const [showSongModal, setShowSongModal] = useState(false)
 	const [searchFilter, setSearchFilter] = useState<ISongSearchFilter>({
 		mode: "both",
@@ -85,7 +85,7 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 	)
 
 	const songFilter = useCallback(
-		(filterValue: string, song: IBaseSong) => {
+		(filterValue: string, song: IShareSong) => {
 			const tokenizedQuery = tokenizeQuery(filterValue)
 
 			if (tokenizedQuery.length === 0 || searchFilter.mode === "search") return true
