@@ -1,9 +1,9 @@
 import { Nullable } from "../../../types/Nullable"
-import { ISong } from "../../../models/interfaces/ISong"
+import { IBaseSong } from "@musicshare/shared-types"
 import { IFile } from "../../../models/interfaces/IFile"
 import { ISongType } from "../../../models/interfaces/SongType"
 
-export type ExtractedSongMetaData = Partial<Nullable<ISong>>
+export type ExtractedSongMetaData = Partial<Nullable<IBaseSong>>
 
 export interface ISongMetaDataSource {
 	isApplicableForFile(file: IFile): boolean

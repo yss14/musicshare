@@ -1,13 +1,13 @@
 import React from "react"
-import { Typography } from "antd"
-import { IBaseSong, IScopedSong } from "../../graphql/types"
+import { Typography, Button } from "antd"
 import styled from "styled-components"
 import { formatDuration } from "../../utils/format-duration"
 import { SongSearch } from "./search/SongSearch"
-import { usePlayer } from "../../player/player-hook"
-import { useSongUtils } from "../../hooks/use-song-utils"
+import { usePlayerActions } from "../../player/player-hook"
 import { ISongSearchFilter } from "./search/search-types"
 import { SongViewSettings, ISongViewSettings } from "./search/SongViewSettings"
+import { useSongDropzone } from "../upload/Dropzone"
+import { IShareSong } from "@musicshare/shared-types"
 
 const { Title, Text } = Typography
 
@@ -26,8 +26,13 @@ const MetaInfoContainer = styled.div`
 	flex-direction: column;
 `
 
+const HeaderButton = styled(Button)`
+	align-self: flex-end;
+	margin-right: 16px;
+`
+
 interface ISongTableHeaderProps {
-	songs: IBaseSong[]
+	songs: IShareSong[]
 	title: string
 	onSearchFilterChange: (newFilter: ISongSearchFilter) => void
 	onSongViewSettingsChange: (newSettings: ISongViewSettings) => void
@@ -39,13 +44,13 @@ export const SongTableHeader = ({
 	onSearchFilterChange,
 	onSongViewSettingsChange,
 }: ISongTableHeaderProps) => {
-	const { changeSong } = usePlayer()
-	const { makePlayableSong } = useSongUtils()
+	const { changeSong } = usePlayerActions()
+	const { open: triggerUploadModal } = useSongDropzone()
 
 	const durationSum = songs.reduce((acc, song) => acc + song.duration, 0)
 
-	const onClickSong = (song: IScopedSong) => {
-		changeSong(makePlayableSong(song))
+	const onClickSong = (song: IShareSong) => {
+		changeSong(song)
 	}
 
 	return (
@@ -58,6 +63,7 @@ export const SongTableHeader = ({
 					{songs.length} songs | {formatDuration(durationSum)}
 				</Text>
 			</MetaInfoContainer>
+			<HeaderButton icon="arrow-up" onClick={triggerUploadModal} title="Upload" />
 			<SongViewSettings onChange={onSongViewSettingsChange} />
 			<SongSearch onClickSong={onClickSong} onSearchFilterChange={onSearchFilterChange} />
 		</SongTableHeaderFlexContainer>

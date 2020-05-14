@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react"
 import styled from "styled-components"
+import { Menu } from "antd"
 
 export const ContextMenu = styled.div`
 	background-color: white;
@@ -11,6 +12,12 @@ export const ContextMenu = styled.div`
 	display: none;
 	min-width: 200px;
 	z-index: 100;
+`
+
+export const ContextMenuItem = styled(Menu.Item)`
+	&:hover {
+		background-color: rgba(0, 0, 0, 0.05);
+	}
 `
 
 export const useContextMenu = () => {

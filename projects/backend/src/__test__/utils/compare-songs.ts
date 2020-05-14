@@ -1,12 +1,13 @@
-import { Song } from "../../models/SongModel"
+import { ShareSong } from "../../models/SongModel"
 
-export const compareSongs = <S extends Song>(lhs: S, rhs: S) => {
+export const compareSongs = <S extends ShareSong>(lhs: S, rhs: S) => {
 	const {
 		artists: lArtists,
 		remixer: lRemixer,
 		featurings: lFeaturings,
 		genres: lGenres,
 		releaseDate: lReleaseDate, // eslint-disable-line @typescript-eslint/no-unused-vars
+		shareID: lShareID, // eslint-disable-line @typescript-eslint/no-unused-vars
 		sources: lSources,
 		...lRest
 	} = lhs
@@ -16,6 +17,7 @@ export const compareSongs = <S extends Song>(lhs: S, rhs: S) => {
 		featurings: rFeaturings,
 		genres: rGenres,
 		releaseDate: rReleaseDate, // eslint-disable-line @typescript-eslint/no-unused-vars
+		shareID: rShareID, // eslint-disable-line @typescript-eslint/no-unused-vars
 		sources: rSources,
 		...rRest
 	} = rhs
@@ -40,7 +42,7 @@ export const compareSongs = <S extends Song>(lhs: S, rhs: S) => {
 	}
 }
 
-export const includesSong = <S extends Song | Song>(songs: S[], song: S) => {
+export const includesSong = <S extends ShareSong>(songs: S[], song: S) => {
 	const expectedSong = songs.find((s) => s.id === song.id)
 
 	if (!expectedSong) {
@@ -50,6 +52,6 @@ export const includesSong = <S extends Song | Song>(songs: S[], song: S) => {
 	compareSongs(expectedSong, song)
 }
 
-type SongRest<S extends Song | Song> = Pick<S, Exclude<keyof S, "artists" | "remixer" | "featurings" | "genres">>
+type SongRest<S extends ShareSong> = Pick<S, Exclude<keyof S, "artists" | "remixer" | "featurings" | "genres">>
 
-const isPlaylistSongRest = (obj: any): obj is SongRest<Song> => obj.dateAdded !== undefined
+const isPlaylistSongRest = (obj: any): obj is SongRest<ShareSong> => obj.dateAdded !== undefined

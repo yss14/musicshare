@@ -1,12 +1,10 @@
 import { FileSource, FileUpload } from "./FileSourceModels"
 import { ObjectType, Field, Int } from "type-graphql"
-import { Nullable } from "../types/Nullable"
-import { ISong } from "./interfaces/ISong"
 import { plainToClass } from "class-transformer"
 import { ISongDBResult } from "../database/tables"
 import moment from "moment"
 import { filterNull } from "../utils/array/filter-null"
-import { connectionTypes } from "../relay/relay"
+import { IBaseSong, IShareSong } from "@musicshare/shared-types"
 
 const mapFileSourceModel = (entry: FileSource): FileSource | null => {
 	if (entry.fileExtension && entry.blob && entry.container) {
@@ -22,15 +20,19 @@ const mapFileSourceModel = (entry: FileSource): FileSource | null => {
 }
 
 export type ISongDBResultWithLibrary = ISongDBResult & { library_id: string }
+export type ISongDBResultWithShare = ISongDBResultWithLibrary & { share_id: string }
 
 const isSongDBResultWithLibrary = (obj: any): obj is ISongDBResultWithLibrary =>
 	typeof obj === "object" && typeof obj.library_id === "string"
 
+const isSongDBResultWithShare = (obj: any): obj is ISongDBResultWithShare =>
+	typeof obj === "object" && typeof obj.library_id === "string" && typeof obj.share_id === "string"
+
 export const isSongDBResultWithPlayCount = <T>(obj: T): obj is T & { play_count: number } =>
 	typeof obj === "object" && typeof (obj as any).play_count === "number"
 
-@ObjectType({ description: "This represents a song and its properties" })
-export class Song implements Nullable<ISong> {
+@ObjectType({ description: "This represents the base of song and its properties" })
+export class BaseSong implements IBaseSong {
 	@Field()
 	public readonly id!: string
 
@@ -77,9 +79,6 @@ export class Song implements Nullable<ISong> {
 	public readonly sources!: FileSource[]
 
 	@Field()
-	public readonly fileUploadAccessUrl!: string
-
-	@Field()
 	public readonly duration!: number
 
 	@Field(() => [String])
@@ -94,10 +93,10 @@ export class Song implements Nullable<ISong> {
 	@Field(() => Int)
 	public readonly playCount!: number
 
-	public static fromDBResult(row: ISongDBResultWithLibrary): Song
-	public static fromDBResult(row: ISongDBResult, libraryID: string): Song
-	public static fromDBResult(row: ISongDBResult, libraryID?: string): Song {
-		return plainToClass(Song, {
+	public static fromDBResult(row: ISongDBResultWithLibrary): BaseSong
+	public static fromDBResult(row: ISongDBResult, libraryID: string): BaseSong
+	public static fromDBResult(row: ISongDBResult, libraryID?: string): BaseSong {
+		return plainToClass(BaseSong, {
 			id: row.song_id,
 			title: row.title,
 			suffix: row.suffix,
@@ -122,7 +121,21 @@ export class Song implements Nullable<ISong> {
 	}
 }
 
-const { Connection, Edge } = connectionTypes("Song", Song)
+@ObjectType({ description: "A song belonging to a share. If it belongs to a library, libraryID = shareID" })
+export class ShareSong extends BaseSong implements IShareSong {
+	@Field(() => String)
+	public readonly shareID!: string
 
-export const SongConnection = Connection
-export const SongEdge = Edge
+	public static fromDBResult(row: ISongDBResultWithShare): ShareSong
+	public static fromDBResult(row: ISongDBResult, libraryID: string, shareID: string): ShareSong
+	public static fromDBResult(row: ISongDBResult, libraryID?: string, shareID?: string): ShareSong {
+		const baseSong = isSongDBResultWithShare(row)
+			? BaseSong.fromDBResult(row)
+			: BaseSong.fromDBResult(row, libraryID!)
+
+		return plainToClass(ShareSong, <ShareSong>{
+			...baseSong,
+			shareID: isSongDBResultWithShare(row) ? row.share_id : shareID,
+		})
+	}
+}

@@ -3,7 +3,7 @@ import { setupTestSuite, SetupTestEnvArgs, setupTestEnv } from "./utils/setup-te
 import { IDatabaseClient } from "postgres-schema-builder"
 import { SongSearchMatcher } from "../inputs/SongSearchInput"
 import { testData, songContactAlastor, songPerthDusky, songZeroOliverSmith, songIsItLove } from "../database/seed"
-import { Song } from "../models/SongModel"
+import { ShareSong } from "../models/SongModel"
 import { compareSongs, includesSong } from "./utils/compare-songs"
 import { songKeys } from "./fixtures/song-query"
 import { executeGraphQLQuery, makeGraphQLResponse, argumentValidationError } from "./utils/graphql"
@@ -40,7 +40,7 @@ describe("service", () => {
 		const { songService } = await setupTest({})
 
 		const songs = await songService.searchSongs(userID, "cOntaCt", allMatchers)
-		const expectedSong = Song.fromDBResult(songContactAlastor, shareID)
+		const expectedSong = ShareSong.fromDBResult(songContactAlastor, shareID, shareID)
 
 		expect(songs).toBeArrayOfSize(1)
 		compareSongs(expectedSong, songs[0])
@@ -51,8 +51,8 @@ describe("service", () => {
 
 		const songs = await songService.searchSongs(userID, "Deep Perth", allMatchers)
 		const expectedSongs = [
-			Song.fromDBResult(songPerthDusky, shareID),
-			Song.fromDBResult(songContactAlastor, shareID),
+			ShareSong.fromDBResult(songPerthDusky, shareID, shareID),
+			ShareSong.fromDBResult(songContactAlastor, shareID, shareID),
 		]
 
 		expect(songs).toBeArrayOfSize(expectedSongs.length)
@@ -64,10 +64,14 @@ describe("service", () => {
 
 		const songs = await songService.searchSongs(userID, "Zero Oliver Smith Anjuna", allMatchers)
 		const expectedSongs = [
-			Song.fromDBResult(songZeroOliverSmith, shareID),
-			Song.fromDBResult(songPerthDusky, shareID),
-			Song.fromDBResult(songContactAlastor, shareID),
-			Song.fromDBResult(songIsItLove, testData.shares.library_user2.share_id),
+			ShareSong.fromDBResult(songZeroOliverSmith, shareID, shareID),
+			ShareSong.fromDBResult(songPerthDusky, shareID, shareID),
+			ShareSong.fromDBResult(songContactAlastor, shareID, shareID),
+			ShareSong.fromDBResult(
+				songIsItLove,
+				testData.shares.library_user2.share_id,
+				testData.shares.library_user2.share_id,
+			),
 		]
 
 		expect(songs).toBeArrayOfSize(expectedSongs.length)
@@ -79,8 +83,8 @@ describe("service", () => {
 
 		const songs = await songService.searchSongs(userID, "Zero Oliver Smith Anjuna", allMatchers, 2)
 		const expectedSongs = [
-			Song.fromDBResult(songZeroOliverSmith, shareID),
-			Song.fromDBResult(songPerthDusky, shareID),
+			ShareSong.fromDBResult(songZeroOliverSmith, shareID, shareID),
+			ShareSong.fromDBResult(songPerthDusky, shareID, shareID),
 		]
 
 		expect(songs).toBeArrayOfSize(expectedSongs.length)
@@ -91,7 +95,7 @@ describe("service", () => {
 		const { songService } = await setupTest({})
 
 		const songs = await songService.searchSongs(userID, "Dusky", [SongSearchMatcher.Artists])
-		const expectedSong = Song.fromDBResult(songPerthDusky, shareID)
+		const expectedSong = ShareSong.fromDBResult(songPerthDusky, shareID, shareID)
 
 		expect(songs).toBeArrayOfSize(1)
 		compareSongs(expectedSong, songs[0])
@@ -126,7 +130,11 @@ describe("resolver", () => {
 		expect(body.data).not.toBeNull()
 		expect(body.data.viewer.searchSongs.length).toBeGreaterThanOrEqual(1)
 		compareSongs(
-			Song.fromDBResult(songIsItLove, testData.shares.library_user2.share_id),
+			ShareSong.fromDBResult(
+				songIsItLove,
+				testData.shares.library_user2.share_id,
+				testData.shares.library_user2.share_id,
+			),
 			body.data.viewer.searchSongs[0],
 		)
 	})

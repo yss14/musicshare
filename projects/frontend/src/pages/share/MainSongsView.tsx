@@ -1,7 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react"
-import { IScopedSong, IBaseSong } from "../../graphql/types"
-import { useSongUtils } from "../../hooks/use-song-utils"
-import { usePlayer } from "../../player/player-hook"
+import { usePlayerActions, usePlayerQueue } from "../../player/player-hook"
 import { SongTableHeader } from "../../components/song-table/SongTableHeader"
 import { SongTable, IRowEventsArgs } from "../../components/song-table/SongTable"
 import { SongModal } from "../../components/modals/song-modal/SongModal"
@@ -12,6 +10,8 @@ import { SongTableColumn } from "../../components/song-table/SongTableColumns"
 import { SongsView } from "../../components/song-table/SongsView"
 import { ISongViewSettings } from "../../components/song-table/search/SongViewSettings"
 import { filterUndefined } from "../../utils/filter-null"
+import { usePlayerPlaybackState } from "../../components/player/player-state"
+import { IShareSong } from "@musicshare/shared-types"
 
 const FlexContainer = styled.div`
 	width: 100%;
@@ -39,16 +39,18 @@ const mapSongTableColumnKeys = (columnKeys: string[]) =>
 
 interface ISongsViewProps {
 	title: string
-	songs: IScopedSong[]
+	songs: IShareSong[]
 	playlistID?: string
 	moveSong?: MoveSong
-	isShare: boolean
+	isMergedView: boolean
 }
 
-export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong, isShare }) => {
-	const { makePlayableSong } = useSongUtils()
-	const { changeSong, enqueueDefaultSongs, clearQueue, currentSong } = usePlayer()
-	const [editSong, setEditSong] = useState<IScopedSong | null>(null)
+export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong, isMergedView }) => {
+	const { changeSong } = usePlayerActions()
+	const { data } = usePlayerPlaybackState()
+	const { currentSong } = data!.player
+	const { enqueueDefaultSongs, clearQueue } = usePlayerQueue()
+	const [editSong, setEditSong] = useState<IShareSong | null>(null)
 	const [showSongModal, setShowSongModal] = useState(false)
 	const [searchFilter, setSearchFilter] = useState<ISongSearchFilter>({
 		mode: "both",
@@ -70,20 +72,20 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 
 	const onRowDoubleClick = useCallback(
 		({ song, idx, songs }: IRowEventsArgs) => {
-			changeSong(makePlayableSong(song))
+			changeSong(song)
 
 			if (songs) {
 				const followUpSongs = songs.filter((_, songIdx) => songIdx > idx)
 
 				clearQueue()
-				enqueueDefaultSongs(followUpSongs.map(makePlayableSong))
+				enqueueDefaultSongs(followUpSongs)
 			}
 		},
-		[changeSong, makePlayableSong, clearQueue, enqueueDefaultSongs],
+		[changeSong, clearQueue, enqueueDefaultSongs],
 	)
 
 	const songFilter = useCallback(
-		(filterValue: string, song: IBaseSong) => {
+		(filterValue: string, song: IShareSong) => {
 			const tokenizedQuery = tokenizeQuery(filterValue)
 
 			if (tokenizedQuery.length === 0 || searchFilter.mode === "search") return true
@@ -122,12 +124,12 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 
 		const mappedSongTableColumns = mapSongTableColumnKeys(fixColumnKeys).concat(customColumns)
 
-		if (isShare) {
-			mappedSongTableColumns.push(SongTableColumn.Share)
+		if (isMergedView) {
+			mappedSongTableColumns.push(SongTableColumn.Origin)
 		}
 
 		return mappedSongTableColumns
-	}, [playlistID, customColumns, isShare])
+	}, [playlistID, customColumns, isMergedView])
 
 	return (
 		<FlexContainer>

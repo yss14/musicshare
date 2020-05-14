@@ -6,7 +6,7 @@ import {
 	ISongMediaUrl,
 } from "../queries/song-mediaurl-query"
 
-export const getSongMediaUrls = (client: ApolloClient<unknown>) => async (
+export const makeGetSongMediaUrls = (client: ApolloClient<unknown>) => async (
 	shareID: string,
 	songID: string,
 ): Promise<ISongMediaUrl[]> => {

@@ -1,9 +1,9 @@
 import gql from "graphql-tag"
-import { shareSongKeys, IShareSong } from "../types"
+import { shareSongKeys } from "../types"
 import { useQuery } from "@apollo/react-hooks"
 import { useHistory } from "react-router-dom"
 import { defaultGraphQLErrorHandler } from "../utils/default-graphql-errorhandler"
-import { makeScopedSongs } from "../utils/data-transformations"
+import { IShareSong } from "@musicshare/shared-types"
 
 export interface IGetShareWithSongsData {
 	share: {
@@ -40,7 +40,7 @@ export const useShareSongs = (shareID: string) => {
 	})
 
 	return {
-		data: data ? makeScopedSongs(data.share.songs, shareID) : undefined,
+		data: data ? data.share.songs : undefined,
 		...rest,
 	}
 }

@@ -3,7 +3,6 @@ import gql from "graphql-tag"
 import { useQuery } from "@apollo/react-hooks"
 import { useHistory } from "react-router-dom"
 import { defaultGraphQLErrorHandler } from "../utils/default-graphql-errorhandler"
-import { makeScopedSongs } from "../utils/data-transformations"
 
 export interface IGetPlaylistSongsData {
 	share: {
@@ -47,7 +46,7 @@ export const usePlaylist = (variables: IGetPlaylistSongsVariables) => {
 		data: data
 			? {
 					...data.share.playlist,
-					songs: makeScopedSongs(data.share.playlist.songs, data.share.id),
+					songs: data.share.playlist.songs,
 			  }
 			: undefined,
 		...rest,

@@ -1,9 +1,10 @@
 import React, { useRef } from "react"
-import { IBaseSongPlayable } from "../../graphql/types"
 import { buildSongName } from "../../utils/songname-builder"
 import styled from "styled-components"
 import { useDrop, DropTargetMonitor, XYCoord, useDrag } from "react-dnd"
 import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
+import { Icon } from "antd"
+import { IShareSong } from "@musicshare/shared-types"
 
 const SongQueueItemContainer = styled.div`
 	min-height: 44px;
@@ -11,6 +12,7 @@ const SongQueueItemContainer = styled.div`
 	padding: 4px;
 	border-bottom: 1px solid silver;
 	font-size: 16px;
+	position: relative;
 
 	&:last-child {
 		border-bottom: none;
@@ -18,21 +20,32 @@ const SongQueueItemContainer = styled.div`
 `
 
 const Title = styled.div`
-	font-size: 13px;
+	font-size: 12px;
 	font-weight: bold;
+	padding-right: 24px;
 `
 
 const SubTitle = styled.div`
 	font-size: 11px;
 `
 
+const RemoveButton = styled(Icon)`
+	position: absolute;
+	right: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	opacity: 0.25;
+	cursor: pointer;
+`
+
 interface ISongQueueItemProps {
-	song: IBaseSongPlayable
+	song: IShareSong
 	index: number
 	moveItem: (dragIndex: number, hoverIndex: number) => void
+	onRemove: (index: number) => void
 }
 
-export const SongQueueItem: React.FC<ISongQueueItemProps> = ({ song, index, moveItem }) => {
+export const SongQueueItem: React.FC<ISongQueueItemProps> = ({ song, index, moveItem, onRemove }) => {
 	const ref = useRef<HTMLDivElement>(null)
 	const [, drop] = useDrop({
 		accept: DragNDropItem.SongQueueItem,
@@ -81,6 +94,7 @@ export const SongQueueItem: React.FC<ISongQueueItemProps> = ({ song, index, move
 		<SongQueueItemContainer ref={ref} style={{ opacity }}>
 			<Title>{buildSongName(song)}</Title>
 			<SubTitle>{song.artists.join(", ")}</SubTitle>
+			<RemoveButton type="close-circle" onClick={() => onRemove(index)} />
 		</SongQueueItemContainer>
 	)
 }

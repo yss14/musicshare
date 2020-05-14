@@ -38,7 +38,11 @@ export const useRemoveSongFromLibrary = (
 				variables: {
 					shareID,
 				},
-			})!
+			})
+
+			if (!shareData) {
+				return
+			}
 
 			const oldSong = shareData.share.songs.find((song) => song.id === songID)
 
@@ -66,8 +70,8 @@ export const useRemoveSongFromLibrary = (
 	)
 
 	const removeSongFromLibrary = useCallback(
-		(libraryID: string, songID: string) => {
-			removeSongFromLibraryMutation({
+		async (libraryID: string, songID: string) => {
+			await removeSongFromLibraryMutation({
 				variables: {
 					input: {
 						shareID: libraryID,
@@ -81,7 +85,7 @@ export const useRemoveSongFromLibrary = (
 	)
 
 	return [removeSongFromLibrary, other] as [
-		(libraryID: string, songID: string) => void,
+		(libraryID: string, songID: string) => Promise<void>,
 		MutationResult<IRemoveSongFromLibraryData>,
 	]
 }

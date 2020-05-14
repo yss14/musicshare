@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react"
-import { Button, message } from "antd"
+import React, { useState, useMemo, useCallback } from "react"
+import { Button, message, Popover } from "antd"
 import styled from "styled-components"
 import { Link, useRouteMatch } from "react-router-dom"
 import { IShareRoute } from "../../interfaces"
@@ -16,6 +16,7 @@ import { LoadingSpinner } from "../common/LoadingSpinner"
 import { useContextMenu } from "../modals/contextmenu/ContextMenu"
 import { PlaylistContextMenu } from "./PlaylistContextMenu"
 import Scrollbars from "react-custom-scrollbars"
+import { useShares } from "../../graphql/queries/shares-query"
 
 const Sidebar = styled.div`
 	width: 200px;
@@ -57,10 +58,10 @@ const SharePlaylistsSidebar = () => {
 		},
 	})
 
-	const handleCreatePlaylist = () => {
-		createPlaylist(shareID, newPlaylistName || "")
+	const handleCreatePlaylist = useCallback(() => {
+		createPlaylist(shareID, newPlaylistName || "", false)
 		setNewPlaylistName(null)
-	}
+	}, [createPlaylist, shareID, newPlaylistName])
 
 	const addPlaylistButton = useMemo(
 		() => (
@@ -90,6 +91,7 @@ const SharePlaylistsSidebar = () => {
 				addButton={addPlaylistButton}
 				loading={loading}
 				error={error ? error.message : undefined}
+				isMergedView={false}
 			/>
 			{newPlaylistName !== null && (
 				<Prompt
@@ -106,8 +108,31 @@ const SharePlaylistsSidebar = () => {
 	)
 }
 
+const ShareButton = styled(Button)`
+	margin: 4px 8px;
+	width: 130px;
+	display: block;
+`
+
 const MergedPlaylistsSidebar = () => {
 	const { loading, error, data } = useMergedPlaylists()
+	const { loading: loadingShares, data: shares } = useShares()
+
+	const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null)
+	const [newPlaylistShareID, setNewPlaylistShareID] = useState<string | null>(null)
+
+	const [createPlaylist] = useCreatePlaylist({
+		onCompleted: ({ createPlaylist: createdPlaylist }) => {
+			message.success(`Playlist ${createdPlaylist.name} successfully created`)
+		},
+	})
+
+	const handleCreatePlaylist = useCallback(() => {
+		if (!newPlaylistShareID) return
+
+		createPlaylist(newPlaylistShareID, newPlaylistName || "", true)
+		setNewPlaylistName(null)
+	}, [createPlaylist, newPlaylistShareID, newPlaylistName])
 
 	const playlists: IPlaylistTargeted[] = useMemo(
 		() =>
@@ -120,13 +145,54 @@ const MergedPlaylistsSidebar = () => {
 		[data],
 	)
 
+	const onClickNewSharePlaylist = useCallback((shareID: string) => {
+		setNewPlaylistName("")
+		setNewPlaylistShareID(shareID)
+	}, [])
+
+	const newPlaylistShareButtons = useMemo(() => {
+		if (!shares) return []
+
+		return shares.viewer.shares.map((share) => (
+			<ShareButton type="primary" key={share.id} size="small" onClick={() => onClickNewSharePlaylist(share.id)}>
+				{share.name}
+			</ShareButton>
+		))
+	}, [shares, onClickNewSharePlaylist])
+
+	const addPlaylistButton = useMemo(
+		() => (
+			<Popover content={newPlaylistShareButtons} trigger="click">
+				<Button type="dashed" size="small" loading={loadingShares}>
+					New Playlist
+				</Button>
+			</Popover>
+		),
+		[loadingShares, newPlaylistShareButtons],
+	)
+
 	return (
-		<PlaylistSidebarContent
-			playlists={playlists}
-			targetUrlAllSongs="/all"
-			loading={loading}
-			error={error ? error.message : undefined}
-		/>
+		<>
+			<PlaylistSidebarContent
+				playlists={playlists}
+				targetUrlAllSongs="/all"
+				addButton={addPlaylistButton}
+				loading={loading}
+				error={error ? error.message : undefined}
+				isMergedView
+			/>
+			{newPlaylistName !== null && (
+				<Prompt
+					title="New Playlist"
+					okText="Create"
+					onSubmit={handleCreatePlaylist}
+					onCancel={() => setNewPlaylistName(null)}
+					onChange={(e) => setNewPlaylistName(e.target.value)}
+					value={newPlaylistName}
+					validationError={newPlaylistName.trim().length === 0 ? "At least one character" : undefined}
+				/>
+			)}
+		</>
 	)
 }
 
@@ -140,6 +206,7 @@ interface IPlaylistSidebarContent {
 	addButton?: React.ReactElement<any>
 	loading: boolean
 	error?: string
+	isMergedView: boolean
 }
 
 const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({
@@ -148,6 +215,7 @@ const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({
 	addButton,
 	loading,
 	error,
+	isMergedView,
 }) => {
 	const playlistID = usePlaylistID()
 	const { ref, showContextMenu, isVisible } = useContextMenu()
@@ -191,6 +259,7 @@ const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({
 							targetUrl={playlist.targetUrl}
 							onContextMenu={showContextMenu}
 							onMouseEnter={isVisible ? () => undefined : () => setContextMenuPlaylist(playlist)}
+							isMergedView={isMergedView}
 						/>
 					))}
 				</SidebarSection>
@@ -198,7 +267,9 @@ const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({
 			{addButton && (
 				<SidebarButtonContainer style={{ position: "sticky", bottom: 0 }}>{addButton}</SidebarButtonContainer>
 			)}
-			{contextMenuPlaylist && <PlaylistContextMenu ref={ref} playlist={contextMenuPlaylist} />}
+			{contextMenuPlaylist && (
+				<PlaylistContextMenu ref={ref} playlist={contextMenuPlaylist} isMergedView={isMergedView} />
+			)}
 		</>
 	)
 }

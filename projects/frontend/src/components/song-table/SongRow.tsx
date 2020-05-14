@@ -2,16 +2,16 @@ import React, { useRef, useEffect } from "react"
 import { ListRowProps } from "react-virtualized"
 import { IRowEvents } from "./SongTable"
 import { DragElementWrapper, DragPreviewOptions, DragPreviewImage, useDrop } from "react-dnd"
-import { IScopedSong } from "../../graphql/types"
 import { Row, Col } from "./SongTableUI"
 import songDragPreviewImg from "../../images/playlist_add.png"
 import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
 import { MoveSong } from "./MoveSong"
 import { CalculatedColumnWidths } from "./SongTableColumns"
 import { useSongsViewContext } from "./SongsView"
+import { IShareSong } from "@musicshare/shared-types"
 
 interface ISongRowProps extends ListRowProps {
-	song: IScopedSong
+	song: IShareSong
 	rowEvents?: IRowEvents
 	hovered: boolean
 	onMouseEnter?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, ref: React.Ref<HTMLDivElement>) => void

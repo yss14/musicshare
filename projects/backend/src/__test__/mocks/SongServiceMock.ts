@@ -1,14 +1,14 @@
 import { ISongService } from "../../services/SongService"
-import { Song } from "../../models/SongModel"
+import { ShareSong } from "../../models/SongModel"
 import { v4 as uuid } from "uuid"
 import { Share } from "../../models/ShareModel"
 
 export class SongServiceMock implements ISongService {
-	public async getByID(): Promise<Song> {
+	public async getByID(): Promise<ShareSong> {
 		throw "Not implemented yet"
 	}
 
-	public async getByShare(): Promise<Song[]> {
+	public async getByShare(): Promise<ShareSong[]> {
 		throw "Not implemented yet"
 	}
 
@@ -24,7 +24,7 @@ export class SongServiceMock implements ISongService {
 		throw "Not implemented yet"
 	}
 
-	public async getByShareDirty(): Promise<Song[]> {
+	public async getByShareDirty(): Promise<ShareSong[]> {
 		throw "Not implemented yet"
 	}
 
@@ -36,7 +36,7 @@ export class SongServiceMock implements ISongService {
 		throw "Not implemented yet"
 	}
 
-	public async searchSongs(): Promise<Song[]> {
+	public async searchSongs(): Promise<ShareSong[]> {
 		throw "Not implemented yet"
 	}
 
@@ -52,7 +52,7 @@ export class SongServiceMock implements ISongService {
 		throw "Not implemented yet"
 	}
 
-	public async findSongFileDuplicates(): Promise<Song[]> {
+	public async findSongFileDuplicates(): Promise<ShareSong[]> {
 		throw "Not implemented yet"
 	}
 }

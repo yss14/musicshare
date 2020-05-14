@@ -1,112 +1,147 @@
-import { useContext, useEffect, useCallback } from "react"
-import { PlayerContext, setIsDefaultSongQueue, setVolume, usePlayerState } from "./PlayerContext"
-import { IBaseSongPlayable } from "../graphql/types"
-import { updateSongQueue, ISongQueueItem } from "./player"
+import { useCallback, useMemo } from "react"
+import {
+	makeUpdatePlayerState,
+	IPlayerQueueItem,
+	useSetPlayerQueue,
+	usePlayerQueueState,
+} from "../components/player/player-state"
+import { useApolloClient } from "react-apollo"
+import { v4 as uuid } from "uuid"
+import { usePlayerContext } from "./PlayerContext"
+import { IShareSong } from "@musicshare/shared-types"
 
-export const usePlayer = () => {
-	const player = useContext(PlayerContext)[1]
-	const [
-		{
-			volume,
-			playing,
-			playpackProgress,
-			currentSong,
-			duration,
-			bufferingProgress,
-			error,
-			isDefaultSongQueue,
-			songQueue,
+const QueueItem = (song: IShareSong): IPlayerQueueItem => ({
+	__typename: "PlayerQueueItem",
+	id: uuid(),
+	song,
+})
+
+export const usePlayerActions = () => {
+	const { primaryDeck, next, prev } = usePlayerContext()
+
+	const changeSong = useCallback(
+		async (newSong: IShareSong) => {
+			await next(newSong)
 		},
-		dispatch,
-	] = usePlayerState()
-
-	useEffect(() => {
-		player.subscribeEvents(dispatch)
-
-		return () => player.unsubscribeEvents(dispatch)
-	}, [player, dispatch])
-
-	const enqueueDefaultSongs = useCallback(
-		(followupSongs: IBaseSongPlayable[]) => {
-			dispatch(setIsDefaultSongQueue(true))
-			dispatch(updateSongQueue([]))
-
-			player.enqueueSongs(followupSongs)
-		},
-		[player, dispatch],
+		[next],
 	)
 
-	const enqueueSongs = useCallback(
-		(songs: IBaseSongPlayable[]) => {
-			if (isDefaultSongQueue) {
-				player.clearQueue()
-			}
+	const play = useCallback(() => {
+		primaryDeck.play()
+	}, [primaryDeck])
 
-			dispatch(setIsDefaultSongQueue(false))
+	const pause = useCallback(() => {
+		primaryDeck.pause()
+	}, [primaryDeck])
 
-			player.enqueueSongs(songs)
+	const changeVolume = useCallback(
+		(volume: number) => {
+			primaryDeck.volume = volume
 		},
-		[player, isDefaultSongQueue, dispatch],
+		[primaryDeck],
 	)
 
-	const enqueueSong = useCallback(
-		(song: IBaseSongPlayable) => {
-			if (isDefaultSongQueue) {
-				player.clearQueue()
-			}
-
-			dispatch(setIsDefaultSongQueue(false))
-
-			player.enqueueSong(song)
+	const seek = useCallback(
+		(newPos: number) => {
+			primaryDeck.currentTime = newPos
 		},
-		[player, isDefaultSongQueue, dispatch],
-	)
-
-	const enqueueSongNext = useCallback(
-		(song: IBaseSongPlayable) => {
-			if (isDefaultSongQueue) {
-				player.clearQueue()
-			}
-
-			dispatch(setIsDefaultSongQueue(false))
-
-			player.enqueueSongNext(song)
-		},
-		[player, isDefaultSongQueue, dispatch],
-	)
-
-	const setSongQueue = useCallback(
-		(songs: ISongQueueItem[]) => {
-			player.setSongQueue(songs)
-		},
-		[player],
+		[primaryDeck],
 	)
 
 	return {
-		play: () => player.play(),
-		pause: () => player.pause(),
-		next: () => player.next(),
-		prev: () => player.prev(),
-		changeVolume: (newVolume: number) => {
-			player.changeVolume(newVolume)
-			dispatch(setVolume(newVolume))
+		play,
+		pause,
+		changeVolume,
+		next,
+		prev,
+		changeSong,
+		seek,
+	}
+}
+
+export const usePlayerQueue = () => {
+	const { data } = usePlayerQueueState()
+	const { isDefaultQueue, queue } = data!.player
+
+	const client = useApolloClient()
+
+	const updatePlayerState = useMemo(() => makeUpdatePlayerState(client), [client])
+	const [setPlayerQueue] = useSetPlayerQueue()
+
+	const setSongQueue = useCallback(
+		(items: IPlayerQueueItem[]) => {
+			updatePlayerState({
+				queue: items,
+			})
 		},
-		seek: player.seek,
-		changeSong: player.changeSong,
+		[updatePlayerState],
+	)
+
+	const enqueueSong = useCallback(
+		(song: IShareSong) => {
+			const newItem = QueueItem(song)
+			const newQueue = isDefaultQueue ? [newItem] : [...queue, newItem]
+
+			updatePlayerState({
+				queue: newQueue,
+				isDefaultQueue: false,
+			})
+		},
+		[updatePlayerState, queue, isDefaultQueue],
+	)
+
+	const enqueueSongs = useCallback(
+		(songs: IShareSong[]) => {
+			const newItems = songs.map((song) => QueueItem(song))
+			const newQueue = isDefaultQueue ? newItems : [...queue, ...newItems]
+
+			updatePlayerState({
+				queue: newQueue,
+				isDefaultQueue: false,
+			})
+		},
+		[updatePlayerState, queue, isDefaultQueue],
+	)
+
+	const enqueueSongNext = useCallback(
+		(song: IShareSong) => {
+			const newItem = QueueItem(song)
+			const newQueue = isDefaultQueue ? [newItem] : [newItem, ...queue]
+
+			updatePlayerState({
+				queue: newQueue,
+				isDefaultQueue: false,
+			})
+		},
+		[updatePlayerState, queue, isDefaultQueue],
+	)
+
+	const enqueueDefaultSongs = useCallback(
+		(songs: IShareSong[]) => {
+			updatePlayerState({
+				isDefaultQueue: true,
+			})
+			setPlayerQueue({
+				variables: { items: songs.map((song) => QueueItem(song)) },
+			})
+		},
+		[updatePlayerState, setPlayerQueue],
+	)
+
+	const clearQueue = useCallback(() => {
+		setPlayerQueue({
+			variables: { items: [] },
+		})
+	}, [setPlayerQueue])
+
+	return {
+		setSongQueue,
 		enqueueSong,
 		enqueueSongs,
-		enqueueDefaultSongs,
 		enqueueSongNext,
-		clearQueue: player.clearQueue,
-		setSongQueue,
-		destory: player.destroy,
-		volume,
-		playing,
-		playpackProgress,
-		bufferingProgress,
-		currentSong,
-		duration,
-		error,
-		songQueue,
+		enqueueDefaultSongs,
+		clearQueue,
+		queue,
+		isDefaultQueue,
 	}
 }
