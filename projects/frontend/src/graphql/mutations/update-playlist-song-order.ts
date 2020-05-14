@@ -1,15 +1,16 @@
-import { playlistSongKeys, IScopedPlaylistSong } from "../types"
+import { playlistSongKeys } from "../types"
 import gql from "graphql-tag"
 import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
 import { useCallback } from "react"
 import { MutationUpdaterFn } from "apollo-client"
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
 import { makeScopedSongs } from "../utils/data-transformations"
+import { IPlaylistSong } from "@musicshare/shared-types"
 
 type OrderUpdates = [string, number][]
 
 interface IUpdatePlaylistSongOrderData {
-	updateOrderOfPlaylist: IScopedPlaylistSong[]
+	updateOrderOfPlaylist: IPlaylistSong[]
 }
 
 interface IUpdatePlaylistSongOrderVariables {

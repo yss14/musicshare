@@ -1,8 +1,9 @@
-import { IShareSong, shareSongKeys } from "../types"
+import { shareSongKeys } from "../types"
 import gql from "graphql-tag"
 import { useQuery } from "react-apollo"
 import { flatten, uniqBy } from "lodash"
 import { makeScopedSongs } from "../utils/data-transformations"
+import { IShareSong } from "@musicshare/shared-types"
 
 export interface IGetMergedSongsData {
 	viewer: {

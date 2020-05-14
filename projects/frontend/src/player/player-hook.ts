@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react"
-import { IScopedSong } from "../graphql/types"
 import {
 	makeUpdatePlayerState,
 	IPlayerQueueItem,
@@ -9,8 +8,9 @@ import {
 import { useApolloClient } from "react-apollo"
 import { v4 as uuid } from "uuid"
 import { usePlayerContext } from "./PlayerContext"
+import { IShareSong } from "@musicshare/shared-types"
 
-const QueueItem = (song: IScopedSong): IPlayerQueueItem => ({
+const QueueItem = (song: IShareSong): IPlayerQueueItem => ({
 	__typename: "PlayerQueueItem",
 	id: uuid(),
 	song,
@@ -20,7 +20,7 @@ export const usePlayerActions = () => {
 	const { primaryDeck, next, prev } = usePlayerContext()
 
 	const changeSong = useCallback(
-		async (newSong: IScopedSong) => {
+		async (newSong: IShareSong) => {
 			await next(newSong)
 		},
 		[next],
@@ -78,7 +78,7 @@ export const usePlayerQueue = () => {
 	)
 
 	const enqueueSong = useCallback(
-		(song: IScopedSong) => {
+		(song: IShareSong) => {
 			const newItem = QueueItem(song)
 			const newQueue = isDefaultQueue ? [newItem] : [...queue, newItem]
 
@@ -91,7 +91,7 @@ export const usePlayerQueue = () => {
 	)
 
 	const enqueueSongs = useCallback(
-		(songs: IScopedSong[]) => {
+		(songs: IShareSong[]) => {
 			const newItems = songs.map((song) => QueueItem(song))
 			const newQueue = isDefaultQueue ? newItems : [...queue, ...newItems]
 
@@ -104,7 +104,7 @@ export const usePlayerQueue = () => {
 	)
 
 	const enqueueSongNext = useCallback(
-		(song: IScopedSong) => {
+		(song: IShareSong) => {
 			const newItem = QueueItem(song)
 			const newQueue = isDefaultQueue ? [newItem] : [newItem, ...queue]
 
@@ -117,7 +117,7 @@ export const usePlayerQueue = () => {
 	)
 
 	const enqueueDefaultSongs = useCallback(
-		(songs: IScopedSong[]) => {
+		(songs: IShareSong[]) => {
 			updatePlayerState({
 				isDefaultQueue: true,
 			})

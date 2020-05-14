@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback } from "react"
-import { IGenre, ISongType, IArtist, IScopedSong } from "../../../graphql/types"
+import { IGenre, ISongType, IArtist } from "../../../graphql/types"
 import { Formik } from "formik"
 import { Form, Input, Row, Col, DatePicker, Switch, Modal, Select } from "antd"
 import { EditableTagGroup } from "../../form/EditableTagGroup"
@@ -8,6 +8,7 @@ import { ISongUpdateInput, useUpdateSongMutation } from "../../../graphql/mutati
 import { Nullable } from "../../../types/Nullable"
 import { buildSongName } from "../../../utils/songname-builder"
 import styled from "styled-components"
+import { IShareSong } from "@musicshare/shared-types"
 
 const StyledModal = styled(Modal)`
 	& .ant-form-item-label {
@@ -20,7 +21,7 @@ const StyledModal = styled(Modal)`
 `
 
 interface ISongFormProps {
-	song: IScopedSong
+	song: IShareSong
 	genres: IGenre[]
 	songTypes: ISongType[]
 	artists: IArtist[]
@@ -54,7 +55,7 @@ export const SongForm = ({
 	})
 
 	const updateSong = useCallback(
-		(values: IScopedSong) => {
+		(values: IShareSong) => {
 			updateSongMutation({
 				variables: {
 					shareID: song.libraryID,
@@ -247,7 +248,7 @@ export const SongForm = ({
 	)
 }
 
-const validateSong = (data: IScopedSong) => {
+const validateSong = (data: IShareSong) => {
 	let errors: any = {}
 
 	if (data.title.trim().length === 0) {
@@ -277,7 +278,7 @@ const removeTypename = <O extends {}>(obj: O): O => {
 	return value
 }
 
-const makeSongInput = (song: IScopedSong): Nullable<ISongUpdateInput> => {
+const makeSongInput = (song: IShareSong): Nullable<ISongUpdateInput> => {
 	const allowedProperties = [
 		"title",
 		"suffix",

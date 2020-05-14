@@ -1,6 +1,6 @@
-import { IBaseSong } from "../graphql/types"
+import { IShareSong } from "@musicshare/shared-types"
 
-export const buildSongName = (song: IBaseSong): string => {
+export const buildSongName = (song: IShareSong): string => {
 	let name = song.title
 
 	if (song.remixer && song.remixer.length > 0) {

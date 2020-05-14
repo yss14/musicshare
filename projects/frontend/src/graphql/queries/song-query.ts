@@ -1,7 +1,8 @@
-import { IShareSong, shareSongKeys } from "../types"
+import { shareSongKeys } from "../types"
 import gql from "graphql-tag"
 import { useQuery } from "@apollo/react-hooks"
 import { makeScopedSong } from "../utils/data-transformations"
+import { IShareSong } from "@musicshare/shared-types"
 
 export interface ISongData {
 	share: {

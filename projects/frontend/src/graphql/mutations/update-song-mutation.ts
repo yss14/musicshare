@@ -1,11 +1,12 @@
 import gql from "graphql-tag"
 import { Nullable } from "../../types/Nullable"
-import { shareSongKeys, IBaseSong, IScopedSong } from "../types"
+import { shareSongKeys } from "../types"
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
 import { addArtistsToCache } from "../programmatic/add-artist-to-cache"
 import { useMemo } from "react"
 import { useMutation, MutationHookOptions } from "react-apollo"
 import { MutationUpdaterFn } from "apollo-client"
+import { IShareSong } from "@musicshare/shared-types"
 
 export const UPDATE_SONG = gql`
 	mutation UpdateSong($shareID: String!, $songID: String!, $song: SongUpdateInput!){
@@ -38,7 +39,7 @@ export interface IUpdateSongVariables {
 }
 
 export interface IUpdateSongData {
-	updateSong: IBaseSong
+	updateSong: IShareSong
 }
 
 const makeUpdateSongCache = (shareID: string, playlistID?: string): MutationUpdaterFn<IUpdateSongData> => (
@@ -81,7 +82,7 @@ const makeUpdateSongCache = (shareID: string, playlistID?: string): MutationUpda
 }
 
 export const useUpdateSongMutation = (
-	song: IScopedSong,
+	song: IShareSong,
 	playlistID?: string,
 	opts?: MutationHookOptions<IUpdateSongData, IUpdateSongVariables>,
 ) => {

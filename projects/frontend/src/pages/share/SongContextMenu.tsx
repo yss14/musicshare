@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useRef } from "react"
-import { IPlaylist, IScopedSong, isPlaylistSong } from "../../graphql/types"
+import { IPlaylist, isPlaylistSong } from "../../graphql/types"
 import { usePlayerActions, usePlayerQueue } from "../../player/player-hook"
 import { ContextMenu, ContextMenuItem } from "../../components/modals/contextmenu/ContextMenu"
 import { Menu, message } from "antd"
@@ -9,13 +9,14 @@ import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 import { useRemoveSongFromLibrary } from "../../graphql/mutations/remove-song-from-library-mutation"
 import { useRemoveSongsFromPlaylist } from "../../graphql/mutations/remove-songs-from-playlist-mutation"
 import { buildSongName } from "../../utils/songname-builder"
+import { IShareSong } from "@musicshare/shared-types"
 
 export interface ISongContextMenuEvents {
-	onShowInformation: (song: IScopedSong) => void
+	onShowInformation: (song: IShareSong) => void
 }
 
 interface ISongContextMenuProps {
-	song: IScopedSong | null
+	song: IShareSong | null
 	playlistID?: string
 	events: ISongContextMenuEvents
 	contextMenuVisible: boolean

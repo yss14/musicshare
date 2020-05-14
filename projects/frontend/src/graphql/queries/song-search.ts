@@ -1,12 +1,13 @@
-import { shareSongKeys, IScopedSong } from "../types"
+import { shareSongKeys } from "../types"
 import gql from "graphql-tag"
 import { useLazyQuery } from "react-apollo"
 import { useCallback, useState, useMemo } from "react"
 import { makeScopedSong } from "../utils/data-transformations"
+import { IShareSong } from "@musicshare/shared-types"
 
 export interface ISongSearchData {
 	viewer: {
-		searchSongs: IScopedSong[]
+		searchSongs: IShareSong[]
 	}
 }
 

@@ -4,12 +4,13 @@ import { usePlaylist } from "../../graphql/queries/playlist-songs"
 import { useParams } from "react-router-dom"
 import { MainSongsView } from "./MainSongsView"
 import { LoadingSpinner } from "../../components/common/LoadingSpinner"
-import { isPlaylistSong, IScopedPlaylistSong } from "../../graphql/types"
+import { isPlaylistSong } from "../../graphql/types"
 import { useUpdatePlaylistSongOrder } from "../../graphql/mutations/update-playlist-song-order"
 import { useDeepCompareEffect } from "../../hooks/use-deep-compare-effect"
 import { MoveSong } from "../../components/song-table/MoveSong"
 import { useSongUploadQueueEvents, ISongUploadItem } from "../../utils/upload/SongUploadContext"
 import { useDebouncedCallback } from "use-debounce/lib"
+import { IPlaylistSong } from "@musicshare/shared-types"
 
 export interface IPlaylistSongsProps {
 	shareID: string
@@ -18,7 +19,7 @@ export interface IPlaylistSongsProps {
 export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	const { playlistID } = useParams<ISharePlaylistRoute>()
 	const { loading, data: playlist, error, refetch } = usePlaylist({ playlistID, shareID })
-	const [songs, setSongs] = useState<IScopedPlaylistSong[]>(playlist?.songs || [])
+	const [songs, setSongs] = useState<IPlaylistSong[]>(playlist?.songs || [])
 	const [updateOrder] = useUpdatePlaylistSongOrder({
 		onError: console.error,
 	})

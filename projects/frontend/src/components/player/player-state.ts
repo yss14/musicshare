@@ -1,8 +1,9 @@
 import gql from "graphql-tag"
-import { IScopedSong, scopedSongKeys } from "../../graphql/types"
+import { shareSongKeys } from "../../graphql/types"
 import { useQuery, useMutation } from "react-apollo"
 import ApolloClient from "apollo-client"
 import { ApolloCache } from "apollo-cache"
+import { IShareSong } from "@musicshare/shared-types"
 
 const VOLUME_PERSIST_KEY = "player.volume"
 
@@ -51,7 +52,7 @@ const playerPlaybackStateFragment = gql`
 		playbackProgress
 		bufferingProgress
 		currentSong {
-			${scopedSongKeys}
+			${shareSongKeys}
 		}
 		duration
 		error
@@ -62,7 +63,7 @@ const playerQueueStateFragment = gql`
 	fragment PlayerQueueState on Player {
 		queue {
 			id
-			song {${scopedSongKeys}}
+			song {${shareSongKeys}}
 		}
 		isDefaultQueue
 	}
@@ -89,7 +90,7 @@ const playerStateFragment = gql`
 export interface IPlayerQueueItem {
 	__typename: "PlayerQueueItem"
 	id: string
-	song: IScopedSong
+	song: IShareSong
 }
 
 export interface IPlayerState {
@@ -98,7 +99,7 @@ export interface IPlayerState {
 	playbackProgress: number
 	bufferingProgress: number
 	volume: number
-	currentSong: IScopedSong | null
+	currentSong: IShareSong | null
 	duration: number
 	error: string | null
 	queue: IPlayerQueueItem[]
@@ -126,7 +127,7 @@ interface IPlayerPlaybackState {
 	playing: boolean
 	playbackProgress: number
 	bufferingProgress: number
-	currentSong: IScopedSong | null
+	currentSong: IShareSong | null
 	duration: number
 	error: string | null
 }

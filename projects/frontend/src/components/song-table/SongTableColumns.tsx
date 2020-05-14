@@ -1,5 +1,4 @@
 import React, { useMemo } from "react"
-import { IScopedSong, IScopedPlaylistSong } from "../../graphql/types"
 import { buildSongName } from "../../utils/songname-builder"
 import { formatDuration } from "../../utils/format-duration"
 import { ISongsViewContext } from "./SongsView"
@@ -9,6 +8,7 @@ import { Tag } from "antd"
 import { padStart } from "lodash"
 import moment from "moment"
 import { useShareName } from "../../hooks/use-share-name"
+import { IShareSong } from "@musicshare/shared-types"
 
 const CurrentlyPlayingIndicator = styled.div`
 	width: 20px;
@@ -27,7 +27,7 @@ interface IColumnBase {
 }
 
 interface ISongTableBaseColumn<T> extends IColumnBase {
-	render: (song: IScopedSong | IScopedPlaylistSong, index: number, ctx: ISongsViewContext) => T
+	render: (song: IShareSong, index: number, ctx: ISongsViewContext) => T
 }
 
 interface ISongTableColumnSortable extends ISongTableBaseColumn<string> {
@@ -186,7 +186,7 @@ export const SongTableColumn: SongTableColumnMap = {
 }
 
 interface ISongShareProps {
-	song: IScopedSong
+	song: IShareSong
 }
 
 const SongShare: React.FC<ISongShareProps> = ({ song }) => {
