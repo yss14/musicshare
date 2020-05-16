@@ -105,12 +105,22 @@ export const HeaderNavMenu = () => {
 					onTitleMouseLeave={() => setSharesSubmenuHovered(false)}
 				>
 					<ItemGroup key="shares:library" title="Library">
-						<Menu.Item key={`shares:${libraryShare.id}`}>
-							<Link to={`/shares/${libraryShare.id}`}>
-								<Icon type="share-alt" />
-								{libraryShare.name}
-							</Link>
-						</Menu.Item>
+						<SubMenu
+							key={`shares:${libraryShare.id}`}
+							title={
+								<Link to={`/shares/${libraryShare.id}`}>
+									<Icon type="share-alt" />
+									{libraryShare.name}
+								</Link>
+							}
+						>
+							<Menu.Item
+								key={`shares:${libraryShare.id}:submenu:edit`}
+								onClick={() => setShareSettings(libraryShare)}
+							>
+								Settings
+							</Menu.Item>
+						</SubMenu>
 					</ItemGroup>
 					<ItemGroup key="shares:own" title="Own Shares">
 						{otherShares.map((share) => (

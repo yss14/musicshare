@@ -12,6 +12,7 @@ import { useDeleteShare } from "../../../graphql/mutations/delete-share-mutation
 import { useLeaveShare } from "../../../graphql/mutations/leave-share-mutation"
 import { Permissions, UserStatus } from "@musicshare/shared-types"
 import { useHistory } from "react-router-dom"
+import { useLibraryID } from "../../../graphql/client/queries/libraryid-query"
 
 const { Text } = Typography
 
@@ -36,9 +37,11 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 			onClose()
 		},
 	})
+	const userLibraryID = useLibraryID()
+	const isLibrary = share.id === userLibraryID
 	const isOwner = useMemo(() => share.userPermissions.includes(Permissions.SHARE_OWNER), [share.userPermissions])
-	const canChangeName = isOwner
-	const canInvite = isOwner
+	const canChangeName = isLibrary || isOwner
+	const canInvite = !isLibrary && isOwner
 
 	const onLeaveDeleteClick = useCallback(() => {
 		if (isOwner) {
@@ -66,12 +69,15 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 		<Modal
 			title="Share Settings"
 			okText="OK"
-			cancelText={cancelButton}
+			cancelText={!isLibrary ? cancelButton : null}
 			onCancel={onClose}
 			onOk={onClose}
 			visible={true}
 			width={800}
-			cancelButtonProps={{ style: { border: "none", padding: "0px" }, onClick: (e) => e.preventDefault() }}
+			cancelButtonProps={{
+				style: { border: "none", padding: "0px", display: isLibrary ? "none" : "inline-block" },
+				onClick: (e) => e.preventDefault(),
+			}}
 		>
 			<Form>
 				{canChangeName && <ChangeSongName share={share} />}
@@ -169,7 +175,13 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 	return (
 		<>
 			<Form.Item label="Members">
-				<Table dataSource={users || []} pagination={false} loading={loading} scroll={{ y: 300 }}>
+				<Table
+					dataSource={users || []}
+					pagination={false}
+					loading={loading}
+					scroll={{ y: 300 }}
+					rowKey={(user) => user.id}
+				>
 					<Column title="Name" dataIndex="name" key="name" />
 					<Column title="E-Mail" dataIndex="email" key="email" />
 					<Column title="Status" dataIndex="status" key="status" />
