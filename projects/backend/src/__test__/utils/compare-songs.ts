@@ -8,6 +8,7 @@ export const compareSongs = <S extends ShareSong>(lhs: S, rhs: S) => {
 		genres: lGenres,
 		releaseDate: lReleaseDate, // eslint-disable-line @typescript-eslint/no-unused-vars
 		shareID: lShareID, // eslint-disable-line @typescript-eslint/no-unused-vars
+		numberOfSources: lNumberOfSources, // eslint-disable-line @typescript-eslint/no-unused-vars
 		sources: lSources,
 		...lRest
 	} = lhs
@@ -18,6 +19,7 @@ export const compareSongs = <S extends ShareSong>(lhs: S, rhs: S) => {
 		genres: rGenres,
 		releaseDate: rReleaseDate, // eslint-disable-line @typescript-eslint/no-unused-vars
 		shareID: rShareID, // eslint-disable-line @typescript-eslint/no-unused-vars
+		numberOfSources: rNumberOfSources, // eslint-disable-line @typescript-eslint/no-unused-vars
 		sources: rSources,
 		...rRest
 	} = rhs

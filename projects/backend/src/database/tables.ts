@@ -14,6 +14,7 @@ export interface IShareTokenDBResult extends TableRecord<typeof Tables.share_tok
 export interface IFileUploadLogDBResult extends TableRecord<typeof Tables.file_upload_logs> {}
 export interface ISongPlayDBResult extends TableRecord<typeof Tables.song_plays> {}
 export interface IShareSongDBResult extends TableRecord<typeof Tables.share_songs> {}
+export interface IPlaylistSongDBResult extends TableRecord<typeof Tables.playlist_songs> {}
 
 export const UsersTable = Table(Tables, "users")
 export const SharesTable = Table(Tables, "shares")

@@ -108,7 +108,7 @@ export const PlaylistService = ({ database }: IPlaylistServiceArgs) => {
 
 	const normalizeSongOrder = async (playlistID: string) => {
 		const songs = await getSongs(playlistID)
-		const orderUpdates = songs.map((song, idx) => [song.playlistSongID, idx] as const)
+		const orderUpdates = songs.map((song, idx) => [song.playlistSongID, idx + 1] as const)
 
 		await executeOrderUpdates(orderUpdates)
 	}
@@ -116,7 +116,7 @@ export const PlaylistService = ({ database }: IPlaylistServiceArgs) => {
 	const getSongs = async (playlistID: string): Promise<PlaylistSong[]> => {
 		const songQuery = SQL.raw<SongDBResultWithLibraryAndShare & typeof Tables.playlist_songs>(
 			`
-			SELECT s.*, l.share_id as library_id, ps.playlist_song_id, sls.play_count, sp.share_id_ref as share_id
+			SELECT s.*, l.share_id as library_id, ps.*, sls.play_count, sp.share_id_ref as share_id
 			FROM ${SongsTable.name} s
 			INNER JOIN ${PlaylistSongsTable.name} ps ON ps.song_id_ref = s.song_id
 			INNER JOIN share_songs sls ON sls.song_id_ref = s.song_id

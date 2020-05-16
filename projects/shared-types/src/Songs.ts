@@ -18,6 +18,7 @@ export interface IBaseSong {
 	libraryID: string
 	dateAdded: string
 	playCount: number
+	numberOfSources: number
 }
 
 export interface IShareSong extends IBaseSong {
@@ -26,5 +27,5 @@ export interface IShareSong extends IBaseSong {
 
 export interface IPlaylistSong extends IShareSong {
 	playlistSongID: string
-	// TODO add order
+	position: number
 }

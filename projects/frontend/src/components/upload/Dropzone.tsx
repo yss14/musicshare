@@ -4,7 +4,7 @@ import { Icon, Typography, message } from "antd"
 import styled from "styled-components"
 import { uploadFile, IUploadFileArgs } from "../../utils/upload/uploadFile"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
-import { last } from "lodash"
+import { last, uniqBy } from "lodash"
 import { useSongUploadQueue, ISongUploadItem } from "../../utils/upload/SongUploadContext"
 import { useApolloClient } from "react-apollo"
 import { makeGenerateUploadableUrl } from "../../graphql/programmatic/generate-file-uploadable-url"
@@ -62,7 +62,7 @@ interface IDropzoneProps extends IBaseProps {
 
 interface WrapperProps extends IBaseProps {}
 
-const getPlaylistIDFromUrl = (): string[] => {
+const getPlaylistIDsFromUrl = (): string[] => {
 	const urlParts = window.location.href.split("/")
 	const playlistIdx = urlParts.findIndex((part) => part === "playlists")
 	if (playlistIdx === -1) {
@@ -101,14 +101,14 @@ const Dropzone = ({ shareID, children }: IDropzoneProps) => {
 	const processFile = useCallback(
 		async (file: File) => {
 			const id = uuid()
-			const playlistIDs = getPlaylistIDFromUrl()
+			const playlistIDs = getPlaylistIDsFromUrl()
 
 			const buffer = await blobToArrayBuffer(file)
 			const spark = new SparkMD5()
 			spark.appendBinary(buffer as any)
 			const hash = spark.end()
 
-			const duplicateSongs = await findSongFileDuplicates(client, hash)
+			const duplicateSongs = uniqBy(await findSongFileDuplicates(client, hash), (song) => song.id)
 
 			const uploadItem: IUploadFileArgs = {
 				id,
