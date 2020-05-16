@@ -1,13 +1,15 @@
-import React from "react"
+import React, { useCallback } from "react"
 import Dropzone, { DuplicateActions } from "./Dropzone"
 import { Flex, Box } from "../Flex"
-import { Progress, Popover, Button, Typography, Icon } from "antd"
+import { Progress, Popover, Button, Typography, Icon, message } from "antd"
 import styled from "styled-components"
 import Scrollbars from "react-custom-scrollbars"
 import { UploadItemStatus, ISongUploadItem } from "../../utils/upload/SongUploadContext"
 import { buildSongName } from "../../utils/songname-builder"
 import { IUploadFileArgs } from "../../utils/upload/uploadFile"
 import { IShareSong } from "@musicshare/shared-types"
+import { useShareName } from "../../hooks/use-share-name"
+import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist"
 
 const UploadProgressContainer = styled(Scrollbars)`
 	background-color: white;
@@ -80,45 +82,108 @@ interface IDuplicateUploadProps {
 	duplicateActions: DuplicateActions
 }
 
-const DuplicateUpload: React.FC<IDuplicateUploadProps> = ({ item, duplicateSongs, duplicateActions }) => (
-	<UploadItem>
-		<DuplicateHeader>
-			<Icon type="warning" style={{ marginRight: 8 }} />
-			<span>
-				<Typography.Text code>{item.file.name}</Typography.Text> has been dected as a duplicate.{" "}
-			</span>
-			<Popover
-				placement="bottom"
-				title="Detected duplicates"
-				content={
-					<>
-						{duplicateSongs.map((song) => (
-							<div style={{ color: "#497aba" }} key={song.id}>
-								{song.artists.join(", ") + " - " + buildSongName(song)}
-							</div>
-						))}
-					</>
-				}
-				trigger="click"
-			>
-				<Button type="link">See duplicates</Button>
-			</Popover>
-			<DuplicateActionButtonGroup>
-				<Button type="link" onClick={() => duplicateActions.proceed(item)}>
-					Proceed
-				</Button>
-				<Button
-					type="link"
-					style={{ color: "#ff4d4f", paddingLeft: 0 }}
-					onClick={() => duplicateActions.abort(item)}
+const DuplicateUpload: React.FC<IDuplicateUploadProps> = ({ item, duplicateSongs, duplicateActions }) => {
+	const addSongsToPlaylist = useAddSongsToPlaylist()
+
+	const onClickAddToPlaylist = useCallback(
+		async (song: IShareSong) => {
+			const key = "add-song-to-playlist"
+			message.loading({ content: `Adding ${buildSongName(song)} to playlist`, key })
+			await addSongsToPlaylist(item.shareID, item.playlistIDs[0], [song.id])
+			message.success({ content: `Added ${buildSongName(song)} to playlist`, key })
+			duplicateActions.abort(item)
+		},
+		[addSongsToPlaylist, item, duplicateActions],
+	)
+
+	return (
+		<UploadItem>
+			<DuplicateHeader>
+				<Icon type="warning" style={{ marginRight: 8 }} />
+				<span>
+					<Typography.Text code>{item.file.name}</Typography.Text> has been dected as a duplicate.{" "}
+				</span>
+				<Popover
+					placement="bottom"
+					title="Detected duplicates"
+					content={
+						<>
+							{duplicateSongs.map((song) => (
+								<DetectedDuplicate song={song} key={song.id} />
+							))}
+						</>
+					}
+					trigger="click"
 				>
-					Abort
-				</Button>
-			</DuplicateActionButtonGroup>
-		</DuplicateHeader>
-		<Progress percent={0} showInfo />
-	</UploadItem>
-)
+					<Button type="link">See duplicates</Button>
+				</Popover>
+				<DuplicateActionButtonGroup>
+					<Button type="link" onClick={() => duplicateActions.proceed(item)}>
+						Proceed Upload
+					</Button>
+					{item.playlistIDs && item.playlistIDs.length > 0 && (
+						<Popover
+							placement="bottom"
+							title="Select duplicate to add"
+							content={
+								<>
+									{duplicateSongs.map((song) => (
+										<SelectDetectedDuplicate
+											song={song}
+											onClick={() => onClickAddToPlaylist(song)}
+											key={song.id}
+										/>
+									))}
+								</>
+							}
+							trigger="click"
+						>
+							<Button type="link" style={{ paddingLeft: 0 }}>
+								Add to Playlist
+							</Button>
+						</Popover>
+					)}
+					<Button
+						type="link"
+						style={{ color: "#ff4d4f", paddingLeft: 0 }}
+						onClick={() => duplicateActions.abort(item)}
+					>
+						Abort
+					</Button>
+				</DuplicateActionButtonGroup>
+			</DuplicateHeader>
+			<Progress percent={0} showInfo />
+		</UploadItem>
+	)
+}
+
+interface IDetectedDuplicateProps {
+	song: IShareSong
+}
+
+const DetectedDuplicate: React.FC<IDetectedDuplicateProps> = ({ song }) => {
+	const shareName = useShareName(song.shareID)
+
+	return (
+		<div style={{ color: "#497aba" }}>
+			{song.artists.join(", ") + " - " + buildSongName(song) + ` [${shareName}]`}
+		</div>
+	)
+}
+
+interface ISelectDetectedDuplicateProps extends IDetectedDuplicateProps {
+	onClick: () => void
+}
+
+const SelectDetectedDuplicate: React.FC<ISelectDetectedDuplicateProps> = ({ song, onClick }) => {
+	const shareName = useShareName(song.shareID)
+
+	return (
+		<Button type="link" onClick={onClick} style={{ display: "block" }}>
+			{song.artists.join(", ") + " - " + buildSongName(song) + ` [${shareName}]`}
+		</Button>
+	)
+}
 
 interface IActiveUploadProps {
 	item: ISongUploadItem
