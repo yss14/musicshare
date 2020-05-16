@@ -317,13 +317,14 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 				[songID],
 			),
 		)
+		const affectedLibraryPlaylists = affectedPlaylists.filter((result) => result.share_id === libraryID)
 		const affectedForeignPlaylists = affectedPlaylists.filter((result) => result.share_id !== libraryID)
-		const affectedLibraryPlaylists = affectedForeignPlaylists.filter((result) => result.is_library)
+		const affectedForeignLibraryPlaylists = affectedForeignPlaylists.filter((result) => result.is_library)
 		const affectedSharePlaylists = affectedForeignPlaylists.filter((result) => !result.is_library)
 
 		// copy songs to affected libraries and update playlists of those libraries
 		const songResult = (await database.query(SongsTable.select("*", ["song_id"])([songID])))[0]
-		const affectedLibraryIDs = new Set(affectedLibraryPlaylists.map((result) => result.share_id))
+		const affectedLibraryIDs = new Set(affectedForeignLibraryPlaylists.map((result) => result.share_id))
 
 		const copiedSongLibraryMappings = new Map<string, string>()
 
@@ -338,7 +339,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 			})
 
 			const playlistIDs = new Set(
-				affectedLibraryPlaylists
+				affectedForeignLibraryPlaylists
 					.filter((result) => result.share_id === affectedLibraryID)
 					.map((result) => result.playlist_id),
 			)
@@ -359,6 +360,9 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 
 		for (const sharePlaylist of affectedSharePlaylists) {
 			await playlistService.removeSongByID(sharePlaylist.playlist_id, songID)
+		}
+		for (const libraryPlaylist of affectedLibraryPlaylists) {
+			await playlistService.removeSongByID(libraryPlaylist.playlist_id, songID)
 		}
 
 		await database.query(SongsTable.update(["date_removed"], ["song_id"])([new Date()], [songID]))
