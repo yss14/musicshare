@@ -6,7 +6,7 @@ import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-te
 import { v4 as uuid } from "uuid"
 import * as argon2 from "argon2"
 import { makeMockedDatabase } from "./mocks/mock-database"
-import { User } from "../models/UserModel"
+import { Viewer } from "../models/UserModel"
 import { plainToClass } from "class-transformer"
 import { Permission } from "@musicshare/shared-types"
 import { Scopes } from "../types/context"
@@ -77,7 +77,7 @@ describe("get user by id", () => {
 		const query = makeUserQuery()
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: users.user1.user_id.toString() })
-		expect(body).toEqual(makeGraphQLResponse({ viewer: User.fromDBResult(users.user1) }))
+		expect(body).toEqual(makeGraphQLResponse({ viewer: Viewer.fromDBResult(users.user1) }))
 	})
 
 	test("get user by id not existing", async () => {
@@ -106,7 +106,7 @@ describe("get users shares", () => {
 		expect(body).toEqual(
 			makeGraphQLResponse({
 				viewer: {
-					...User.fromDBResult(testUser),
+					...Viewer.fromDBResult(testUser),
 					shares: [testData.shares.library_user1].map(Share.fromDBResult),
 				},
 			}),
@@ -124,7 +124,7 @@ describe("get users shares", () => {
 		expect(body).toEqual(
 			makeGraphQLResponse({
 				viewer: {
-					...User.fromDBResult(testUser),
+					...Viewer.fromDBResult(testUser),
 					shares: [testData.shares.library_user1, testData.shares.some_share].map(Share.fromDBResult),
 				},
 			}),
@@ -312,7 +312,7 @@ describe("issue new auth token", () => {
 		`mutation{issueAuthToken(refreshToken: "${refreshToken}")}`
 	const mockDatabase = makeMockedDatabase()
 	;(<jest.Mock>mockDatabase.query).mockReturnValue([])
-	const testUser = User.fromDBResult(testData.users.user1)
+	const testUser = Viewer.fromDBResult(testData.users.user1)
 
 	test("valid refresh token", async () => {
 		const { graphQLServer, authService } = await setupTest({})
@@ -349,7 +349,7 @@ describe("issue new auth token", () => {
 
 	test("user not found", async () => {
 		const { graphQLServer, authService } = await setupTest({ database: mockDatabase })
-		const testUser = plainToClass(User, { id: uuid() })
+		const testUser = plainToClass(Viewer, { id: uuid() })
 		const refreshToken = await authService.issueRefreshToken(testUser)
 		const query = makeIssueAuthTokenQuery(refreshToken)
 

@@ -1,5 +1,5 @@
 import * as JWT from "jsonwebtoken"
-import { User } from "../models/UserModel"
+import { Viewer } from "../models/UserModel"
 import { Scopes } from "../types/context"
 import { __PROD__ } from "../utils/env/env-constants"
 import { v4 as uuid } from "uuid"
@@ -19,15 +19,15 @@ interface IAuthTokenSchema extends IAuthTokenBase {
 interface IRefreshTokenSchema extends IAuthTokenBase {}
 
 export interface IAuthenticationService {
-	issueRefreshToken(user: User, expiresIn?: string | number): Promise<string>
-	issueAuthToken(user: User, scopes: Scopes, refreshToken: string, expiresIn?: string | number): Promise<string>
+	issueRefreshToken(user: Viewer, expiresIn?: string | number): Promise<string>
+	issueAuthToken(user: Viewer, scopes: Scopes, refreshToken: string, expiresIn?: string | number): Promise<string>
 	verifyToken(token: string): Promise<IAuthTokenSchema>
 }
 
 export class AuthenticationService implements IAuthenticationService {
 	constructor(private readonly jwtSecret: string) {}
 
-	public async issueRefreshToken(user: User, expiresIn?: string | number): Promise<string> {
+	public async issueRefreshToken(user: Viewer, expiresIn?: string | number): Promise<string> {
 		const refreshTokenPayload: IRefreshTokenSchema = {
 			userID: user.id,
 			userName: user.name,
@@ -38,7 +38,7 @@ export class AuthenticationService implements IAuthenticationService {
 	}
 
 	public async issueAuthToken(
-		user: User,
+		user: Viewer,
 		scopes: Scopes,
 		refreshToken: string,
 		expiresIn?: string | number,

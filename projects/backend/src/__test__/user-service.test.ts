@@ -1,6 +1,6 @@
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env"
 import { testData } from "../database/seed"
-import { User } from "../models/UserModel"
+import { Viewer } from "../models/UserModel"
 import { UserNotFoundError } from "../services/UserService"
 import { IDatabaseClient } from "postgres-schema-builder"
 import { clearTables } from "../database/database"
@@ -32,7 +32,7 @@ describe("get user by email", () => {
 
 		const user = await userService.getUserByEMail(testData.users.user1.email)
 
-		expect(user).toEqual(User.fromDBResult(testData.users.user1))
+		expect(user).toEqual(Viewer.fromDBResult(testData.users.user1))
 	})
 
 	test("not found", async () => {

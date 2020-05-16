@@ -11,7 +11,7 @@ import { InviteToShareInput } from "../inputs/InviteToShareInput"
 import { ForbiddenError } from "apollo-server-core"
 import { UserNotFoundError } from "../services/UserService"
 import { Permissions, ITimedstampedResults } from "@musicshare/shared-types"
-import { User } from "../models/UserModel"
+import { Viewer } from "../models/UserModel"
 import { AcceptInvitationInput } from "../inputs/AcceptInvitationInput"
 import { RevokeInvitationInput } from "../inputs/RevokeInvitationInput"
 import { ShareIDInput } from "../inputs/ShareIDInput"
@@ -81,8 +81,8 @@ export class ShareResolver {
 	}
 
 	@Authorized()
-	@FieldResolver(() => [User])
-	public async users(@Root() share: Share): Promise<User[]> {
+	@FieldResolver(() => [Viewer])
+	public async users(@Root() share: Share): Promise<Viewer[]> {
 		return this.services.userService.getUsersOfShare(share.id)
 	}
 

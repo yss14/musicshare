@@ -1,5 +1,5 @@
 import { Share } from "./ShareModel"
-import { ObjectType, Field, registerEnumType } from "type-graphql"
+import { ObjectType, Field, registerEnumType, InterfaceType } from "type-graphql"
 import { IUserDBResult } from "../database/tables"
 import { UserStatus } from "@musicshare/shared-types"
 import { plainToClass } from "class-transformer"
@@ -9,8 +9,8 @@ registerEnumType(UserStatus, {
 	description: "Specifies whether a user already accepted an invitation or is still pending",
 })
 
-@ObjectType({ description: "Object representing a user" })
-export class User {
+@InterfaceType()
+export abstract class IUser {
 	@Field()
 	public readonly id!: string
 
@@ -19,15 +19,18 @@ export class User {
 
 	@Field()
 	public readonly email!: string
+}
 
+@ObjectType({ description: "Object representing the viewer", implements: IUser })
+export class Viewer extends IUser {
 	@Field(() => UserStatus)
 	public readonly status!: UserStatus
 
 	@Field(() => [Share])
 	public readonly shares!: Share[]
 
-	public static fromDBResult(dbResult: IUserDBResult): User {
-		return plainToClass(User, {
+	public static fromDBResult(dbResult: IUserDBResult): Viewer {
+		return plainToClass(Viewer, {
 			id: dbResult.user_id.toString(),
 			name: dbResult.name,
 			email: dbResult.email,

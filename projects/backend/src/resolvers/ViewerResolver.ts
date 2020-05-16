@@ -1,4 +1,4 @@
-import { User } from "../models/UserModel"
+import { Viewer } from "../models/UserModel"
 import { Resolver, Arg, Query, FieldResolver, Root, Mutation, Authorized, Ctx, Args } from "type-graphql"
 import { Share } from "../models/ShareModel"
 import { UserNotFoundError } from "../services/UserService"
@@ -19,19 +19,19 @@ import { SongSearchInput, SongSearchMatcher } from "../inputs/SongSearchInput"
 import { ChangePasswordInput } from "../inputs/ChangePasswordInput"
 import { RestorePasswordInput } from "../inputs/RestorePasswordInput"
 
-@Resolver(() => User)
-export class UserResolver {
+@Resolver(() => Viewer)
+export class ViewerResolver {
 	constructor(private readonly services: IServices) {}
 
 	@Authorized()
-	@Query(() => User, { nullable: true })
-	public viewer(@Ctx() ctx: IGraphQLContext): Promise<User | null> {
+	@Query(() => Viewer, { nullable: true })
+	public viewer(@Ctx() ctx: IGraphQLContext): Promise<Viewer | null> {
 		return this.services.userService.getUserByID(ctx.userID!)
 	}
 
 	@Authorized()
 	@FieldResolver()
-	public shares(@Root() user: User, @Arg("libOnly", { nullable: true }) libOnly?: boolean): Promise<Share[]> {
+	public shares(@Root() user: Viewer, @Arg("libOnly", { nullable: true }) libOnly?: boolean): Promise<Share[]> {
 		if (libOnly) {
 			return this.services.shareService
 				.getSharesOfUser(user.id)
@@ -141,32 +141,32 @@ export class UserResolver {
 
 	@Authorized()
 	@FieldResolver(() => [Artist])
-	public async artists(@Root() user: User): Promise<Artist[]> {
+	public async artists(@Root() user: Viewer): Promise<Artist[]> {
 		return this.services.artistService.getAggregatedArtistsForUser(user.id)
 	}
 
 	@Authorized()
 	@FieldResolver(() => [Genre])
-	public async genres(@Root() user: User): Promise<Genre[]> {
+	public async genres(@Root() user: Viewer): Promise<Genre[]> {
 		return this.services.genreService.getAggregatedGenresForUser(user.id)
 	}
 
 	@Authorized()
 	@FieldResolver(() => [SongType])
-	public async songTypes(@Root() user: User): Promise<SongType[]> {
+	public async songTypes(@Root() user: Viewer): Promise<SongType[]> {
 		return this.services.songTypeService.getAggregatedSongTypesForUser(user.id)
 	}
 
 	@Authorized()
 	@FieldResolver(() => [String])
-	public async tags(@Root() user: User): Promise<string[]> {
+	public async tags(@Root() user: Viewer): Promise<string[]> {
 		return this.services.tagService.getAggregatedTagsForUser(user.id)
 	}
 
 	@Authorized()
 	@FieldResolver(() => [ShareSong])
 	public async searchSongs(
-		@Root() user: User,
+		@Root() user: Viewer,
 		@Args() { query, matcher, limit }: SongSearchInput,
 	): Promise<ShareSong[]> {
 		return this.services.songService.searchSongs(user.id, query, matcher || Object.values(SongSearchMatcher), limit)
@@ -174,7 +174,7 @@ export class UserResolver {
 
 	@Authorized()
 	@FieldResolver(() => [ShareSong])
-	public async findSongFileDuplicates(@Root() user: User, @Arg("hash") hash: string): Promise<ShareSong[]> {
+	public async findSongFileDuplicates(@Root() user: Viewer, @Arg("hash") hash: string): Promise<ShareSong[]> {
 		const songs = await this.services.songService.findSongFileDuplicates(user.id, hash)
 
 		return songs

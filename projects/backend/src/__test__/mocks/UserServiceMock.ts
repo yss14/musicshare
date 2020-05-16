@@ -1,8 +1,8 @@
 import { IUserService, UserNotFoundError, IInviteToShareReturnType } from "../../services/UserService"
-import { User } from "../../models/UserModel"
+import { Viewer } from "../../models/UserModel"
 
 export class UserServiceMock implements IUserService {
-	constructor(private readonly users: User[]) {}
+	constructor(private readonly users: Viewer[]) {}
 
 	public async getUserByID(id: string) {
 		const user = this.users.find((user) => user.id === id)
@@ -14,19 +14,19 @@ export class UserServiceMock implements IUserService {
 		return user
 	}
 
-	public async getUserByEMail(): Promise<User> {
+	public async getUserByEMail(): Promise<Viewer> {
 		throw "Not implemented yet"
 	}
 
-	public async create(): Promise<User> {
+	public async create(): Promise<Viewer> {
 		throw "Not implemented yet"
 	}
 
-	public async getAll(): Promise<User[]> {
+	public async getAll(): Promise<Viewer[]> {
 		throw "Not implemented yet"
 	}
 
-	public async getUsersOfShare(): Promise<User[]> {
+	public async getUsersOfShare(): Promise<Viewer[]> {
 		throw "Not implemented yet"
 	}
 
@@ -34,7 +34,7 @@ export class UserServiceMock implements IUserService {
 		throw "Not implemented yet"
 	}
 
-	public async acceptInvitation(): Promise<User> {
+	public async acceptInvitation(): Promise<Viewer> {
 		throw "Not implemented yet"
 	}
 

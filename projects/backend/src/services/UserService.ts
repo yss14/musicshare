@@ -1,4 +1,4 @@
-import { User } from "../models/UserModel"
+import { Viewer } from "../models/UserModel"
 import { UserStatus, IInvitationPayload, isInvitationPayload, Permissions } from "@musicshare/shared-types"
 import { IDatabaseClient, SQL } from "postgres-schema-builder"
 import { UsersTable, UserSharesTable, Tables } from "../database/tables"
@@ -23,17 +23,17 @@ export class ShareHasBeenDeleted extends Error {
 
 export interface IInviteToShareReturnType {
 	invitationLink: string
-	createdUser: User
+	createdUser: Viewer
 }
 
 export interface IUserService {
-	getUserByID(id: string): Promise<User>
-	getUserByEMail(email: string): Promise<User>
-	getAll(): Promise<User[]>
-	getUsersOfShare(shareID: string): Promise<User[]>
-	create(name: string, email: string): Promise<User>
+	getUserByID(id: string): Promise<Viewer>
+	getUserByEMail(email: string): Promise<Viewer>
+	getAll(): Promise<Viewer[]>
+	getUsersOfShare(shareID: string): Promise<Viewer[]>
+	create(name: string, email: string): Promise<Viewer>
 	inviteToShare(shareID: string, inviterID: string, email: string): Promise<IInviteToShareReturnType>
-	acceptInvitation(invitationToken: string, name: string, password: string): Promise<User>
+	acceptInvitation(invitationToken: string, name: string, password: string): Promise<Viewer>
 	revokeInvitation(userID: string): Promise<void>
 }
 
@@ -42,27 +42,27 @@ export class UserService implements IUserService, IService {
 
 	constructor(private readonly database: IDatabaseClient, private readonly config: IConfig) {}
 
-	public async getUserByID(id: string): Promise<User> {
+	public async getUserByID(id: string): Promise<Viewer> {
 		const dbResults = await this.database.query(UsersTable.select("*", ["user_id"])([id]))
 
 		if (dbResults.length !== 1) {
 			throw new UserNotFoundError("id", id)
 		}
 
-		return User.fromDBResult(dbResults[0])
+		return Viewer.fromDBResult(dbResults[0])
 	}
 
-	public async getUserByEMail(email: string): Promise<User> {
+	public async getUserByEMail(email: string): Promise<Viewer> {
 		const dbResults = await this.database.query(UsersTable.select("*", ["email"])([email]))
 
 		if (dbResults.length !== 1) {
 			throw new UserNotFoundError("email", email)
 		}
 
-		return User.fromDBResult(dbResults[0])
+		return Viewer.fromDBResult(dbResults[0])
 	}
 
-	public async create(name: string, email: string): Promise<User> {
+	public async create(name: string, email: string): Promise<Viewer> {
 		const id = uuid()
 		const date = new Date()
 
@@ -70,7 +70,7 @@ export class UserService implements IUserService, IService {
 			UsersTable.insert(["user_id", "name", "email", "date_added"])([id, name, email, date]),
 		)
 
-		return User.fromDBResult({
+		return Viewer.fromDBResult({
 			user_id: id,
 			name,
 			email,
@@ -80,13 +80,13 @@ export class UserService implements IUserService, IService {
 		})
 	}
 
-	public async getAll(): Promise<User[]> {
+	public async getAll(): Promise<Viewer[]> {
 		const dbResults = await this.database.query(UsersTable.selectAll("*"))
 
-		return dbResults.map(User.fromDBResult)
+		return dbResults.map(Viewer.fromDBResult)
 	}
 
-	public async getUsersOfShare(shareID: string): Promise<User[]> {
+	public async getUsersOfShare(shareID: string): Promise<Viewer[]> {
 		const dbResults = await this.database.query(
 			SQL.raw<typeof Tables.users>(
 				`
@@ -100,7 +100,7 @@ export class UserService implements IUserService, IService {
 			),
 		)
 
-		return dbResults.map(User.fromDBResult)
+		return dbResults.map(Viewer.fromDBResult)
 	}
 
 	public async inviteToShare(shareID: string, inviterID: string, email: string): Promise<IInviteToShareReturnType> {
@@ -132,7 +132,7 @@ export class UserService implements IUserService, IService {
 
 		return {
 			invitationLink,
-			createdUser: User.fromDBResult({
+			createdUser: Viewer.fromDBResult({
 				user_id: userID,
 				date_added: dateAdded,
 				date_removed: null,
@@ -143,7 +143,7 @@ export class UserService implements IUserService, IService {
 		}
 	}
 
-	public async acceptInvitation(token: string, name: string, password: string): Promise<User> {
+	public async acceptInvitation(token: string, name: string, password: string): Promise<Viewer> {
 		try {
 			const tokenDecoded = JWT.verify(token, this.config.jwt.secret)
 
@@ -181,11 +181,11 @@ export class UserService implements IUserService, IService {
 		}
 	}
 
-	private async getUserByInvitationToken(token: string): Promise<User> {
+	private async getUserByInvitationToken(token: string): Promise<Viewer> {
 		const dbResults = await this.database.query(UsersTable.select("*", ["invitation_token"])([token]))
 
 		if (dbResults.length === 1 && dbResults[0].date_removed === null) {
-			return User.fromDBResult(dbResults[0])
+			return Viewer.fromDBResult(dbResults[0])
 		}
 
 		throw new UserNotFoundError("invitation_token", token)
