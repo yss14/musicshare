@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react"
-import { Icon, Input } from "antd"
+import { Icon as LegacyIcon } from "@ant-design/compatible"
+import { Input } from "antd"
 import { useDebounce } from "use-debounce"
 import { useSongSearch } from "../../../graphql/queries/song-search"
 import { buildSongName } from "../../../utils/songname-builder"
@@ -108,7 +109,7 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 	return (
 		<SongSearchContainer>
 			<Input
-				suffix={<Icon type={isSearching ? "loading" : "search"} className="certain-category-icon" />}
+				suffix={<LegacyIcon type={isSearching ? "loading" : "search"} className="certain-category-icon" />}
 				addonAfter={<SongSearchOptionsPopover onOptionChange={setSearchOptions} />}
 				onChange={(e) => setQuery(e.target.value)}
 				onFocus={() => setShowResults(true)}

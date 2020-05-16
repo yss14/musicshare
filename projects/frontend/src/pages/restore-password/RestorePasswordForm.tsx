@@ -1,7 +1,10 @@
 import React, { useCallback, useState } from "react"
 import validator from "validator"
 import { useFormik } from "formik"
-import { Input, Icon, Form, Button, Alert, message } from "antd"
+import { IdcardOutlined, LockOutlined, UserOutlined } from "@ant-design/icons"
+import { Form } from "@ant-design/compatible"
+import "@ant-design/compatible/assets/index.css"
+import { Input, Button, Alert, message } from "antd"
 import { Link } from "react-router-dom"
 import { useRestorePassword } from "../../graphql/mutations/restore-password-mutation"
 
@@ -82,7 +85,7 @@ export const RestorePasswordForm: React.FC = () => {
 			{successAlert}
 			<Form.Item validateStatus={touched.email && errors.email ? "error" : "success"} help={errors.email}>
 				<Input
-					prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
+					prefix={<UserOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
 					type="email"
 					name="email"
 					placeholder="E-Mail"
@@ -96,7 +99,7 @@ export const RestorePasswordForm: React.FC = () => {
 				help={errors.restoreToken}
 			>
 				<Input
-					prefix={<Icon type="idcard" style={{ color: "rgba(0,0,0,.25)" }} />}
+					prefix={<IdcardOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
 					type="text"
 					name="restoreToken"
 					placeholder="Restore Token"
@@ -110,7 +113,7 @@ export const RestorePasswordForm: React.FC = () => {
 				help={errors.newPassword}
 			>
 				<Input
-					prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+					prefix={<LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
 					type="password"
 					name="newPassword"
 					placeholder="New Password"

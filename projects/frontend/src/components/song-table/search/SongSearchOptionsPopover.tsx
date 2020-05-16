@@ -3,7 +3,10 @@ import Checkbox, { CheckboxChangeEvent } from "antd/lib/checkbox"
 import CheckboxGroup, { CheckboxValueType } from "antd/lib/checkbox/Group"
 import styled from "styled-components"
 import { ISongSearchOptions, SearchMode, allMatchingOptions } from "./search-types"
-import { Radio, Icon, Popover, Form } from "antd"
+import { SettingOutlined } from "@ant-design/icons"
+import { Form } from "@ant-design/compatible"
+import "@ant-design/compatible/assets/index.css"
+import { Radio, Popover } from "antd"
 
 export const Section = styled.div`
 	width: 100%;
@@ -78,7 +81,7 @@ export const SongSearchOptionsPopover: React.FC<ISongSearchOptionsPopoverProps> 
 
 	return (
 		<Popover content={content} title="Search Options" trigger="hover" placement="bottomRight">
-			<Icon type="setting" />
+			<SettingOutlined />
 		</Popover>
 	)
 }

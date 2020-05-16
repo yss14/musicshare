@@ -1,4 +1,5 @@
 import React, { useCallback } from "react"
+import { OrderedListOutlined } from "@ant-design/icons"
 import { Popover, Button, Empty } from "antd"
 import { usePlayerQueue } from "../../player/player-hook"
 import { SongQueueItem } from "./SongQueueItem"
@@ -64,7 +65,7 @@ export const SongQueue: React.FC = () => {
 			trigger="click"
 			overlayClassName="ant-popover-content-nopadding"
 		>
-			<Button icon="ordered-list" type="link" size="large" style={{ color: "white" }} />
+			<Button icon={<OrderedListOutlined />} type="link" size="large" style={{ color: "white" }} />
 		</Popover>
 	)
 }

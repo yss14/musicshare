@@ -1,6 +1,6 @@
 import React, { useCallback, ReactNode, useMemo, useState, useContext } from "react"
 import { useDropzone, FileRejection, DropzoneState } from "react-dropzone"
-import { Icon, Typography, message } from "antd"
+import { Typography, message } from "antd"
 import styled from "styled-components"
 import { uploadFile, IUploadFileArgs } from "../../utils/upload/uploadFile"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"

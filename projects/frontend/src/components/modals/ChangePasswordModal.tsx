@@ -1,5 +1,8 @@
 import React, { useCallback } from "react"
-import { Modal, Form, Input, Icon, Alert, message } from "antd"
+import { LockOutlined } from "@ant-design/icons"
+import { Form } from "@ant-design/compatible"
+import "@ant-design/compatible/assets/index.css"
+import { Modal, Input, Alert, message } from "antd"
 import { useFormik } from "formik"
 import { useChangePassword } from "../../graphql/mutations/change-password-mutation"
 
@@ -80,7 +83,7 @@ export const ChangePasswordModal: React.FC<IChangePasswordModalProps> = ({ onClo
 					help={errors.oldPassword}
 				>
 					<Input
-						prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+						prefix={<LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
 						placeholder="Current Password"
 						type="password"
 						name="oldPassword"
@@ -94,7 +97,7 @@ export const ChangePasswordModal: React.FC<IChangePasswordModalProps> = ({ onClo
 					help={errors.newPassword}
 				>
 					<Input
-						prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+						prefix={<LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
 						placeholder="New Password"
 						type="password"
 						name="newPassword"
@@ -108,7 +111,7 @@ export const ChangePasswordModal: React.FC<IChangePasswordModalProps> = ({ onClo
 					help={errors.newPasswordRepitition}
 				>
 					<Input
-						prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+						prefix={<LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
 						placeholder="New Password Repitition"
 						type="password"
 						name="newPasswordRepitition"

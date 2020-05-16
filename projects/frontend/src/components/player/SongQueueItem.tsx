@@ -3,7 +3,6 @@ import { buildSongName } from "../../utils/songname-builder"
 import styled from "styled-components"
 import { useDrop, DropTargetMonitor, XYCoord, useDrag } from "react-dnd"
 import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
-import { Icon } from "antd"
 import { IShareSong } from "@musicshare/shared-types"
 
 const SongQueueItemContainer = styled.div`

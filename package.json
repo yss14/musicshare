@@ -33,6 +33,7 @@
 		}
 	},
 	"dependencies": {
+		"@ant-design/compatible": "^1.0.2",
 		"@ant-design/icons": "^4.1.0",
 		"@apollo/react-common": "^3.0.0",
 		"@apollo/react-components": "^3.1.3",

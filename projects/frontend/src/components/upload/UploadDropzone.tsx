@@ -1,7 +1,8 @@
 import React, { useCallback } from "react"
 import Dropzone, { DuplicateActions } from "./Dropzone"
 import { Flex, Box } from "../Flex"
-import { Progress, Popover, Button, Typography, Icon, message } from "antd"
+import { WarningOutlined } from "@ant-design/icons"
+import { Progress, Popover, Button, Typography, message } from "antd"
 import styled from "styled-components"
 import Scrollbars from "react-custom-scrollbars"
 import { UploadItemStatus, ISongUploadItem } from "../../utils/upload/SongUploadContext"
@@ -99,7 +100,7 @@ const DuplicateUpload: React.FC<IDuplicateUploadProps> = ({ item, duplicateSongs
 	return (
 		<UploadItem>
 			<DuplicateHeader>
-				<Icon type="warning" style={{ marginRight: 8 }} />
+				<WarningOutlined style={{ marginRight: 8 }} />
 				<span>
 					<Typography.Text code>{item.file.name}</Typography.Text> has been dected as a duplicate.{" "}
 				</span>

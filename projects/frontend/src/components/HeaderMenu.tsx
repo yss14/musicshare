@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react"
-import { Menu, Icon } from "antd"
+import { PlusOutlined, ShareAltOutlined } from "@ant-design/icons"
+import { Menu } from "antd"
 import styled from "styled-components"
 import { Link, useParams, useRouteMatch } from "react-router-dom"
 import { useShares } from "../graphql/queries/shares-query"
@@ -109,7 +110,7 @@ export const HeaderNavMenu = () => {
 							key={`shares:${libraryShare.id}`}
 							title={
 								<Link to={`/shares/${libraryShare.id}`}>
-									<Icon type="share-alt" />
+									<ShareAltOutlined />
 									{libraryShare.name}
 								</Link>
 							}
@@ -128,7 +129,7 @@ export const HeaderNavMenu = () => {
 								key={`shares:${share.id}`}
 								title={
 									<Link to={`/shares/${share.id}`}>
-										<Icon type="share-alt" />
+										<ShareAltOutlined />
 										<span style={{ color: "rgba(0, 0, 0, 0.65)" }}>{share.name}</span>
 									</Link>
 								}
@@ -141,7 +142,7 @@ export const HeaderNavMenu = () => {
 					</ItemGroup>
 					<ItemGroup key="shares:create" title="Create share">
 						<Menu.Item key="shares:create:button" onClick={() => setShowCreateShare(true)}>
-							<Icon type="plus" />
+							<PlusOutlined />
 							Create share
 						</Menu.Item>
 					</ItemGroup>

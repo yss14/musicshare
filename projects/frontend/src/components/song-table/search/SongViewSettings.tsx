@@ -1,6 +1,9 @@
 import React, { useEffect } from "react"
 import usePersistentState from "use-local-storage-state"
-import { Popover, Button, Form, Select } from "antd"
+import { TableOutlined } from "@ant-design/icons"
+import { Form } from "@ant-design/compatible"
+import "@ant-design/compatible/assets/index.css"
+import { Popover, Button, Select } from "antd"
 import styled from "styled-components"
 
 const StyledPopover = styled(Popover)`
@@ -52,7 +55,7 @@ export const SongViewSettings: React.FC<ISongViewSettingsProps> = ({ onChange })
 
 	return (
 		<StyledPopover placement="bottom" title={"View Settings"} content={content} trigger="click">
-			<Button icon="table" title="Song View Settings" />
+			<Button icon={<TableOutlined />} title="Song View Settings" />
 		</StyledPopover>
 	)
 }
