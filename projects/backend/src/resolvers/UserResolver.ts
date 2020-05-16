@@ -175,6 +175,8 @@ export class UserResolver {
 	@Authorized()
 	@FieldResolver(() => [ShareSong])
 	public async findSongFileDuplicates(@Root() user: User, @Arg("hash") hash: string): Promise<ShareSong[]> {
-		return this.services.songService.findSongFileDuplicates(user.id, hash)
+		const songs = await this.services.songService.findSongFileDuplicates(user.id, hash)
+
+		return songs
 	}
 }
