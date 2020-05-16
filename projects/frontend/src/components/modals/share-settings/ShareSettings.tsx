@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react"
-import { Modal, Form, Input, Table, Button, Alert, Popconfirm, Icon, Typography, message } from "antd"
+import { QuestionCircleOutlined } from "@ant-design/icons"
+import { Modal, Input, Table, Button, Alert, Popconfirm, Typography, message, Form } from "antd"
 import { IShare, IUser } from "../../../graphql/types"
 import { useDebounce } from "use-debounce/lib"
 import { useShareUsers } from "../../../graphql/queries/share-users-query"
@@ -58,10 +59,10 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 					? "Are you sure? This action cannot be undone (and is very unstable at the moment)!"
 					: "Are you sure? This action will remove all referenced songs from your library and cannot be undone!"
 			}
-			icon={<Icon type="question-circle-o" style={{ color: "red" }} />}
+			icon={<QuestionCircleOutlined style={{ color: "red" }} />}
 			onConfirm={onLeaveDeleteClick}
 		>
-			<Button type="danger">{isOwner ? "Delete Share" : "Leave Share"}</Button>
+			<Button danger>{isOwner ? "Delete Share" : "Leave Share"}</Button>
 		</Popconfirm>
 	)
 

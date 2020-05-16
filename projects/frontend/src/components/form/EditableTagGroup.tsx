@@ -1,5 +1,6 @@
 import React, { ChangeEvent, useMemo, useState, useRef } from "react"
-import { Tag, Input, Tooltip, Icon, AutoComplete } from "antd"
+import { PlusOutlined } from "@ant-design/icons"
+import { Tag, Input, Tooltip, AutoComplete } from "antd"
 import { SelectValue } from "antd/lib/select"
 
 const isChangeEvent = (obj: any): obj is ChangeEvent<HTMLInputElement> =>
@@ -119,7 +120,7 @@ export const EditableTagGroup = ({
 					style={{ width: 200 }}
 					onSelect={handleInputSelect}
 					onChange={handleInputChange}
-					onBlur={handleInputConfirm}
+					onBlur={() => handleInputConfirm()}
 					placeholder={placeholder}
 					value={inputValue}
 					size="small"
@@ -141,7 +142,7 @@ export const EditableTagGroup = ({
 			)}
 			{!inputVisible && !readOnly && (
 				<Tag onClick={showInput} style={{ background: "#fff", borderStyle: "dashed", cursor: "pointer" }}>
-					<Icon type="plus" />
+					<PlusOutlined />
 					{placeholder || "New Tag"}
 				</Tag>
 			)}

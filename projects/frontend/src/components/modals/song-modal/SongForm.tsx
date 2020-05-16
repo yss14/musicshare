@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from "react"
 import { IGenre, ISongType, IArtist } from "../../../graphql/types"
 import { Formik } from "formik"
-import { Form, Input, Row, Col, DatePicker, Switch, Modal, Select } from "antd"
+import { Input, Row, Col, DatePicker, Switch, Modal, Select, Form } from "antd"
 import { EditableTagGroup } from "../../form/EditableTagGroup"
 import moment from "moment"
 import { ISongUpdateInput, useUpdateSongMutation } from "../../../graphql/mutations/update-song-mutation"
@@ -179,8 +179,8 @@ export const SongForm = ({
 										hasFeedback={!!errors.type}
 									>
 										<Select
-											value={values.type}
-											onSelect={(value: string | null) => setFieldValue("type", value)}
+											value={values.type || ""}
+											onSelect={(value: string) => setFieldValue("type", value)}
 											disabled={readOnly}
 											style={{ width: 200 }}
 										>

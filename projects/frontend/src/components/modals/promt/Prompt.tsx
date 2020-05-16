@@ -29,7 +29,7 @@ export const Prompt = ({
 	hint,
 }: IPromptProps) => (
 	<Modal title={title} visible={true} onOk={onSubmit} onCancel={onCancel} okText={okText} cancelText={cancelText}>
-		<Form onSubmit={!validationError ? onSubmit : undefined}>
+		<Form onFinish={!validationError ? onSubmit : undefined}>
 			{hint}
 			<Form.Item label={label} validateStatus={validationError ? "error" : "success"}>
 				<Input value={value} type="text" onChange={onChange} placeholder={placeholder} autoFocus />

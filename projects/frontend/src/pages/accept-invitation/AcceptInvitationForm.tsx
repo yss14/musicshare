@@ -1,5 +1,6 @@
 import React, { useCallback } from "react"
-import { Form, Icon, Input, Button, Alert, message } from "antd"
+import { LockOutlined, UserOutlined, MailOutlined } from "@ant-design/icons"
+import { Input, Button, Alert, message, Form } from "antd"
 import { IInvitationPayload } from "@musicshare/shared-types"
 import { useFormik } from "formik"
 import { useAcceptInvitation } from "../../graphql/mutations/accept-invitation-mutation"
@@ -84,12 +85,12 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 	const errorAlert = error && <Alert message={error.message} type="error" />
 
 	return (
-		<Form onSubmit={handleSubmit} style={{ width: 250 }}>
+		<Form onFinish={() => handleSubmit()} style={{ width: 250 }}>
 			{errorAlert}
 			{successAlert}
 			<Form.Item>
 				<Input
-					prefix={<Icon type="email" style={{ color: "rgba(0,0,0,.25)" }} />}
+					prefix={<MailOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
 					type="email"
 					name="email"
 					value={invitationPayload.email}
@@ -101,7 +102,7 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 				help={errors.username}
 			>
 				<Input
-					prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
+					prefix={<UserOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
 					placeholder="Username"
 					type="text"
 					name="username"
@@ -115,7 +116,7 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 				help={errors.password}
 			>
 				<Input
-					prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+					prefix={<LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
 					placeholder="Password"
 					type="password"
 					name="password"
@@ -129,7 +130,7 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 				help={errors.passwordRepitition}
 			>
 				<Input
-					prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+					prefix={<LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
 					placeholder="Repeat Password"
 					type="password"
 					name="passwordRepitition"

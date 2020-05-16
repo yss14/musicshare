@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react"
-import { Menu, Icon } from "antd"
+import { PlusOutlined, ShareAltOutlined, ProfileOutlined } from "@ant-design/icons"
+import { Menu } from "antd"
 import styled from "styled-components"
 import { Link, useParams, useRouteMatch } from "react-router-dom"
 import { useShares } from "../graphql/queries/shares-query"
@@ -14,7 +15,12 @@ import { logoutUser } from "../graphql/programmatic/logout"
 
 const { SubMenu, ItemGroup, Item } = Menu
 
-const StyledIcon = styled(Icon)`
+const StyledProfileIcon = styled(ProfileOutlined)`
+	font-size: 24px;
+	font-weight: 600;
+`
+
+const StyledShareAltIcon = styled(ShareAltOutlined)`
 	font-size: 24px;
 	font-weight: 600;
 `
@@ -88,7 +94,7 @@ export const HeaderNavMenu = () => {
 				</CurrentShareItem>
 				<Item key="shares:all">
 					<Link to={`/all`}>
-						<StyledIcon type="profile" />
+						<StyledProfileIcon />
 						All
 					</Link>
 				</Item>
@@ -96,7 +102,7 @@ export const HeaderNavMenu = () => {
 					key="shares:own"
 					title={
 						<span className="submenu-title-wrapper">
-							<StyledIcon type="share-alt" />
+							<StyledShareAltIcon />
 							Shares
 						</span>
 					}
@@ -109,7 +115,7 @@ export const HeaderNavMenu = () => {
 							key={`shares:${libraryShare.id}`}
 							title={
 								<Link to={`/shares/${libraryShare.id}`}>
-									<Icon type="share-alt" />
+									<ShareAltOutlined />
 									{libraryShare.name}
 								</Link>
 							}
@@ -128,7 +134,7 @@ export const HeaderNavMenu = () => {
 								key={`shares:${share.id}`}
 								title={
 									<Link to={`/shares/${share.id}`}>
-										<Icon type="share-alt" />
+										<ShareAltOutlined />
 										<span style={{ color: "rgba(0, 0, 0, 0.65)" }}>{share.name}</span>
 									</Link>
 								}
@@ -141,7 +147,7 @@ export const HeaderNavMenu = () => {
 					</ItemGroup>
 					<ItemGroup key="shares:create" title="Create share">
 						<Menu.Item key="shares:create:button" onClick={() => setShowCreateShare(true)}>
-							<Icon type="plus" />
+							<PlusOutlined />
 							Create share
 						</Menu.Item>
 					</ItemGroup>
