@@ -64,7 +64,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 			icon={<QuestionCircleOutlined style={{ color: "red" }} />}
 			onConfirm={onLeaveDeleteClick}
 		>
-			<Button type="danger">{isOwner ? "Delete Share" : "Leave Share"}</Button>
+			<Button danger>{isOwner ? "Delete Share" : "Leave Share"}</Button>
 		</Popconfirm>
 	)
 

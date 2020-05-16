@@ -12,6 +12,7 @@ import { useUser } from "../graphql/queries/user-query"
 import { ChangePasswordModal } from "./modals/ChangePasswordModal"
 import { useApolloClient } from "react-apollo"
 import { logoutUser } from "../graphql/programmatic/logout"
+import { Icon } from "@ant-design/compatible"
 
 const { SubMenu, ItemGroup, Item } = Menu
 

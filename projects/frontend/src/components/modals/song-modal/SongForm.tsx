@@ -181,8 +181,8 @@ export const SongForm = ({
 										hasFeedback={!!errors.type}
 									>
 										<Select
-											value={values.type}
-											onSelect={(value: string | null) => setFieldValue("type", value)}
+											value={values.type || ""}
+											onSelect={(value: string) => setFieldValue("type", value)}
 											disabled={readOnly}
 											style={{ width: 200 }}
 										>

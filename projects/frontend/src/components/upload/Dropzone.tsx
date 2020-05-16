@@ -14,6 +14,7 @@ import { findSongFileDuplicates } from "../../graphql/programmatic/find-song-fil
 import SparkMD5 from "spark-md5"
 import { v4 as uuid } from "uuid"
 import { IShareSong } from "@musicshare/shared-types"
+import { Icon } from "@ant-design/compatible"
 
 const StyledIcon = styled(Icon)`
 	font-size: 64px;

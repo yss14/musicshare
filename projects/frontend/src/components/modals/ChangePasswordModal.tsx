@@ -1,8 +1,6 @@
 import React, { useCallback } from "react"
 import { LockOutlined } from "@ant-design/icons"
-import { Form } from "@ant-design/compatible"
-import "@ant-design/compatible/assets/index.css"
-import { Modal, Input, Alert, message } from "antd"
+import { Modal, Input, Alert, message, Form } from "antd"
 import { useFormik } from "formik"
 import { useChangePassword } from "../../graphql/mutations/change-password-mutation"
 

@@ -1,7 +1,7 @@
 import styled from "styled-components"
 import imgSelectedUp from "../../images/th_selected_up.png"
 import imgSelectedDown from "../../images/th_selected_down.png"
-import { SortOrder } from "antd/lib/table"
+import { SortOrder } from "antd/lib/table/interface"
 
 export const Table = styled.div`
 	width: 100%;

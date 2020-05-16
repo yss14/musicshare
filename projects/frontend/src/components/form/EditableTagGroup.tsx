@@ -120,7 +120,7 @@ export const EditableTagGroup = ({
 					style={{ width: 200 }}
 					onSelect={handleInputSelect}
 					onChange={handleInputChange}
-					onBlur={handleInputConfirm}
+					onBlur={() => handleInputConfirm()}
 					placeholder={placeholder}
 					value={inputValue}
 					size="small"

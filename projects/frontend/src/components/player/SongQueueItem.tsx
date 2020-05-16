@@ -4,6 +4,7 @@ import styled from "styled-components"
 import { useDrop, DropTargetMonitor, XYCoord, useDrag } from "react-dnd"
 import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
 import { IShareSong } from "@musicshare/shared-types"
+import { Icon } from "@ant-design/compatible"
 
 const SongQueueItemContainer = styled.div`
 	min-height: 44px;

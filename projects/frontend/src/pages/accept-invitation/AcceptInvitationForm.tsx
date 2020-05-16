@@ -1,6 +1,5 @@
 import React, { useCallback } from "react"
 import { Icon as LegacyIcon } from "@ant-design/compatible"
-import "@ant-design/compatible/assets/index.css"
 import { LockOutlined, UserOutlined } from "@ant-design/icons"
 import { Input, Button, Alert, message, Form } from "antd"
 import { IInvitationPayload } from "@musicshare/shared-types"
