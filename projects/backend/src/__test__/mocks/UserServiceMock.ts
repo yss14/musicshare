@@ -1,5 +1,5 @@
 import { IUserService, UserNotFoundError, IInviteToShareReturnType } from "../../services/UserService"
-import { Viewer } from "../../models/UserModel"
+import { Viewer, ShareMember } from "../../models/UserModel"
 
 export class UserServiceMock implements IUserService {
 	constructor(private readonly users: Viewer[]) {}
@@ -26,7 +26,7 @@ export class UserServiceMock implements IUserService {
 		throw "Not implemented yet"
 	}
 
-	public async getUsersOfShare(): Promise<Viewer[]> {
+	public async getMembersOfShare(): Promise<ShareMember[]> {
 		throw "Not implemented yet"
 	}
 

@@ -744,7 +744,7 @@ describe("revoke invitation", () => {
 
 		expect(body.data.revokeInvitation).toBeTrue()
 
-		const shareUsers = await userService.getUsersOfShare(shareID)
+		const shareUsers = await userService.getMembersOfShare(shareID)
 		expect(shareUsers.map((user) => user.id)).not.toContain(createdUser.id)
 	})
 
@@ -804,7 +804,7 @@ describe("leave share", () => {
 
 		expect(body.data.leaveShare).toBeTrue()
 
-		const shareUsers = await userService.getUsersOfShare(shareID)
+		const shareUsers = await userService.getMembersOfShare(shareID)
 		expect(shareUsers.map((user) => user.id)).not.toContain(testData.users.user1.user_id)
 
 		// check if songs are transfered and removed correctly

@@ -1,7 +1,7 @@
-import { Viewer } from "../models/UserModel"
+import { Viewer, ShareMember } from "../models/UserModel"
 import { UserStatus, IInvitationPayload, isInvitationPayload, Permissions } from "@musicshare/shared-types"
 import { IDatabaseClient, SQL } from "postgres-schema-builder"
-import { UsersTable, UserSharesTable, Tables } from "../database/tables"
+import { UsersTable, UserSharesTable, Tables, ShareMemberDBResult } from "../database/tables"
 import { v4 as uuid } from "uuid"
 import { ForbiddenError, ValidationError } from "apollo-server-core"
 import { IConfig } from "../types/config"
@@ -30,7 +30,7 @@ export interface IUserService {
 	getUserByID(id: string): Promise<Viewer>
 	getUserByEMail(email: string): Promise<Viewer>
 	getAll(): Promise<Viewer[]>
-	getUsersOfShare(shareID: string): Promise<Viewer[]>
+	getMembersOfShare(shareID: string): Promise<ShareMember[]>
 	create(name: string, email: string): Promise<Viewer>
 	inviteToShare(shareID: string, inviterID: string, email: string): Promise<IInviteToShareReturnType>
 	acceptInvitation(invitationToken: string, name: string, password: string): Promise<Viewer>
@@ -86,11 +86,11 @@ export class UserService implements IUserService, IService {
 		return dbResults.map(Viewer.fromDBResult)
 	}
 
-	public async getUsersOfShare(shareID: string): Promise<Viewer[]> {
+	public async getMembersOfShare(shareID: string): Promise<ShareMember[]> {
 		const dbResults = await this.database.query(
-			SQL.raw<typeof Tables.users>(
+			SQL.raw<typeof Tables.users & ShareMemberDBResult>(
 				`
-				SELECT u.*
+				SELECT u.*, us.share_id_ref as share_id, us.date_added as date_joined, us.permissions
 				FROM ${UsersTable.name} u
 				INNER JOIN ${UserSharesTable.name} us ON us.user_id_ref = u.user_id
 				WHERE us.share_id_ref = $1
@@ -100,7 +100,7 @@ export class UserService implements IUserService, IService {
 			),
 		)
 
-		return dbResults.map(Viewer.fromDBResult)
+		return dbResults.map(ShareMember.fromDBResult)
 	}
 
 	public async inviteToShare(shareID: string, inviterID: string, email: string): Promise<IInviteToShareReturnType> {
