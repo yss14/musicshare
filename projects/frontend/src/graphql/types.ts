@@ -64,6 +64,7 @@ const baseSongKeys = `
 	dateAdded
 	libraryID
 	playCount
+	numberOfSources
 `
 
 export const shareSongKeys = `

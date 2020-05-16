@@ -4,19 +4,29 @@ import { formatDuration } from "../../utils/format-duration"
 import { ISongsViewContext } from "./SongsView"
 import styled from "styled-components"
 import imgSpeaker from "../../images/song_is_playing_gray.png"
+import imgEmpty from "../../images/empty.png"
 import { Tag } from "antd"
 import { padStart } from "lodash"
 import moment from "moment"
 import { useShareName } from "../../hooks/use-share-name"
 import { IShareSong } from "@musicshare/shared-types"
 
-const CurrentlyPlayingIndicator = styled.div`
+const Indicator = styled.div`
 	width: 20px;
 	height: 20px;
-	background-image: url(${imgSpeaker});
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: 100%;
+`
+
+const CurrentlyPlayingIndicator = styled(Indicator)`
+	background-image: url(${imgSpeaker});
+`
+
+const NoSourceIndicator = styled(Indicator)`
+	background-image: url(${imgEmpty});
+	background-size: 50%;
+	opacity: 0.4;
 `
 
 interface IColumnBase {
@@ -74,6 +84,10 @@ export const SongTableColumn: SongTableColumnMap = {
 		render: (song, _, [{ currentlyPlayedSong }]) => {
 			if (currentlyPlayedSong && song.id === currentlyPlayedSong?.id) {
 				return <CurrentlyPlayingIndicator />
+			}
+
+			if (song.numberOfSources === 0) {
+				return <NoSourceIndicator />
 			}
 
 			return null

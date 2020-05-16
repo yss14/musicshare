@@ -18,6 +18,7 @@ export interface IBaseSong {
 	libraryID: string
 	dateAdded: string
 	playCount: number
+	numberOfSources: number
 }
 
 export interface IShareSong extends IBaseSong {

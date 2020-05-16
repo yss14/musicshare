@@ -93,10 +93,13 @@ export class BaseSong implements IBaseSong {
 	@Field(() => Int)
 	public readonly playCount!: number
 
+	@Field(() => Int)
+	public readonly numberOfSources!: number
+
 	public static fromDBResult(row: ISongDBResultWithLibrary): BaseSong
 	public static fromDBResult(row: ISongDBResult, libraryID: string): BaseSong
 	public static fromDBResult(row: ISongDBResult, libraryID?: string): BaseSong {
-		return plainToClass(BaseSong, {
+		return plainToClass(BaseSong, <BaseSong>{
 			id: row.song_id,
 			title: row.title,
 			suffix: row.suffix,
@@ -117,6 +120,7 @@ export class BaseSong implements IBaseSong {
 			dateAdded: row.date_added.toISOString(),
 			libraryID: isSongDBResultWithLibrary(row) ? row.library_id : libraryID,
 			playCount: isSongDBResultWithPlayCount(row) ? row.play_count : 0,
+			numberOfSources: row.sources.data.length,
 		})
 	}
 }
