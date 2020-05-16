@@ -1,6 +1,5 @@
 import React, { useCallback } from "react"
-import { Icon as LegacyIcon } from "@ant-design/compatible"
-import { LockOutlined, UserOutlined } from "@ant-design/icons"
+import { LockOutlined, UserOutlined, MailOutlined } from "@ant-design/icons"
 import { Input, Button, Alert, message, Form } from "antd"
 import { IInvitationPayload } from "@musicshare/shared-types"
 import { useFormik } from "formik"
@@ -91,7 +90,7 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 			{successAlert}
 			<Form.Item>
 				<Input
-					prefix={<LegacyIcon type="email" style={{ color: "rgba(0,0,0,.25)" }} />}
+					prefix={<MailOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
 					type="email"
 					name="email"
 					value={invitationPayload.email}

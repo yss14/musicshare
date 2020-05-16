@@ -14,9 +14,9 @@ import { findSongFileDuplicates } from "../../graphql/programmatic/find-song-fil
 import SparkMD5 from "spark-md5"
 import { v4 as uuid } from "uuid"
 import { IShareSong } from "@musicshare/shared-types"
-import { Icon } from "@ant-design/compatible"
+import { UploadOutlined } from "@ant-design/icons"
 
-const StyledIcon = styled(Icon)`
+const StyledUploadIcon = styled(UploadOutlined)`
 	font-size: 64px;
 	color: white;
 `
@@ -173,7 +173,7 @@ const Dropzone = ({ shareID, children }: IDropzoneProps) => {
 				<input {...getInputProps()} />
 				{isDragActive ? (
 					<UploadContainer>
-						<StyledIcon type="upload" />
+						<StyledUploadIcon type="upload" />
 						<Title level={1} style={{ color: "white" }}>
 							Drop here to upload track
 						</Title>

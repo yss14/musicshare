@@ -8,6 +8,7 @@ import { ISongSearchFilter } from "./search/search-types"
 import { SongViewSettings, ISongViewSettings } from "./search/SongViewSettings"
 import { useSongDropzone } from "../upload/Dropzone"
 import { IShareSong } from "@musicshare/shared-types"
+import { ArrowUpOutlined } from "@ant-design/icons"
 
 const { Title, Text } = Typography
 
@@ -63,7 +64,7 @@ export const SongTableHeader = ({
 					{songs.length} songs | {formatDuration(durationSum)}
 				</Text>
 			</MetaInfoContainer>
-			<HeaderButton icon="arrow-up" onClick={triggerUploadModal} title="Upload" />
+			<HeaderButton icon={<ArrowUpOutlined />} onClick={triggerUploadModal} title="Upload" />
 			<SongViewSettings onChange={onSongViewSettingsChange} />
 			<SongSearch onClickSong={onClickSong} onSearchFilterChange={onSearchFilterChange} />
 		</SongTableHeaderFlexContainer>

@@ -4,9 +4,7 @@ import CheckboxGroup, { CheckboxValueType } from "antd/lib/checkbox/Group"
 import styled from "styled-components"
 import { ISongSearchOptions, SearchMode, allMatchingOptions } from "./search-types"
 import { SettingOutlined } from "@ant-design/icons"
-import { Form } from "@ant-design/compatible"
-import "@ant-design/compatible/assets/index.css"
-import { Radio, Popover } from "antd"
+import { Radio, Popover, Form } from "antd"
 
 export const Section = styled.div`
 	width: 100%;

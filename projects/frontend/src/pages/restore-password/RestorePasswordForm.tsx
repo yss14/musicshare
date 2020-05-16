@@ -2,9 +2,7 @@ import React, { useCallback, useState } from "react"
 import validator from "validator"
 import { useFormik } from "formik"
 import { IdcardOutlined, LockOutlined, UserOutlined } from "@ant-design/icons"
-import { Form } from "@ant-design/compatible"
-import "@ant-design/compatible/assets/index.css"
-import { Input, Button, Alert, message } from "antd"
+import { Input, Button, Alert, message, Form } from "antd"
 import { Link } from "react-router-dom"
 import { useRestorePassword } from "../../graphql/mutations/restore-password-mutation"
 
@@ -80,7 +78,7 @@ export const RestorePasswordForm: React.FC = () => {
 	const errorAlert = error && <Alert message={error.message.replace("GraphQL error: ", "")} type="error" />
 
 	return (
-		<Form onSubmit={handleSubmit} style={{ width: 250 }}>
+		<Form onFinish={() => handleSubmit()} style={{ width: 250 }}>
 			{errorAlert}
 			{successAlert}
 			<Form.Item validateStatus={touched.email && errors.email ? "error" : "success"} help={errors.email}>

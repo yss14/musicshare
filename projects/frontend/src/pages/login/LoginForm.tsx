@@ -1,8 +1,6 @@
 import React, { useCallback } from "react"
 import { LockOutlined, UserOutlined } from "@ant-design/icons"
-import { Form } from "@ant-design/compatible"
-import "@ant-design/compatible/assets/index.css"
-import { Input, Button, Alert } from "antd"
+import { Input, Button, Alert, Form } from "antd"
 import { useLogin } from "../../graphql/mutations/login-mutation"
 import { useHistory } from "react-router"
 import { useFormik } from "formik"
@@ -69,7 +67,7 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 	})
 
 	return (
-		<Form onSubmit={handleSubmit} style={{ width: 250 }}>
+		<Form onFinish={() => handleSubmit()} style={{ width: 250 }}>
 			{error && <Alert message={error.message.replace("GraphQL error: ", "")} type="error" />}
 			<StyledFormItem validateStatus={touched.email && errors.email ? "error" : "success"} help={errors.email}>
 				<Input

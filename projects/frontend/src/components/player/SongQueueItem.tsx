@@ -4,7 +4,7 @@ import styled from "styled-components"
 import { useDrop, DropTargetMonitor, XYCoord, useDrag } from "react-dnd"
 import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
 import { IShareSong } from "@musicshare/shared-types"
-import { Icon } from "@ant-design/compatible"
+import { CloseCircleOutlined } from "@ant-design/icons"
 
 const SongQueueItemContainer = styled.div`
 	min-height: 44px;
@@ -29,7 +29,7 @@ const SubTitle = styled.div`
 	font-size: 11px;
 `
 
-const RemoveButton = styled(Icon)`
+const RemoveButton = styled(CloseCircleOutlined)`
 	position: absolute;
 	right: 8px;
 	top: 50%;

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react"
-import { Icon as LegacyIcon } from "@ant-design/compatible"
 import { Input } from "antd"
 import { useDebounce } from "use-debounce"
 import { useSongSearch } from "../../../graphql/queries/song-search"
@@ -16,6 +15,7 @@ import { useResettingState } from "../../../hooks/use-resetting-state"
 import { useAddSongsToPlaylist } from "../../../graphql/mutations/add-songs-to-playlist"
 import songDragPreviewImg from "../../../images/playlist_add.png"
 import { IShareSong } from "@musicshare/shared-types"
+import { LoadingOutlined, SearchOutlined } from "@ant-design/icons"
 
 const SongSearchContainer = styled.div`
 	align-self: flex-end;
@@ -109,7 +109,7 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 	return (
 		<SongSearchContainer>
 			<Input
-				suffix={<LegacyIcon type={isSearching ? "loading" : "search"} className="certain-category-icon" />}
+				suffix={isSearching ? <LoadingOutlined /> : <SearchOutlined />}
 				addonAfter={<SongSearchOptionsPopover onOptionChange={setSearchOptions} />}
 				onChange={(e) => setQuery(e.target.value)}
 				onFocus={() => setShowResults(true)}

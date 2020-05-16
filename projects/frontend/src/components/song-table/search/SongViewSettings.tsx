@@ -1,9 +1,7 @@
 import React, { useEffect } from "react"
 import usePersistentState from "use-local-storage-state"
 import { TableOutlined } from "@ant-design/icons"
-import { Form } from "@ant-design/compatible"
-import "@ant-design/compatible/assets/index.css"
-import { Popover, Button, Select } from "antd"
+import { Popover, Button, Select, Form } from "antd"
 import styled from "styled-components"
 
 const StyledPopover = styled(Popover)`

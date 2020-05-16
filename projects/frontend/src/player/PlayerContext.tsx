@@ -120,7 +120,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 
 	useEffect(() => {
 		if (playerInitialized) {
-			throw new Error(`PlayerProvider can only be used once`)
+			return () => undefined
 		}
 
 		playerInitialized = true

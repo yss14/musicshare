@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react"
-import { PlusOutlined, ShareAltOutlined } from "@ant-design/icons"
+import { PlusOutlined, ShareAltOutlined, ProfileOutlined } from "@ant-design/icons"
 import { Menu } from "antd"
 import styled from "styled-components"
 import { Link, useParams, useRouteMatch } from "react-router-dom"
@@ -12,11 +12,15 @@ import { useUser } from "../graphql/queries/user-query"
 import { ChangePasswordModal } from "./modals/ChangePasswordModal"
 import { useApolloClient } from "react-apollo"
 import { logoutUser } from "../graphql/programmatic/logout"
-import { Icon } from "@ant-design/compatible"
 
 const { SubMenu, ItemGroup, Item } = Menu
 
-const StyledIcon = styled(Icon)`
+const StyledProfileIcon = styled(ProfileOutlined)`
+	font-size: 24px;
+	font-weight: 600;
+`
+
+const StyledShareAltIcon = styled(ShareAltOutlined)`
 	font-size: 24px;
 	font-weight: 600;
 `
@@ -90,7 +94,7 @@ export const HeaderNavMenu = () => {
 				</CurrentShareItem>
 				<Item key="shares:all">
 					<Link to={`/all`}>
-						<StyledIcon type="profile" />
+						<StyledProfileIcon />
 						All
 					</Link>
 				</Item>
@@ -98,7 +102,7 @@ export const HeaderNavMenu = () => {
 					key="shares:own"
 					title={
 						<span className="submenu-title-wrapper">
-							<StyledIcon type="share-alt" />
+							<StyledShareAltIcon />
 							Shares
 						</span>
 					}
