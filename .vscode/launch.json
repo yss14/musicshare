@@ -34,5 +34,16 @@
 			},
 			"console": "integratedTerminal",
 		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Debug Development",
+			"program": "${workspaceFolder}/projects/backend/build/index.js",
+			"cwd": "${workspaceFolder}/projects/backend/",
+			"env": {
+				"NODE_ENV": "development",
+			},
+			"console": "integratedTerminal",
+		},
 	]
 }
