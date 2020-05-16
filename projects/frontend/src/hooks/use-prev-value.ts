@@ -7,5 +7,5 @@ export const usePrevValue = <T extends any>(value: T) => {
 		valueRef.current = value
 	}, [value])
 
-	return value.ref
+	return valueRef.current
 }

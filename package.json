@@ -166,7 +166,7 @@
 		"react-scripts": "^3.2.0",
 		"ts-jest": "^25.0.0",
 		"tsc-watch": "^4.0.0",
-		"typescript": "^3.8.3",
+		"typescript": "^3.9.2",
 		"use-reducer-logger": "^1.0.1"
 	}
 }
