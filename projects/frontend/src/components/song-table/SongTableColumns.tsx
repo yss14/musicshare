@@ -10,6 +10,7 @@ import { padStart } from "lodash"
 import moment from "moment"
 import { useShareName } from "../../hooks/use-share-name"
 import { IShareSong } from "@musicshare/shared-types"
+import { isPlaylistSong } from "../../graphql/types"
 
 const Indicator = styled.div`
 	width: 20px;
@@ -131,7 +132,7 @@ export const SongTableColumn: SongTableColumnMap = {
 		fixWidth: true,
 		key: "position",
 		sortable: true,
-		render: (_, idx) => padStart(String(idx + 1), 3, "0"),
+		render: (song) => (isPlaylistSong(song) ? padStart(String(song.position), 3, "0") : "-1"),
 	},
 	Tags: {
 		title: "Tags",

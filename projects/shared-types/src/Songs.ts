@@ -27,5 +27,5 @@ export interface IShareSong extends IBaseSong {
 
 export interface IPlaylistSong extends IShareSong {
 	playlistSongID: string
-	// TODO add order
+	position: number
 }

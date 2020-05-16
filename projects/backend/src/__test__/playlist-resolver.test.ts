@@ -424,7 +424,7 @@ describe("remove songs from playlist", () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		const expectedSongs = [playlistSongs[0], playlistSongs[2]]
+		const expectedSongs = [playlistSongs[0], { ...playlistSongs[2], position: 2 }]
 
 		expect(body.data.removeSongsFromPlaylist).toBeArrayOfSize(2)
 		expectedSongs.forEach((expectedSong) => includesSong(body.data.removeSongsFromPlaylist, expectedSong))

@@ -75,6 +75,7 @@ export const shareSongKeys = `
 export const playlistSongKeys = `
 	${shareSongKeys}
 	playlistSongID
+	position
 `
 
 export const shareKeys = `

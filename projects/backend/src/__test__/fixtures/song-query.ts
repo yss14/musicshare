@@ -40,4 +40,5 @@ export const songKeys = `
 export const playlistSongKeys = `
 	${songKeys}
 	playlistSongID
+	position
 `
