@@ -127,19 +127,6 @@ export class ViewerResolver {
 	}
 
 	@Authorized()
-	@ShareAuth({ permissions: ["share:owner"] })
-	@Mutation(() => [String], { description: "Updates permissions of a user and returns the updated permission list" })
-	public async updateUserPermissions(
-		@Args() { userID }: UserIDArg,
-		@Args() { shareID }: ShareIDArg,
-		@Args() { permissions }: PermissionsArg,
-	): Promise<string[]> {
-		await this.services.permissionService.addPermissionsForUser(shareID, userID, permissions)
-
-		return this.services.permissionService.getPermissionsForUser(shareID, userID)
-	}
-
-	@Authorized()
 	@FieldResolver(() => [Artist])
 	public async artists(@Root() user: Viewer): Promise<Artist[]> {
 		return this.services.artistService.getAggregatedArtistsForUser(user.id)

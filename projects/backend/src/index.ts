@@ -19,6 +19,7 @@ import { connectAndSetupDatabase } from "./database/database"
 import { initServices } from "./services/services"
 import { FileUploadResolver } from "./resolvers/FileUploadResolver"
 import { onShutdown } from "./utils/shutdown"
+import { ShareMemberResolver } from "./resolvers/ShareMemberResolver"
 
 require("source-map-support").install()
 
@@ -40,6 +41,7 @@ loadEnvsFromDotenvFile(nodeEnv)
 	const shareResolver = new ShareResolver(services)
 	const songResolver = new SongResolver(services)
 	const userResolver = new ViewerResolver(services)
+	const shareMemberResolver = new ShareMemberResolver(services)
 	const playlistResolver = new PlaylistResolver(services)
 	const fileUploadResolver = new FileUploadResolver(services, config)
 
@@ -48,6 +50,7 @@ loadEnvsFromDotenvFile(nodeEnv)
 	Container.set(ViewerResolver, userResolver)
 	Container.set(PlaylistResolver, playlistResolver)
 	Container.set(FileUploadResolver, fileUploadResolver)
+	Container.set(ShareMemberResolver, shareMemberResolver)
 
 	await services.songFileService.createContainerIfNotExists()
 	console.info("FileStorage connected")
