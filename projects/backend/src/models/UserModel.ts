@@ -25,9 +25,6 @@ export abstract class IUser {
 
 @ObjectType({ description: "Object representing the viewer", implements: IUser })
 export class Viewer extends IUser {
-	@Field(() => UserStatus)
-	public readonly status!: UserStatus
-
 	@Field(() => [Share])
 	public readonly shares!: Share[]
 
@@ -36,7 +33,6 @@ export class Viewer extends IUser {
 			id: dbResult.user_id.toString(),
 			name: dbResult.name,
 			email: dbResult.email,
-			status: dbResult.invitation_token === null ? UserStatus.Accepted : UserStatus.Pending,
 		})
 	}
 }
@@ -53,6 +49,10 @@ export class ShareMember extends IUser {
 	@Field(() => [String])
 	public readonly permissions!: string[]
 
+	@PermissionAuth([Permissions.SHARE_OWNER])
+	@Field(() => UserStatus)
+	public readonly status!: UserStatus
+
 	public static fromDBResult(
 		dbResult: IUserDBResult & { date_joined: Date; share_id: string; permissions: string[] },
 	): ShareMember {
@@ -60,8 +60,10 @@ export class ShareMember extends IUser {
 			id: dbResult.user_id.toString(),
 			name: dbResult.name,
 			email: dbResult.email,
+			shareID: dbResult.share_id,
 			dateJoined: dbResult.date_joined.toISOString(),
 			permissions: dbResult.permissions,
+			status: dbResult.invitation_token === null ? UserStatus.Accepted : UserStatus.Pending,
 		})
 	}
 }

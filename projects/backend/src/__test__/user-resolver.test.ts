@@ -45,7 +45,6 @@ const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => 
 				id
 				name
 				email
-				status
 				${
 					withShares
 						? `shares(libOnly: ${libOnly}){
@@ -77,6 +76,7 @@ describe("get user by id", () => {
 		const query = makeUserQuery()
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: users.user1.user_id.toString() })
+
 		expect(body).toEqual(makeGraphQLResponse({ viewer: Viewer.fromDBResult(users.user1) }))
 	})
 

@@ -176,8 +176,8 @@ export class ShareResolver {
 
 	@Mutation(() => Boolean)
 	@ShareAuth({ permissions: ["share:owner"] })
-	public async revokeInvitation(@Arg("input") { userID }: RevokeInvitationInput): Promise<boolean> {
-		await this.services.userService.revokeInvitation(userID)
+	public async revokeInvitation(@Arg("input") { shareID, userID }: RevokeInvitationInput): Promise<boolean> {
+		await this.services.userService.revokeInvitation(shareID, userID)
 
 		return true
 	}

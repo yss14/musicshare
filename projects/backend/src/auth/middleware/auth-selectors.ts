@@ -3,6 +3,7 @@ import { ArgsDictionary } from "type-graphql"
 import { Share } from "../../models/ShareModel"
 import { Playlist } from "../../models/PlaylistModel"
 import { ShareSong } from "../../models/SongModel"
+import { ShareMember } from "../../models/UserModel"
 
 export const hasAllPermissions = (requiredPermissions: string[], currentPermissions: string[]) => {
 	return !requiredPermissions.some((requiredPermission) => !currentPermissions.includes(requiredPermission))
@@ -18,6 +19,7 @@ export const getCurrentPermissionsForShare = (shareID: string, scopes: Scopes) =
 	const shareScopes = scopes.find((scope) => scope.shareID === shareID)
 
 	if (!shareScopes) {
+		console.trace()
 		throw new NoScopesProvidedError(shareID)
 	}
 
@@ -30,6 +32,10 @@ export const getShareIDFromRequest = ({ args, root }: { args: ArgsDictionary; ro
 	}
 
 	if (root instanceof Playlist) {
+		return root.shareID
+	}
+
+	if (root instanceof ShareMember) {
 		return root.shareID
 	}
 

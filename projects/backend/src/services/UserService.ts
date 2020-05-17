@@ -34,7 +34,7 @@ export interface IUserService {
 	create(name: string, email: string): Promise<Viewer>
 	inviteToShare(shareID: string, inviterID: string, email: string): Promise<IInviteToShareReturnType>
 	acceptInvitation(invitationToken: string, name: string, password: string): Promise<Viewer>
-	revokeInvitation(userID: string): Promise<void>
+	revokeInvitation(shareID: string, userID: string): Promise<void>
 }
 
 export class UserService implements IUserService, IService {
@@ -101,6 +101,27 @@ export class UserService implements IUserService, IService {
 		)
 
 		return dbResults.map(ShareMember.fromDBResult)
+	}
+
+	public async getMemberByID(shareID: string, memberID: string): Promise<ShareMember> {
+		const dbResults = await this.database.query(
+			SQL.raw<typeof Tables.users & ShareMemberDBResult>(
+				`
+				SELECT u.*, us.share_id_ref as share_id, us.date_added as date_joined, us.permissions
+				FROM ${UsersTable.name} u
+				INNER JOIN ${UserSharesTable.name} us ON us.user_id_ref = u.user_id
+				WHERE u.user_id = $1 AND us.share_id_ref = $2
+					AND u.date_removed IS NULL;
+			`,
+				[memberID, shareID],
+			),
+		)
+
+		if (dbResults.length !== 1) {
+			throw new UserNotFoundError("id", memberID)
+		}
+
+		return ShareMember.fromDBResult(dbResults[0])
 	}
 
 	public async inviteToShare(shareID: string, inviterID: string, email: string): Promise<IInviteToShareReturnType> {
@@ -191,10 +212,10 @@ export class UserService implements IUserService, IService {
 		throw new UserNotFoundError("invitation_token", token)
 	}
 
-	public async revokeInvitation(userID: string): Promise<void> {
-		const user = await this.getUserByID(userID)
+	public async revokeInvitation(shareID: string, memberID: string): Promise<void> {
+		const member = await this.getMemberByID(shareID, memberID)
 
-		if (user.status === UserStatus.Accepted) {
+		if (member.status === UserStatus.Accepted) {
 			throw new ForbiddenError("User has already accepted invitation")
 		}
 
@@ -204,7 +225,7 @@ export class UserService implements IUserService, IService {
 				DELETE FROM ${UsersTable.name}
 				WHERE user_id = $1 AND invitation_token IS NOT NULL AND date_removed IS NULL;
 			`,
-				[userID],
+				[memberID],
 			),
 		)
 	}

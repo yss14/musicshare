@@ -1,6 +1,6 @@
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env"
 import { testData } from "../database/seed"
-import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql"
+import { executeGraphQLQuery, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql"
 import { Share } from "../models/ShareModel"
 import { includesSong, compareSongs } from "./utils/compare-songs"
 import { v4 as uuid } from "uuid"
@@ -15,6 +15,8 @@ import { ShareNotFoundError } from "../services/ShareService"
 import { sortBy } from "lodash"
 import { isFileUpload } from "../models/FileSourceModels"
 import { UserNotFoundError } from "../services/UserService"
+import { ShareMember } from "../models/UserModel"
+import { Scopes } from "../types/context"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
@@ -377,12 +379,12 @@ describe("get share users", () => {
 			inviterID,
 			"user2@gmail.com",
 		)
-		await userService.revokeInvitation(createdUserRevoked.id)
+		await userService.revokeInvitation(shareID, createdUserRevoked.id)
 
-		const query = makeShareQuery(shareID, ["users{id, status}"])
+		const query = makeShareQuery(shareID, ["members{id, status}"])
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(sortBy(body.data.share.users, "id")).toEqual(
+		expect(sortBy(body.data.share.members, "id")).toEqual(
 			sortBy(
 				[
 					{ id: testData.users.user1.user_id, status: UserStatus.Accepted },
@@ -392,6 +394,32 @@ describe("get share users", () => {
 				"id",
 			),
 		)
+	})
+
+	test("share owner access permissions succeeds", async () => {
+		const { graphQLServer } = await setupTest({})
+
+		const query = makeShareQuery(shareID, ["members{id, status, permissions}"])
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		const members = body.data.share.members
+		expect(members).toBeArrayOfSize(2)
+		expect(members[0].permissions).toEqual(Permissions.ALL)
+		expect(members[1].permissions).toEqual(Permissions.NEW_MEMBER)
+	})
+
+	test("share member access permissions fails", async () => {
+		const { graphQLServer } = await setupTest({})
+		const scopes: Scopes = [{ shareID, permissions: Permissions.NEW_MEMBER }]
+
+		const query = makeShareQuery(shareID, ["members{id, status, permissions}"])
+		const { body } = await executeGraphQLQuery({
+			graphQLServer,
+			query,
+			scopes,
+		})
+
+		expect(body).toMatchObject(insufficientPermissionsError())
 	})
 })
 
