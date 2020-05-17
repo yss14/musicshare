@@ -15,7 +15,6 @@ import { ShareNotFoundError } from "../services/ShareService"
 import { sortBy } from "lodash"
 import { isFileUpload } from "../models/FileSourceModels"
 import { UserNotFoundError } from "../services/UserService"
-import { ShareMember } from "../models/UserModel"
 import { Scopes } from "../types/context"
 
 const { cleanUp, getDatabase } = setupTestSuite()
