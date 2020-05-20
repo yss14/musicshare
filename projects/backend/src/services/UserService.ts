@@ -8,6 +8,7 @@ import { IConfig } from "../types/config"
 import * as JWT from "jsonwebtoken"
 import { IService, IServices } from "./services"
 import { ShareNotFoundError } from "./ShareService"
+import { NotFoundError } from "../types/errors/NotFound"
 
 export class UserNotFoundError extends ForbiddenError {
 	constructor(filterColumn: string, value: string) {
@@ -31,6 +32,7 @@ export interface IUserService {
 	getUserByEMail(email: string): Promise<Viewer>
 	getAll(): Promise<Viewer[]>
 	getMembersOfShare(shareID: string): Promise<ShareMember[]>
+	getMemberOfShare(shareID: string, userID: string): Promise<ShareMember>
 	create(name: string, email: string): Promise<Viewer>
 	inviteToShare(shareID: string, inviterID: string, email: string): Promise<IInviteToShareReturnType>
 	acceptInvitation(invitationToken: string, name: string, password: string): Promise<Viewer>
@@ -101,6 +103,17 @@ export class UserService implements IUserService, IService {
 		)
 
 		return dbResults.map(ShareMember.fromDBResult)
+	}
+
+	public async getMemberOfShare(shareID: string, userID: string) {
+		const shareMembers = await this.getMembersOfShare(shareID)
+		const shareMember = shareMembers.find((member) => member.id === userID)
+
+		if (!shareMember) {
+			throw new NotFoundError(`ShareMember with id ${userID} of share ${shareID} not found`)
+		}
+
+		return shareMember
 	}
 
 	public async getMemberByID(shareID: string, memberID: string): Promise<ShareMember> {

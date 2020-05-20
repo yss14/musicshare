@@ -11,14 +11,16 @@ export class ShareMemberResolver {
 
 	@Authorized()
 	@ShareAuth({ permissions: ["share:owner"] })
-	@Mutation(() => [String], { description: "Updates permissions of a user and returns the updated permission list" })
+	@Mutation(() => ShareMember, {
+		description: "Updates permissions of a user and returns the updated permission list",
+	})
 	public async updateShareMemberPermissions(
 		@Args() { userID }: UserIDArg,
 		@Args() { shareID }: ShareIDArg,
 		@Args() { permissions }: PermissionsArg,
-	): Promise<string[]> {
+	): Promise<ShareMember> {
 		await this.services.permissionService.addPermissionsForUser(shareID, userID, permissions)
 
-		return this.services.permissionService.getPermissionsForUser(shareID, userID)
+		return this.services.userService.getMemberOfShare(shareID, userID)
 	}
 }

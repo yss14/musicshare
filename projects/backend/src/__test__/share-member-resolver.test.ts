@@ -32,7 +32,11 @@ describe("update share member permissions", () => {
 	const makeUpdateShareMemberPermissionsMutation = (shareID: string, userID: string, permissions: Permission[]) => `
 		mutation{updateShareMemberPermissions(shareID: "${shareID}", userID: "${userID}", permissions: [${permissions
 		.map((permission) => `"${permission}"`)
-		.join(",")}])}
+		.join(",")}]){
+			id
+			permissions
+		}
+	}
 	`
 	const shareID = testData.shares.library_user1.share_id.toString()
 	const userID = testData.users.user1.user_id.toString()
@@ -48,7 +52,7 @@ describe("update share member permissions", () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body.data.updateShareMemberPermissions.sort()).toEqual(permissions)
+		expect(body.data.updateShareMemberPermissions.permissions.sort()).toEqual(permissions)
 	})
 
 	test("invalid permission list", async () => {
