@@ -30,7 +30,7 @@ export class UserServiceMock implements IUserService {
 		throw "Not implemented yet"
 	}
 
-	public async getMemberOfShare(shareID: string, userID: string): Promise<ShareMember> {
+	public async getMemberOfShare(): Promise<ShareMember> {
 		throw "Not implemented yet"
 	}
 
