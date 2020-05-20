@@ -1,11 +1,12 @@
-import { IUser, userKeys } from "../types"
+import { memberKeys } from "../types"
 import gql from "graphql-tag"
 import { useQuery } from "react-apollo"
+import { IShareMember } from "@musicshare/shared-types"
 
 export interface IShareUsersData {
 	share: {
 		id: string
-		users: IUser[]
+		members: IShareMember[]
 	}
 }
 
@@ -17,8 +18,8 @@ const SHARE_USERS = gql`
 	query ShareUsers($shareID: String!) {
 		share(shareID: $shareID) {
 			id
-			users {
-				${userKeys}
+			members {
+				${memberKeys}
 			}
 		}
 	}
@@ -31,7 +32,7 @@ export const useShareUsers = (shareID: string) => {
 	})
 
 	return {
-		data: data ? data.share.users : undefined,
+		data: data ? data.share.members : undefined,
 		...rest,
 	}
 }

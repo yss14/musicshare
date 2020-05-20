@@ -3,7 +3,7 @@ import Container from "typedi"
 import { makeGraphQLServer } from "../../server/GraphQLServer"
 import { ShareResolver } from "../../resolvers/ShareResolver"
 import { SongResolver } from "../../resolvers/SongResolver"
-import { UserResolver } from "../../resolvers/UserResolver"
+import { ViewerResolver } from "../../resolvers/ViewerResolver"
 import {
 	makeTestDatabase,
 	IDatabaseClient,
@@ -21,6 +21,7 @@ import { initServices } from "../../services/services"
 import { FileUploadResolver } from "../../resolvers/FileUploadResolver"
 import { migrations } from "../../database/migrations"
 import { Tables } from "../../database/tables"
+import { ShareMemberResolver } from "../../resolvers/ShareMemberResolver"
 
 export type CustomResolver = [Function, unknown]
 
@@ -47,15 +48,17 @@ export const setupTestEnv = async ({ seed, database, customResolvers }: SetupTes
 
 	const shareResolver = new ShareResolver(services)
 	const songResolver = new SongResolver(services)
-	const userResolver = new UserResolver(services)
+	const userResolver = new ViewerResolver(services)
+	const shareMemberResolver = new ShareMemberResolver(services)
 	const playlistResolver = new PlaylistResolver(services)
 	const fileUploadResolver = new FileUploadResolver(services, config)
 
 	Container.of(testID).set(ShareResolver, shareResolver)
 	Container.of(testID).set(SongResolver, songResolver)
-	Container.of(testID).set(UserResolver, userResolver)
+	Container.of(testID).set(ViewerResolver, userResolver)
 	Container.of(testID).set(PlaylistResolver, playlistResolver)
 	Container.of(testID).set(FileUploadResolver, fileUploadResolver)
+	Container.of(testID).set(ShareMemberResolver, shareMemberResolver)
 
 	const resolvers = customResolvers ? customResolvers() : []
 	for (const [ResolverClass, resolverInstance] of resolvers) {
@@ -73,7 +76,7 @@ export const setupTestEnv = async ({ seed, database, customResolvers }: SetupTes
 		makeGraphQLContextProvider(services),
 		config,
 		authChecker,
-		UserResolver,
+		ViewerResolver,
 		ShareResolver,
 		SongResolver,
 	)

@@ -1,4 +1,4 @@
-import { TableRecord, Table, TableSchema, ColumnType } from "postgres-schema-builder"
+import { TableRecord, Table, TableSchema, ColumnType, PArray } from "postgres-schema-builder"
 import { DatabaseV1 } from "./versions/SchemaV1"
 
 export const Tables = DatabaseV1
@@ -15,6 +15,7 @@ export interface IFileUploadLogDBResult extends TableRecord<typeof Tables.file_u
 export interface ISongPlayDBResult extends TableRecord<typeof Tables.song_plays> {}
 export interface IShareSongDBResult extends TableRecord<typeof Tables.share_songs> {}
 export interface IPlaylistSongDBResult extends TableRecord<typeof Tables.playlist_songs> {}
+export interface IUserShareDBResult extends TableRecord<typeof Tables.user_shares> {}
 
 export const UsersTable = Table(Tables, "users")
 export const SharesTable = Table(Tables, "shares")
@@ -43,3 +44,11 @@ const share_id_query = TableSchema({
 })
 
 export type SongDBResultWithLibraryAndShare = SongDBResultWithLibrary & typeof share_id_query
+
+const share_member_query = TableSchema({
+	share_id: { type: ColumnType.UUID, nullable: false },
+	date_joined: { type: ColumnType.Date, nullable: false },
+	permissions: { type: PArray(ColumnType.Varchar), nullable: false },
+})
+
+export type ShareMemberDBResult = typeof share_member_query

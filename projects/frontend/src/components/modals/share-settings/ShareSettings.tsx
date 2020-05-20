@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react"
 import { QuestionCircleOutlined } from "@ant-design/icons"
 import { Modal, Input, Table, Button, Alert, Popconfirm, Typography, message, Form } from "antd"
-import { IShare, IUser } from "../../../graphql/types"
+import { IShare } from "../../../graphql/types"
 import { useDebounce } from "use-debounce/lib"
 import { useShareUsers } from "../../../graphql/queries/share-users-query"
 import Column from "antd/lib/table/Column"
@@ -11,11 +11,22 @@ import { useRevokeInvitation } from "../../../graphql/mutations/revoke-invitatio
 import { useRenameShare } from "../../../graphql/mutations/rename-share-mutation"
 import { useDeleteShare } from "../../../graphql/mutations/delete-share-mutation"
 import { useLeaveShare } from "../../../graphql/mutations/leave-share-mutation"
-import { Permissions, UserStatus } from "@musicshare/shared-types"
+import { Permissions, UserStatus, IShareMember, Permission } from "@musicshare/shared-types"
 import { useHistory } from "react-router-dom"
 import { useLibraryID } from "../../../graphql/client/queries/libraryid-query"
+import styled from "styled-components"
+import { EditableTagGroup } from "../../form/EditableTagGroup"
+import { useUpdateShareMemberPermissions } from "../../../graphql/mutations/update-share-member-permissions"
 
 const { Text } = Typography
+
+const FormItemVertical = styled(Form.Item)`
+	flex-direction: column;
+
+	& .ant-col {
+		text-align: left;
+	}
+`
 
 interface IShareSettingsProps {
 	share: IShare
@@ -74,7 +85,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 			onCancel={onClose}
 			onOk={onClose}
 			visible={true}
-			width={800}
+			width="90%"
 			cancelButtonProps={{
 				style: { border: "none", padding: "0px", display: isLibrary ? "none" : "inline-block" },
 				onClick: (e) => e.preventDefault(),
@@ -107,7 +118,7 @@ const ChangeSongName: React.FC<{ share: IShare }> = ({ share: { name, id } }) =>
 	}, [debouncedShareName, id, renameShare, inputBlured])
 
 	return (
-		<Form.Item label="Name" validateStatus={shareName.trim().length <= 2 ? "error" : "success"}>
+		<FormItemVertical label="Name" validateStatus={shareName.trim().length <= 2 ? "error" : "success"}>
 			<Input
 				value={shareName}
 				type="text"
@@ -115,7 +126,7 @@ const ChangeSongName: React.FC<{ share: IShare }> = ({ share: { name, id } }) =>
 				placeholder="Share name"
 				onBlur={() => setInputBlured(true)}
 			/>
-		</Form.Item>
+		</FormItemVertical>
 	)
 }
 
@@ -145,6 +156,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 			message.success(`User invitation successfully revoked`)
 		},
 	})
+	const [updatePermissions] = useUpdateShareMemberPermissions()
 
 	const onInviteClick = useCallback(() => {
 		inviteToShare({
@@ -171,11 +183,26 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 		[revokeInvitation, shareID],
 	)
 
+	const onPermissionsValueChange = useCallback(
+		(user: IShareMember, permissions: string[]) => {
+			if (permissions.every((perm) => Permissions.ALL.includes(perm as Permission))) {
+				updatePermissions({
+					variables: {
+						permissions,
+						userID: user.id,
+						shareID: user.shareID,
+					},
+				})
+			}
+		},
+		[updatePermissions],
+	)
+
 	if (error) return <div>Error</div>
 
 	return (
 		<>
-			<Form.Item label="Members">
+			<FormItemVertical label="Members">
 				<Table
 					dataSource={users || []}
 					pagination={false}
@@ -185,11 +212,12 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 				>
 					<Column title="Name" dataIndex="name" key="name" />
 					<Column title="E-Mail" dataIndex="email" key="email" />
-					<Column title="Status" dataIndex="status" key="status" />
+					<Column title="Status" dataIndex="status" key="status" width={100} />
 					<Column
 						title="Actions"
 						key="actions"
-						render={(text, user: IUser) => (
+						width={120}
+						render={(_, user: IShareMember) => (
 							<>
 								{user.status === UserStatus.Pending && (
 									<Button type="link" onClick={() => onRevokeInvitationClick(user.id)}>
@@ -199,8 +227,22 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 							</>
 						)}
 					/>
+					<Column
+						title="Permissions"
+						key="permissions"
+						render={(_, user: IShareMember) => {
+							return (
+								<EditableTagGroup
+									values={user.permissions}
+									placeholder="Permissions"
+									datasource={Permissions.ALL}
+									onValuesChange={(permissions) => onPermissionsValueChange(user, permissions)}
+								/>
+							)
+						}}
+					/>
 				</Table>
-			</Form.Item>
+			</FormItemVertical>
 			{invitationLink && (
 				<Alert
 					message={
@@ -222,7 +264,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 					onClose={() => setInviteError(null)}
 				/>
 			)}
-			<Form.Item label="E-Mail">
+			<FormItemVertical label="E-Mail">
 				<Input
 					value={email}
 					type="email"
@@ -233,7 +275,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 				<Button type="dashed" onClick={onInviteClick}>
 					Invite
 				</Button>
-			</Form.Item>
+			</FormItemVertical>
 		</>
 	)
 }

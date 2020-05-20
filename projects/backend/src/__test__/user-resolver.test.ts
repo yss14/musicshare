@@ -1,15 +1,13 @@
 import "reflect-metadata"
-import { executeGraphQLQuery, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql"
+import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql"
 import { testData, testPassword } from "../database/seed"
 import { Share } from "../models/ShareModel"
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env"
 import { v4 as uuid } from "uuid"
 import * as argon2 from "argon2"
 import { makeMockedDatabase } from "./mocks/mock-database"
-import { User } from "../models/UserModel"
+import { Viewer } from "../models/UserModel"
 import { plainToClass } from "class-transformer"
-import { Permission } from "@musicshare/shared-types"
-import { Scopes } from "../types/context"
 import { IDatabaseClient } from "postgres-schema-builder"
 import { clearTables } from "../database/database"
 import { Artist } from "../models/ArtistModel"
@@ -45,7 +43,6 @@ const makeUserQuery = (withShares: boolean = false, libOnly: boolean = true) => 
 				id
 				name
 				email
-				status
 				${
 					withShares
 						? `shares(libOnly: ${libOnly}){
@@ -77,7 +74,8 @@ describe("get user by id", () => {
 		const query = makeUserQuery()
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, userID: users.user1.user_id.toString() })
-		expect(body).toEqual(makeGraphQLResponse({ viewer: User.fromDBResult(users.user1) }))
+
+		expect(body).toEqual(makeGraphQLResponse({ viewer: Viewer.fromDBResult(users.user1) }))
 	})
 
 	test("get user by id not existing", async () => {
@@ -106,7 +104,7 @@ describe("get users shares", () => {
 		expect(body).toEqual(
 			makeGraphQLResponse({
 				viewer: {
-					...User.fromDBResult(testUser),
+					...Viewer.fromDBResult(testUser),
 					shares: [testData.shares.library_user1].map(Share.fromDBResult),
 				},
 			}),
@@ -124,7 +122,7 @@ describe("get users shares", () => {
 		expect(body).toEqual(
 			makeGraphQLResponse({
 				viewer: {
-					...User.fromDBResult(testUser),
+					...Viewer.fromDBResult(testUser),
 					shares: [testData.shares.library_user1, testData.shares.some_share].map(Share.fromDBResult),
 				},
 			}),
@@ -312,7 +310,7 @@ describe("issue new auth token", () => {
 		`mutation{issueAuthToken(refreshToken: "${refreshToken}")}`
 	const mockDatabase = makeMockedDatabase()
 	;(<jest.Mock>mockDatabase.query).mockReturnValue([])
-	const testUser = User.fromDBResult(testData.users.user1)
+	const testUser = Viewer.fromDBResult(testData.users.user1)
 
 	test("valid refresh token", async () => {
 		const { graphQLServer, authService } = await setupTest({})
@@ -349,7 +347,7 @@ describe("issue new auth token", () => {
 
 	test("user not found", async () => {
 		const { graphQLServer, authService } = await setupTest({ database: mockDatabase })
-		const testUser = plainToClass(User, { id: uuid() })
+		const testUser = plainToClass(Viewer, { id: uuid() })
 		const refreshToken = await authService.issueRefreshToken(testUser)
 		const query = makeIssueAuthTokenQuery(refreshToken)
 
@@ -371,52 +369,6 @@ describe("issue new auth token", () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		expect(body.errors[0].message.indexOf("An internal server error occured")).toBeGreaterThan(-1)
-	})
-})
-
-describe("update user permissions", () => {
-	const makeUpdateUserPermissionsMutation = (shareID: string, userID: string, permissions: Permission[]) => `
-		mutation{updateUserPermissions(shareID: "${shareID}", userID: "${userID}", permissions: [${permissions
-		.map((permission) => `"${permission}"`)
-		.join(",")}])}
-	`
-	const shareID = testData.shares.library_user1.share_id.toString()
-	const userID = testData.users.user1.user_id.toString()
-
-	const database = makeMockedDatabase()
-	;(<jest.Mock>database.query).mockReturnValue([testData.shares.library_user1])
-
-	test("valid permission list", async () => {
-		const { graphQLServer } = await setupTest({})
-
-		const permissions: Permission[] = ["playlist:create", "share:owner"]
-		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions)
-
-		const { body } = await executeGraphQLQuery({ graphQLServer, query })
-
-		expect(body.data.updateUserPermissions.sort()).toEqual(permissions)
-	})
-
-	test("invalid permission list", async () => {
-		const { graphQLServer } = await setupTest({ database: database })
-		const permissions: any[] = ["playlist:createe", "share:owner"]
-
-		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions)
-
-		const { body } = await executeGraphQLQuery({ graphQLServer, query })
-
-		expect(body).toMatchObject(makeGraphQLResponse(null, [{ message: `Argument Validation Error` }]))
-	})
-
-	test("insufficient permissions", async () => {
-		const { graphQLServer } = await setupTest({ database: database })
-		const permissions: Permission[] = ["playlist:create", "share:owner"]
-		const query = makeUpdateUserPermissionsMutation(shareID, userID, permissions)
-		const scopes: Scopes = [{ shareID, permissions: ["playlist:create", "playlist:modify"] }]
-
-		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes })
-
-		expect(body).toMatchObject(insufficientPermissionsError())
 	})
 })
 

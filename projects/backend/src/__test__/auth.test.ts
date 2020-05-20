@@ -3,7 +3,7 @@ import express from "express"
 import { AuthenticationService } from "../auth/AuthenticationService"
 import { makeAuthExtractor, graphQLAuthChecker } from "../auth/auth-middleware"
 import { testData } from "../database/seed"
-import { User } from "../models/UserModel"
+import { Viewer } from "../models/UserModel"
 import { HTTPStatusCodes } from "../types/http-status-codes"
 import supertest = require("supertest")
 import { Resolver, Authorized, Query, ObjectType, Field } from "type-graphql"
@@ -108,7 +108,7 @@ const setupSupertest = (expressApp: express.Application, authToken: string | und
 	return request
 }
 
-const user = User.fromDBResult(testData.users.user1)
+const user = Viewer.fromDBResult(testData.users.user1)
 
 describe("native type-graphql auth middleware", () => {
 	const executeTestRequests = async (
@@ -226,7 +226,7 @@ describe("auth selectors", () => {
 		})
 
 		test("not found", () => {
-			const req = { args: { otherID: uuid().toString() }, root: User.fromDBResult(testData.users.user1) }
+			const req = { args: { otherID: uuid().toString() }, root: Viewer.fromDBResult(testData.users.user1) }
 			const shareID = getShareIDFromRequest(req)
 
 			expect(shareID).toBeNull()
@@ -252,7 +252,7 @@ describe("auth selectors", () => {
 		})
 
 		test("not found", () => {
-			const req = { args: { otherID: uuid().toString() }, root: User.fromDBResult(testData.users.user1) }
+			const req = { args: { otherID: uuid().toString() }, root: Viewer.fromDBResult(testData.users.user1) }
 			const playlistID = getPlaylistIDFromRequest(req)
 
 			expect(playlistID).toBeNull()
@@ -278,7 +278,7 @@ describe("auth selectors", () => {
 		})
 
 		test("not found", () => {
-			const req = { args: { otherID: uuid().toString() }, root: User.fromDBResult(testData.users.user1) }
+			const req = { args: { otherID: uuid().toString() }, root: Viewer.fromDBResult(testData.users.user1) }
 			const songID = getSongIDFromRequest(req)
 
 			expect(songID).toBeNull()

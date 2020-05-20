@@ -11,7 +11,7 @@ import { InviteToShareInput } from "../inputs/InviteToShareInput"
 import { ForbiddenError } from "apollo-server-core"
 import { UserNotFoundError } from "../services/UserService"
 import { Permissions, ITimedstampedResults } from "@musicshare/shared-types"
-import { User } from "../models/UserModel"
+import { ShareMember } from "../models/UserModel"
 import { AcceptInvitationInput } from "../inputs/AcceptInvitationInput"
 import { RevokeInvitationInput } from "../inputs/RevokeInvitationInput"
 import { ShareIDInput } from "../inputs/ShareIDInput"
@@ -81,9 +81,9 @@ export class ShareResolver {
 	}
 
 	@Authorized()
-	@FieldResolver(() => [User])
-	public async users(@Root() share: Share): Promise<User[]> {
-		return this.services.userService.getUsersOfShare(share.id)
+	@FieldResolver(() => [ShareMember])
+	public async members(@Root() share: Share): Promise<ShareMember[]> {
+		return this.services.userService.getMembersOfShare(share.id)
 	}
 
 	@Authorized()
@@ -176,8 +176,8 @@ export class ShareResolver {
 
 	@Mutation(() => Boolean)
 	@ShareAuth({ permissions: ["share:owner"] })
-	public async revokeInvitation(@Arg("input") { userID }: RevokeInvitationInput): Promise<boolean> {
-		await this.services.userService.revokeInvitation(userID)
+	public async revokeInvitation(@Arg("input") { shareID, userID }: RevokeInvitationInput): Promise<boolean> {
+		await this.services.userService.revokeInvitation(shareID, userID)
 
 		return true
 	}

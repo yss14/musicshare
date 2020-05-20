@@ -5,7 +5,7 @@ import { isValidNodeEnvironment } from "./utils/env/native-envs"
 import { loadEnvsFromDotenvFile } from "./utils/env/load-envs-from-file"
 import { CustomEnv } from "./utils/env/CustomEnv"
 import { tryParseInt } from "./utils/try-parse/try-parse-int"
-import { UserResolver } from "./resolvers/UserResolver"
+import { ViewerResolver } from "./resolvers/ViewerResolver"
 import { ShareResolver } from "./resolvers/ShareResolver"
 import { SongResolver } from "./resolvers/SongResolver"
 import { makeGraphQLServer } from "./server/GraphQLServer"
@@ -19,6 +19,7 @@ import { connectAndSetupDatabase } from "./database/database"
 import { initServices } from "./services/services"
 import { FileUploadResolver } from "./resolvers/FileUploadResolver"
 import { onShutdown } from "./utils/shutdown"
+import { ShareMemberResolver } from "./resolvers/ShareMemberResolver"
 
 require("source-map-support").install()
 
@@ -39,15 +40,17 @@ loadEnvsFromDotenvFile(nodeEnv)
 
 	const shareResolver = new ShareResolver(services)
 	const songResolver = new SongResolver(services)
-	const userResolver = new UserResolver(services)
+	const userResolver = new ViewerResolver(services)
+	const shareMemberResolver = new ShareMemberResolver(services)
 	const playlistResolver = new PlaylistResolver(services)
 	const fileUploadResolver = new FileUploadResolver(services, config)
 
 	Container.set(ShareResolver, shareResolver)
 	Container.set(SongResolver, songResolver)
-	Container.set(UserResolver, userResolver)
+	Container.set(ViewerResolver, userResolver)
 	Container.set(PlaylistResolver, playlistResolver)
 	Container.set(FileUploadResolver, fileUploadResolver)
+	Container.set(ShareMemberResolver, shareMemberResolver)
 
 	await services.songFileService.createContainerIfNotExists()
 	console.info("FileStorage connected")
@@ -71,7 +74,7 @@ loadEnvsFromDotenvFile(nodeEnv)
 		makeGraphQLContextProvider(services),
 		config,
 		graphQLAuthChecker,
-		UserResolver,
+		ViewerResolver,
 		ShareResolver,
 		SongResolver,
 	)
