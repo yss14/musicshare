@@ -81,9 +81,8 @@ export const EditableTagGroup = ({
 					inputVisible: false,
 					inputValue: "",
 				}),
-			100,
+			50,
 		)
-
 		onValueChange(newValues)
 	}
 

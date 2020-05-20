@@ -11,11 +11,12 @@ import { useRevokeInvitation } from "../../../graphql/mutations/revoke-invitatio
 import { useRenameShare } from "../../../graphql/mutations/rename-share-mutation"
 import { useDeleteShare } from "../../../graphql/mutations/delete-share-mutation"
 import { useLeaveShare } from "../../../graphql/mutations/leave-share-mutation"
-import { Permissions, UserStatus, IShareMember } from "@musicshare/shared-types"
+import { Permissions, UserStatus, IShareMember, Permission } from "@musicshare/shared-types"
 import { useHistory } from "react-router-dom"
 import { useLibraryID } from "../../../graphql/client/queries/libraryid-query"
 import styled from "styled-components"
 import { EditableTagGroup } from "../../form/EditableTagGroup"
+import { useUpdateShareMemberPermissions } from "../../../graphql/mutations/update-share-member-permissions"
 
 const { Text } = Typography
 
@@ -155,6 +156,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 			message.success(`User invitation successfully revoked`)
 		},
 	})
+	const [updatePermissions] = useUpdateShareMemberPermissions()
 
 	const onInviteClick = useCallback(() => {
 		inviteToShare({
@@ -179,6 +181,21 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 			})
 		},
 		[revokeInvitation, shareID],
+	)
+
+	const onPermissionsValueChange = useCallback(
+		(user: IShareMember, permissions: string[]) => {
+			if (permissions.every((perm) => Permissions.ALL.includes(perm as Permission))) {
+				updatePermissions({
+					variables: {
+						permissions,
+						userID: user.id,
+						shareID: user.shareID,
+					},
+				})
+			}
+		},
+		[updatePermissions],
 	)
 
 	if (error) return <div>Error</div>
@@ -219,7 +236,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 									values={user.permissions}
 									placeholder="Permissions"
 									datasource={Permissions.ALL}
-									onValuesChange={() => undefined}
+									onValuesChange={(permissions) => onPermissionsValueChange(user, permissions)}
 								/>
 							)
 						}}
