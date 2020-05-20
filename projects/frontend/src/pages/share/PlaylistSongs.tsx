@@ -56,7 +56,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 			updateOrder(
 				shareID,
 				playlist.id,
-				newSongs.map((song, idx) => [song.playlistSongID, idx]),
+				newSongs.map((song, idx) => [song.playlistSongID, idx + 1]),
 			)
 		},
 		[setSongs, songs, playlist, updateOrder, shareID],
