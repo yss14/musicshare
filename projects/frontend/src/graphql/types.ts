@@ -1,4 +1,4 @@
-import { Permission, UserStatus, IPlaylistSong } from "@musicshare/shared-types"
+import { Permission, IPlaylistSong } from "@musicshare/shared-types"
 
 export interface IShareVariables {
 	shareID: string
@@ -17,24 +17,18 @@ export interface IShare {
 	userPermissions: Permission[]
 }
 
-export interface IUser {
-	id: string
-	name: string
-	email: string
-	status: UserStatus
-}
-
-export interface IUserWithShares extends IUser {
-	user: {
-		shares: IShare[]
-	}
-}
-
 export const userKeys = `
 	id
 	name
 	email
+`
+
+export const memberKeys = `
+	${userKeys}
 	status
+	permissions
+	shareID
+	dateJoined
 `
 
 export interface IUserVariables {

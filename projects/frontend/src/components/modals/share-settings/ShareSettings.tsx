@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react"
 import { QuestionCircleOutlined } from "@ant-design/icons"
 import { Modal, Input, Table, Button, Alert, Popconfirm, Typography, message, Form } from "antd"
-import { IShare, IUser } from "../../../graphql/types"
+import { IShare } from "../../../graphql/types"
 import { useDebounce } from "use-debounce/lib"
 import { useShareUsers } from "../../../graphql/queries/share-users-query"
 import Column from "antd/lib/table/Column"
@@ -11,7 +11,7 @@ import { useRevokeInvitation } from "../../../graphql/mutations/revoke-invitatio
 import { useRenameShare } from "../../../graphql/mutations/rename-share-mutation"
 import { useDeleteShare } from "../../../graphql/mutations/delete-share-mutation"
 import { useLeaveShare } from "../../../graphql/mutations/leave-share-mutation"
-import { Permissions, UserStatus } from "@musicshare/shared-types"
+import { Permissions, UserStatus, IShareMember } from "@musicshare/shared-types"
 import { useHistory } from "react-router-dom"
 import { useLibraryID } from "../../../graphql/client/queries/libraryid-query"
 
@@ -189,7 +189,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 					<Column
 						title="Actions"
 						key="actions"
-						render={(text, user: IUser) => (
+						render={(text, user: IShareMember) => (
 							<>
 								{user.status === UserStatus.Pending && (
 									<Button type="link" onClick={() => onRevokeInvitationClick(user.id)}>

@@ -1,11 +1,12 @@
-import { IUser, userKeys } from "../types"
+import { userKeys } from "../types"
 import gql from "graphql-tag"
 import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
 import { useCallback } from "react"
+import { IViewer } from "@musicshare/shared-types"
 
 interface IAcceptInvitationData {
 	acceptInvitation: {
-		user: IUser
+		user: IViewer
 		restoreToken: string
 	}
 }
