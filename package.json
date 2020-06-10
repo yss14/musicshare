@@ -125,7 +125,7 @@
 		"@types/express-serve-static-core": "^4.17.5",
 		"@types/faker": "^4.1.5",
 		"@types/graphql-relay": "^0.6.0",
-		"@types/jest": "^25.1.0",
+		"@types/jest": "^26.0.0",
 		"@types/jsonwebtoken": "^8.3.9",
 		"@types/lodash": "^4.14.144",
 		"@types/mime-types": "^2.1.0",
