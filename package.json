@@ -59,7 +59,7 @@
 		"body-parser": "^1.18.3",
 		"class-transformer": "^0.2.0",
 		"cors": "^2.8.5",
-		"customize-cra": "^0.9.1",
+		"customize-cra": "^1.0.0",
 		"deep-diff": "^1.0.2",
 		"dequal": "^1.0.0",
 		"dotenv": "^8.2.0",
