@@ -12,6 +12,8 @@ import { formatDuration } from "../../utils/format-duration"
 import { useDebounce } from "use-debounce/lib"
 import { SongQueue } from "./SongQueue"
 import { usePlayerState } from "./player-state"
+import { usePageVisibility } from "react-page-visibility"
+import { useUpdatedValueIf } from "../../hooks/use-updated-value-if"
 
 const FlexWithStyles = styled(Flex)`
 	background: #3a3a3a;
@@ -143,6 +145,7 @@ export const Player = () => {
 	const { queue, setSongQueue, clearQueue } = usePlayerQueue()
 	const { data } = usePlayerState()
 	const { volume, playing, currentSong, playbackProgress, duration, bufferingProgress, error } = data!.player
+	const tabIsVisible = usePageVisibility()
 
 	const handleClickMute = useCallback(() => {
 		if (volume <= 0) {
@@ -165,8 +168,8 @@ export const Player = () => {
 		duration,
 	])
 
-	const playedTime = Math.round(playbackProgress * duration)
-	const remainingTime = Math.round(duration - playedTime)
+	const playedTime = useUpdatedValueIf(Math.round(playbackProgress * duration), tabIsVisible)
+	const remainingTime = useUpdatedValueIf(Math.round(duration - playedTime), tabIsVisible)
 
 	const [displayText] = useDebounce(
 		error ? error : currentSong ? `${currentSong.artists.join(", ")} - ${buildSongName(currentSong)}` : "",
@@ -200,23 +203,31 @@ export const Player = () => {
 		[handleClickMute, volume, changeVolume],
 	)
 
+	const currentPlaybackProgress = useUpdatedValueIf(playbackProgress, tabIsVisible)
+	const currentBufferingProgress = useUpdatedValueIf(bufferingProgress, tabIsVisible)
+
+	const playerSlider = useMemo(
+		() => (
+			<PlayerSlider
+				progresses={[
+					{ percentage: currentPlaybackProgress },
+					{ percentage: currentBufferingProgress, fillColor: "rgba(255, 255, 255, 0.1)" },
+				]}
+				progressText={displayText}
+				onClick={handleSeek}
+			>
+				<SliderCaptionLeft>{formatDuration(playedTime)}</SliderCaptionLeft>
+				<SliderCaptionRight>{formatDuration(remainingTime)}</SliderCaptionRight>
+			</PlayerSlider>
+		),
+		[currentPlaybackProgress, currentBufferingProgress, displayText, handleSeek, playedTime, remainingTime],
+	)
+
 	return (
 		<FlexWithStyles direction="row" align="center">
 			{controlsLeft}
 			<SongQueue queue={queue} setSongQueue={setSongQueue} clearQueue={clearQueue} />
-			<ProgressBarContainer>
-				<PlayerSlider
-					progresses={[
-						{ percentage: playbackProgress },
-						{ percentage: bufferingProgress, fillColor: "rgba(255, 255, 255, 0.1)" },
-					]}
-					progressText={displayText}
-					onClick={handleSeek}
-				>
-					<SliderCaptionLeft>{formatDuration(playedTime)}</SliderCaptionLeft>
-					<SliderCaptionRight>{formatDuration(remainingTime)}</SliderCaptionRight>
-				</PlayerSlider>
-			</ProgressBarContainer>
+			<ProgressBarContainer>{playerSlider}</ProgressBarContainer>
 			{controlsRight}
 		</FlexWithStyles>
 	)
