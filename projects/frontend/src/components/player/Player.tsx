@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react"
+import React, { useRef, useState, useCallback, useMemo } from "react"
 import { Flex } from "../Flex"
 import styled from "styled-components"
 import controlPlayImg from "../../images/control_play.png"
@@ -6,7 +6,7 @@ import controlPauseImg from "../../images/control_pause.png"
 import controlNextImg from "../../images/control_next.png"
 import controlPrevImg from "../../images/control_prev.png"
 import controlVolumeImg from "../../images/control_volume.png"
-import { usePlayerActions } from "../../player/player-hook"
+import { usePlayerActions, usePlayerQueue } from "../../player/player-hook"
 import { buildSongName } from "../../utils/songname-builder"
 import { formatDuration } from "../../utils/format-duration"
 import { useDebounce } from "use-debounce/lib"
@@ -140,26 +140,30 @@ const PlayerSlider: React.FC<IPlayerSliderProps> = ({ progresses, onClick, progr
 
 export const Player = () => {
 	const { play, pause, next, prev, changeVolume, seek } = usePlayerActions()
+	const { queue, setSongQueue, clearQueue } = usePlayerQueue()
 	const { data } = usePlayerState()
 	const { volume, playing, currentSong, playbackProgress, duration, bufferingProgress, error } = data!.player
 
-	const handleClickMute = () => {
+	const handleClickMute = useCallback(() => {
 		if (volume <= 0) {
 			changeVolume(0.5)
 		} else {
 			changeVolume(0)
 		}
-	}
+	}, [volume, changeVolume])
 
-	const handleClickPlayPause = () => {
+	const handleClickPlayPause = useCallback(() => {
 		if (playing) {
 			pause()
 		} else {
 			play()
 		}
-	}
+	}, [playing, pause, play])
 
-	const handleSeek = (newCurrentTimePercentage: number) => seek(newCurrentTimePercentage * duration)
+	const handleSeek = useCallback((newCurrentTimePercentage: number) => seek(newCurrentTimePercentage * duration), [
+		seek,
+		duration,
+	])
 
 	const playedTime = Math.round(playbackProgress * duration)
 	const remainingTime = Math.round(duration - playedTime)
@@ -169,14 +173,37 @@ export const Player = () => {
 		250,
 	)
 
-	return (
-		<FlexWithStyles direction="row" align="center">
+	const controlsLeft = useMemo(
+		() => (
 			<ControlContainer>
 				<ControlButton src={controlPrevImg} onClick={prev} />
 				<ControlButton src={playing ? controlPauseImg : controlPlayImg} onClick={handleClickPlayPause} />
 				<ControlButton src={controlNextImg} onClick={() => next()} />
 			</ControlContainer>
-			<SongQueue />
+		),
+		[prev, playing, handleClickPlayPause, next],
+	)
+
+	const controlsRight = useMemo(
+		() => (
+			<ControlContainer>
+				<ControlButton src={controlVolumeImg} onClick={handleClickMute} />
+				<VolumeSliderContainer>
+					<PlayerSlider
+						progresses={[{ percentage: volume }]}
+						onClick={changeVolume}
+						progressText={(Math.round(volume * 100) / 100).toString()}
+					/>
+				</VolumeSliderContainer>
+			</ControlContainer>
+		),
+		[handleClickMute, volume, changeVolume],
+	)
+
+	return (
+		<FlexWithStyles direction="row" align="center">
+			{controlsLeft}
+			<SongQueue queue={queue} setSongQueue={setSongQueue} clearQueue={clearQueue} />
 			<ProgressBarContainer>
 				<PlayerSlider
 					progresses={[
@@ -190,16 +217,7 @@ export const Player = () => {
 					<SliderCaptionRight>{formatDuration(remainingTime)}</SliderCaptionRight>
 				</PlayerSlider>
 			</ProgressBarContainer>
-			<ControlContainer>
-				<ControlButton src={controlVolumeImg} onClick={handleClickMute} />
-				<VolumeSliderContainer>
-					<PlayerSlider
-						progresses={[{ percentage: volume }]}
-						onClick={changeVolume}
-						progressText={(Math.round(volume * 100) / 100).toString()}
-					/>
-				</VolumeSliderContainer>
-			</ControlContainer>
+			{controlsRight}
 		</FlexWithStyles>
 	)
 }

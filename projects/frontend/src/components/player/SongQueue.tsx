@@ -1,10 +1,10 @@
 import React, { useCallback } from "react"
 import { OrderedListOutlined } from "@ant-design/icons"
 import { Popover, Button, Empty } from "antd"
-import { usePlayerQueue } from "../../player/player-hook"
 import { SongQueueItem } from "./SongQueueItem"
 import Scrollbars from "react-custom-scrollbars"
 import styled from "styled-components"
+import { IPlayerQueueItem } from "./player-state"
 
 const TitleContainer = styled.div`
 	display: flex;
@@ -18,9 +18,13 @@ const ClearButton = styled.div`
 	font-size: 12px;
 `
 
-export const SongQueue: React.FC = () => {
-	const { queue, setSongQueue, clearQueue } = usePlayerQueue()
+interface ISongQueueProps {
+	queue: IPlayerQueueItem[]
+	setSongQueue: (items: IPlayerQueueItem[]) => void
+	clearQueue: () => void
+}
 
+export const SongQueue: React.FC<ISongQueueProps> = React.memo(({ queue, setSongQueue, clearQueue }) => {
 	const moveItem = useCallback(
 		(dragIndex: number, hoverIndex: number) => {
 			if (dragIndex === hoverIndex) return
@@ -68,4 +72,4 @@ export const SongQueue: React.FC = () => {
 			<Button icon={<OrderedListOutlined />} type="link" size="large" style={{ color: "white" }} />
 		</Popover>
 	)
-}
+})

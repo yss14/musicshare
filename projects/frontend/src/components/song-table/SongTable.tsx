@@ -64,15 +64,6 @@ export const SongTable: React.FC<ISongDataTableProps> = React.memo(
 			item: { type: DragNDropItem.Song, song: hoveredSong!, idx: hoveredIdx },
 		})
 
-		//const onContextMenu = useCa
-
-		useEffect(() => {
-			console.log("rowEvents changed")
-		}, [rowEvents])
-		useEffect(() => {
-			console.log("showContextMenu changed")
-		}, [showContextMenu])
-
 		const hookedRowEvents = useMemo(
 			(): IRowEvents => ({
 				...rowEvents,
