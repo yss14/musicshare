@@ -7,6 +7,7 @@ import { ISongMediaUrl } from "../graphql/queries/song-mediaurl-query"
 import { makeIncrementSongPlayCount } from "../graphql/programmatic/increment-song-playcount"
 import { message } from "antd"
 import { IShareSong } from "@musicshare/shared-types"
+import { useDebouncedCallback } from "use-debounce"
 
 const getMediaErrorCode = (event: ErrorEvent) => {
 	if (!event.target) {
@@ -273,7 +274,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 		})
 	}, [updatePlayerState, primaryDeck])
 
-	const onPlayerColumeChange = useCallback(() => {
+	const onPlayerVolumeChange = useCallback(() => {
 		updatePlayerState({
 			volume: primaryDeck.volume,
 		})
@@ -321,33 +322,36 @@ export const PlayerProvider: React.FC = ({ children }) => {
 		[getMediaUrls, currentSong, updatePlayerState, primaryDeck],
 	)
 
+	const [onPlayerTimeUpdateDebounced] = useDebouncedCallback(onPlayerTimeUpdate, 500, { maxWait: 900 })
+	const [onPlayerDurationChangeDebounced] = useDebouncedCallback(onPlayerDurationChange, 500, { maxWait: 900 })
+
 	useEffect(() => {
 		bufferingDeck.volume = 0
 
 		primaryDeck.addEventListener("ended", onPlayerEnded)
 		primaryDeck.addEventListener("play", onPlayerPlay)
 		primaryDeck.addEventListener("pause", onPlayerPause)
-		primaryDeck.addEventListener("timeupdate", onPlayerTimeUpdate)
-		primaryDeck.addEventListener("durationchange", onPlayerDurationChange)
-		primaryDeck.addEventListener("volumechange", onPlayerColumeChange)
+		primaryDeck.addEventListener("timeupdate", onPlayerTimeUpdateDebounced)
+		primaryDeck.addEventListener("durationchange", onPlayerDurationChangeDebounced)
+		primaryDeck.addEventListener("volumechange", onPlayerVolumeChange)
 		primaryDeck.addEventListener("error", onAudioError)
 
 		return () => {
 			primaryDeck.removeEventListener("ended", onPlayerEnded)
 			primaryDeck.removeEventListener("play", onPlayerPlay)
 			primaryDeck.removeEventListener("pause", onPlayerPause)
-			primaryDeck.removeEventListener("timeupdate", onPlayerTimeUpdate)
-			primaryDeck.removeEventListener("durationchange", onPlayerDurationChange)
-			primaryDeck.removeEventListener("volumechange", onPlayerColumeChange)
+			primaryDeck.removeEventListener("timeupdate", onPlayerTimeUpdateDebounced)
+			primaryDeck.removeEventListener("durationchange", onPlayerDurationChangeDebounced)
+			primaryDeck.removeEventListener("volumechange", onPlayerVolumeChange)
 			primaryDeck.removeEventListener("error", onAudioError)
 		}
 	}, [
 		onPlayerEnded,
 		onPlayerPlay,
 		onPlayerPause,
-		onPlayerTimeUpdate,
-		onPlayerDurationChange,
-		onPlayerColumeChange,
+		onPlayerTimeUpdateDebounced,
+		onPlayerDurationChangeDebounced,
+		onPlayerVolumeChange,
 		onAudioError,
 		primaryDeck,
 		bufferingDeck,
