@@ -131,6 +131,14 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 		return mappedSongTableColumns
 	}, [playlistID, customColumns, isMergedView])
 
+	const rowEvents = useMemo(
+		() => ({
+			onClick: onRowClick,
+			onDoubleClick: onRowDoubleClick,
+		}),
+		[onRowClick, onRowDoubleClick],
+	)
+
 	return (
 		<FlexContainer>
 			<SongsView
@@ -151,10 +159,7 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 						/>
 						<TableContainer>
 							<SongTable
-								rowEvents={{
-									onClick: onRowClick,
-									onDoubleClick: onRowDoubleClick,
-								}}
+								rowEvents={rowEvents}
 								contextMenuEvents={{
 									onShowInformation: (song) => {
 										setEditSong(song)

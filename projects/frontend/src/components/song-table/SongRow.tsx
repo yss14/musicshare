@@ -1,7 +1,7 @@
-import React, { useRef, useEffect } from "react"
+import React, { useRef, useEffect, useMemo } from "react"
 import { ListRowProps } from "react-virtualized"
 import { IRowEvents } from "./SongTable"
-import { DragElementWrapper, DragPreviewOptions, DragPreviewImage, useDrop } from "react-dnd"
+import { DragElementWrapper, DragPreviewOptions, DragPreviewImage, useDrop, DropTargetHookSpec } from "react-dnd"
 import { Row, Col } from "./SongTableUI"
 import songDragPreviewImg from "../../images/playlist_add.png"
 import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
@@ -37,16 +37,21 @@ export const SongRow: React.FC<ISongRowProps> = ({
 	const songsViewContext = useSongsViewContext()
 	const { columns, songs } = songsViewContext[0]
 
-	const [{ isOver }, drop] = useDrop<ISongDNDItem, void, { isOver: boolean }>({
-		accept: DragNDropItem.Song,
-		canDrop: () => isPlaylist,
-		collect: (monitor) => ({ isOver: isPlaylist && monitor.isOver() }),
-		drop: (item) => {
-			if (moveSong) {
-				moveSong(item.song, song)
-			}
-		},
-	})
+	const useDropOpts = useMemo<DropTargetHookSpec<ISongDNDItem, void, { isOver: boolean }>>(
+		() => ({
+			accept: DragNDropItem.Song,
+			canDrop: () => isPlaylist,
+			collect: (monitor) => ({ isOver: isPlaylist && monitor.isOver() }),
+			drop: (item) => {
+				if (moveSong) {
+					moveSong(item.song, song)
+				}
+			},
+		}),
+		[isPlaylist, moveSong, song],
+	)
+
+	const [{ isOver }, drop] = useDrop<ISongDNDItem, void, { isOver: boolean }>(useDropOpts)
 
 	useEffect(() => {
 		if (rowRef.current) {

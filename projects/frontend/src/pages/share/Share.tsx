@@ -24,7 +24,7 @@ const UpdatePlaylistID: React.FC = ({ children }) => {
 	return <>{children}</>
 }
 
-export const Share = () => {
+export const Share = React.memo(() => {
 	const { shareID } = useParams<IShareRoute>()
 	const match = useRouteMatch()
 	useUpdateShareID(shareID)
@@ -44,4 +44,4 @@ export const Share = () => {
 			<Route path="/shares/:shareID" exact render={() => <ShareSongs />} />
 		</>
 	)
-}
+})

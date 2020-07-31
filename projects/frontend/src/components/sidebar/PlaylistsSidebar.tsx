@@ -42,9 +42,9 @@ interface IPlaylistSidebar {
 	merged: boolean
 }
 
-export const PlaylistSidebar: React.FC<IPlaylistSidebar> = ({ merged }) => {
+export const PlaylistSidebar: React.FC<IPlaylistSidebar> = React.memo(({ merged }) => {
 	return <Sidebar>{merged ? <MergedPlaylistsSidebar /> : <SharePlaylistsSidebar />}</Sidebar>
-}
+})
 
 const SharePlaylistsSidebar = () => {
 	const {
