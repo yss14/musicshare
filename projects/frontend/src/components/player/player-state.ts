@@ -240,7 +240,7 @@ const setPlayerQueue: ResolverFn<ISetPlayerQueueVariables, ISetPlayerQueueData> 
 
 		return items
 	}
-	console.log("items", items)
+
 	cache.writeQuery<IGetPlayerQueueStateData, void>({
 		query: GET_PLAYER_QUEUE_STATE,
 		data: {

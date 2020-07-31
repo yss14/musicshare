@@ -61,7 +61,7 @@ const theme: IPrimaryTheme = {
 	darkgrey: "#474350",
 }
 
-const App = () => {
+export const App = () => {
 	return (
 		<>
 			<GlobalStyle />
@@ -81,5 +81,3 @@ const App = () => {
 		</>
 	)
 }
-
-export default App

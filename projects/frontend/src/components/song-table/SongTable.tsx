@@ -2,7 +2,7 @@ import React, { useMemo, useCallback, useState, useEffect, useRef } from "react"
 import { List, ListRowProps, AutoSizer } from "react-virtualized"
 import { useContextMenu } from "../modals/contextmenu/ContextMenu"
 import { SongContextMenu, ISongContextMenuEvents } from "../../pages/share/SongContextMenu"
-import { useDrag } from "react-dnd"
+import { useDrag, DragElementWrapper, DragPreviewOptions } from "react-dnd"
 import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
 import { isMutableRef } from "../../types/isMutableRef"
 import { Empty } from "antd"
@@ -10,7 +10,7 @@ import { useEventListener } from "../../hooks/use-event-listener"
 import { SongRow } from "./SongRow"
 import { Table, Header, HeaderCol, Body } from "./SongTableUI"
 import { MoveSong } from "./MoveSong"
-import { useCalculatedColumnWidths } from "./SongTableColumns"
+import { useCalculatedColumnWidths, CalculatedColumnWidths } from "./SongTableColumns"
 import Scrollbars from "react-custom-scrollbars"
 import styled from "styled-components"
 import { useSongsViewContext } from "./SongsView"
@@ -48,144 +48,176 @@ interface ISongDataTableProps {
 	moveSong?: MoveSong
 }
 
-export const SongTable: React.FC<ISongDataTableProps> = ({ rowEvents, playlistID, contextMenuEvents, moveSong }) => {
-	const [
-		{ songs, columns, hoveredSong, hoveredIdx, sortColumn, sortOrder },
-		{ setHoveredSong, setOrderCriteria },
-	] = useSongsViewContext()
-	const enableOrdering = !playlistID
-	const { showContextMenu, isVisible: contextMenuVisible, ref: contextMenuRef } = useContextMenu()
-	const [height, setHeight] = useState(0)
-	const bodyRef = useRef<HTMLDivElement>(null)
-	const calculatedColumnWidths = useCalculatedColumnWidths(columns)
+export const SongTable: React.FC<ISongDataTableProps> = React.memo(
+	({ rowEvents, playlistID, contextMenuEvents, moveSong }) => {
+		const [
+			{ songs, columns, hoveredSong, hoveredIdx, sortColumn, sortOrder },
+			{ setHoveredSong, setOrderCriteria },
+		] = useSongsViewContext()
+		const enableOrdering = !playlistID
+		const { showContextMenu, isVisible: contextMenuVisible, ref: contextMenuRef } = useContextMenu()
+		const [height, setHeight] = useState(0)
+		const bodyRef = useRef<HTMLDivElement>(null)
+		const calculatedColumnWidths = useCalculatedColumnWidths(columns)
 
-	const [, drag, dragPreview] = useDrag<ISongDNDItem, void, {}>({
-		item: { type: DragNDropItem.Song, song: hoveredSong!, idx: hoveredIdx },
-	})
+		const [, drag, dragPreview] = useDrag<ISongDNDItem, void, {}>({
+			item: { type: DragNDropItem.Song, song: hoveredSong!, idx: hoveredIdx },
+		})
 
-	const hookedRowEvents = useMemo(
-		(): IRowEvents => ({
-			...rowEvents,
-			onContextMenu: ({ event, song, idx, songs }) => {
-				if (rowEvents.onContextMenu) {
-					rowEvents.onContextMenu({ event, song, idx, songs })
+		const hookedRowEvents = useMemo(
+			(): IRowEvents => ({
+				...rowEvents,
+				onContextMenu: ({ event, song, idx, songs }) => {
+					if (rowEvents.onContextMenu) {
+						rowEvents.onContextMenu({ event, song, idx, songs })
+					}
+
+					showContextMenu(event)
+				},
+			}),
+			[rowEvents, showContextMenu],
+		)
+
+		const onRowMouseEnter = useCallback(
+			(song: Song, ref: React.Ref<HTMLDivElement>, idx: number) => {
+				if (!contextMenuVisible) {
+					setHoveredSong(song, idx)
 				}
 
-				showContextMenu(event)
+				if (isMutableRef(ref)) {
+					drag(ref.current)
+				}
 			},
-		}),
-		[rowEvents, showContextMenu],
-	)
+			[setHoveredSong, contextMenuVisible, drag],
+		)
 
-	const onRowMouseEnter = useCallback(
-		(song: Song, ref: React.Ref<HTMLDivElement>, idx: number) => {
-			if (!contextMenuVisible) {
-				setHoveredSong(song, idx)
-			}
-
-			if (isMutableRef(ref)) {
-				drag(ref.current)
-			}
-		},
-		[setHoveredSong, contextMenuVisible, drag],
-	)
-
-	const rowRenderer = useCallback(
-		(props: ListRowProps) => {
-			const song = songs[props.index]
-
-			return (
-				<SongRow
-					{...props}
-					song={song}
+		const rowRenderer = useCallback(
+			(props: ListRowProps) => (
+				<SongRowRenderer
+					songs={songs}
 					rowEvents={hookedRowEvents}
-					hovered={hoveredSong === song}
-					onMouseEnter={(e, ref) => onRowMouseEnter(song, ref, props.index)}
+					hoveredSong={hoveredSong}
+					onRowMouseEnter={onRowMouseEnter}
 					dragPreview={dragPreview}
 					moveSong={moveSong}
-					isPlaylist={playlistID !== undefined}
+					playlistID={playlistID}
 					calculatedColumnWidths={calculatedColumnWidths}
+					{...props}
 				/>
-			)
-		},
-		[
-			hoveredSong,
-			hookedRowEvents,
-			songs,
-			dragPreview,
-			onRowMouseEnter,
-			moveSong,
-			playlistID,
-			calculatedColumnWidths,
-		],
-	)
+			),
+			[
+				hoveredSong,
+				hookedRowEvents,
+				songs,
+				dragPreview,
+				onRowMouseEnter,
+				moveSong,
+				playlistID,
+				calculatedColumnWidths,
+			],
+		)
 
-	const evaluateAndSetHeight = useCallback(() => {
-		if (bodyRef.current) {
-			setHeight(bodyRef.current.clientHeight)
-		}
-	}, [bodyRef, setHeight])
+		const evaluateAndSetHeight = useCallback(() => {
+			if (bodyRef.current) {
+				setHeight(bodyRef.current.clientHeight)
+			}
+		}, [bodyRef, setHeight])
 
-	useEffect(evaluateAndSetHeight, [evaluateAndSetHeight])
+		useEffect(evaluateAndSetHeight, [evaluateAndSetHeight])
 
-	useEventListener(
-		"resize",
-		() => {
-			evaluateAndSetHeight()
-		},
-		window,
-	)
+		useEventListener(
+			"resize",
+			() => {
+				evaluateAndSetHeight()
+			},
+			window,
+		)
 
-	return (
-		<Table>
-			<Header>
-				{columns.map((column) => (
-					<HeaderCol
-						key={column.title}
-						style={{
-							width: calculatedColumnWidths[column.key],
-							flexShrink: column.fixWidth ? 0 : undefined,
-						}}
-						onClick={
-							enableOrdering && column.sortable
-								? () => setOrderCriteria(column.key, toggleDirection(sortOrder))
-								: undefined
-						}
-						selected={enableOrdering && sortColumn === column.key}
-						direction={sortOrder}
-					>
-						{column.title}
-					</HeaderCol>
-				))}
-			</Header>
-			<Body ref={bodyRef}>
-				<StyledScrollbars autoHide>
-					<AutoSizer disableHeight>
-						{({ width }) => (
-							<List
-								height={height}
-								overscanRowCount={100}
-								noRowsRenderer={() => (
-									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No songs" />
-								)}
-								rowCount={songs.length}
-								rowHeight={27}
-								rowRenderer={rowRenderer}
-								width={width}
-								style={{ outline: 0 }}
-							/>
-						)}
-					</AutoSizer>
-				</StyledScrollbars>
-			</Body>
+		return (
+			<Table>
+				<Header>
+					{columns.map((column) => (
+						<HeaderCol
+							key={column.title}
+							style={{
+								width: calculatedColumnWidths[column.key],
+								flexShrink: column.fixWidth ? 0 : undefined,
+							}}
+							onClick={
+								enableOrdering && column.sortable
+									? () => setOrderCriteria(column.key, toggleDirection(sortOrder))
+									: undefined
+							}
+							selected={enableOrdering && sortColumn === column.key}
+							direction={sortOrder}
+						>
+							{column.title}
+						</HeaderCol>
+					))}
+				</Header>
+				<Body ref={bodyRef}>
+					<StyledScrollbars autoHide>
+						<AutoSizer disableHeight>
+							{({ width }) => (
+								<List
+									height={height}
+									overscanRowCount={100}
+									noRowsRenderer={() => (
+										<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No songs" />
+									)}
+									rowCount={songs.length}
+									rowHeight={27}
+									rowRenderer={rowRenderer}
+									width={width}
+									style={{ outline: 0 }}
+								/>
+							)}
+						</AutoSizer>
+					</StyledScrollbars>
+				</Body>
 
-			<SongContextMenu
-				song={hoveredSong}
-				playlistID={playlistID}
-				ref={contextMenuRef}
-				events={contextMenuEvents}
-				contextMenuVisible={contextMenuVisible}
-			/>
-		</Table>
-	)
+				<SongContextMenu
+					song={hoveredSong}
+					playlistID={playlistID}
+					ref={contextMenuRef}
+					events={contextMenuEvents}
+					contextMenuVisible={contextMenuVisible}
+				/>
+			</Table>
+		)
+	},
+)
+
+interface ISongRowRendererProps extends ListRowProps {
+	songs: IShareSong[]
+	rowEvents: IRowEvents
+	hoveredSong: IShareSong | null
+	onRowMouseEnter: (song: Song, ref: React.Ref<HTMLDivElement>, idx: number) => void
+	dragPreview: DragElementWrapper<DragPreviewOptions>
+	moveSong?: MoveSong | undefined
+	playlistID: string | undefined
+	calculatedColumnWidths: CalculatedColumnWidths
 }
+
+const SongRowRenderer: React.FC<ISongRowRendererProps> = React.memo(
+	({ songs, hoveredSong, playlistID, onRowMouseEnter, ...props }) => {
+		const song = songs[props.index]
+
+		const onMouseEnter = useCallback(
+			(event: React.MouseEvent<HTMLDivElement, MouseEvent>, ref: React.Ref<HTMLDivElement>) => {
+				onRowMouseEnter(song, ref, props.index)
+			},
+			[onRowMouseEnter, song, props.index],
+		)
+
+		return (
+			<SongRow
+				{...props}
+				song={song}
+				hovered={hoveredSong === song}
+				onMouseEnter={onMouseEnter}
+				isPlaylist={playlistID !== undefined}
+			/>
+		)
+	},
+)

@@ -39,34 +39,31 @@ interface ISongTableHeaderProps {
 	onSongViewSettingsChange: (newSettings: ISongViewSettings) => void
 }
 
-export const SongTableHeader = ({
-	songs,
-	title,
-	onSearchFilterChange,
-	onSongViewSettingsChange,
-}: ISongTableHeaderProps) => {
-	const { changeSong } = usePlayerActions()
-	const { open: triggerUploadModal } = useSongDropzone()
+export const SongTableHeader = React.memo(
+	({ songs, title, onSearchFilterChange, onSongViewSettingsChange }: ISongTableHeaderProps) => {
+		const { changeSong } = usePlayerActions()
+		const { open: triggerUploadModal } = useSongDropzone()
 
-	const durationSum = songs.reduce((acc, song) => acc + song.duration, 0)
+		const durationSum = songs.reduce((acc, song) => acc + song.duration, 0)
 
-	const onClickSong = (song: IShareSong) => {
-		changeSong(song)
-	}
+		const onClickSong = (song: IShareSong) => {
+			changeSong(song)
+		}
 
-	return (
-		<SongTableHeaderFlexContainer>
-			<MetaInfoContainer>
-				<Title level={4} style={{ marginBottom: 0 }}>
-					{title}
-				</Title>
-				<Text>
-					{songs.length} songs | {formatDuration(durationSum)}
-				</Text>
-			</MetaInfoContainer>
-			<HeaderButton icon={<ArrowUpOutlined />} onClick={triggerUploadModal} title="Upload" />
-			<SongViewSettings onChange={onSongViewSettingsChange} />
-			<SongSearch onClickSong={onClickSong} onSearchFilterChange={onSearchFilterChange} />
-		</SongTableHeaderFlexContainer>
-	)
-}
+		return (
+			<SongTableHeaderFlexContainer>
+				<MetaInfoContainer>
+					<Title level={4} style={{ marginBottom: 0 }}>
+						{title}
+					</Title>
+					<Text>
+						{songs.length} songs | {formatDuration(durationSum)}
+					</Text>
+				</MetaInfoContainer>
+				<HeaderButton icon={<ArrowUpOutlined />} onClick={triggerUploadModal} title="Upload" />
+				<SongViewSettings onChange={onSongViewSettingsChange} />
+				<SongSearch onClickSong={onClickSong} onSearchFilterChange={onSearchFilterChange} />
+			</SongTableHeaderFlexContainer>
+		)
+	},
+)
