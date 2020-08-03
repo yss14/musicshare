@@ -10,7 +10,7 @@ import { useDeferedFlag } from "../../../hooks/use-defered-flag"
 import { ISongSearchOptions, allMatchingOptions, ISongSearchFilter } from "./search-types"
 import { SongSearchOptionsPopover } from "./SongSearchOptionsPopover"
 import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd"
-import { DragNDropItem } from "../../../types/DragNDropItems"
+import { DragNDropItem, ISongDNDItem } from "../../../types/DragNDropItems"
 import { useResettingState } from "../../../hooks/use-resetting-state"
 import { useAddSongsToPlaylist } from "../../../graphql/mutations/add-songs-to-playlist"
 import songDragPreviewImg from "../../../images/playlist_add.png"
@@ -132,8 +132,8 @@ interface ISongSearchItemProps {
 
 const SongSearchItem: React.FC<ISongSearchItemProps> = ({ song, onClick, onDrag }) => {
 	const addSongsToPlaylist = useAddSongsToPlaylist()
-	const [, drag, dragPreview] = useDrag({
-		item: { type: DragNDropItem.Song, song },
+	const [, drag, dragPreview] = useDrag<ISongDNDItem, void, any>({
+		item: { type: DragNDropItem.Song, song, idx: -1 },
 		begin: () => (onDrag ? onDrag(true) : undefined),
 		end: (item: { song: IShareSong } | undefined, monitor: DragSourceMonitor) => {
 			if (onDrag) onDrag(false)
