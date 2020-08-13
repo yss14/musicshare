@@ -11,7 +11,7 @@ export interface IGetPlaylistsData {
 }
 
 export interface IGetPlaylistsVariables {
-	shareID: string
+	shareID: string | null
 }
 
 export const playlistKeys = `
@@ -35,6 +35,7 @@ export const GET_SHARE_PLAYLISTS = gql`
 export const useSharePlaylists = (vars: IGetPlaylistsVariables) => {
 	const { data, ...rest } = useQuery<IGetPlaylistsData, IGetPlaylistsVariables>(GET_SHARE_PLAYLISTS, {
 		variables: vars,
+		skip: !vars.shareID,
 	})
 
 	return {

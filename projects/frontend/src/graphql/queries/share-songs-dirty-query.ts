@@ -4,7 +4,6 @@ import { useQuery, useApolloClient, ApolloClient } from "@apollo/client"
 import { useCallback, useRef } from "react"
 import { GET_SHARE_WITH_SONGS, IGetShareWithSongsData, IGetShareWithSongsVariables } from "./share-songs-query"
 import { ITimedstampedResults, IShareSong } from "@musicshare/shared-types"
-import useInterval from "@use-it/interval"
 import { IGetMergedSongsData, GET_MERGED_SONGS } from "./merged-songs-query"
 
 export interface IGetShareDirtySongsData {
@@ -123,25 +122,14 @@ export const useShareDirtySongs = (shareID: string) => {
 		[cache, shareID],
 	)
 
-	const { refetch } = useQuery<IGetShareDirtySongsData, IGetShareDirtySongsVariables>(GET_SHARE_DIRTY_SONGS, {
+	useQuery<IGetShareDirtySongsData, IGetShareDirtySongsVariables>(GET_SHARE_DIRTY_SONGS, {
 		fetchPolicy: "network-only",
-		skip: true,
+		pollInterval: 10e3,
+		onCompleted: (data) => {
+			updateCache(data)
+		},
+		variables: { shareID, lastTimestamp: lastUpdateTimestamp.current },
 	})
-
-	const onInterval = useCallback(() => {
-		refetch({
-			shareID,
-			lastTimestamp: lastUpdateTimestamp.current,
-		}).then((result) => {
-			// onCompleted is broken for refetch, use this workaround for now
-			// https://github.com/apollographql/@apollo/client/issues/3709
-			if (result.data) {
-				updateCache(result.data)
-			}
-		})
-	}, [refetch, shareID, updateCache])
-
-	useInterval(onInterval, 10e3)
 }
 
 export const useMergedViewDirtySongs = () => {
@@ -203,25 +191,12 @@ export const useMergedViewDirtySongs = () => {
 		[cache],
 	)
 
-	const { refetch } = useQuery<IGetMergedViewDirtySongsData, IGetMergedViewDirtySongsVariables>(
-		GET_MERGED_VIEW_DIRTY_SONGS,
-		{
-			fetchPolicy: "network-only",
-			skip: true,
-		},
-	)
-
-	const onInterval = useCallback(() => {
-		refetch({
+	useQuery<IGetMergedViewDirtySongsData, IGetMergedViewDirtySongsVariables>(GET_MERGED_VIEW_DIRTY_SONGS, {
+		fetchPolicy: "network-only",
+		variables: {
 			lastTimestamp: lastUpdateTimestamp.current,
-		}).then((result) => {
-			// onCompleted is broken for refetch, use this workaround for now
-			// https://github.com/apollographql/@apollo/client/issues/3709
-			if (result.data) {
-				updateCache(result.data)
-			}
-		})
-	}, [refetch, updateCache])
-
-	useInterval(onInterval, 10e3)
+		},
+		onCompleted: (data) => updateCache(data),
+		pollInterval: 10e3,
+	})
 }

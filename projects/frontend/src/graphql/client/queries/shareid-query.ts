@@ -2,7 +2,7 @@ import gql from "graphql-tag"
 import { useQuery } from "@apollo/client"
 
 export interface IShareIDData {
-	shareID: string
+	shareID: string | null
 }
 
 export const GET_SHARE_ID = gql`
@@ -14,5 +14,5 @@ export const GET_SHARE_ID = gql`
 export const useShareID = () => {
 	const { data } = useQuery<IShareIDData, {}>(GET_SHARE_ID)
 
-	return data!.shareID
+	return data?.shareID || null
 }
