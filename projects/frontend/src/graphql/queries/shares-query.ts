@@ -1,6 +1,6 @@
 import gql from "graphql-tag"
 import { IShare, shareKeys } from "../types"
-import { useQuery } from "@apollo/react-hooks"
+import { useQuery } from "@apollo/client"
 
 export interface IGetSharesData {
 	viewer: {

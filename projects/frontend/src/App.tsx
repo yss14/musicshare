@@ -1,6 +1,5 @@
 import React from "react"
-import { ApolloProvider } from "react-apollo"
-import { ApolloProvider as ApolloProviderHooks } from "@apollo/react-hooks"
+import { ApolloProvider } from "@apollo/client"
 import { Router } from "react-router-dom"
 import { client, cache } from "./Apollo"
 import { DndProvider } from "react-dnd"
@@ -49,9 +48,9 @@ const data = {
 	},
 }
 
-cache.writeData({ data })
+//cache.writeData({ data })
 
-client.onResetStore(async () => cache.writeData({ data }))
+//client.onResetStore(async () => cache.writeData({ data }))
 
 const theme: IPrimaryTheme = {
 	main: "#275dad",
@@ -66,17 +65,15 @@ export const App = () => {
 		<>
 			<GlobalStyle />
 			<ApolloProvider client={client}>
-				<ApolloProviderHooks client={client}>
-					<ThemeProvider theme={theme}>
-						<ConfigContext.Provider value={config}>
-							<DndProvider backend={HTML5Backend}>
-								<Router history={history}>
-									<Routing />
-								</Router>
-							</DndProvider>
-						</ConfigContext.Provider>
-					</ThemeProvider>
-				</ApolloProviderHooks>
+				<ThemeProvider theme={theme}>
+					<ConfigContext.Provider value={config}>
+						<DndProvider backend={HTML5Backend}>
+							<Router history={history}>
+								<Routing />
+							</Router>
+						</DndProvider>
+					</ConfigContext.Provider>
+				</ThemeProvider>
 			</ApolloProvider>
 		</>
 	)

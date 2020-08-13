@@ -1,7 +1,7 @@
 import gql from "graphql-tag"
-import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
+import { useMutation, MutationResult, MutationHookOptions } from "@apollo/client"
 import { useCallback } from "react"
-import { MutationUpdaterFn } from "apollo-client"
+import { MutationUpdaterFn } from "@apollo/client"
 import { IGetShareWithSongsData, IGetShareWithSongsVariables, GET_SHARE_WITH_SONGS } from "../queries/share-songs-query"
 
 interface IRemoveSongFromLibraryData {

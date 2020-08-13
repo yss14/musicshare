@@ -1,7 +1,7 @@
 import gql from "graphql-tag"
-import ApolloClient from "apollo-client"
 import { shareSongKeys } from "../types"
 import { IShareSong } from "@musicshare/shared-types"
+import { ApolloClient } from "@apollo/client"
 
 interface IFindSongFileDuplicatesData {
 	viewer: {

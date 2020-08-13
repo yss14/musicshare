@@ -1,10 +1,9 @@
 import gql from "graphql-tag"
-import { useQuery } from "@apollo/react-hooks"
-import ApolloClient from "apollo-client"
+import { useQuery, ApolloClient } from "@apollo/client"
 import { NormalizedCacheObject } from "apollo-cache-inmemory"
 
 export interface IAuthTokenData {
-	authToken: string
+	authToken: string | null
 }
 
 export const GET_AUTH_TOKEN = gql`
@@ -20,7 +19,7 @@ export const useAuthToken = (): string | null => {
 }
 
 export interface IRefreshTokenData {
-	refreshToken: string
+	refreshToken: string | null
 }
 
 export const GET_REFRESH_TOKEN = gql`
@@ -36,9 +35,9 @@ export const useRefreshToken = (): string | null => {
 }
 
 export const getRefreshToken = async (client: ApolloClient<NormalizedCacheObject>) => {
-	const data = await client.query<IRefreshTokenData>({
+	const { data } = await client.query<IRefreshTokenData>({
 		query: GET_REFRESH_TOKEN,
 	})
 
-	return data.data.refreshToken
+	return data?.refreshToken
 }

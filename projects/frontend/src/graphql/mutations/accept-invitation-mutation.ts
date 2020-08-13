@@ -1,6 +1,6 @@
 import { userKeys } from "../types"
 import gql from "graphql-tag"
-import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
+import { useMutation, MutationResult, MutationHookOptions } from "@apollo/client"
 import { useCallback } from "react"
 import { IViewer } from "@musicshare/shared-types"
 

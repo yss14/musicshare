@@ -4,8 +4,7 @@ import { shareSongKeys } from "../types"
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
 import { addArtistsToCache } from "../programmatic/add-artist-to-cache"
 import { useMemo } from "react"
-import { useMutation, MutationHookOptions } from "react-apollo"
-import { MutationUpdaterFn } from "apollo-client"
+import { useMutation, MutationHookOptions, MutationUpdaterFn } from "@apollo/client"
 import { IShareSong } from "@musicshare/shared-types"
 
 export const UPDATE_SONG = gql`

@@ -1,6 +1,6 @@
 import { shareSongKeys } from "../types"
 import gql from "graphql-tag"
-import { useQuery } from "@apollo/react-hooks"
+import { useQuery } from "@apollo/client"
 import { IShareSong } from "@musicshare/shared-types"
 
 export interface ISongData {

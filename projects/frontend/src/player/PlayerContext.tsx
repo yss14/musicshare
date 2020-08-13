@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useEffect, useCallback, useState } from "react"
 import useInterval from "@use-it/interval"
-import { useApolloClient } from "react-apollo"
+import { useApolloClient } from "@apollo/client"
 import { makeUpdatePlayerState, usePlayerState } from "../components/player/player-state"
 import { makeGetSongMediaUrls } from "../graphql/programmatic/get-song-mediaurl"
 import { ISongMediaUrl } from "../graphql/queries/song-mediaurl-query"

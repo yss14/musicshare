@@ -1,8 +1,8 @@
 import gql from "graphql-tag"
-import { useQuery } from "@apollo/react-hooks"
+import { useQuery } from "@apollo/client"
 
 export interface IPlaylistIDData {
-	playlistID: string
+	playlistID: string | null
 }
 
 export const GET_PLAYLIST_ID = gql`

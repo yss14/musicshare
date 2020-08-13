@@ -1,20 +1,31 @@
-import { ApolloClient } from "apollo-client"
-import { InMemoryCache, NormalizedCacheObject } from "apollo-cache-inmemory"
-import { HttpLink } from "apollo-link-http"
-import { setContext } from "apollo-link-context"
-import { onError } from "apollo-link-error"
-import { ApolloLink, Observable } from "apollo-link"
 import { resolvers } from "./graphql/client/resolvers"
 import { makeConfigFromEnv } from "./config"
 import { ISSUE_AUTH_TOKEN, IIssueAuthTokenData, IIssueAuthTokenVariables } from "./graphql/mutations/issue-auth-token"
-import { getRefreshToken } from "./graphql/client/queries/auth-token-query"
+import { getRefreshToken, GET_AUTH_TOKEN, IAuthTokenData } from "./graphql/client/queries/auth-token-query"
 import { promiseToObservable } from "./graphql/utils/promise-to-observable"
 import { history } from "./components/routing/history"
 import { logoutUser } from "./graphql/programmatic/logout"
 import { isPlaylistSong } from "./graphql/types"
-import { ServerError } from "apollo-link-http-common"
 import { message } from "antd"
-import { playerStateTypeDefs, playerStateDefaultValue, persistVolume } from "./components/player/player-state"
+import {
+	playerStateTypeDefs,
+	playerStateDefaultValue,
+	persistVolume,
+	IGetPlayerStateData,
+	GET_PLAYER_STATE,
+} from "./components/player/player-state"
+import {
+	ServerError,
+	HttpLink,
+	NormalizedCacheObject,
+	InMemoryCache,
+	ApolloLink,
+	Observable,
+	FetchResult,
+	ApolloClient,
+} from "@apollo/client"
+import { setContext } from "@apollo/client/link/context"
+import { onError } from "@apollo/client/link/error"
 
 const config = makeConfigFromEnv()
 
@@ -139,6 +150,8 @@ const getNewAuthToken = (client: ApolloClient<NormalizedCacheObject>) => async (
 	try {
 		const refreshToken = await getRefreshToken(client)
 
+		if (!refreshToken) return null
+
 		const response = await client.mutate<IIssueAuthTokenData, IIssueAuthTokenVariables>({
 			mutation: ISSUE_AUTH_TOKEN,
 			variables: {
@@ -159,7 +172,7 @@ const getNewAuthToken = (client: ApolloClient<NormalizedCacheObject>) => async (
 	}
 }
 
-const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
+const errorLink = onError(({ graphQLErrors, networkError, operation, forward }): Observable<FetchResult> | void => {
 	if (graphQLErrors) {
 		for (const error of graphQLErrors) {
 			if (error.message === "Access denied! You need to be authorized to perform this action!") {
@@ -169,13 +182,15 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
 					history.push("/login")
 				}
 			} else if (error.extensions && error.extensions.code === "UNAUTHENTICATED") {
-				return promiseToObservable(getNewAuthToken(client)()).flatMap((authToken) => {
-					cache.writeData({
-						data: {
-							authToken,
-						},
-					})
+				const obs: any = promiseToObservable(getNewAuthToken(client)()).flatMap((authToken) => {
 					if (authToken) {
+						cache.writeQuery<IAuthTokenData>({
+							query: GET_AUTH_TOKEN,
+							data: {
+								authToken,
+							},
+						})
+
 						localStorage.setItem("auth-token", authToken)
 
 						return forward(operation)
@@ -184,9 +199,11 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
 						message.error("It seems like your session expired. Please sign in again!")
 						history.push("/login")
 
-						return Observable.of()
+						return Observable.of() as any
 					}
 				})
+
+				return obs
 			} else if (error.message.startsWith("User with id") && error.message.endsWith("not found")) {
 				logoutUser(client)
 				message.error("Ups, this operation failed. We logged you out for safety reasons. Please sign in again!")
@@ -215,14 +232,15 @@ const cache = new InMemoryCache({
 	},
 })
 
-const client = new ApolloClient({
+const client = new ApolloClient<NormalizedCacheObject>({
 	link: ApolloLink.from([errorLink, authMiddlewareLink, httpLink]),
 	cache,
 	resolvers,
 	typeDefs,
 })
 
-cache.writeData({
+cache.writeQuery<IGetPlayerStateData, void>({
+	query: GET_PLAYER_STATE,
 	data: {
 		player: playerStateDefaultValue,
 	},

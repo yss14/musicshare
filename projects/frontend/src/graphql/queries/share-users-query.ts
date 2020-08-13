@@ -1,6 +1,6 @@
 import { memberKeys } from "../types"
 import gql from "graphql-tag"
-import { useQuery } from "react-apollo"
+import { useQuery } from "@apollo/client"
 import { IShareMember } from "@musicshare/shared-types"
 
 export interface IShareUsersData {

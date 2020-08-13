@@ -1,4 +1,4 @@
-import { DataProxy } from "apollo-cache"
+import { DataProxy } from "@apollo/client"
 import { IArtist } from "../types"
 import { IGetArtistsData, GET_ARTISTS } from "../queries/artists-query"
 

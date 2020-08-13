@@ -1,6 +1,6 @@
 import { IPlaylistWithSongs, playlistSongKeys } from "../types"
 import gql from "graphql-tag"
-import { useQuery } from "@apollo/react-hooks"
+import { useQuery } from "@apollo/client"
 import { useHistory } from "react-router-dom"
 import { defaultGraphQLErrorHandler } from "../utils/default-graphql-errorhandler"
 

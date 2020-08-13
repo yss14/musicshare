@@ -1,5 +1,5 @@
 import gql from "graphql-tag"
-import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
+import { useMutation, MutationResult, MutationHookOptions } from "@apollo/client"
 import { useCallback } from "react"
 
 interface IChangePasswordData {

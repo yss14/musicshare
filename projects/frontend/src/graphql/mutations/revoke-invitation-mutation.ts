@@ -1,5 +1,5 @@
 import gql from "graphql-tag"
-import { useMutation, MutationHookOptions } from "react-apollo"
+import { useMutation, MutationHookOptions } from "@apollo/client"
 
 interface IRevokeInvitationData {
 	revokeInvitation: boolean

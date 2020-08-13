@@ -1,11 +1,10 @@
 import { shareSongKeys } from "../types"
 import gql from "graphql-tag"
-import { useQuery, useApolloClient } from "react-apollo"
+import { useQuery, useApolloClient, ApolloClient } from "@apollo/client"
 import { useCallback, useRef } from "react"
 import { GET_SHARE_WITH_SONGS, IGetShareWithSongsData, IGetShareWithSongsVariables } from "./share-songs-query"
 import { ITimedstampedResults, IShareSong } from "@musicshare/shared-types"
 import useInterval from "@use-it/interval"
-import ApolloClient from "apollo-client"
 import { IGetMergedSongsData, GET_MERGED_SONGS } from "./merged-songs-query"
 
 export interface IGetShareDirtySongsData {
@@ -135,7 +134,7 @@ export const useShareDirtySongs = (shareID: string) => {
 			lastTimestamp: lastUpdateTimestamp.current,
 		}).then((result) => {
 			// onCompleted is broken for refetch, use this workaround for now
-			// https://github.com/apollographql/react-apollo/issues/3709
+			// https://github.com/apollographql/@apollo/client/issues/3709
 			if (result.data) {
 				updateCache(result.data)
 			}
@@ -217,7 +216,7 @@ export const useMergedViewDirtySongs = () => {
 			lastTimestamp: lastUpdateTimestamp.current,
 		}).then((result) => {
 			// onCompleted is broken for refetch, use this workaround for now
-			// https://github.com/apollographql/react-apollo/issues/3709
+			// https://github.com/apollographql/@apollo/client/issues/3709
 			if (result.data) {
 				updateCache(result.data)
 			}

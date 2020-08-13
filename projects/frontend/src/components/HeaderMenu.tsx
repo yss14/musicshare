@@ -10,7 +10,7 @@ import { ShareSettings } from "./modals/share-settings/ShareSettings"
 import { IShare } from "../graphql/types"
 import { useUser } from "../graphql/queries/user-query"
 import { ChangePasswordModal } from "./modals/ChangePasswordModal"
-import { useApolloClient } from "react-apollo"
+import { useApolloClient, NormalizedCacheObject, ApolloClient } from "@apollo/client"
 import { logoutUser } from "../graphql/programmatic/logout"
 
 const { SubMenu, ItemGroup, Item } = Menu
@@ -42,7 +42,7 @@ export const HeaderNavMenu = () => {
 	const [shareSettings, setShareSettings] = useState<IShare | null>(null)
 	const [showChangePassword, setShowChangePassword] = useState(false)
 	const [sharesSubmenuHovered, setSharesSubmenuHovered] = useState(false)
-	const client = useApolloClient()
+	const client = useApolloClient() as ApolloClient<NormalizedCacheObject>
 
 	const logout = useCallback(() => logoutUser(client), [client])
 
