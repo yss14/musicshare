@@ -5,11 +5,9 @@ import {
 	IGetPlaylistsVariables,
 	GET_SHARE_PLAYLISTS,
 } from "../queries/playlists-query"
-import { useMutation, MutationHookOptions } from "@apollo/client"
-import { MutationUpdaterFn } from "@apollo/client/core/watchQueryOptions"
+import { useMutation, MutationHookOptions, MutationResult, MutationUpdaterFn } from "@apollo/client"
 import { IPlaylist } from "../types"
 import { useCallback } from "react"
-import { MutationResult } from "@apollo/client"
 import { IGetMergedPlaylistData, GET_MERGED_PLAYLISTS } from "../queries/merged-playlists-query"
 
 export interface ICreatePlaylistVariables {

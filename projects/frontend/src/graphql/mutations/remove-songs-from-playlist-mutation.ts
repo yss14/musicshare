@@ -1,8 +1,7 @@
 import { playlistSongKeys } from "../types"
 import gql from "graphql-tag"
-import { useMutation, MutationResult, MutationHookOptions } from "@apollo/client"
+import { useMutation, MutationResult, MutationHookOptions, MutationUpdaterFn } from "@apollo/client"
 import { useCallback } from "react"
-import { MutationUpdaterFn } from "@apollo/client"
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
 import { IPlaylistSong } from "@musicshare/shared-types"
 
