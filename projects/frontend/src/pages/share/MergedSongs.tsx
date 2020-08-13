@@ -6,7 +6,7 @@ import { useMergedViewDirtySongs } from "../../graphql/queries/share-songs-dirty
 
 export const MergedSongs: React.FC = () => {
 	const { loading, error, data: songs } = useMergedSongs()
-	//useMergedViewDirtySongs()
+	useMergedViewDirtySongs()
 
 	if (loading || !songs) {
 		return <LoadingSpinner />

@@ -1,10 +1,11 @@
 import { shareSongKeys } from "../types"
 import gql from "graphql-tag"
 import { useQuery, useApolloClient, ApolloClient } from "@apollo/client"
-import { useCallback, useRef } from "react"
+import { useCallback, useRef, useState } from "react"
 import { GET_SHARE_WITH_SONGS, IGetShareWithSongsData, IGetShareWithSongsVariables } from "./share-songs-query"
 import { ITimedstampedResults, IShareSong } from "@musicshare/shared-types"
 import { IGetMergedSongsData, GET_MERGED_SONGS } from "./merged-songs-query"
+import useSetTimeout from "use-set-timeout"
 
 export interface IGetShareDirtySongsData {
 	share: {
@@ -135,9 +136,11 @@ export const useShareDirtySongs = (shareID: string) => {
 export const useMergedViewDirtySongs = () => {
 	const cache = useApolloClient()
 	const lastUpdateTimestamp = useRef<Date>(new Date())
+	const [skip, setSkip] = useState(true)
 
 	const updateCache = useCallback(
 		(data: IGetMergedViewDirtySongsData) => {
+			console.log("updateCache")
 			if (data.viewer.shares.length === 0) return
 
 			lastUpdateTimestamp.current = data.viewer.shares[0].songsDirty.timestamp
@@ -157,6 +160,7 @@ export const useMergedViewDirtySongs = () => {
 			})
 
 			if (!currentMergedSongs) return
+			console.log({ currentMergedSongs })
 
 			cache.writeQuery<IGetMergedSongsData, void>({
 				query: GET_MERGED_SONGS,
@@ -168,10 +172,12 @@ export const useMergedViewDirtySongs = () => {
 							const updatedShare = data.viewer.shares.find((share) => share.id === currentShare.id)
 
 							if (!updatedShare) return currentShare
-
+							console.log(currentShare)
+							const currentSongs = currentShare.songs ?? []
 							const songsDirty = updatedShare.songsDirty.nodes
-							const { dirtySongIDs, newSongs } = getSongsDiff(currentShare.songs, songsDirty)
-							const songs = currentShare.songs
+							const { dirtySongIDs, newSongs } = getSongsDiff(currentSongs, songsDirty)
+
+							const songs = currentSongs
 								.map((song) =>
 									dirtySongIDs.has(song.id)
 										? songsDirty.find((dirtySong) => dirtySong.id === song.id) || song
@@ -197,6 +203,12 @@ export const useMergedViewDirtySongs = () => {
 			lastTimestamp: lastUpdateTimestamp.current,
 		},
 		onCompleted: (data) => updateCache(data),
-		pollInterval: 10e3,
+		pollInterval: 30e3,
+		skip,
 	})
+
+	// workaround for waiting until results from useMergedSongs() are dispatched to the cache, otherwise error
+	useSetTimeout(() => {
+		setSkip(false)
+	}, 10e3)
 }
