@@ -232,8 +232,8 @@ const SET_PLAYER_QUEUE = gql`
 type ResolverFn<A, R> = (parent: any, args: A, { cache }: { cache: ApolloCache<unknown> }) => R
 
 const setPlayerQueue: ResolverFn<ISetPlayerQueueVariables, ISetPlayerQueueData> = (_, { items }, { cache }) => {
-	const currentState = cache.readQuery<IGetPlayerQueueStateData, void>({
-		query: GET_PLAYER_QUEUE_STATE,
+	const currentState = cache.readQuery<IGetPlayerStateData, void>({
+		query: GET_PLAYER_STATE,
 	})
 
 	if (!currentState) {
@@ -242,8 +242,8 @@ const setPlayerQueue: ResolverFn<ISetPlayerQueueVariables, ISetPlayerQueueData> 
 		return items
 	}
 
-	cache.writeQuery<IGetPlayerQueueStateData, void>({
-		query: GET_PLAYER_QUEUE_STATE,
+	cache.writeQuery<IGetPlayerStateData, void>({
+		query: GET_PLAYER_STATE,
 		data: {
 			...currentState,
 			player: {
