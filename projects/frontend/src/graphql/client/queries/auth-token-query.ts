@@ -1,6 +1,5 @@
 import gql from "graphql-tag"
-import { useQuery, ApolloClient } from "@apollo/client"
-import { NormalizedCacheObject } from "apollo-cache-inmemory"
+import { useQuery, ApolloClient, NormalizedCacheObject } from "@apollo/client"
 
 export interface IAuthTokenData {
 	authToken: string | null
