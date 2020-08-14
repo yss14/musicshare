@@ -1,9 +1,12 @@
 import gql from "graphql-tag"
-import { useMutation, MutationHookOptions } from "@apollo/react-hooks"
-import { DataProxy } from "apollo-cache"
+import { useMutation, MutationHookOptions, MutationUpdaterFn, MutationResult, DataProxy } from "@apollo/client"
 import { useCallback } from "react"
-import { MutationUpdaterFn } from "apollo-client"
-import { MutationResult } from "react-apollo"
+import {
+	IAuthTokenData,
+	GET_AUTH_TOKEN,
+	IRefreshTokenData,
+	GET_REFRESH_TOKEN,
+} from "../client/queries/auth-token-query"
 
 export interface ILoginVariables {
 	password: string
@@ -30,9 +33,15 @@ export const useLogin = (opts?: MutationHookOptions<ILoginData, ILoginVariables>
 	const [loginMutation, other] = useMutation<ILoginData, ILoginVariables>(LOGIN, opts)
 
 	const updateCache = useCallback<MutationUpdaterFn<ILoginData>>((cache: DataProxy, { data }) => {
-		cache.writeData({
+		cache.writeQuery<IAuthTokenData>({
+			query: GET_AUTH_TOKEN,
 			data: {
 				authToken: data!.login.authToken,
+			},
+		})
+		cache.writeQuery<IRefreshTokenData>({
+			query: GET_REFRESH_TOKEN,
+			data: {
 				refreshToken: data!.login.refreshToken,
 			},
 		})

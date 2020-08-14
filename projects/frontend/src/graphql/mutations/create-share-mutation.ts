@@ -1,8 +1,7 @@
 import { IShare, shareKeys } from "../types"
 import gql from "graphql-tag"
-import { useMutation, MutationHookOptions } from "react-apollo"
+import { useMutation, MutationHookOptions, MutationUpdaterFn } from "@apollo/client"
 import { useCallback } from "react"
-import { MutationUpdaterFn } from "apollo-client"
 import { IGetSharesData, IGetSharesVariables, GET_SHARES } from "../queries/shares-query"
 
 interface ICreateShareVariables {

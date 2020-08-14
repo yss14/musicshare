@@ -1,8 +1,7 @@
 import gql from "graphql-tag"
-import { useMutation, MutationHookOptions } from "@apollo/react-hooks"
+import { useMutation, MutationHookOptions, MutationUpdaterFn, MutationResult } from "@apollo/client"
 import { useCallback } from "react"
-import { MutationResult } from "@apollo/react-common"
-import { MutationUpdaterFn } from "apollo-client"
+import { IAuthTokenData, GET_AUTH_TOKEN, IRefreshTokenData, GET_REFRESH_TOKEN } from "../queries/auth-token-query"
 
 type Token = string | null
 
@@ -22,9 +21,15 @@ export const useSetAuthTokens = (opts?: MutationHookOptions<void, IShareVariable
 
 	const makeUpdateCache = useCallback(
 		(authToken: Token, refreshToken: Token): MutationUpdaterFn<void> => (cache) => {
-			cache.writeData({
+			cache.writeQuery<IAuthTokenData>({
+				query: GET_AUTH_TOKEN,
 				data: {
 					authToken,
+				},
+			})
+			cache.writeQuery<IRefreshTokenData>({
+				query: GET_REFRESH_TOKEN,
+				data: {
 					refreshToken,
 				},
 			})

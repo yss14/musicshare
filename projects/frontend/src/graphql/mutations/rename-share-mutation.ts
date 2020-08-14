@@ -1,5 +1,5 @@
 import gql from "graphql-tag"
-import { useMutation, MutationHookOptions } from "react-apollo"
+import { useMutation, MutationHookOptions } from "@apollo/client"
 import { IShare, shareKeys } from "../types"
 
 interface IRenameShareData {

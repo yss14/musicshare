@@ -1,4 +1,4 @@
-import ApolloClient from "apollo-client"
+import { ApolloClient } from "@apollo/client"
 import {
 	GET_SONG_MEDIAURL,
 	ISongMediaURLData,
@@ -20,7 +20,7 @@ export const makeGetSongMediaUrls = (client: ApolloClient<unknown>) => async (
 	})
 
 	if (!response.errors) {
-		return response.data.share.song.sources
+		return response.data!.share.song.sources
 	}
 
 	throw new Error(`Cannot fetch media url for song ${songID}`)

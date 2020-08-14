@@ -1,6 +1,6 @@
 import { shareSongKeys } from "../types"
 import gql from "graphql-tag"
-import { useLazyQuery } from "react-apollo"
+import { useLazyQuery } from "@apollo/client"
 import { useCallback, useState, useMemo } from "react"
 import { IShareSong } from "@musicshare/shared-types"
 

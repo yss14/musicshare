@@ -1,8 +1,6 @@
 import gql from "graphql-tag"
 import { shareSongKeys } from "../../graphql/types"
-import { useQuery, useMutation } from "react-apollo"
-import ApolloClient from "apollo-client"
-import { ApolloCache } from "apollo-cache"
+import { useQuery, useMutation, ApolloClient, ApolloCache } from "@apollo/client"
 import { IShareSong } from "@musicshare/shared-types"
 
 const VOLUME_PERSIST_KEY = "player.volume"
@@ -197,9 +195,11 @@ export const usePlayerSettingsState = () => useQuery<IGetPlayerSettingsData, voi
 
 export const usePlayerState = () => useQuery<IGetPlayerStateData, void>(GET_PLAYER_STATE)
 
-export const makeUpdatePlayerState = (client: ApolloClient<unknown>) => (data: Partial<IPlayerState>) => {
-	const currentState = client.readQuery<IGetPlayerQueueStateData, void>({
-		query: GET_PLAYER_QUEUE_STATE,
+export const makeUpdatePlayerState = (client: ApolloClient<unknown>) => <K extends keyof IPlayerState>(
+	data: Pick<IPlayerState, K>,
+) => {
+	const currentState = client.readQuery<IGetPlayerStateData, void>({
+		query: GET_PLAYER_STATE,
 	})
 
 	if (!currentState) {
@@ -208,9 +208,10 @@ export const makeUpdatePlayerState = (client: ApolloClient<unknown>) => (data: P
 		return
 	}
 
-	client.writeData({
+	client.writeQuery<IGetPlayerStateData, void>({
+		query: GET_PLAYER_STATE,
 		data: {
-			__typename: "Query",
+			//__typename: "Query",
 			player: { ...currentState.player, ...data, __typename: "Player" },
 		},
 	})
@@ -231,8 +232,8 @@ const SET_PLAYER_QUEUE = gql`
 type ResolverFn<A, R> = (parent: any, args: A, { cache }: { cache: ApolloCache<unknown> }) => R
 
 const setPlayerQueue: ResolverFn<ISetPlayerQueueVariables, ISetPlayerQueueData> = (_, { items }, { cache }) => {
-	const currentState = cache.readQuery<IGetPlayerQueueStateData, void>({
-		query: GET_PLAYER_QUEUE_STATE,
+	const currentState = cache.readQuery<IGetPlayerStateData, void>({
+		query: GET_PLAYER_STATE,
 	})
 
 	if (!currentState) {
@@ -241,8 +242,8 @@ const setPlayerQueue: ResolverFn<ISetPlayerQueueVariables, ISetPlayerQueueData> 
 		return items
 	}
 
-	cache.writeQuery<IGetPlayerQueueStateData, void>({
-		query: GET_PLAYER_QUEUE_STATE,
+	cache.writeQuery<IGetPlayerStateData, void>({
+		query: GET_PLAYER_STATE,
 		data: {
 			...currentState,
 			player: {

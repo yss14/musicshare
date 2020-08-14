@@ -1,7 +1,7 @@
 import { IPlaylist } from "../types"
 import gql from "graphql-tag"
 import { playlistKeys } from "./playlists-query"
-import { useQuery } from "react-apollo"
+import { useQuery } from "@apollo/client"
 import { flatten, uniqBy } from "lodash"
 
 export interface IGetMergedPlaylistData {

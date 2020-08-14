@@ -1,5 +1,5 @@
 import { History } from "history"
-import { ApolloError } from "apollo-client"
+import { ApolloError } from "@apollo/client"
 import { GraphQLError } from "graphql"
 
 export interface IErrorActions {

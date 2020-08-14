@@ -5,7 +5,7 @@ import {
 	useSetPlayerQueue,
 	usePlayerQueueState,
 } from "../components/player/player-state"
-import { useApolloClient } from "react-apollo"
+import { useApolloClient } from "@apollo/client"
 import { v4 as uuid } from "uuid"
 import { usePlayerContext } from "./PlayerContext"
 import { IShareSong } from "@musicshare/shared-types"

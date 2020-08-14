@@ -1,6 +1,5 @@
 import React from "react"
-import { ApolloProvider } from "react-apollo"
-import { ApolloProvider as ApolloProviderHooks } from "@apollo/react-hooks"
+import { ApolloProvider } from "@apollo/client"
 import { Router } from "react-router-dom"
 import { client, cache } from "./Apollo"
 import { DndProvider } from "react-dnd"
@@ -11,6 +10,12 @@ import { ConfigContext } from "./context/configContext"
 import { Routing } from "./components/routing/Routing"
 import { IPrimaryTheme } from "./types/Theme"
 import { history } from "./components/routing/history"
+import {
+	IAuthTokenData,
+	GET_AUTH_TOKEN,
+	IRefreshTokenData,
+	GET_REFRESH_TOKEN,
+} from "./graphql/client/queries/auth-token-query"
 
 const config = makeConfigFromEnv()
 
@@ -31,27 +36,18 @@ const GlobalStyle = createGlobalStyle`
 	}
 `
 
-//initial cache data
-const data = {
-	todos: [],
-	authToken: localStorage.getItem("auth-token") || "",
-	refreshToken: localStorage.getItem("refresh-token") || "",
-	loggedIn: false,
-	user: {
-		id: "",
-		shares: [],
+cache.writeQuery<IAuthTokenData>({
+	query: GET_AUTH_TOKEN,
+	data: {
+		authToken: localStorage.getItem("auth-token"),
 	},
-	shareID: "",
-	visibilityFilter: "SHOW_ALL",
-	networkStatus: {
-		__typename: "NetworkStatus",
-		isConnected: false,
+})
+cache.writeQuery<IRefreshTokenData>({
+	query: GET_REFRESH_TOKEN,
+	data: {
+		refreshToken: localStorage.getItem("refresh-token"),
 	},
-}
-
-cache.writeData({ data })
-
-client.onResetStore(async () => cache.writeData({ data }))
+})
 
 const theme: IPrimaryTheme = {
 	main: "#275dad",
@@ -66,17 +62,15 @@ export const App = () => {
 		<>
 			<GlobalStyle />
 			<ApolloProvider client={client}>
-				<ApolloProviderHooks client={client}>
-					<ThemeProvider theme={theme}>
-						<ConfigContext.Provider value={config}>
-							<DndProvider backend={HTML5Backend}>
-								<Router history={history}>
-									<Routing />
-								</Router>
-							</DndProvider>
-						</ConfigContext.Provider>
-					</ThemeProvider>
-				</ApolloProviderHooks>
+				<ThemeProvider theme={theme}>
+					<ConfigContext.Provider value={config}>
+						<DndProvider backend={HTML5Backend}>
+							<Router history={history}>
+								<Routing />
+							</Router>
+						</DndProvider>
+					</ConfigContext.Provider>
+				</ThemeProvider>
 			</ApolloProvider>
 		</>
 	)

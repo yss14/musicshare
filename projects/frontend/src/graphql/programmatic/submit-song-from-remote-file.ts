@@ -1,5 +1,5 @@
 import gql from "graphql-tag"
-import ApolloClient from "apollo-client"
+import { ApolloClient } from "@apollo/client"
 
 interface ISubmitSongFromRemoteFileData {
 	submitSongFromRemoteFile: boolean

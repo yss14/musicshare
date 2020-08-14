@@ -1,6 +1,6 @@
 import gql from "graphql-tag"
 import { shareSongKeys } from "../types"
-import { useQuery } from "@apollo/react-hooks"
+import { useQuery } from "@apollo/client"
 import { useHistory } from "react-router-dom"
 import { defaultGraphQLErrorHandler } from "../utils/default-graphql-errorhandler"
 import { IShareSong } from "@musicshare/shared-types"

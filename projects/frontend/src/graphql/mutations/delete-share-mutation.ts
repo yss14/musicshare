@@ -1,7 +1,6 @@
 import gql from "graphql-tag"
-import { useMutation, MutationResult, MutationHookOptions } from "react-apollo"
+import { useMutation, MutationResult, MutationHookOptions, MutationUpdaterFn } from "@apollo/client"
 import { useCallback } from "react"
-import { MutationUpdaterFn } from "apollo-client"
 import { IGetSharesData, IGetSharesVariables, GET_SHARES } from "../queries/shares-query"
 
 interface IDeleteShareData {

@@ -1,12 +1,11 @@
 import { shareSongKeys } from "../types"
 import gql from "graphql-tag"
-import { useQuery, useApolloClient } from "react-apollo"
-import { useCallback, useRef } from "react"
+import { useQuery, useApolloClient, ApolloClient } from "@apollo/client"
+import { useCallback, useRef, useState } from "react"
 import { GET_SHARE_WITH_SONGS, IGetShareWithSongsData, IGetShareWithSongsVariables } from "./share-songs-query"
 import { ITimedstampedResults, IShareSong } from "@musicshare/shared-types"
-import useInterval from "@use-it/interval"
-import ApolloClient from "apollo-client"
 import { IGetMergedSongsData, GET_MERGED_SONGS } from "./merged-songs-query"
+import useSetTimeout from "use-set-timeout"
 
 export interface IGetShareDirtySongsData {
 	share: {
@@ -124,33 +123,24 @@ export const useShareDirtySongs = (shareID: string) => {
 		[cache, shareID],
 	)
 
-	const { refetch } = useQuery<IGetShareDirtySongsData, IGetShareDirtySongsVariables>(GET_SHARE_DIRTY_SONGS, {
+	useQuery<IGetShareDirtySongsData, IGetShareDirtySongsVariables>(GET_SHARE_DIRTY_SONGS, {
 		fetchPolicy: "network-only",
-		skip: true,
+		pollInterval: 10e3,
+		onCompleted: (data) => {
+			updateCache(data)
+		},
+		variables: { shareID, lastTimestamp: lastUpdateTimestamp.current },
 	})
-
-	const onInterval = useCallback(() => {
-		refetch({
-			shareID,
-			lastTimestamp: lastUpdateTimestamp.current,
-		}).then((result) => {
-			// onCompleted is broken for refetch, use this workaround for now
-			// https://github.com/apollographql/react-apollo/issues/3709
-			if (result.data) {
-				updateCache(result.data)
-			}
-		})
-	}, [refetch, shareID, updateCache])
-
-	useInterval(onInterval, 10e3)
 }
 
 export const useMergedViewDirtySongs = () => {
 	const cache = useApolloClient()
 	const lastUpdateTimestamp = useRef<Date>(new Date())
+	const [skip, setSkip] = useState(true)
 
 	const updateCache = useCallback(
 		(data: IGetMergedViewDirtySongsData) => {
+			console.log("updateCache")
 			if (data.viewer.shares.length === 0) return
 
 			lastUpdateTimestamp.current = data.viewer.shares[0].songsDirty.timestamp
@@ -170,6 +160,7 @@ export const useMergedViewDirtySongs = () => {
 			})
 
 			if (!currentMergedSongs) return
+			console.log({ currentMergedSongs })
 
 			cache.writeQuery<IGetMergedSongsData, void>({
 				query: GET_MERGED_SONGS,
@@ -181,10 +172,12 @@ export const useMergedViewDirtySongs = () => {
 							const updatedShare = data.viewer.shares.find((share) => share.id === currentShare.id)
 
 							if (!updatedShare) return currentShare
-
+							console.log(currentShare)
+							const currentSongs = currentShare.songs ?? []
 							const songsDirty = updatedShare.songsDirty.nodes
-							const { dirtySongIDs, newSongs } = getSongsDiff(currentShare.songs, songsDirty)
-							const songs = currentShare.songs
+							const { dirtySongIDs, newSongs } = getSongsDiff(currentSongs, songsDirty)
+
+							const songs = currentSongs
 								.map((song) =>
 									dirtySongIDs.has(song.id)
 										? songsDirty.find((dirtySong) => dirtySong.id === song.id) || song
@@ -204,25 +197,18 @@ export const useMergedViewDirtySongs = () => {
 		[cache],
 	)
 
-	const { refetch } = useQuery<IGetMergedViewDirtySongsData, IGetMergedViewDirtySongsVariables>(
-		GET_MERGED_VIEW_DIRTY_SONGS,
-		{
-			fetchPolicy: "network-only",
-			skip: true,
-		},
-	)
-
-	const onInterval = useCallback(() => {
-		refetch({
+	useQuery<IGetMergedViewDirtySongsData, IGetMergedViewDirtySongsVariables>(GET_MERGED_VIEW_DIRTY_SONGS, {
+		fetchPolicy: "network-only",
+		variables: {
 			lastTimestamp: lastUpdateTimestamp.current,
-		}).then((result) => {
-			// onCompleted is broken for refetch, use this workaround for now
-			// https://github.com/apollographql/react-apollo/issues/3709
-			if (result.data) {
-				updateCache(result.data)
-			}
-		})
-	}, [refetch, updateCache])
+		},
+		onCompleted: (data) => updateCache(data),
+		pollInterval: 30e3,
+		skip,
+	})
 
-	useInterval(onInterval, 10e3)
+	// workaround for waiting until results from useMergedSongs() are dispatched to the cache, otherwise error
+	useSetTimeout(() => {
+		setSkip(false)
+	}, 10e3)
 }

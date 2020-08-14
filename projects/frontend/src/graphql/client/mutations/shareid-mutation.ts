@@ -1,27 +1,16 @@
-import gql from "graphql-tag"
-import { useMutation } from "@apollo/react-hooks"
+import { useApolloClient } from "@apollo/client"
 import { useEffect } from "react"
-
-export interface IUpdateShareIDVariables {
-	shareID: string | null
-}
-
-const UPDATE_SHARE_ID = gql`
-	mutation updateShareId($shareID: String!) {
-		updateShareId(shareID: $shareID) @client
-	}
-`
+import { GET_SHARE_ID, IShareIDData } from "../queries/shareid-query"
 
 export const useUpdateShareID = (shareID: string | null) => {
-	const [updateShareID] = useMutation<{}, IUpdateShareIDVariables>(UPDATE_SHARE_ID)
+	const client = useApolloClient()
 
 	useEffect(() => {
-		updateShareID({
-			variables: {
+		client.writeQuery<IShareIDData>({
+			query: GET_SHARE_ID,
+			data: {
 				shareID,
 			},
 		})
-	}, [shareID, updateShareID])
-
-	return updateShareID
+	}, [shareID, client])
 }
