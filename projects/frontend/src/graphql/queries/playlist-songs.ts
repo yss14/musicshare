@@ -4,6 +4,29 @@ import { useQuery } from "@apollo/client"
 import { useHistory } from "react-router-dom"
 import { defaultGraphQLErrorHandler } from "../utils/default-graphql-errorhandler"
 
+//type TypeKeys<T> = (keyof T)
+
+type TypeKeys<TType> = (keyof TType)[]
+
+interface IGraphQLQueryOpts<TType, Keys extends TypeKeys<TType>>{
+	variables?: Record<string, unknown>
+	keys: Record<keyof TType, 
+}
+
+interface IGraphQLQuery<TType, K extends TypeKeys<TType>>{
+	data: Pick<TType, Extract<keyof TType, K>>
+}
+// IRecord<Extract<T, IColumns>>
+
+const query = <TType>() => <Subset extends TypeKeys<TType>>(opts: IGraphQLQueryOpts<TType, Subset>): IGraphQLQuery<TType, IGraphQLQueryOpts<TVar, TType>['keys']> => {
+
+}
+
+const test = query<IPlaylistWithSongs>()({
+	keys: ["id", "name"]
+})
+test.data.
+
 export interface IGetPlaylistSongsData {
 	share: {
 		id: string
