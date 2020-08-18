@@ -9,7 +9,7 @@ export interface IGetArtistsData {
 }
 
 export const GET_ARTISTS = gql`
-	query Artists {
+	query artists {
 		viewer {
 			id
 			artists {

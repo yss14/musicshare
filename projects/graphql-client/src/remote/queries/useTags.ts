@@ -1,5 +1,5 @@
 import gql from "graphql-tag"
-import { useQuery } from "@apollo/client"
+import { useGraphQLQuery, IUseQueryOptions } from "../../react-query-graphql"
 
 export interface IGetTagsData {
 	viewer: {
@@ -16,8 +16,8 @@ export const GET_TAGS = gql`
 	}
 `
 
-export const useTags = () => {
-	const { data, ...rest } = useQuery<IGetTagsData>(GET_TAGS)
+export const useTags = (opts?: IUseQueryOptions<IGetTagsData>) => {
+	const { data, ...rest } = useGraphQLQuery<IGetTagsData>(GET_TAGS, { staleTime: 30e3, ...opts })
 
 	return {
 		data: data ? data.viewer.tags : undefined,
