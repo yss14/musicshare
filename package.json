@@ -15,6 +15,8 @@
 		"build:frontend": "lerna run build --stream --scope @musicshare/frontend",
 		"build:shared-types": "lerna run build --stream --scope @musicshare/shared-types",
 		"build:watch:shared-types": "lerna run build:watch --stream --scope @musicshare/shared-types",
+		"build:graphql-client": "lerna run build --stream --scope @musicshare/graphql-client",
+		"build:watch:graphql-client": "lerna run build:watch --stream --scope @musicshare/graphql-client",
 		"verify": "lerna run verify --stream",
 		"verify:backend": "lerna run verify --stream --scope @musicshare/backend",
 		"verify:frontend": "lerna run verify --stream --scope @musicshare/frontend",
