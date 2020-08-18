@@ -31,7 +31,7 @@ export const Share = React.memo(() => {
 	const match = useRouteMatch()
 	useUpdateShareID(shareID)
 
-	const query = useGraphQLQuery<IGetArtistsData, {}>(GET_ARTISTS)
+	const query = useGraphQLQuery<IGetArtistsData>(GET_ARTISTS)
 	console.log(query)
 
 	if (!match) return <Redirect to="/" />

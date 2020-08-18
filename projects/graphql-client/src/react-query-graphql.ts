@@ -1,6 +1,6 @@
 import React, { useContext } from "react"
 import { IGraphQLBaseClient } from "GraphQLClient"
-import { QueryConfig, useQuery } from "react-query"
+import { QueryConfig, useQuery, MutationConfig, useMutation } from "react-query"
 import { DocumentNode } from "graphql"
 
 export const GraphQLClientContext = React.createContext<IGraphQLBaseClient | null>(null)
@@ -27,7 +27,7 @@ export interface IUseQueryOptions<TData, TVar> extends QueryConfig<TData>, Graph
 	operatioName?: string
 }
 
-export const useGraphQLQuery = <TData, TVar extends Record<string, unknown>>(
+export const useGraphQLQuery = <TData, TVar extends Record<string, unknown> = {}>(
 	query: string | DocumentNode,
 	{
 		variables = {} as TVar,
@@ -41,9 +41,31 @@ export const useGraphQLQuery = <TData, TVar extends Record<string, unknown>>(
 
 	const queryObject = useQuery<TData, unknown, typeof cachingKey>(
 		cachingKey,
-		async (_, variables) => graphQLClient.request<TData, TVar>("/graphql", query, variables),
+		(_, variables) => graphQLClient.request<TData, TVar>("/graphql", query, variables),
 		opts,
 	)
 
 	return queryObject
+}
+
+export interface IUseMutationOptions<TData, TVar> extends MutationConfig<TData>, GraphQLVariables<TVar> {
+	operatioName?: string
+}
+
+export const useGraphQLMutation = <TData, TVar extends Record<string, unknown> = {}>(
+	mutation: string | DocumentNode,
+	{
+		variables = {} as TVar,
+		operatioName = typeof mutation === "string" ? mutation : getDocKey(mutation),
+		...opts
+	}: IUseQueryOptions<TData, TVar> = {},
+) => {
+	const graphQLClient = useGraphQLClient()
+
+	const mutationObject = useMutation<TData, unknown, TVar>(
+		(variables) => graphQLClient.request("/graphql", mutation, variables),
+		opts,
+	)
+
+	return mutationObject
 }
