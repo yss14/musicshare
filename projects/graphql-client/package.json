@@ -13,5 +13,7 @@
 	"author": "Yannick Stachelscheid",
 	"license": "UNLICENSED",
 	"devDependencies": {},
-	"dependencies": {}
+	"dependencies": {
+		"@musicshare/shared-types": "*"
+	}
 }

@@ -1,6 +1,6 @@
 import { DataProxy } from "@apollo/client"
 import { IArtist } from "../types"
-import { IGetArtistsData, GET_ARTISTS } from "../queries/artists-query"
+import { IGetArtistsData, GET_ARTISTS } from "@musicshare/graphql-client"
 
 export const addArtistsToCache = (cache: DataProxy, artists: IArtist[]) => {
 	const currentArtists = cache.readQuery<IGetArtistsData, void>({

@@ -1,15 +1,15 @@
-import { IArtist } from "../types"
+//import { Artist } from "@musicshare/shared-types"
 import gql from "graphql-tag"
-import { useQuery } from "@apollo/client"
+import { useGraphQLQuery } from "../../react-query-graphql"
 
 export interface IGetArtistsData {
 	viewer: {
-		artists: IArtist[]
+		artists: any[]
 	}
 }
 
 export const GET_ARTISTS = gql`
-	query genres {
+	query Artists {
 		viewer {
 			id
 			artists {
@@ -20,8 +20,8 @@ export const GET_ARTISTS = gql`
 `
 
 export const useArtists = () => {
-	const { data, ...rest } = useQuery<IGetArtistsData>(GET_ARTISTS)
-
+	const { data, ...rest } = useGraphQLQuery<IGetArtistsData>(GET_ARTISTS)
+	console.log(data)
 	return {
 		data: data ? data.viewer.artists : undefined,
 		...rest,

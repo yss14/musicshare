@@ -2,7 +2,7 @@ import React from "react"
 import { useSong } from "../../../graphql/queries/song-query"
 import { useGenres } from "../../../graphql/queries/genres-query"
 import { useSongTypes } from "../../../graphql/queries/song-types-query"
-import { useArtists } from "../../../graphql/queries/artists-query"
+import { useArtists } from "@musicshare/graphql-client"
 import { SongForm } from "./SongForm"
 import { useTags } from "../../../graphql/queries/tags-query"
 import { useLibraryID } from "../../../graphql/client/queries/libraryid-query"
@@ -17,7 +17,7 @@ interface ISongModalProps {
 export const SongModal = ({ song, closeForm, playlistID }: ISongModalProps) => {
 	const { loading: loadingSong, error: errorSong, data: songFromAPI } = useSong(song.shareID, song.id)
 	const { loading: loadingGenres, error: errorGenres, data: genres } = useGenres()
-	const { loading: loadingArtists, error: errorArtists, data: artists } = useArtists()
+	const { isFetching: loadingArtists, error: errorArtists, data: artists } = useArtists()
 	const { loading: loadingTags, error: errorTags, data: tags } = useTags()
 	const { loading: loadingSongTypes, error: errorSongTypes, data: songTypes } = useSongTypes()
 	const userLibraryID = useLibraryID()

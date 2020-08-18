@@ -5,8 +5,6 @@ import { PlaylistSongs } from "./PlaylistSongs"
 import { IShareRoute, ISharePlaylistRoute } from "../../interfaces"
 import { useUpdateShareID } from "../../graphql/client/mutations/shareid-mutation"
 import { useUpdateplaylistID } from "../../graphql/client/mutations/playlistid-mutation"
-import { useGraphQLQuery } from "@musicshare/graphql-client"
-import { GET_ARTISTS, IGetArtistsData } from "../../graphql/queries/artists-query"
 
 const UpdatePlaylistID: React.FC = ({ children }) => {
 	const { playlistID } = useParams<ISharePlaylistRoute>()
@@ -30,9 +28,6 @@ export const Share = React.memo(() => {
 	const { shareID } = useParams<IShareRoute>()
 	const match = useRouteMatch()
 	useUpdateShareID(shareID)
-
-	const query = useGraphQLQuery<IGetArtistsData>(GET_ARTISTS)
-	console.log(query)
 
 	if (!match) return <Redirect to="/" />
 
