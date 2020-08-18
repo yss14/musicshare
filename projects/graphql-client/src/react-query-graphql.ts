@@ -23,7 +23,7 @@ interface GraphQLVariables<TVariables> {
 	variables?: TVariables
 }
 
-export interface IUseQueryOptions<TData, TVar> extends QueryConfig<TData>, GraphQLVariables<TVar> {
+export interface IUseQueryOptions<TData, TVar = {}> extends QueryConfig<TData>, GraphQLVariables<TVar> {
 	operatioName?: string
 }
 

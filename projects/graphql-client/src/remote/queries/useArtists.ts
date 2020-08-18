@@ -1,6 +1,6 @@
 import { Artist } from "@musicshare/shared-types"
 import gql from "graphql-tag"
-import { useGraphQLQuery } from "../../react-query-graphql"
+import { useGraphQLQuery, IUseQueryOptions } from "../../react-query-graphql"
 
 export interface IGetArtistsData {
 	viewer: {
@@ -19,9 +19,9 @@ export const GET_ARTISTS = gql`
 	}
 `
 
-export const useArtists = () => {
-	const { data, ...rest } = useGraphQLQuery<IGetArtistsData>(GET_ARTISTS)
-	console.log(data)
+export const useArtists = (opts?: IUseQueryOptions<IGetArtistsData>) => {
+	const { data, ...rest } = useGraphQLQuery<IGetArtistsData>(GET_ARTISTS, { staleTime: 30e3, ...opts })
+
 	return {
 		data: data ? data.viewer.artists : undefined,
 		...rest,
