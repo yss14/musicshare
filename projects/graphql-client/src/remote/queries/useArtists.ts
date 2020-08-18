@@ -1,10 +1,10 @@
-//import { Artist } from "@musicshare/shared-types"
+import { Artist } from "@musicshare/shared-types"
 import gql from "graphql-tag"
 import { useGraphQLQuery } from "../../react-query-graphql"
 
 export interface IGetArtistsData {
 	viewer: {
-		artists: any[]
+		artists: Artist[]
 	}
 }
 
