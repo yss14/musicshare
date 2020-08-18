@@ -27,7 +27,7 @@ export interface IUseQueryOptions<TData, TVar = {}> extends QueryConfig<TData>, 
 	operatioName?: string
 }
 
-export const useGraphQLQuery = <TData, TVar extends Record<string, unknown> = {}>(
+export const useGraphQLQuery = <TData, TVar extends {} = {}>(
 	query: string | DocumentNode,
 	{
 		variables = {} as TVar,
