@@ -18,6 +18,7 @@ import {
 } from "./graphql/client/queries/auth-token-query"
 import { GraphQLClient, GraphQLClientContext } from "@musicshare/graphql-client"
 import { ReactQueryConfigProvider, ReactQueryProviderConfig } from "react-query"
+import { ReactQueryDevtools } from "react-query-devtools"
 
 const config = makeConfigFromEnv()
 
@@ -83,6 +84,7 @@ export const App = () => {
 		<ReactQueryConfigProvider config={queryConfig}>
 			<GraphQLClientContext.Provider value={graphQLClient}>
 				<GlobalStyle />
+				<ReactQueryDevtools />
 				<ApolloProvider client={client}>
 					<ThemeProvider theme={theme}>
 						<ConfigContext.Provider value={config}>
