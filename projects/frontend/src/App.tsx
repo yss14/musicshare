@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { ApolloProvider } from "@apollo/client"
 import { Router } from "react-router-dom"
 import { client, cache } from "./Apollo"
@@ -16,6 +16,8 @@ import {
 	IRefreshTokenData,
 	GET_REFRESH_TOKEN,
 } from "./graphql/client/queries/auth-token-query"
+import { GraphQLClient, GraphQLClientContext } from "@musicshare/graphql-client"
+import { ReactQueryConfigProvider, ReactQueryProviderConfig } from "react-query"
 
 const config = makeConfigFromEnv()
 
@@ -57,21 +59,42 @@ const theme: IPrimaryTheme = {
 	darkgrey: "#474350",
 }
 
+const queryConfig: ReactQueryProviderConfig = {
+	queries: {
+		refetchOnWindowFocus: false,
+		retry: 1,
+	},
+}
+
 export const App = () => {
+	const graphQLClient = useMemo(() => {
+		const client = GraphQLClient({ baseURL: config.services.musicshare.backendURL })
+
+		client.useRequestMiddleware((request) => {
+			request.headers["Authorization"] = localStorage.getItem("auth-token")
+
+			return request
+		})
+
+		return client
+	}, [])
+
 	return (
-		<>
-			<GlobalStyle />
-			<ApolloProvider client={client}>
-				<ThemeProvider theme={theme}>
-					<ConfigContext.Provider value={config}>
-						<DndProvider backend={HTML5Backend}>
-							<Router history={history}>
-								<Routing />
-							</Router>
-						</DndProvider>
-					</ConfigContext.Provider>
-				</ThemeProvider>
-			</ApolloProvider>
-		</>
+		<ReactQueryConfigProvider config={queryConfig}>
+			<GraphQLClientContext.Provider value={graphQLClient}>
+				<GlobalStyle />
+				<ApolloProvider client={client}>
+					<ThemeProvider theme={theme}>
+						<ConfigContext.Provider value={config}>
+							<DndProvider backend={HTML5Backend}>
+								<Router history={history}>
+									<Routing />
+								</Router>
+							</DndProvider>
+						</ConfigContext.Provider>
+					</ThemeProvider>
+				</ApolloProvider>
+			</GraphQLClientContext.Provider>
+		</ReactQueryConfigProvider>
 	)
 }
