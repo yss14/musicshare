@@ -25,7 +25,8 @@
 		"test:ci": "lerna run test:ci --stream --scope @musicshare/backend",
 		"test:cov": "lerna run test:cov --stream",
 		"postinstall": "npm run bootstrap",
-		"prettify": "prettier --config .prettierrc.js --ignore-path .prettierignore --write ./projects/**/*.{ts,tsx,js}"
+		"prettify": "prettier --config .prettierrc.js --ignore-path .prettierignore --write ./projects/**/*.{ts,tsx,js}",
+		"generatetypes": "sgts -e http://localhost:4000/graphql -o ./projects/shared-types/src/GeneratedTypes.ts"
 	},
 	"husky": {
 		"hooks": {
@@ -159,6 +160,7 @@
 		"prettier": "^2.0.5",
 		"pretty-quick": "^2.0.1",
 		"react-scripts": "^3.2.0",
+		"simple-graphql-to-typescript": "^0.7.5",
 		"ts-jest": "^25.0.0",
 		"tsc-watch": "^4.0.0",
 		"typescript": "^3.9.2",
