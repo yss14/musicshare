@@ -87,6 +87,7 @@
 		"react-dropzone": "^11.0.1",
 		"react-lottie": "^1.2.3",
 		"react-page-visibility": "^6.2.0",
+		"react-query": "^2.5.7-tsnext.1",
 		"react-router-dom": "^5.0.0",
 		"react-virtualized": "^9.21.2",
 		"reflect-metadata": "^0.1.13",
