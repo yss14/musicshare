@@ -3,8 +3,8 @@ import { AxiosError } from "axios"
 
 export type Variables = { [key: string]: any }
 
-export interface GraphQLResponse {
-	data?: any
+export interface IGraphQLResponse<TData> {
+	data?: TData
 	errors?: GraphQLError[]
 	extensions?: any
 	status: number
@@ -16,11 +16,11 @@ export interface GraphQLRequestContext {
 	variables?: Variables
 }
 
-export class GraphQLClientError extends Error {
-	response: GraphQLResponse
+export class GraphQLClientError<TData> extends Error {
+	response: IGraphQLResponse<TData>
 	request: GraphQLRequestContext
 
-	constructor(response: GraphQLResponse, request: GraphQLRequestContext) {
+	constructor(response: IGraphQLResponse<TData>, request: GraphQLRequestContext) {
 		const message = GraphQLClientError.extractMessage(response)
 		super(message)
 		this.response = response
@@ -33,7 +33,7 @@ export class GraphQLClientError extends Error {
 		}
 	}
 
-	private static extractMessage(response: GraphQLResponse): string {
+	private static extractMessage<TData>(response: IGraphQLResponse<TData>): string {
 		try {
 			return response.errors![0].message
 		} catch (e) {

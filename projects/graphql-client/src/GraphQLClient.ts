@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios"
 import { DocumentNode } from "graphql"
 import { print } from "graphql/language/printer"
-import { GraphQLClientError } from "./GraphQLClientError"
+import { GraphQLClientError, IGraphQLResponse } from "./GraphQLClientError"
 
 export type IGraphQLBaseClient = ReturnType<typeof GraphQLClient>
 
@@ -26,9 +26,13 @@ export const GraphQLClient = (opts?: AxiosRequestConfig) => {
 		})
 
 		try {
-			const response = await client.post<TData>(url, body)
+			const response = await client.post<IGraphQLResponse<TData>>(url, body)
 
-			return response.data
+			if (response.status >= 200 && response.status <= 204 && response.data.data) {
+				return response.data.data
+			} else {
+				throw new GraphQLClientError({ ...response.data }, { query: printedQuery, variables })
+			}
 		} catch (err) {
 			if (err instanceof GraphQLClientError) {
 				throw err
