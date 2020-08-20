@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react"
 import { QuestionCircleOutlined } from "@ant-design/icons"
 import { Modal, Input, Table, Button, Alert, Popconfirm, Typography, message, Form } from "antd"
-import { IShare } from "../../../graphql/types"
 import { useDebounce } from "use-debounce/lib"
 import { useShareUsers } from "../../../graphql/queries/share-users-query"
 import Column from "antd/lib/table/Column"
@@ -11,7 +10,7 @@ import { useRevokeInvitation } from "../../../graphql/mutations/revoke-invitatio
 import { useRenameShare } from "../../../graphql/mutations/rename-share-mutation"
 import { useDeleteShare } from "../../../graphql/mutations/delete-share-mutation"
 import { useLeaveShare } from "../../../graphql/mutations/leave-share-mutation"
-import { Permissions, UserStatus, IShareMember, Permission } from "@musicshare/shared-types"
+import { Permissions, UserStatus, IShareMember, Permission, Share } from "@musicshare/shared-types"
 import { useHistory } from "react-router-dom"
 import { useLibraryID } from "../../../graphql/client/queries/libraryid-query"
 import styled from "styled-components"
@@ -29,7 +28,7 @@ const FormItemVertical = styled(Form.Item)`
 `
 
 interface IShareSettingsProps {
-	share: IShare
+	share: Share
 	onClose: () => void
 }
 
@@ -100,7 +99,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 	)
 }
 
-const ChangeSongName: React.FC<{ share: IShare }> = ({ share: { name, id } }) => {
+const ChangeSongName: React.FC<{ share: Share }> = ({ share: { name, id } }) => {
 	const [shareName, setShareName] = useState(name)
 	const [inputBlured, setInputBlured] = useState(false)
 	const [debouncedShareName] = useDebounce(shareName, 1000)

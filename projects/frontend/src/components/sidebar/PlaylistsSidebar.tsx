@@ -16,7 +16,7 @@ import { LoadingSpinner } from "../common/LoadingSpinner"
 import { useContextMenu } from "../modals/contextmenu/ContextMenu"
 import { PlaylistContextMenu } from "./PlaylistContextMenu"
 import Scrollbars from "react-custom-scrollbars"
-import { useShares } from "../../graphql/queries/shares-query"
+import { useShares } from "@musicshare/graphql-client"
 
 const Sidebar = styled.div`
 	width: 200px;
@@ -116,7 +116,7 @@ const ShareButton = styled(Button)`
 
 const MergedPlaylistsSidebar = () => {
 	const { loading, error, data } = useMergedPlaylists()
-	const { loading: loadingShares, data: shares } = useShares()
+	const { isFetching: loadingShares, data: shares } = useShares()
 
 	const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null)
 	const [newPlaylistShareID, setNewPlaylistShareID] = useState<string | null>(null)
@@ -153,7 +153,7 @@ const MergedPlaylistsSidebar = () => {
 	const newPlaylistShareButtons = useMemo(() => {
 		if (!shares) return []
 
-		return shares.viewer.shares.map((share) => (
+		return shares.map((share) => (
 			<ShareButton type="primary" key={share.id} size="small" onClick={() => onClickNewSharePlaylist(share.id)}>
 				{share.name}
 			</ShareButton>

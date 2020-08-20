@@ -15,7 +15,7 @@ export const useGraphQLClient = () => {
 	return client
 }
 
-export const getDocKey = (query: DocumentNode): string => {
+export const getQueryKey = (query: DocumentNode): string => {
 	return (query.definitions[0] as any).name.value
 }
 
@@ -31,7 +31,7 @@ export const useGraphQLQuery = <TData, TVar extends {} = {}>(
 	query: string | DocumentNode,
 	{
 		variables = {} as TVar,
-		operatioName = typeof query === "string" ? query : getDocKey(query),
+		operatioName = typeof query === "string" ? query : getQueryKey(query),
 		...opts
 	}: IUseQueryOptions<TData, TVar> = {},
 ) => {
@@ -56,7 +56,7 @@ export const useGraphQLMutation = <TData, TVar extends Record<string, unknown> =
 	mutation: string | DocumentNode,
 	{
 		variables = {} as TVar,
-		operatioName = typeof mutation === "string" ? mutation : getDocKey(mutation),
+		operatioName = typeof mutation === "string" ? mutation : getQueryKey(mutation),
 		...opts
 	}: IUseQueryOptions<TData, TVar> = {},
 ) => {

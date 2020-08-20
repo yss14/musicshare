@@ -1,7 +1,8 @@
 import gql from "graphql-tag"
 import { useMutation, MutationResult, MutationHookOptions, MutationUpdaterFn } from "@apollo/client"
 import { useCallback } from "react"
-import { IGetSharesData, IGetSharesVariables, GET_SHARES } from "../queries/shares-query"
+import { queryCache } from "react-query"
+import { getQueryKey, GET_SHARES } from "@musicshare/graphql-client"
 
 interface IDeleteShareData {
 	deleteShare: boolean
@@ -19,23 +20,8 @@ const DELETE_SHARE = gql`
 
 export const useDeleteShare = (opts?: MutationHookOptions<IDeleteShareData, IDeleteShareVariables>) => {
 	const makeUpdateSharesCache = useCallback(
-		(shareID: string): MutationUpdaterFn<IDeleteShareData> => (cache, { data }) => {
-			if (!data) return
-
-			const currentData = cache.readQuery<IGetSharesData, IGetSharesVariables>({
-				query: GET_SHARES,
-			})!
-
-			cache.writeQuery<IGetSharesData, IGetSharesVariables>({
-				query: GET_SHARES,
-				data: {
-					viewer: {
-						id: currentData.viewer.id,
-						__typename: "User",
-						shares: currentData.viewer.shares.filter((share) => share.id !== shareID),
-					},
-				},
-			})
+		(): MutationUpdaterFn<IDeleteShareData> => (cache, { data }) => {
+			queryCache.invalidateQueries(getQueryKey(GET_SHARES))
 		},
 		[],
 	)
@@ -46,7 +32,7 @@ export const useDeleteShare = (opts?: MutationHookOptions<IDeleteShareData, IDel
 		(shareID: string) => {
 			deleteShareMutation({
 				variables: { shareID },
-				update: makeUpdateSharesCache(shareID),
+				update: makeUpdateSharesCache(),
 			})
 		},
 		[deleteShareMutation, makeUpdateSharesCache],

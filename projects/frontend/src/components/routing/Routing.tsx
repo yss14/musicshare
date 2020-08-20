@@ -50,7 +50,7 @@ const ShareRoute = () => {
 }
 
 const LoggedInRoutes = () => {
-	const { data: viewer, error, isFetching } = useViewer()
+	const { data: viewer, error, isLoading } = useViewer()
 	const updateLibraryID = useUpdateLibraryID()
 	const libraryID = useLibraryID()
 	const history = useHistory()
@@ -78,7 +78,7 @@ const LoggedInRoutes = () => {
 		}
 	}, [viewer, updateLibraryID, libraryID])
 
-	if (isFetching) {
+	if (isLoading) {
 		return <LoadingSpinner />
 	}
 

@@ -1,7 +1,8 @@
 import gql from "graphql-tag"
 import { useCallback } from "react"
-import { IGetSharesData, IGetSharesVariables, GET_SHARES } from "../queries/shares-query"
 import { useMutation, MutationResult, MutationHookOptions, MutationUpdaterFn } from "@apollo/client"
+import { queryCache } from "react-query"
+import { getQueryKey, GET_SHARES } from "@musicshare/graphql-client"
 
 interface ILeaveShareData {
 	leaveShare: boolean
@@ -21,23 +22,8 @@ const LEAVE_SHARE = gql`
 
 export const useLeaveShare = (opts?: MutationHookOptions<ILeaveShareData, ILeaveShareVariables>) => {
 	const makeUpdateSharesCache = useCallback(
-		(shareID: string): MutationUpdaterFn<ILeaveShareData> => (cache, { data }) => {
-			if (!data) return
-
-			const currentData = cache.readQuery<IGetSharesData, IGetSharesVariables>({
-				query: GET_SHARES,
-			})!
-
-			cache.writeQuery<IGetSharesData, IGetSharesVariables>({
-				query: GET_SHARES,
-				data: {
-					viewer: {
-						id: currentData.viewer.id,
-						__typename: "User",
-						shares: currentData.viewer.shares.filter((share) => share.id !== shareID),
-					},
-				},
-			})
+		(): MutationUpdaterFn<ILeaveShareData> => (cache, { data }) => {
+			queryCache.invalidateQueries(getQueryKey(GET_SHARES))
 		},
 		[],
 	)
@@ -48,7 +34,7 @@ export const useLeaveShare = (opts?: MutationHookOptions<ILeaveShareData, ILeave
 		(shareID: string) => {
 			leaveShareMutation({
 				variables: { input: { shareID } },
-				update: makeUpdateSharesCache(shareID),
+				update: makeUpdateSharesCache(),
 			})
 		},
 		[leaveShareMutation, makeUpdateSharesCache],

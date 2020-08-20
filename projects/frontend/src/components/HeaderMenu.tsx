@@ -3,15 +3,14 @@ import { PlusOutlined, ShareAltOutlined, ProfileOutlined } from "@ant-design/ico
 import { Menu } from "antd"
 import styled from "styled-components"
 import { Link, useParams, useRouteMatch } from "react-router-dom"
-import { useShares } from "../graphql/queries/shares-query"
 import { IShareRoute } from "../interfaces"
 import { CreateShareModal } from "./modals/CreateShareModal"
 import { ShareSettings } from "./modals/share-settings/ShareSettings"
-import { IShare } from "../graphql/types"
 import { ChangePasswordModal } from "./modals/ChangePasswordModal"
 import { useApolloClient, NormalizedCacheObject, ApolloClient } from "@apollo/client"
 import { logoutUser } from "../graphql/programmatic/logout"
-import { useViewer } from "@musicshare/graphql-client"
+import { useViewer, useShares } from "@musicshare/graphql-client"
+import { Share } from "@musicshare/shared-types"
 
 const { SubMenu, ItemGroup, Item } = Menu
 
@@ -36,35 +35,33 @@ const CurrentShareItem = styled(Item)`
 export const HeaderNavMenu = () => {
 	const { shareID } = useParams<IShareRoute>()
 	const match = useRouteMatch()
-	const { data, loading, error } = useShares()
+	const { data: shares, isLoading, error } = useShares()
 	const { data: viewer } = useViewer()
 	const [showCreateShare, setShowCreateShare] = useState(false)
-	const [shareSettings, setShareSettings] = useState<IShare | null>(null)
+	const [shareSettings, setShareSettings] = useState<Share | null>(null)
 	const [showChangePassword, setShowChangePassword] = useState(false)
 	const [sharesSubmenuHovered, setSharesSubmenuHovered] = useState(false)
 	const client = useApolloClient() as ApolloClient<NormalizedCacheObject>
 
 	const logout = useCallback(() => logoutUser(client), [client])
 
-	if (loading) {
+	if (isLoading) {
 		return null
 	}
 
-	if (error || !data) {
+	if (error || !shares) {
 		if (error) console.log(error)
 
 		return null
 	}
 
-	const libraryShare = data.viewer.shares.find((share) => share.isLibrary)
-	const otherShares = data.viewer.shares.filter((share) =>
-		libraryShare === undefined ? false : share.id !== libraryShare.id,
-	)
+	const libraryShare = shares.find((share) => share.isLibrary)
+	const otherShares = shares.filter((share) => (libraryShare === undefined ? false : share.id !== libraryShare.id))
 	const currentShareName = (() => {
 		if (match) {
 			if (!match.path.endsWith("/all")) {
 				if (shareID) {
-					const currentShare = data.viewer.shares.find((share) => share.id === shareID)
+					const currentShare = shares.find((share) => share.id === shareID)
 
 					if (currentShare) {
 						if (match.path.startsWith("/all/")) {

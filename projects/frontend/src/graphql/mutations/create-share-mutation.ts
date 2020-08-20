@@ -2,7 +2,8 @@ import { IShare, shareKeys } from "../types"
 import gql from "graphql-tag"
 import { useMutation, MutationHookOptions, MutationUpdaterFn } from "@apollo/client"
 import { useCallback } from "react"
-import { IGetSharesData, IGetSharesVariables, GET_SHARES } from "../queries/shares-query"
+import { queryCache } from "react-query"
+import { getQueryKey, GET_SHARES } from "@musicshare/graphql-client"
 
 interface ICreateShareVariables {
 	name: string
@@ -22,27 +23,7 @@ const CREATE_SHARE = gql`
 
 export const useCreateShare = (opts?: MutationHookOptions<ICreateShareData, ICreateShareVariables>) => {
 	const updateSharesCache = useCallback<MutationUpdaterFn<ICreateShareData>>((cache, { data }) => {
-		if (!data) return
-
-		const currentData = cache.readQuery<IGetSharesData, IGetSharesVariables>({
-			query: GET_SHARES,
-		})!
-
-		const { createShare: newShare } = data
-
-		cache.writeQuery<IGetSharesData, IGetSharesVariables>({
-			query: GET_SHARES,
-			data: {
-				viewer: {
-					id: currentData.viewer.id,
-					__typename: "User",
-					shares: currentData.viewer.shares.concat({
-						...newShare,
-						__typename: "Share",
-					}),
-				},
-			},
-		})
+		queryCache.invalidateQueries(getQueryKey(GET_SHARES))
 	}, [])
 
 	const hook = useMutation<ICreateShareData, ICreateShareVariables>(CREATE_SHARE, {
