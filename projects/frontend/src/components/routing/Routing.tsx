@@ -1,7 +1,6 @@
 import React, { Suspense, lazy, useEffect } from "react"
 import { Route, useHistory, Switch, useRouteMatch } from "react-router-dom"
 import { Login } from "../../pages/login/Login"
-import { useUser } from "../../graphql/queries/user-query"
 import { MainLayout } from "../MainLayout"
 import { RedirectToLibrary } from "./RedirectToLibrary"
 import { NotFound } from "../../pages/status/NotFound"
@@ -17,6 +16,7 @@ import { AcceptInvitation } from "../../pages/accept-invitation/AcceptInvitation
 import { RestorePassword } from "../../pages/restore-password/RestorePassword"
 import { PlayerProvider } from "../../player/PlayerContext"
 import { SongUploadProvider } from "../../utils/upload/SongUploadContext"
+import { useViewer } from "@musicshare/graphql-client"
 
 const Share = lazy(() => import("../../pages/share/Share").then((module) => ({ default: module.Share })))
 
@@ -50,7 +50,7 @@ const ShareRoute = () => {
 }
 
 const LoggedInRoutes = () => {
-	const { data, error, loading } = useUser()
+	const { data: viewer, error, isFetching } = useViewer()
 	const updateLibraryID = useUpdateLibraryID()
 	const libraryID = useLibraryID()
 	const history = useHistory()
@@ -71,14 +71,14 @@ const LoggedInRoutes = () => {
 	}, [error, history])
 
 	useEffect(() => {
-		if (data && !libraryID) {
-			const library = data.viewer.shares.find((share) => share.isLibrary === true)
+		if (viewer && !libraryID) {
+			const library = viewer.shares.find((share) => share.isLibrary === true)
 
 			updateLibraryID(library ? library.id : null)
 		}
-	}, [data, updateLibraryID, libraryID])
+	}, [viewer, updateLibraryID, libraryID])
 
-	if (loading) {
+	if (isFetching) {
 		return <LoadingSpinner />
 	}
 
@@ -100,7 +100,7 @@ const LoggedInRoutes = () => {
 					)}
 				/>
 				<Route path={["/shares/:shareID", "/all/shares/:shareID"]} render={() => <ShareRoute />} />
-				{data && <Route exact path="/" render={() => <RedirectToLibrary shares={data.viewer.shares} />} />}
+				{viewer && <Route exact path="/" render={() => <RedirectToLibrary shares={viewer.shares} />} />}
 			</SongUploadProvider>
 		</PlayerProvider>
 	)

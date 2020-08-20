@@ -8,10 +8,10 @@ import { IShareRoute } from "../interfaces"
 import { CreateShareModal } from "./modals/CreateShareModal"
 import { ShareSettings } from "./modals/share-settings/ShareSettings"
 import { IShare } from "../graphql/types"
-import { useUser } from "../graphql/queries/user-query"
 import { ChangePasswordModal } from "./modals/ChangePasswordModal"
 import { useApolloClient, NormalizedCacheObject, ApolloClient } from "@apollo/client"
 import { logoutUser } from "../graphql/programmatic/logout"
+import { useViewer } from "@musicshare/graphql-client"
 
 const { SubMenu, ItemGroup, Item } = Menu
 
@@ -37,7 +37,7 @@ export const HeaderNavMenu = () => {
 	const { shareID } = useParams<IShareRoute>()
 	const match = useRouteMatch()
 	const { data, loading, error } = useShares()
-	const { data: user } = useUser()
+	const { data: viewer } = useViewer()
 	const [showCreateShare, setShowCreateShare] = useState(false)
 	const [shareSettings, setShareSettings] = useState<IShare | null>(null)
 	const [showChangePassword, setShowChangePassword] = useState(false)
@@ -152,7 +152,7 @@ export const HeaderNavMenu = () => {
 						</Menu.Item>
 					</ItemGroup>
 				</SubMenu>
-				<SubMenu key="user" title={user?.viewer.name || "..."} style={{ float: "right" }}>
+				<SubMenu key="user" title={viewer?.name || "..."} style={{ float: "right" }}>
 					<Item
 						key="user:change_password"
 						title="Change Password"
