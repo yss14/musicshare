@@ -1,6 +1,7 @@
 import { Genre } from "@musicshare/shared-types"
 import gql from "graphql-tag"
 import { useGraphQLQuery, IUseQueryOptions } from "../../react-query-graphql"
+import { useMemoizedResult } from "../../utils/useMemoizedResult"
 
 export interface IGetGenreData {
 	viewer: {
@@ -21,10 +22,7 @@ export const GET_GENRES = gql`
 `
 
 export const useGenres = (opts?: IUseQueryOptions<IGetGenreData>) => {
-	const { data, ...rest } = useGraphQLQuery<IGetGenreData>(GET_GENRES, { staleTime: 30e3, ...opts })
+	const query = useGraphQLQuery<IGetGenreData>(GET_GENRES, { staleTime: 30e3, ...opts })
 
-	return {
-		data: data ? data.viewer.genres : undefined,
-		...rest,
-	}
+	return useMemoizedResult(query, (data) => data.viewer.genres)
 }
