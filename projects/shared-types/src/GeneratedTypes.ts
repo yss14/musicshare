@@ -59,16 +59,16 @@ export interface Share {
 export interface ShareSong {
 	id: string
 	title: string
-	suffix?: Maybe<string>
-	year?: Maybe<number>
-	bpm?: Maybe<number>
+	suffix: Maybe<string>
+	year: Maybe<number>
+	bpm: Maybe<number>
 	dateLastEdit: string
-	releaseDate?: Maybe<string>
+	releaseDate: Maybe<string>
 	isRip: boolean
 	artists: string[]
 	remixer: string[]
 	featurings: string[]
-	type?: Maybe<string>
+	type: Maybe<string>
 	genres: string[]
 	labels: string[]
 	sources: FileSource[]
@@ -283,7 +283,7 @@ export interface SubmitSongFromRemoteFileInput {
 export interface BaseSong {
 	id: string
 	title: string
-	suffix?: Maybe<string>
+	suffix: Maybe<string>
 	year?: Maybe<number>
 	bpm?: Maybe<number>
 	dateLastEdit: string

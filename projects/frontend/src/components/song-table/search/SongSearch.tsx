@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react"
 import { Input } from "antd"
 import { useDebounce } from "use-debounce"
-import { useSongSearch } from "../../../graphql/queries/song-search"
+import { useSongSearch } from "@musicshare/graphql-client"
 import { buildSongName } from "../../../utils/songname-builder"
 import styled from "styled-components"
 import { IPlaylist } from "../../../graphql/types"
-import { usePrevValue } from "../../../hooks/use-prev-value"
-import { useDeferedFlag } from "../../../hooks/use-defered-flag"
 import { ISongSearchOptions, allMatchingOptions, ISongSearchFilter } from "./search-types"
 import { SongSearchOptionsPopover } from "./SongSearchOptionsPopover"
 import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd"
@@ -14,7 +12,7 @@ import { DragNDropItem, ISongDNDItem } from "../../../types/DragNDropItems"
 import { useResettingState } from "../../../hooks/use-resetting-state"
 import { useAddSongsToPlaylist } from "../../../graphql/mutations/add-songs-to-playlist"
 import songDragPreviewImg from "../../../images/playlist_add.png"
-import { IShareSong } from "@musicshare/shared-types"
+import { IShareSong, ShareSong } from "@musicshare/shared-types"
 import { LoadingOutlined, SearchOutlined } from "@ant-design/icons"
 
 const SongSearchContainer = styled.div`
@@ -57,9 +55,10 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 	})
 	const [query, setQuery] = useState("")
 	const [debouncedQuery] = useDebounce(query, 150)
-	const prevDebouncedQuery = usePrevValue(debouncedQuery)
-	const [isSearching, toggleSearching, resetSearching] = useDeferedFlag(500)
-	const { data: songs, loading, search } = useSongSearch()
+	const { resolvedData: songs, isFetching } = useSongSearch({
+		query: debouncedQuery,
+		matcher: searchOptions.matcher,
+	})
 	const [showResults, setShowResults] = useState(false)
 	const [isDraggingSong, setIsDraggingSong] = useState(false)
 	const [isClickingSong, setIsClickingSong] = useResettingState(false, 1000)
@@ -82,19 +81,6 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 	)
 
 	useEffect(() => {
-		if (debouncedQuery) {
-			search(debouncedQuery, searchOptions.matcher)
-			toggleSearching()
-		}
-	}, [debouncedQuery, prevDebouncedQuery, searchOptions.matcher, search, toggleSearching])
-
-	useEffect(() => {
-		if (!loading) {
-			resetSearching()
-		}
-	}, [loading, resetSearching])
-
-	useEffect(() => {
 		onSearchFilterChange({ mode: searchOptions.mode, query: debouncedQuery, matcher: searchOptions.matcher })
 	}, [searchOptions, debouncedQuery, onSearchFilterChange])
 
@@ -109,7 +95,7 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 	return (
 		<SongSearchContainer>
 			<Input
-				suffix={isSearching ? <LoadingOutlined /> : <SearchOutlined />}
+				suffix={isFetching ? <LoadingOutlined /> : <SearchOutlined />}
 				addonAfter={<SongSearchOptionsPopover onOptionChange={setSearchOptions} />}
 				onChange={(e) => setQuery(e.target.value)}
 				onFocus={() => setShowResults(true)}
@@ -125,7 +111,7 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 }
 
 interface ISongSearchItemProps {
-	song: IShareSong
+	song: ShareSong
 	onClick: () => any
 	onDrag?: (isDragging: boolean) => any
 }

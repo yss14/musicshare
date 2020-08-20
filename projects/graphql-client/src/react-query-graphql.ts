@@ -1,6 +1,6 @@
 import React, { useContext } from "react"
 import { IGraphQLBaseClient } from "GraphQLClient"
-import { QueryConfig, useQuery, MutationConfig, useMutation } from "react-query"
+import { QueryConfig, usePaginatedQuery, MutationConfig, useMutation } from "react-query"
 import { DocumentNode } from "graphql"
 
 export const GraphQLClientContext = React.createContext<IGraphQLBaseClient | null>(null)
@@ -39,7 +39,7 @@ export const useGraphQLQuery = <TData, TVar extends {} = {}>(
 
 	const cachingKey = [operatioName, variables] as const
 
-	const queryObject = useQuery<TData, unknown, typeof cachingKey>(
+	const queryObject = usePaginatedQuery<TData, unknown, typeof cachingKey>(
 		cachingKey,
 		(_, variables) => graphQLClient.request<TData, TVar>("/graphql", query, variables),
 		opts,
