@@ -12,7 +12,7 @@ export interface IGetViewerData {
 }
 
 export const GET_VIEWER = gql`
-  query user {
+  query viewer {
     viewer {
 	  id
 	  name
@@ -24,7 +24,7 @@ export const GET_VIEWER = gql`
 `
 
 export const useViewer = (opts?: IUseQueryOptions<IGetViewerData>) => {
-	const query = useGraphQLQuery<IGetViewerData, {}>(GET_VIEWER)
+	const query = useGraphQLQuery<IGetViewerData, {}>(GET_VIEWER, opts)
 
 	return useMemoizedResult(query, (data) => data.viewer)
 }
