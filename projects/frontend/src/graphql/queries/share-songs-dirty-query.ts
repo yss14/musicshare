@@ -3,7 +3,6 @@ import gql from "graphql-tag"
 import { useQuery, useApolloClient, ApolloClient } from "@apollo/client"
 import { useCallback, useRef, useState } from "react"
 import { ITimedstampedResults, IShareSong } from "@musicshare/shared-types"
-import { IGetMergedSongsData, GET_MERGED_SONGS } from "./merged-songs-query"
 import useSetTimeout from "use-set-timeout"
 
 export interface IGetShareDirtySongsData {
@@ -111,7 +110,7 @@ export const useMergedViewDirtySongs = () => {
 
 	const updateCache = useCallback(
 		(data: IGetMergedViewDirtySongsData) => {
-			console.log("updateCache")
+			/*console.log("updateCache")
 			if (data.viewer.shares.length === 0) return
 
 			lastUpdateTimestamp.current = data.viewer.shares[0].songsDirty.timestamp
@@ -163,7 +162,7 @@ export const useMergedViewDirtySongs = () => {
 						}),
 					},
 				},
-			})
+			})*/
 		},
 		[cache],
 	)
