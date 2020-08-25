@@ -4,7 +4,7 @@ import { useMutation, MutationResult, MutationHookOptions, MutationUpdaterFn } f
 import { useCallback } from "react"
 import { IPlaylistSong } from "@musicshare/shared-types"
 import { queryCache } from "react-query"
-import { getQueryKey, PLAYLIST_WITH_SONGS } from "@musicshare/graphql-client"
+import { getQueryKey, GET_PLAYLIST_WITH_SONGS } from "@musicshare/graphql-client"
 
 type OrderUpdates = [string, number][]
 
@@ -36,7 +36,7 @@ export const useUpdatePlaylistSongOrder = (
 
 	const updatePlaylistSongsCache = useCallback(
 		(shareID: string, playlistID: string): MutationUpdaterFn<IUpdatePlaylistSongOrderData> => (cache, { data }) => {
-			queryCache.invalidateQueries([getQueryKey(PLAYLIST_WITH_SONGS), { shareID, playlistID }])
+			queryCache.invalidateQueries([getQueryKey(GET_PLAYLIST_WITH_SONGS), { shareID, playlistID }])
 		},
 		[],
 	)

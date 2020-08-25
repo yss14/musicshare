@@ -19,7 +19,7 @@ export interface IGetPlaylistSongsVariables {
 	playlistID: string
 }
 
-export const PLAYLIST_WITH_SONGS = gql`
+export const GET_PLAYLIST_WITH_SONGS = gql`
 	query playlistSongs($shareID: String!, $playlistID: String!) {
     	share(shareID: $shareID) {
       		id
@@ -40,7 +40,7 @@ export const usePlaylistSongs = (
 	playlistID: string,
 	opts?: IUseQueryOptions<IGetPlaylistSongsData, IGetPlaylistSongsVariables>,
 ) => {
-	const query = useGraphQLQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>(PLAYLIST_WITH_SONGS, {
+	const query = useGraphQLQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>(GET_PLAYLIST_WITH_SONGS, {
 		variables: { shareID, playlistID },
 		...opts,
 	})

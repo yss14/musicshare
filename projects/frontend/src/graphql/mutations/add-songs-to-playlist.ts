@@ -2,7 +2,7 @@ import { playlistSongKeys } from "../types"
 import { useMutation, MutationHookOptions, MutationUpdaterFn } from "@apollo/client"
 import gql from "graphql-tag"
 import { useCallback } from "react"
-import { getQueryKey, PLAYLIST_WITH_SONGS } from "@musicshare/graphql-client"
+import { getQueryKey, GET_PLAYLIST_WITH_SONGS } from "@musicshare/graphql-client"
 import { IPlaylistSong } from "@musicshare/shared-types"
 import { queryCache } from "react-query"
 
@@ -34,7 +34,7 @@ export const useAddSongsToPlaylist = (
 
 	const updatePlaylistSongsCache = useCallback(
 		(shareID: string, playlistID: string): MutationUpdaterFn<IAddSongsToPlaylistData> => (cache, { data }) => {
-			queryCache.invalidateQueries([getQueryKey(PLAYLIST_WITH_SONGS), { shareID, playlistID }])
+			queryCache.invalidateQueries([getQueryKey(GET_PLAYLIST_WITH_SONGS), { shareID, playlistID }])
 		},
 		[],
 	)
