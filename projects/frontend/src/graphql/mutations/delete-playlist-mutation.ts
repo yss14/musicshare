@@ -1,8 +1,9 @@
 import gql from "graphql-tag"
 import { useMutation, MutationResult, MutationHookOptions, MutationUpdaterFn } from "@apollo/client"
 import { useCallback } from "react"
-import { IGetPlaylistsData, IGetPlaylistsVariables, GET_SHARE_PLAYLISTS } from "../queries/playlists-query"
 import { IGetMergedPlaylistData, GET_MERGED_PLAYLISTS } from "../queries/merged-playlists-query"
+import { queryCache } from "react-query"
+import { getQueryKey, GET_SHARE_PLAYLISTS } from "@musicshare/graphql-client"
 
 interface IDeletePlaylistData {
 	deletePlaylist: boolean
@@ -30,28 +31,7 @@ export const useDeletePlaylist = (opts?: MutationHookOptions<IDeletePlaylistData
 			cache,
 		) => {
 			if (!isMergedView) {
-				const currentData = cache.readQuery<IGetPlaylistsData, IGetPlaylistsVariables>({
-					query: GET_SHARE_PLAYLISTS,
-					variables: {
-						shareID,
-					},
-				})
-
-				if (!currentData) return
-
-				cache.writeQuery<IGetPlaylistsData, IGetPlaylistsVariables>({
-					query: GET_SHARE_PLAYLISTS,
-					variables: {
-						shareID,
-					},
-					data: {
-						...currentData,
-						share: {
-							...currentData.share,
-							playlists: currentData.share.playlists.filter((playlist) => playlist.id !== playlistID),
-						},
-					},
-				})
+				queryCache.invalidateQueries(getQueryKey(GET_SHARE_PLAYLISTS))
 			} else {
 				const mergedPlaylistsQuery = cache.readQuery<IGetMergedPlaylistData, void>({
 					query: GET_MERGED_PLAYLISTS,

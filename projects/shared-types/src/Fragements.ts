@@ -51,3 +51,9 @@ export const memberKeys = `
 	shareID
 	dateJoined
 `
+export const playlistKeys = `
+	id
+	name
+	shareID
+	dateAdded
+`

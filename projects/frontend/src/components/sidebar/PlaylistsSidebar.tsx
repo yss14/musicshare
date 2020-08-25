@@ -3,7 +3,6 @@ import { Button, message, Popover } from "antd"
 import styled from "styled-components"
 import { Link, useRouteMatch } from "react-router-dom"
 import { IShareRoute } from "../../interfaces"
-import { useSharePlaylists } from "../../graphql/queries/playlists-query"
 import { useCreatePlaylist } from "../../graphql/mutations/create-playlist-mutation"
 import { Prompt } from "../modals/promt/Prompt"
 import { usePlaylistID } from "../../graphql/client/queries/playlistid-query"
@@ -16,7 +15,7 @@ import { LoadingSpinner } from "../common/LoadingSpinner"
 import { useContextMenu } from "../modals/contextmenu/ContextMenu"
 import { PlaylistContextMenu } from "./PlaylistContextMenu"
 import Scrollbars from "react-custom-scrollbars"
-import { useShares } from "@musicshare/graphql-client"
+import { useShares, useSharePlaylists } from "@musicshare/graphql-client"
 
 const Sidebar = styled.div`
 	width: 200px;
@@ -51,7 +50,7 @@ const SharePlaylistsSidebar = () => {
 		params: { shareID },
 	} = useRouteMatch<IShareRoute>()!
 	const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null)
-	const { loading, error, data } = useSharePlaylists({ shareID })
+	const { isLoading, error, data } = useSharePlaylists(shareID)
 	const [createPlaylist] = useCreatePlaylist({
 		onCompleted: ({ createPlaylist: createdPlaylist }) => {
 			message.success(`Playlist ${createdPlaylist.name} successfully created`)
@@ -89,8 +88,8 @@ const SharePlaylistsSidebar = () => {
 				playlists={playlists}
 				targetUrlAllSongs={`/shares/${shareID}`}
 				addButton={addPlaylistButton}
-				loading={loading}
-				error={error ? error.message : undefined}
+				loading={isLoading}
+				error={error ? String(error) : undefined}
 				isMergedView={false}
 			/>
 			{newPlaylistName !== null && (

@@ -1,8 +1,8 @@
 import { IPlaylist } from "../types"
 import gql from "graphql-tag"
-import { playlistKeys } from "./playlists-query"
 import { useQuery } from "@apollo/client"
 import { flatten, uniqBy } from "lodash"
+import { playlistKeys } from "@musicshare/shared-types"
 
 export interface IGetMergedPlaylistData {
 	viewer: {

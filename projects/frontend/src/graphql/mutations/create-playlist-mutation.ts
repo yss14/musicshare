@@ -1,14 +1,11 @@
 import gql from "graphql-tag"
-import {
-	playlistKeys,
-	IGetPlaylistsData,
-	IGetPlaylistsVariables,
-	GET_SHARE_PLAYLISTS,
-} from "../queries/playlists-query"
+import { GET_SHARE_PLAYLISTS, getQueryKey } from "@musicshare/graphql-client"
 import { useMutation, MutationHookOptions, MutationResult, MutationUpdaterFn } from "@apollo/client"
 import { IPlaylist } from "../types"
 import { useCallback } from "react"
 import { IGetMergedPlaylistData, GET_MERGED_PLAYLISTS } from "../queries/merged-playlists-query"
+import { playlistKeys } from "@musicshare/shared-types"
+import { queryCache } from "react-query"
 
 export interface ICreatePlaylistVariables {
 	shareID: string
@@ -31,26 +28,7 @@ export const useCreatePlaylist = (opts?: MutationHookOptions<ICreatePlaylistData
 	const makeUpdatePlaylistCache = useCallback(
 		(shareID: string, isMergedView: boolean): MutationUpdaterFn<ICreatePlaylistData> => (cache, { data }) => {
 			if (!isMergedView) {
-				const sharePlaylistsQuery = cache.readQuery<IGetPlaylistsData, IGetPlaylistsVariables>({
-					query: GET_SHARE_PLAYLISTS,
-					variables: { shareID },
-				})
-
-				if (sharePlaylistsQuery && data) {
-					const sharePlaylists = sharePlaylistsQuery.share.playlists
-
-					cache.writeQuery<IGetPlaylistsData, IGetPlaylistsVariables>({
-						query: GET_SHARE_PLAYLISTS,
-						data: {
-							share: {
-								id: shareID,
-								__typename: "Share",
-								playlists: sharePlaylists.concat([data.createPlaylist]),
-							},
-						},
-						variables: { shareID },
-					})
-				}
+				queryCache.invalidateQueries(getQueryKey(GET_SHARE_PLAYLISTS))
 			} else {
 				const mergedPlaylistsQuery = cache.readQuery<IGetMergedPlaylistData, void>({
 					query: GET_MERGED_PLAYLISTS,

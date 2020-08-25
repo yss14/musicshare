@@ -3,7 +3,7 @@ import { useMutation, MutationHookOptions, MutationUpdaterFn } from "@apollo/cli
 import gql from "graphql-tag"
 import { useCallback } from "react"
 import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
-import { IGetPlaylistsData, IGetPlaylistsVariables, GET_SHARE_PLAYLISTS } from "../queries/playlists-query"
+import { IGetPlaylistsData, IGetPlaylistsVariables, GET_SHARE_PLAYLISTS } from "@musicshare/graphql-client"
 import { IPlaylistSong } from "@musicshare/shared-types"
 
 export interface IAddSongsToPlaylistVariables {
