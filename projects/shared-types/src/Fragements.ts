@@ -38,3 +38,16 @@ export const shareKeys = `
 	isLibrary
 	userPermissions
 `
+export const userKeys = `
+	id
+	name
+	email
+`
+
+export const memberKeys = `
+	${userKeys}
+	status
+	permissions
+	shareID
+	dateJoined
+`

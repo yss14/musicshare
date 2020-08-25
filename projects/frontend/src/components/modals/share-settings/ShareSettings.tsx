@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react"
 import { QuestionCircleOutlined } from "@ant-design/icons"
 import { Modal, Input, Table, Button, Alert, Popconfirm, Typography, message, Form } from "antd"
 import { useDebounce } from "use-debounce/lib"
-import { useShareUsers } from "../../../graphql/queries/share-users-query"
+import { useShareUsers } from "@musicshare/graphql-client"
 import Column from "antd/lib/table/Column"
 import { useInviteToShare } from "../../../graphql/mutations/invite-to-share-mutation"
 import { ApolloError } from "@apollo/client"
@@ -130,7 +130,7 @@ const ChangeSongName: React.FC<{ share: Share }> = ({ share: { name, id } }) => 
 }
 
 const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
-	const { data: users, loading, error, refetch } = useShareUsers(shareID)
+	const { data: users, isLoading, error, refetch } = useShareUsers(shareID)
 	const [email, setEMail] = useState("")
 	const [invitationLink, setInvitationLink] = useState<string | null>(null)
 	const [inviteError, setInviteError] = useState<ApolloError | null>(null)
@@ -205,7 +205,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 				<Table
 					dataSource={users || []}
 					pagination={false}
-					loading={loading}
+					loading={isLoading}
 					scroll={{ y: 300 }}
 					rowKey={(user) => user.id}
 				>
