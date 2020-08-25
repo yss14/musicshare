@@ -1,7 +1,8 @@
 import gql from "graphql-tag"
 import { useMutation, MutationResult, MutationHookOptions, MutationUpdaterFn } from "@apollo/client"
 import { useCallback } from "react"
-import { IGetShareWithSongsData, IGetShareWithSongsVariables, GET_SHARE_WITH_SONGS } from "../queries/share-songs-query"
+import { queryCache } from "react-query"
+import { getQueryKey, GET_SHARE_SONGS } from "@musicshare/graphql-client"
 
 interface IRemoveSongFromLibraryData {
 	removeSongFromLibrary: boolean
@@ -30,40 +31,7 @@ export const useRemoveSongFromLibrary = (
 
 	const makeUpdateCache = useCallback(
 		(shareID: string, songID: string): MutationUpdaterFn<IRemoveSongFromLibraryData> => (cache, { data }) => {
-			if (!data) return
-
-			const shareData = cache.readQuery<IGetShareWithSongsData, IGetShareWithSongsVariables>({
-				query: GET_SHARE_WITH_SONGS,
-				variables: {
-					shareID,
-				},
-			})
-
-			if (!shareData) {
-				return
-			}
-
-			const oldSong = shareData.share.songs.find((song) => song.id === songID)
-
-			if (!oldSong) {
-				console.error(`Cannot update cache because old song with id ${songID} is not present in cache`)
-
-				return
-			}
-
-			// removes song from library as well as from the library's playlists
-			cache.writeQuery<IGetShareWithSongsData, IGetShareWithSongsVariables>({
-				query: GET_SHARE_WITH_SONGS,
-				variables: {
-					shareID,
-				},
-				data: {
-					share: {
-						...shareData.share,
-						songs: shareData.share.songs.filter((song) => song.id !== songID),
-					},
-				},
-			})
+			queryCache.invalidateQueries([getQueryKey(GET_SHARE_SONGS), { shareID }])
 		},
 		[],
 	)

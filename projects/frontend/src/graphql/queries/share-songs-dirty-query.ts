@@ -2,7 +2,6 @@ import { shareSongKeys } from "../types"
 import gql from "graphql-tag"
 import { useQuery, useApolloClient, ApolloClient } from "@apollo/client"
 import { useCallback, useRef, useState } from "react"
-import { GET_SHARE_WITH_SONGS, IGetShareWithSongsData, IGetShareWithSongsVariables } from "./share-songs-query"
 import { ITimedstampedResults, IShareSong } from "@musicshare/shared-types"
 import { IGetMergedSongsData, GET_MERGED_SONGS } from "./merged-songs-query"
 import useSetTimeout from "use-set-timeout"
@@ -77,35 +76,7 @@ const getSongsDiff = (currentSongs: IShareSong[], dirtySongs: IShareSong[]) => {
 }
 
 const updateShareSongs = (cache: ApolloClient<unknown>, shareID: string, songsDirty: IShareSong[]) => {
-	const currentShareSongs = cache.readQuery<IGetShareWithSongsData, IGetShareWithSongsVariables>({
-		query: GET_SHARE_WITH_SONGS,
-		variables: {
-			shareID,
-		},
-	})
-
-	if (!currentShareSongs) return
-
-	const { dirtySongIDs, newSongs } = getSongsDiff(currentShareSongs.share.songs, songsDirty)
-
-	cache.writeQuery<IGetShareWithSongsData, IGetShareWithSongsVariables>({
-		query: GET_SHARE_WITH_SONGS,
-		variables: {
-			shareID,
-		},
-		data: {
-			share: {
-				...currentShareSongs.share,
-				songs: currentShareSongs.share.songs
-					.map((song) =>
-						dirtySongIDs.has(song.id)
-							? songsDirty.find((dirtySong) => dirtySong.id === song.id) || song
-							: song,
-					)
-					.concat(newSongs),
-			},
-		},
-	})
+	return
 }
 
 export const useShareDirtySongs = (shareID: string) => {
