@@ -9,13 +9,12 @@ import { usePlaylistID } from "../../graphql/client/queries/playlistid-query"
 import { SidebarItem } from "./SidebarItem"
 import { PlaylistSidebarItem } from "./PlaylistSidebarItem"
 import { SidebarSection } from "./SidebarSection"
-import { useMergedPlaylists } from "../../graphql/queries/merged-playlists-query"
 import { IPlaylist } from "../../graphql/types"
 import { LoadingSpinner } from "../common/LoadingSpinner"
 import { useContextMenu } from "../modals/contextmenu/ContextMenu"
 import { PlaylistContextMenu } from "./PlaylistContextMenu"
 import Scrollbars from "react-custom-scrollbars"
-import { useShares, useSharePlaylists } from "@musicshare/graphql-client"
+import { useShares, useSharePlaylists, useMergedPlaylists } from "@musicshare/graphql-client"
 
 const Sidebar = styled.div`
 	width: 200px;
@@ -114,7 +113,7 @@ const ShareButton = styled(Button)`
 `
 
 const MergedPlaylistsSidebar = () => {
-	const { loading, error, data } = useMergedPlaylists()
+	const { isLoading, error, data } = useMergedPlaylists()
 	const { isFetching: loadingShares, data: shares } = useShares()
 
 	const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null)
@@ -176,8 +175,8 @@ const MergedPlaylistsSidebar = () => {
 				playlists={playlists}
 				targetUrlAllSongs="/all"
 				addButton={addPlaylistButton}
-				loading={loading}
-				error={error ? error.message : undefined}
+				loading={isLoading}
+				error={error ? String(error) : undefined}
 				isMergedView
 			/>
 			{newPlaylistName !== null && (
