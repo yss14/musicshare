@@ -2,8 +2,9 @@ import { playlistSongKeys } from "../types"
 import gql from "graphql-tag"
 import { useMutation, MutationResult, MutationHookOptions, MutationUpdaterFn } from "@apollo/client"
 import { useCallback } from "react"
-import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
 import { IPlaylistSong } from "@musicshare/shared-types"
+import { queryCache } from "react-query"
+import { getQueryKey, PLAYLIST_WITH_SONGS } from "@musicshare/graphql-client"
 
 type OrderUpdates = [string, number][]
 
@@ -35,36 +36,7 @@ export const useUpdatePlaylistSongOrder = (
 
 	const updatePlaylistSongsCache = useCallback(
 		(shareID: string, playlistID: string): MutationUpdaterFn<IUpdatePlaylistSongOrderData> => (cache, { data }) => {
-			if (!data) {
-				console.error(`Cannot update playlist ${playlistID} songs due to missing return data from mutation`)
-
-				return
-			}
-
-			const currentPlaylistQuery = cache.readQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>({
-				query: PLAYLIST_WITH_SONGS,
-				variables: { shareID, playlistID },
-			})
-
-			if (!currentPlaylistQuery) {
-				console.error(`Cannot update playlist ${playlistID} songs due to missing cache entry`)
-
-				return
-			}
-
-			cache.writeQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>({
-				query: PLAYLIST_WITH_SONGS,
-				data: {
-					...currentPlaylistQuery,
-					share: {
-						...currentPlaylistQuery.share,
-						playlist: {
-							...currentPlaylistQuery.share.playlist,
-							songs: data.updateOrderOfPlaylist,
-						},
-					},
-				},
-			})
+			queryCache.invalidateQueries([getQueryKey(PLAYLIST_WITH_SONGS), { shareID, playlistID }])
 		},
 		[],
 	)

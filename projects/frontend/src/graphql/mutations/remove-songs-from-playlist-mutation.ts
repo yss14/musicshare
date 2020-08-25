@@ -2,8 +2,9 @@ import { playlistSongKeys } from "../types"
 import gql from "graphql-tag"
 import { useMutation, MutationResult, MutationHookOptions, MutationUpdaterFn } from "@apollo/client"
 import { useCallback } from "react"
-import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
 import { IPlaylistSong } from "@musicshare/shared-types"
+import { queryCache } from "react-query"
+import { getQueryKey, PLAYLIST_WITH_SONGS } from "@musicshare/graphql-client"
 
 interface IRemoveSongsFromPlaylistData {
 	removeSongsFromPlaylist: IPlaylistSong[]
@@ -37,37 +38,7 @@ export const useRemoveSongsFromPlaylist = (
 			playlistID: string,
 			playlistSongIDs: string[],
 		): MutationUpdaterFn<IRemoveSongsFromPlaylistData> => (cache, { data }) => {
-			if (!data) return
-
-			const variables = {
-				shareID,
-				playlistID,
-			}
-
-			const currentData = cache.readQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>({
-				query: PLAYLIST_WITH_SONGS,
-				variables,
-			})
-
-			if (!currentData) {
-				return console.error(`Cannot update playlist ${playlistID} because playlist not present in cache`)
-			}
-
-			cache.writeQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>({
-				query: PLAYLIST_WITH_SONGS,
-				variables,
-				data: {
-					share: {
-						...currentData.share,
-						playlist: {
-							...currentData.share.playlist,
-							songs: currentData.share.playlist.songs.filter(
-								(song) => !playlistSongIDs.includes(song.playlistSongID),
-							),
-						},
-					},
-				},
-			})
+			queryCache.invalidateQueries([getQueryKey(PLAYLIST_WITH_SONGS), { shareID, playlistID }])
 		},
 		[],
 	)

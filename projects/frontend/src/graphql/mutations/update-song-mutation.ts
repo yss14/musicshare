@@ -1,11 +1,12 @@
 import gql from "graphql-tag"
 import { Nullable } from "../../types/Nullable"
 import { shareSongKeys } from "../types"
-import { IGetPlaylistSongsData, IGetPlaylistSongsVariables, PLAYLIST_WITH_SONGS } from "../queries/playlist-songs"
 import { addArtistsToCache } from "../programmatic/add-artist-to-cache"
 import { useMemo } from "react"
 import { useMutation, MutationHookOptions, MutationUpdaterFn } from "@apollo/client"
 import { IShareSong } from "@musicshare/shared-types"
+import { queryCache } from "react-query"
+import { getQueryKey, PLAYLIST_WITH_SONGS } from "@musicshare/graphql-client"
 
 export const UPDATE_SONG = gql`
 	mutation UpdateSong($shareID: String!, $songID: String!, $song: SongUpdateInput!){
@@ -46,38 +47,16 @@ const makeUpdateSongCache = (shareID: string, playlistID?: string): MutationUpda
 	{ data },
 ) => {
 	if (data) {
-		addArtistsToCache(
+		/*addArtistsToCache(
 			cache,
 			data.updateSong.artists
 				.concat(data.updateSong.remixer)
 				.concat(data.updateSong.featurings)
 				.map((artist) => ({ name: artist })),
-		)
+		)*/
 	}
 
-	// share song is automatically updated by apollo
-	if (!playlistID) return
-
-	const currentPlaylist = cache.readQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>({
-		query: PLAYLIST_WITH_SONGS,
-		variables: { playlistID, shareID },
-	})
-
-	const newSongList = currentPlaylist!.share.playlist.songs.map((song) =>
-		song.id === data!.updateSong.id ? { ...song, ...data!.updateSong } : song,
-	)
-
-	cache.writeQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>({
-		query: PLAYLIST_WITH_SONGS,
-		data: {
-			share: {
-				id: shareID,
-				__typename: "Share",
-				playlist: { ...currentPlaylist!.share.playlist, songs: newSongList },
-			},
-		},
-		variables: { playlistID, shareID },
-	})
+	queryCache.invalidateQueries([getQueryKey(PLAYLIST_WITH_SONGS), { shareID, playlistID }])
 }
 
 export const useUpdateSongMutation = (

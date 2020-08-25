@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from "react"
 import { ISharePlaylistRoute } from "../../interfaces"
-import { usePlaylist } from "../../graphql/queries/playlist-songs"
 import { useParams } from "react-router-dom"
 import { MainSongsView } from "./MainSongsView"
 import { LoadingSpinner } from "../../components/common/LoadingSpinner"
@@ -10,7 +9,8 @@ import { useDeepCompareEffect } from "../../hooks/use-deep-compare-effect"
 import { MoveSong } from "../../components/song-table/MoveSong"
 import { useSongUploadQueueEvents, ISongUploadItem } from "../../utils/upload/SongUploadContext"
 import { useDebouncedCallback } from "use-debounce/lib"
-import { IPlaylistSong } from "@musicshare/shared-types"
+import { PlaylistSong } from "@musicshare/shared-types"
+import { usePlaylistSongs } from "@musicshare/graphql-client"
 
 export interface IPlaylistSongsProps {
 	shareID: string
@@ -18,8 +18,8 @@ export interface IPlaylistSongsProps {
 
 export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	const { playlistID } = useParams<ISharePlaylistRoute>()
-	const { loading, data: playlist, error, refetch } = usePlaylist({ playlistID, shareID })
-	const [songs, setSongs] = useState<IPlaylistSong[]>(playlist?.songs || [])
+	const { isLoading, data: playlist, error, refetch } = usePlaylistSongs(shareID, playlistID)
+	const [songs, setSongs] = useState<PlaylistSong[]>(playlist?.songs || [])
 	const [updateOrder] = useUpdatePlaylistSongOrder({
 		onError: console.error,
 	})
@@ -68,8 +68,8 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 		}
 	}, [playlist?.songs])
 
-	if (loading) return <LoadingSpinner />
-	if (error) return <div>{error.message}</div>
+	if (isLoading) return <LoadingSpinner />
+	if (error) return <div>{String(error)}</div>
 	if (!playlist || !songs) return <div>No data</div>
 
 	return (

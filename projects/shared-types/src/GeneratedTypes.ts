@@ -102,7 +102,7 @@ export interface TimestampedResult {
 export interface Playlist {
 	id: string
 	name: string
-	dateAdded: undefined
+	dateAdded: string
 	shareID: string
 	songs: PlaylistSong[]
 }
@@ -110,16 +110,16 @@ export interface Playlist {
 export interface PlaylistSong {
 	id: string
 	title: string
-	suffix?: Maybe<string>
-	year?: Maybe<number>
-	bpm?: Maybe<number>
+	suffix: Maybe<string>
+	year: Maybe<number>
+	bpm: Maybe<number>
 	dateLastEdit: string
-	releaseDate?: Maybe<string>
+	releaseDate: Maybe<string>
 	isRip: boolean
 	artists: string[]
 	remixer: string[]
 	featurings: string[]
-	type?: Maybe<string>
+	type: Maybe<string>
 	genres: string[]
 	labels: string[]
 	sources: FileSource[]
