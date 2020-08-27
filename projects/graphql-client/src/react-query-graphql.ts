@@ -52,13 +52,13 @@ export interface IUseMutationOptions<TData, TVar> extends MutationConfig<TData>,
 	operatioName?: string
 }
 
-export const useGraphQLMutation = <TData, TVar extends Record<string, unknown> = {}>(
+export const useGraphQLMutation = <TData, TVar extends {} = {}>(
 	mutation: string | DocumentNode,
 	{
 		variables = {} as TVar,
 		operatioName = typeof mutation === "string" ? mutation : getQueryKey(mutation),
 		...opts
-	}: IUseQueryOptions<TData, TVar> = {},
+	}: IUseMutationOptions<TData, TVar> = {},
 ) => {
 	const graphQLClient = useGraphQLClient()
 
