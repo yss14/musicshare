@@ -1,8 +1,7 @@
 import gql from "graphql-tag"
 import { flatten, uniqBy } from "lodash"
 import { playlistKeys, Playlist } from "@musicshare/shared-types"
-import { useGraphQLQuery, IUseQueryOptions } from "../../react-query-graphql"
-import { useMemoizedResult } from "../../utils/useMemoizedResult"
+import { useGraphQLQuery, TransformedGraphQLQuery, IGraphQLQueryOpts } from "../../react-query-graphql"
 
 export interface IGetMergedPlaylistData {
 	viewer: {
@@ -14,7 +13,7 @@ export interface IGetMergedPlaylistData {
 	}
 }
 
-export const GET_MERGED_PLAYLISTS = gql`
+export const GET_MERGED_PLAYLISTS = TransformedGraphQLQuery<IGetMergedPlaylistData>(gql`
 	query mergedPlaylists {
 		viewer {
 			id,
@@ -26,12 +25,10 @@ export const GET_MERGED_PLAYLISTS = gql`
 			}
 		}
 	}
-`
+`)((data) => uniqBy(flatten(data.viewer.shares.map((share) => share.playlists)), (playlist) => playlist.id))
 
-export const useMergedPlaylists = (opts?: IUseQueryOptions<IGetMergedPlaylistData, {}>) => {
-	const query = useGraphQLQuery<IGetMergedPlaylistData, {}>(GET_MERGED_PLAYLISTS, opts)
+export const useMergedPlaylists = (opts?: IGraphQLQueryOpts<typeof GET_MERGED_PLAYLISTS>) => {
+	const query = useGraphQLQuery(GET_MERGED_PLAYLISTS, opts)
 
-	return useMemoizedResult(query, (data) =>
-		uniqBy(flatten(data.viewer.shares.map((share) => share.playlists)), (playlist) => playlist.id),
-	)
+	return query
 }

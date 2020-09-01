@@ -30,9 +30,9 @@ export const useDeletePlaylist = (opts?: MutationHookOptions<IDeletePlaylistData
 			cache,
 		) => {
 			if (!isMergedView) {
-				queryCache.invalidateQueries(getQueryKey(GET_SHARE_PLAYLISTS))
+				queryCache.invalidateQueries(getQueryKey(GET_SHARE_PLAYLISTS.query))
 			} else {
-				queryCache.invalidateQueries(getQueryKey(GET_MERGED_PLAYLISTS))
+				queryCache.invalidateQueries(getQueryKey(GET_MERGED_PLAYLISTS.query))
 			}
 		},
 		[],

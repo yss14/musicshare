@@ -1,7 +1,6 @@
 import { SongType } from "@musicshare/shared-types"
 import gql from "graphql-tag"
-import { useGraphQLQuery, IUseQueryOptions } from "../../react-query-graphql"
-import { useMemoizedResult } from "../../utils/useMemoizedResult"
+import { useGraphQLQuery, TransformedGraphQLQuery, IGraphQLQueryOpts } from "../../react-query-graphql"
 
 export interface IGetSongTypesData {
 	viewer: {
@@ -9,7 +8,7 @@ export interface IGetSongTypesData {
 	}
 }
 
-export const GET_SONGTYPES = gql`
+export const GET_SONGTYPES = TransformedGraphQLQuery<IGetSongTypesData>(gql`
 	query songtypes {
 		viewer {
 			id
@@ -21,10 +20,10 @@ export const GET_SONGTYPES = gql`
 			}
 		}
 	}
-`
+`)((data) => data.viewer.songTypes)
 
-export const useSongTypes = (opts?: IUseQueryOptions<IGetSongTypesData>) => {
-	const query = useGraphQLQuery<IGetSongTypesData>(GET_SONGTYPES, { staleTime: 30e3, ...opts })
+export const useSongTypes = (opts?: IGraphQLQueryOpts<typeof GET_SONGTYPES>) => {
+	const query = useGraphQLQuery(GET_SONGTYPES, { staleTime: 30e3, ...opts })
 
-	return useMemoizedResult(query, (data) => data.viewer.songTypes)
+	return query
 }

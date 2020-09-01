@@ -23,7 +23,7 @@ const CREATE_SHARE = gql`
 
 export const useCreateShare = (opts?: MutationHookOptions<ICreateShareData, ICreateShareVariables>) => {
 	const updateSharesCache = useCallback<MutationUpdaterFn<ICreateShareData>>((cache, { data }) => {
-		queryCache.invalidateQueries(getQueryKey(GET_SHARES))
+		queryCache.invalidateQueries(getQueryKey(GET_SHARES.query))
 	}, [])
 
 	const hook = useMutation<ICreateShareData, ICreateShareVariables>(CREATE_SHARE, {

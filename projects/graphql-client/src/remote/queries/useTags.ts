@@ -1,6 +1,5 @@
 import gql from "graphql-tag"
-import { useGraphQLQuery, IUseQueryOptions } from "../../react-query-graphql"
-import { useMemoizedResult } from "../../utils/useMemoizedResult"
+import { useGraphQLQuery, TransformedGraphQLQuery, IGraphQLQueryOpts } from "../../react-query-graphql"
 
 export interface IGetTagsData {
 	viewer: {
@@ -8,17 +7,17 @@ export interface IGetTagsData {
 	}
 }
 
-export const GET_TAGS = gql`
+export const GET_TAGS = TransformedGraphQLQuery<IGetTagsData>(gql`
 	query tags {
 		viewer {
 			id
 			tags
 		}
 	}
-`
+`)((data) => data.viewer.tags)
 
-export const useTags = (opts?: IUseQueryOptions<IGetTagsData>) => {
-	const query = useGraphQLQuery<IGetTagsData>(GET_TAGS, { staleTime: 30e3, ...opts })
+export const useTags = (opts?: IGraphQLQueryOpts<typeof GET_TAGS>) => {
+	const query = useGraphQLQuery(GET_TAGS, { staleTime: 30e3, ...opts })
 
-	return useMemoizedResult(query, (data) => data.viewer.tags)
+	return query
 }

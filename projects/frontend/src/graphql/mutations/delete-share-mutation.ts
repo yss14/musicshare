@@ -21,7 +21,7 @@ const DELETE_SHARE = gql`
 export const useDeleteShare = (opts?: MutationHookOptions<IDeleteShareData, IDeleteShareVariables>) => {
 	const makeUpdateSharesCache = useCallback(
 		(): MutationUpdaterFn<IDeleteShareData> => (cache, { data }) => {
-			queryCache.invalidateQueries(getQueryKey(GET_SHARES))
+			queryCache.invalidateQueries(getQueryKey(GET_SHARES.query))
 		},
 		[],
 	)

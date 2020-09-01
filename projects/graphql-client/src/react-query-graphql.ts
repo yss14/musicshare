@@ -1,6 +1,6 @@
-import React, { useContext } from "react"
+import React, { useContext, useMemo } from "react"
 import { IGraphQLBaseClient } from "GraphQLClient"
-import { QueryConfig, usePaginatedQuery, MutationConfig, useMutation, QueryCache, queryCache, Query } from "react-query"
+import { QueryConfig, usePaginatedQuery, MutationConfig, useMutation, QueryCache, queryCache } from "react-query"
 import { DocumentNode } from "graphql"
 
 export const GraphQLClientContext = React.createContext<IGraphQLBaseClient | null>(null)
@@ -19,25 +19,40 @@ export const getQueryKey = (query: DocumentNode): string => {
 	return (query.definitions[0] as any).name.value
 }
 
+export interface ITypedGraphQLQuery<TData, TDataTransformed, TVar> {
+	query: DocumentNode
+	dataTransformation: (data: TData) => TDataTransformed
+	varType: TVar
+}
+
+// TODO add overload for constructor function without data transformation function
+export const TransformedGraphQLQuery = <TData, TVar = {}>(query: DocumentNode) => <TDataTransformed>(
+	dataTransformation: (data: TData) => TDataTransformed,
+): ITypedGraphQLQuery<TData, TDataTransformed, TVar> => ({
+	query,
+	dataTransformation,
+	varType: ({} as unknown) as TVar,
+})
+
+export type IGraphQLQueryOpts<T> = T extends ITypedGraphQLQuery<infer TData, infer TDataTransformed, infer TVar>
+	? IUseQueryOptions<TDataTransformed, TVar>
+	: never
+
 interface GraphQLVariables<TVariables> {
 	variables?: TVariables
 }
 
-export interface IUseQueryOptions<TData, TDataTransformed, TVar = {}>
-	extends QueryConfig<TDataTransformed>,
-		GraphQLVariables<TVar> {
+export interface IUseQueryOptions<TData, TVar = {}> extends QueryConfig<TData>, GraphQLVariables<TVar> {
 	operatioName?: string
-	transformFn?: (data: TData) => TDataTransformed
 }
 
 export const useGraphQLQuery = <TData, TDataTransformed, TVar extends {} = {}>(
-	query: string | DocumentNode,
+	{ query, dataTransformation }: ITypedGraphQLQuery<TData, TDataTransformed, TVar>,
 	{
 		variables = {} as TVar,
-		operatioName = typeof query === "string" ? query : getQueryKey(query),
-		transformFn = (data) => (data as unknown) as TDataTransformed,
+		operatioName = getQueryKey(query),
 		...opts
-	}: IUseQueryOptions<TData, TDataTransformed, TVar> = {},
+	}: IUseQueryOptions<TDataTransformed, TVar> = {},
 ) => {
 	const graphQLClient = useGraphQLClient()
 
@@ -45,11 +60,17 @@ export const useGraphQLQuery = <TData, TDataTransformed, TVar extends {} = {}>(
 
 	const queryObject = usePaginatedQuery<TDataTransformed, unknown, typeof cachingKey>(
 		cachingKey,
-		(_, variables) => graphQLClient.request<TData, TVar>("/graphql", query, variables).then(transformFn),
+		(_, variables) => graphQLClient.request<TData, TVar>("/graphql", query, variables).then(dataTransformation),
 		opts,
 	)
 
-	return queryObject
+	return useMemo(
+		() => ({
+			...queryObject,
+			data: queryObject.resolvedData,
+		}),
+		[queryObject],
+	)
 }
 
 export interface IUseMutationOptions<TData, TVar> extends MutationConfig<TData>, GraphQLVariables<TVar> {
@@ -72,42 +93,6 @@ export const useGraphQLMutation = <TData, TVar extends {} = {}>(
 	)
 
 	return mutationObject
-}
-
-export interface ITypedGraphQLQuery<TData, TDataTransformed, TVar> {
-	query: DocumentNode
-	dataTransformation: (data: TData) => TDataTransformed
-	varType: TVar
-}
-
-// TODO add overload for constructor function without data transformation function
-export const TransformedGraphQLQuery = <TData, TVar>(query: DocumentNode) => <TDataTransformed>(
-	dataTransformation: (data: TData) => TDataTransformed,
-): ITypedGraphQLQuery<TData, TDataTransformed, TVar> => ({
-	query,
-	dataTransformation,
-	varType: ({} as unknown) as TVar,
-})
-
-export const useTypedGraphQLQuery = <TData, TDataTransformed, TVar extends {} = {}>(
-	{ query, dataTransformation }: ITypedGraphQLQuery<TData, TDataTransformed, TVar>,
-	{
-		variables = {} as TVar,
-		operatioName = getQueryKey(query),
-		...opts
-	}: IUseQueryOptions<TData, TDataTransformed, TVar> = {},
-) => {
-	const graphQLClient = useGraphQLClient()
-
-	const cachingKey = [operatioName, variables] as const
-
-	const queryObject = usePaginatedQuery<TDataTransformed, unknown, typeof cachingKey>(
-		cachingKey,
-		(_, variables) => graphQLClient.request<TData, TVar>("/graphql", query, variables).then(dataTransformation),
-		opts,
-	)
-
-	return queryObject
 }
 
 export interface ITypedQueryCache extends QueryCache {

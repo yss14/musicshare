@@ -1,7 +1,6 @@
 import gql from "graphql-tag"
 import { Share, shareKeys } from "@musicshare/shared-types"
-import { useMemoizedResult } from "../../utils/useMemoizedResult"
-import { useGraphQLQuery, IUseQueryOptions } from "../../react-query-graphql"
+import { useGraphQLQuery, TransformedGraphQLQuery, IGraphQLQueryOpts } from "../../react-query-graphql"
 
 export interface IGetViewerData {
 	viewer: {
@@ -11,7 +10,7 @@ export interface IGetViewerData {
 	}
 }
 
-export const GET_VIEWER = gql`
+export const GET_VIEWER = TransformedGraphQLQuery<IGetViewerData>(gql`
   query viewer {
     viewer {
 	  id
@@ -21,10 +20,10 @@ export const GET_VIEWER = gql`
       }
     }
   }
-`
+`)((data) => data.viewer)
 
-export const useViewer = (opts?: IUseQueryOptions<IGetViewerData>) => {
-	const query = useGraphQLQuery<IGetViewerData, {}>(GET_VIEWER, opts)
+export const useViewer = (opts?: IGraphQLQueryOpts<typeof GET_VIEWER>) => {
+	const query = useGraphQLQuery(GET_VIEWER, opts)
 
-	return useMemoizedResult(query, (data) => data.viewer)
+	return query
 }

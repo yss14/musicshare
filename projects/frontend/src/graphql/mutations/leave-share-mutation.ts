@@ -23,7 +23,7 @@ const LEAVE_SHARE = gql`
 export const useLeaveShare = (opts?: MutationHookOptions<ILeaveShareData, ILeaveShareVariables>) => {
 	const makeUpdateSharesCache = useCallback(
 		(): MutationUpdaterFn<ILeaveShareData> => (cache, { data }) => {
-			queryCache.invalidateQueries(getQueryKey(GET_SHARES))
+			queryCache.invalidateQueries(getQueryKey(GET_SHARES.query))
 		},
 		[],
 	)

@@ -33,39 +33,6 @@ export const GET_SHARE_DIRTY_SONGS = gql`
   	}
 `
 
-export interface IGetMergedViewDirtySongsData {
-	viewer: {
-		id: string
-		shares: {
-			id: string
-			name: string
-			songsDirty: ITimedstampedResults<IShareSong>
-		}[]
-	}
-}
-
-export interface IGetMergedViewDirtySongsVariables {
-	lastTimestamp: Date
-}
-
-export const GET_MERGED_VIEW_DIRTY_SONGS = gql`
-	query MergedViewSongsDirty($lastTimestamp: DateTime!) {
-		viewer{
-			id
-			shares{
-				id
-				name
-				songsDirty(lastTimestamp: $lastTimestamp){
-					nodes{
-						${shareSongKeys}
-					}
-					timestamp
-				}
-			}
-		}
-	}
-`
-
 const getSongsDiff = (currentSongs: IShareSong[], dirtySongs: IShareSong[]) => {
 	const dirtySongIDs = new Set(dirtySongs.map((song) => song.id))
 	const currentSongIDs = new Set(currentSongs.map((song) => song.id))
@@ -102,6 +69,39 @@ export const useShareDirtySongs = (shareID: string) => {
 		variables: { shareID, lastTimestamp: lastUpdateTimestamp.current },
 	})
 }
+
+export interface IGetMergedViewDirtySongsData {
+	viewer: {
+		id: string
+		shares: {
+			id: string
+			name: string
+			songsDirty: ITimedstampedResults<IShareSong>
+		}[]
+	}
+}
+
+export interface IGetMergedViewDirtySongsVariables {
+	lastTimestamp: Date
+}
+
+export const GET_MERGED_VIEW_DIRTY_SONGS = gql`
+	query MergedViewSongsDirty($lastTimestamp: DateTime!) {
+		viewer{
+			id
+			shares{
+				id
+				name
+				songsDirty(lastTimestamp: $lastTimestamp){
+					nodes{
+						${shareSongKeys}
+					}
+					timestamp
+				}
+			}
+		}
+	}
+`
 
 export const useMergedViewDirtySongs = () => {
 	const cache = useApolloClient()

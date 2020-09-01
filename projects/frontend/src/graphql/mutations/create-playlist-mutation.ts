@@ -27,9 +27,9 @@ export const useCreatePlaylist = (opts?: MutationHookOptions<ICreatePlaylistData
 	const makeUpdatePlaylistCache = useCallback(
 		(shareID: string, isMergedView: boolean): MutationUpdaterFn<ICreatePlaylistData> => (cache, { data }) => {
 			if (!isMergedView) {
-				queryCache.invalidateQueries(getQueryKey(GET_SHARE_PLAYLISTS))
+				queryCache.invalidateQueries(getQueryKey(GET_SHARE_PLAYLISTS.query))
 			} else {
-				queryCache.invalidateQueries(getQueryKey(GET_MERGED_PLAYLISTS))
+				queryCache.invalidateQueries(getQueryKey(GET_MERGED_PLAYLISTS.query))
 			}
 		},
 		[],

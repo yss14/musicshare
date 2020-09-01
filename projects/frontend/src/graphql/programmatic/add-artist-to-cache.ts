@@ -4,7 +4,7 @@ import { IGetArtistsData, GET_ARTISTS } from "@musicshare/graphql-client"
 
 export const addArtistsToCache = (cache: DataProxy, artists: IArtist[]) => {
 	const currentArtists = cache.readQuery<IGetArtistsData, void>({
-		query: GET_ARTISTS,
+		query: GET_ARTISTS.query,
 	})
 
 	if (!currentArtists) return
@@ -14,7 +14,7 @@ export const addArtistsToCache = (cache: DataProxy, artists: IArtist[]) => {
 
 	if (artistsToAdd.length > 0) {
 		cache.writeQuery<IGetArtistsData, void>({
-			query: GET_ARTISTS,
+			query: GET_ARTISTS.query,
 			data: {
 				...currentArtists,
 				viewer: {

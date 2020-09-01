@@ -1,7 +1,6 @@
 import gql from "graphql-tag"
 import { Share, shareKeys } from "@musicshare/shared-types"
-import { useGraphQLQuery, IUseQueryOptions } from "../../react-query-graphql"
-import { useMemoizedResult } from "../../utils/useMemoizedResult"
+import { useGraphQLQuery, TransformedGraphQLQuery, IGraphQLQueryOpts } from "../../react-query-graphql"
 
 export interface IGetSharesData {
 	viewer: {
@@ -10,7 +9,7 @@ export interface IGetSharesData {
 	}
 }
 
-export const GET_SHARES = gql`
+export const GET_SHARES = TransformedGraphQLQuery<IGetSharesData>(gql`
   query shares {
     viewer {
       id
@@ -19,10 +18,10 @@ export const GET_SHARES = gql`
       }
     }
   }
-`
+`)((data) => data.viewer.shares)
 
-export const useShares = (opts?: IUseQueryOptions<IGetSharesData>) => {
-	const query = useGraphQLQuery<IGetSharesData>(GET_SHARES, opts)
+export const useShares = (opts?: IGraphQLQueryOpts<typeof GET_SHARES>) => {
+	const query = useGraphQLQuery(GET_SHARES, opts)
 
-	return useMemoizedResult(query, (data) => data.viewer.shares)
+	return query
 }

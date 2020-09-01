@@ -1,7 +1,6 @@
 import gql from "graphql-tag"
 import { Playlist, PlaylistSong, playlistSongKeys } from "@musicshare/shared-types"
-import { useGraphQLQuery, IUseQueryOptions } from "../../react-query-graphql"
-import { useMemoizedResult } from "../../utils/useMemoizedResult"
+import { useGraphQLQuery, TransformedGraphQLQuery, IGraphQLQueryOpts } from "../../react-query-graphql"
 
 export interface PlaylistWithSongs extends Playlist {
 	songs: PlaylistSong[]
@@ -19,7 +18,7 @@ export interface IGetPlaylistSongsVariables {
 	playlistID: string
 }
 
-export const GET_PLAYLIST_WITH_SONGS = gql`
+export const GET_PLAYLIST_WITH_SONGS = TransformedGraphQLQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>(gql`
 	query playlistSongs($shareID: String!, $playlistID: String!) {
     	share(shareID: $shareID) {
       		id
@@ -33,17 +32,17 @@ export const GET_PLAYLIST_WITH_SONGS = gql`
 			}
     	}
   	}
-`
+`)((data) => data.share.playlist)
 
 export const usePlaylistSongs = (
 	shareID: string,
 	playlistID: string,
-	opts?: IUseQueryOptions<IGetPlaylistSongsData, IGetPlaylistSongsVariables>,
+	opts?: IGraphQLQueryOpts<typeof GET_PLAYLIST_WITH_SONGS>,
 ) => {
-	const query = useGraphQLQuery<IGetPlaylistSongsData, IGetPlaylistSongsVariables>(GET_PLAYLIST_WITH_SONGS, {
+	const query = useGraphQLQuery(GET_PLAYLIST_WITH_SONGS, {
 		variables: { shareID, playlistID },
 		...opts,
 	})
 
-	return useMemoizedResult(query, (data) => data.share.playlist)
+	return query
 }

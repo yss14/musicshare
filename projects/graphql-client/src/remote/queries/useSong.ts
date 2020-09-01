@@ -1,7 +1,6 @@
 import { shareSongKeys, ShareSong } from "@musicshare/shared-types"
 import gql from "graphql-tag"
-import { useGraphQLQuery, IUseQueryOptions } from "../../react-query-graphql"
-import { useMemoizedResult } from "../../utils/useMemoizedResult"
+import { useGraphQLQuery, TransformedGraphQLQuery, IGraphQLQueryOpts } from "../../react-query-graphql"
 
 export interface IGetSongData {
 	share: {
@@ -14,7 +13,7 @@ export interface IGetSongVariables {
 	songID: string
 }
 
-export const GET_SONG = gql`
+export const GET_SONG = TransformedGraphQLQuery<IGetSongData, IGetSongVariables>(gql`
 	query song ($shareID: String!, $songID: String!){
 		share(shareID: $shareID) {
 			id,
@@ -23,13 +22,13 @@ export const GET_SONG = gql`
 			}
     	}
   	}
-`
+`)((data) => data.share.song)
 
-export const useSong = (shareID: string, songID: string, opts?: IUseQueryOptions<IGetSongData, IGetSongVariables>) => {
-	const query = useGraphQLQuery<IGetSongData, IGetSongVariables>(GET_SONG, {
+export const useSong = (shareID: string, songID: string, opts?: IGraphQLQueryOpts<typeof GET_SONG>) => {
+	const query = useGraphQLQuery(GET_SONG, {
 		variables: { shareID, songID },
 		...opts,
 	})
 
-	return useMemoizedResult(query, (data) => data.share.song)
+	return query
 }

@@ -34,7 +34,7 @@ export const useAddSongsToPlaylist = (
 
 	const updatePlaylistSongsCache = useCallback(
 		(shareID: string, playlistID: string): MutationUpdaterFn<IAddSongsToPlaylistData> => (cache, { data }) => {
-			queryCache.invalidateQueries([getQueryKey(GET_PLAYLIST_WITH_SONGS), { shareID, playlistID }])
+			queryCache.invalidateQueries([getQueryKey(GET_PLAYLIST_WITH_SONGS.query), { shareID, playlistID }])
 		},
 		[],
 	)

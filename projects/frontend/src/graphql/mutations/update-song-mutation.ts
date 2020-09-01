@@ -55,7 +55,7 @@ const makeUpdateSongCache = (shareID: string, playlistID?: string): MutationUpda
 		)*/
 	}
 
-	queryCache.invalidateQueries([getQueryKey(GET_PLAYLIST_WITH_SONGS), { shareID, playlistID }])
+	queryCache.invalidateQueries([getQueryKey(GET_PLAYLIST_WITH_SONGS.query), { shareID, playlistID }])
 }
 
 export const useUpdateSongMutation = (

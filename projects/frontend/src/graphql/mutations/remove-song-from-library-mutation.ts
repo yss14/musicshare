@@ -31,7 +31,7 @@ export const useRemoveSongFromLibrary = (
 
 	const makeUpdateCache = useCallback(
 		(shareID: string, songID: string): MutationUpdaterFn<IRemoveSongFromLibraryData> => (cache, { data }) => {
-			queryCache.invalidateQueries([getQueryKey(GET_SHARE_SONGS), { shareID }])
+			queryCache.invalidateQueries([getQueryKey(GET_SHARE_SONGS.query), { shareID }])
 		},
 		[],
 	)
