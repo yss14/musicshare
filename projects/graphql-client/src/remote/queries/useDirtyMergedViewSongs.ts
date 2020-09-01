@@ -1,6 +1,6 @@
 import { ITimedstampedResults, ShareSong, shareSongKeys } from "@musicshare/shared-types"
 import gql from "graphql-tag"
-import { TransformedGraphQLQuery, IGraphQLQueryOpts, useGraphQLQuery, typedQueryCache } from "../../react-query-graphql"
+import { TransformedGraphQLQuery, useGraphQLQuery, typedQueryCache } from "../../react-query-graphql"
 import { useRef } from "react"
 import { updateShareSongs } from "./useDirtyShareSongs"
 import { GET_MERGED_SONGS } from "./useMergedSongs"
@@ -43,13 +43,13 @@ export const GET_DIRTY_MERGED_VIEW_SONGS = TransformedGraphQLQuery<
 	}
 `)((data) => data.viewer.shares)
 
-export const useDirtyMergedViewSongs = (opts?: IGraphQLQueryOpts<typeof GET_DIRTY_MERGED_VIEW_SONGS>) => {
+export const useDirtyMergedViewSongs = () => {
 	const lastUpdateTimestamp = useRef<Date>(new Date())
 
 	const query = useGraphQLQuery(GET_DIRTY_MERGED_VIEW_SONGS, {
 		variables: { lastTimestamp: lastUpdateTimestamp.current },
 		refetchInterval: 10e3,
-		cacheTime: 12e3,
+		cacheTime: 9e3,
 		onSuccess: (data) => {
 			if (data.length === 0) return
 
@@ -90,7 +90,6 @@ export const useDirtyMergedViewSongs = (opts?: IGraphQLQueryOpts<typeof GET_DIRT
 					.concat(newSongs),
 			)
 		},
-		...opts,
 	})
 
 	return query

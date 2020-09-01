@@ -172,7 +172,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 				error: null,
 			})
 
-			const mediaUrl = pickMediaUrl(songMediaUrls.share.song.sources)
+			const mediaUrl = pickMediaUrl(songMediaUrls)
 
 			if (mediaUrl) {
 				primaryDeck.src = mediaUrl
@@ -222,7 +222,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 			error: null,
 		})
 
-		const mediaUrl = pickMediaUrl(songMediaUrls.share.song.sources)
+		const mediaUrl = pickMediaUrl(songMediaUrls)
 
 		if (mediaUrl) {
 			primaryDeck.src = mediaUrl
@@ -321,7 +321,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 							return
 						}
 
-						const mediaUrl = pickMediaUrl(songMediaUrls.share.song.sources)
+						const mediaUrl = pickMediaUrl(songMediaUrls)
 
 						if (mediaUrl) {
 							primaryDeck.src = mediaUrl
@@ -413,7 +413,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 					return
 				}
 
-				const mediaUrl = pickMediaUrl(songMediaUrls.share.song.sources)
+				const mediaUrl = pickMediaUrl(songMediaUrls)
 
 				if (mediaUrl) {
 					bufferingDeck.src = mediaUrl

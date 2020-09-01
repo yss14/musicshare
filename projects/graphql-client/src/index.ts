@@ -20,3 +20,4 @@ export * from "./remote/queries/useDirtyShareSongs"
 export * from "./remote/queries/useDirtyMergedViewSongs"
 
 export * from "./remote/mutations/useSongMediaUrl"
+export * from "./remote/mutations/useUpdateSong"

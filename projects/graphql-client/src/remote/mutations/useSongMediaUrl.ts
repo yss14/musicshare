@@ -1,5 +1,5 @@
 import gql from "graphql-tag"
-import { useGraphQLMutation, IUseMutationOptions } from "../../react-query-graphql"
+import { useGraphQLMutation, TransformedGraphQLMutation, IGraphQLMutationOpts } from "../../react-query-graphql"
 
 export interface ISongMediaUrl {
 	__typename: string
@@ -19,7 +19,7 @@ export interface IGetSongMediaURLVariables {
 	songID: string
 }
 
-export const GET_SONG_MEDIAURL = gql`
+export const GET_SONG_MEDIAURL = TransformedGraphQLMutation<IGetSongMediaURLData, IGetSongMediaURLVariables>(gql`
 	query song($shareID: String!, $songID: String!) {
 		share(shareID: $shareID) {
 			id
@@ -34,10 +34,10 @@ export const GET_SONG_MEDIAURL = gql`
 			}
 		}
 	}
-`
+`)((data) => data.share.song.sources)
 
-export const useSongMediaUrl = (opts?: IUseMutationOptions<IGetSongMediaURLData, IGetSongMediaURLVariables>) => {
-	const mutation = useGraphQLMutation<IGetSongMediaURLData, IGetSongMediaURLVariables>(GET_SONG_MEDIAURL, opts)
+export const useSongMediaUrl = (opts?: IGraphQLMutationOpts<typeof GET_SONG_MEDIAURL>) => {
+	const mutation = useGraphQLMutation(GET_SONG_MEDIAURL, opts)
 
 	return mutation
 }

@@ -20,7 +20,7 @@ export const getQueryKey = (query: DocumentNode): string => {
 	return (query.definitions[0] as any).name.value
 }
 
-export interface ITypedGraphQLQuery<TData, TDataTransformed, TVar> {
+export interface ITypedGraphQLOperation<TData, TDataTransformed, TVar> {
 	query: DocumentNode
 	dataTransformation: (data: TData) => TDataTransformed
 	varType: TVar
@@ -29,14 +29,20 @@ export interface ITypedGraphQLQuery<TData, TDataTransformed, TVar> {
 // TODO add overload for constructor function without data transformation function
 export const TransformedGraphQLQuery = <TData, TVar = {}>(query: DocumentNode) => <TDataTransformed>(
 	dataTransformation: (data: TData) => TDataTransformed,
-): ITypedGraphQLQuery<TData, TDataTransformed, TVar> => ({
+): ITypedGraphQLOperation<TData, TDataTransformed, TVar> => ({
 	query,
 	dataTransformation,
 	varType: ({} as unknown) as TVar,
 })
 
-export type IGraphQLQueryOpts<T> = T extends ITypedGraphQLQuery<infer TData, infer TDataTransformed, infer TVar>
+export type IGraphQLQueryOpts<T> = T extends ITypedGraphQLOperation<infer TData, infer TDataTransformed, infer TVar>
 	? IUseQueryOptions<TDataTransformed, TVar>
+	: never
+
+export const TransformedGraphQLMutation = TransformedGraphQLQuery
+
+export type IGraphQLMutationOpts<T> = T extends ITypedGraphQLOperation<infer TData, infer TDataTransformed, infer TVar>
+	? IUseMutationOptions<TDataTransformed, TVar>
 	: never
 
 interface GraphQLVariables<TVariables> {
@@ -48,7 +54,7 @@ export interface IUseQueryOptions<TData, TVar = {}> extends QueryConfig<TData>, 
 }
 
 export const useGraphQLQuery = <TData, TDataTransformed, TVar extends {} = {}>(
-	{ query, dataTransformation }: ITypedGraphQLQuery<TData, TDataTransformed, TVar>,
+	{ query, dataTransformation }: ITypedGraphQLOperation<TData, TDataTransformed, TVar>,
 	{
 		variables = {} as TVar,
 		operatioName = getQueryKey(query),
@@ -78,18 +84,18 @@ export interface IUseMutationOptions<TData, TVar> extends MutationConfig<TData>,
 	operatioName?: string
 }
 
-export const useGraphQLMutation = <TData, TVar extends {} = {}>(
-	mutation: string | DocumentNode,
+export const useGraphQLMutation = <TData, TDataTransformed, TVar extends {} = {}>(
+	{ query: mutation, dataTransformation }: ITypedGraphQLOperation<TData, TDataTransformed, TVar>,
 	{
 		variables = {} as TVar,
-		operatioName = typeof mutation === "string" ? mutation : getQueryKey(mutation),
+		operatioName = getQueryKey(mutation),
 		...opts
-	}: IUseMutationOptions<TData, TVar> = {},
+	}: IUseMutationOptions<TDataTransformed, TVar> = {},
 ) => {
 	const graphQLClient = useGraphQLClient()
 
-	const mutationObject = useMutation<TData, unknown, TVar>(
-		(variables) => graphQLClient.request("/graphql", mutation, variables),
+	const mutationObject = useMutation<TDataTransformed, unknown, TVar>(
+		(variables) => graphQLClient.request<TData, TVar>("/graphql", mutation, variables).then(dataTransformation),
 		opts,
 	)
 
@@ -97,12 +103,18 @@ export const useGraphQLMutation = <TData, TVar extends {} = {}>(
 }
 
 export interface IQueryCacheQuery<TData, TDataTransformed, TVar> {
-	query: ITypedGraphQLQuery<TData, TDataTransformed, TVar>
-	variables: TVar
+	query: ITypedGraphQLOperation<TData, TDataTransformed, TVar>
+	variables?: TVar
 }
 
 export interface QueryPredicateOptions {
 	exact?: boolean
+}
+
+export interface InvalidateQueriesOptions extends QueryPredicateOptions {
+	refetchActive?: boolean
+	refetchInactive?: boolean
+	throwOnError?: boolean
 }
 
 export interface ITypedQueryCache extends QueryCache {
@@ -116,6 +128,10 @@ export interface ITypedQueryCache extends QueryCache {
 	removeTypedQuery: <TData, TDataTransformed, TVar>(
 		query: IQueryCacheQuery<TData, TDataTransformed, TVar>,
 		options?: QueryPredicateOptions,
+	) => void
+	invalidateTypedQuery: <TData, TDataTransformed, TVar>(
+		query: IQueryCacheQuery<TData, TDataTransformed, TVar>,
+		options?: InvalidateQueriesOptions,
 	) => void
 	// TODO add getQuery()
 }
@@ -147,6 +163,14 @@ export interface ITypedQueryCache extends QueryCache {
 	const queryKey = variables ? [getQueryKey(query), variables] : getQueryKey(query)
 
 	queryCache.removeQueries(queryKey, options)
+}
+;(queryCache as ITypedQueryCache).invalidateTypedQuery = function <TData, TDataTransformed, TVar>(
+	{ query: { query }, variables = {} as TVar }: IQueryCacheQuery<TData, TDataTransformed, TVar>,
+	options?: InvalidateQueriesOptions,
+) {
+	const queryKey = variables ? [getQueryKey(query), variables] : getQueryKey(query)
+
+	queryCache.invalidateQueries(queryKey, options)
 }
 
 export const typedQueryCache = queryCache as ITypedQueryCache
