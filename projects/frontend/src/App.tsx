@@ -17,7 +17,7 @@ import {
 	GET_REFRESH_TOKEN,
 } from "./graphql/client/queries/auth-token-query"
 import { GraphQLClient, GraphQLClientContext } from "@musicshare/graphql-client"
-import { ReactQueryConfigProvider, ReactQueryProviderConfig } from "react-query"
+import { ReactQueryConfigProvider, ReactQueryConfig } from "react-query"
 import { ReactQueryDevtools } from "react-query-devtools"
 
 const config = makeConfigFromEnv()
@@ -60,7 +60,7 @@ const theme: IPrimaryTheme = {
 	darkgrey: "#474350",
 }
 
-const queryConfig: ReactQueryProviderConfig = {
+const queryConfig: ReactQueryConfig = {
 	queries: {
 		refetchOnWindowFocus: false,
 		retry: 1,
