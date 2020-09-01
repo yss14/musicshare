@@ -16,5 +16,7 @@ export * from "./remote/queries/useMergedPlaylists"
 export * from "./remote/queries/usePlaylistSongs"
 export * from "./remote/queries/useShareSongs"
 export * from "./remote/queries/useMergedSongs"
+export * from "./remote/queries/useDirtyShareSongs"
+export * from "./remote/queries/useDirtyMergedViewSongs"
 
 export * from "./remote/mutations/useSongMediaUrl"

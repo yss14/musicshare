@@ -1,7 +1,9 @@
 import { ITimedstampedResults, ShareSong, shareSongKeys } from "@musicshare/shared-types"
 import gql from "graphql-tag"
 import { useRef } from "react"
-import { useGraphQLQuery, TransformedGraphQLQuery, IGraphQLQueryOpts } from "../../react-query-graphql"
+import { useGraphQLQuery, TransformedGraphQLQuery, IGraphQLQueryOpts, typedQueryCache } from "../../react-query-graphql"
+import { GET_SHARE_SONGS } from "./useShareSongs"
+import { getSongsDiff } from "../../utils/getSongsDiff"
 
 export interface IGetDirtyShareSongsData {
 	share: {
@@ -16,7 +18,7 @@ export interface IGetDirtyShareSongsVariables {
 }
 
 export const GET_DIRTY_SHARE_SONGS = TransformedGraphQLQuery<IGetDirtyShareSongsData, IGetDirtyShareSongsVariables>(gql`
-  	query ShareSongsDirty($shareID: String!, $lastTimestamp: DateTime!) {
+  	query dirtyShareSongs($shareID: String!, $lastTimestamp: DateTime!) {
     	share(shareID: $shareID) {
       		id
       		name
@@ -36,22 +38,39 @@ export const useDirtyShareSongs = (shareID: string, opts?: IGraphQLQueryOpts<typ
 	const query = useGraphQLQuery(GET_DIRTY_SHARE_SONGS, {
 		variables: { shareID, lastTimestamp: lastUpdateTimestamp.current },
 		refetchInterval: 10e3,
+		cacheTime: 12e3,
 		onSuccess: async (data) => {
 			lastUpdateTimestamp.current = data.timestamp
 
 			if (data.nodes.length === 0) return
 
-			/*const currentShareSongs = queryCache.getQueryData<IGetShareSongsData>([
-				getQueryKey(GET_SHARE_SONGS),
-				{ shareID },
-			])
-
-			if (!currentShareSongs) return
-
-			const { dirtySongIDs, newSongs } = getSongsDiff(currentShareSongs.share.songs, data.share.songsDirty.nodes)*/
+			updateShareSongs(shareID, data.nodes)
 		},
 		...opts,
 	})
 
 	return query
+}
+
+export const updateShareSongs = (shareID: string, dirtySongs: ShareSong[]) => {
+	const currentShareSongs = typedQueryCache.getTypedQueryData({
+		query: GET_SHARE_SONGS,
+		variables: { shareID },
+	})
+
+	if (!currentShareSongs) return
+
+	const { dirtySongIDs, newSongs } = getSongsDiff(currentShareSongs, dirtySongs)
+
+	typedQueryCache.setTypedQueryData(
+		{
+			query: GET_SHARE_SONGS,
+			variables: { shareID },
+		},
+		currentShareSongs
+			.map((song) =>
+				dirtySongIDs.has(song.id) ? dirtySongs.find((dirtySong) => dirtySong.id === song.id) || song : song,
+			)
+			.concat(newSongs),
+	)
 }

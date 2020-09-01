@@ -3,13 +3,12 @@ import { IShareRoute } from "../../interfaces"
 import { useParams } from "react-router-dom"
 import { MainSongsView } from "./MainSongsView"
 import { LoadingSpinner } from "../../components/common/LoadingSpinner"
-import { useShareDirtySongs } from "../../graphql/queries/share-songs-dirty-query"
-import { useShareSongs } from "@musicshare/graphql-client"
+import { useShareSongs, useDirtyShareSongs } from "@musicshare/graphql-client"
 
 export const ShareSongs: React.FC = () => {
 	const { shareID } = useParams<IShareRoute>()
 	const { isLoading, error, data: songs } = useShareSongs(shareID)
-	useShareDirtySongs(shareID)
+	useDirtyShareSongs(shareID)
 
 	if (isLoading || !songs) {
 		return <LoadingSpinner />

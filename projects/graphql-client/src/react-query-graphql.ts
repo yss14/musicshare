@@ -2,6 +2,7 @@ import React, { useContext, useMemo } from "react"
 import { IGraphQLBaseClient } from "GraphQLClient"
 import { QueryConfig, usePaginatedQuery, MutationConfig, useMutation, QueryCache, queryCache } from "react-query"
 import { DocumentNode } from "graphql"
+import { Updater } from "react-query/types/core/utils"
 
 export const GraphQLClientContext = React.createContext<IGraphQLBaseClient | null>(null)
 
@@ -95,19 +96,57 @@ export const useGraphQLMutation = <TData, TVar extends {} = {}>(
 	return mutationObject
 }
 
-export interface ITypedQueryCache extends QueryCache {
-	getQueryData: <TData, TDataTransformed, TVar>(
-		this: QueryCache,
-		{ query }: ITypedGraphQLQuery<TData, TDataTransformed, TVar>,
-	) => TDataTransformed | undefined
-	// TODO add getQuery() and setQueryData()
+export interface IQueryCacheQuery<TData, TDataTransformed, TVar> {
+	query: ITypedGraphQLQuery<TData, TDataTransformed, TVar>
+	variables: TVar
 }
 
-;(queryCache as ITypedQueryCache).getQueryData = function <TData, TDataTransformed, TVar>(
-	this: QueryCache,
-	{ query }: ITypedGraphQLQuery<TData, TDataTransformed, TVar>,
-): TDataTransformed | undefined {
-	return this.getQueryData(getQueryKey(query))
+export interface QueryPredicateOptions {
+	exact?: boolean
+}
+
+export interface ITypedQueryCache extends QueryCache {
+	getTypedQueryData: <TData, TDataTransformed, TVar>(
+		query: IQueryCacheQuery<TData, TDataTransformed, TVar>,
+	) => TDataTransformed | undefined
+	setTypedQueryData: <TData, TDataTransformed, TVar>(
+		query: IQueryCacheQuery<TData, TDataTransformed, TVar>,
+		update: TDataTransformed | Updater<TDataTransformed | undefined, TDataTransformed>,
+	) => void
+	removeTypedQuery: <TData, TDataTransformed, TVar>(
+		query: IQueryCacheQuery<TData, TDataTransformed, TVar>,
+		options?: QueryPredicateOptions,
+	) => void
+	// TODO add getQuery()
+}
+
+;(queryCache as ITypedQueryCache).getTypedQueryData = function <TData, TDataTransformed, TVar>({
+	query: { query },
+	variables = {} as TVar,
+}: IQueryCacheQuery<TData, TDataTransformed, TVar>): TDataTransformed | undefined {
+	const queryKey = variables ? [getQueryKey(query), variables] : getQueryKey(query)
+
+	return queryCache.getQueryData(queryKey)
+}
+;(queryCache as ITypedQueryCache).setTypedQueryData = function <TData, TDataTransformed, TVar>(
+	{ query: { query }, variables }: IQueryCacheQuery<TData, TDataTransformed, TVar>,
+	update: TDataTransformed | Updater<TDataTransformed | undefined, TDataTransformed>,
+) {
+	const queryKey = variables ? [getQueryKey(query), variables] : getQueryKey(query)
+
+	if (typeof update === "function") {
+		queryCache.setQueryData<TDataTransformed>(queryKey, update)
+	} else {
+		queryCache.setQueryData<TDataTransformed>(queryKey, () => update)
+	}
+}
+;(queryCache as ITypedQueryCache).removeTypedQuery = function <TData, TDataTransformed, TVar>(
+	{ query: { query }, variables = {} as TVar }: IQueryCacheQuery<TData, TDataTransformed, TVar>,
+	options?: QueryPredicateOptions,
+) {
+	const queryKey = variables ? [getQueryKey(query), variables] : getQueryKey(query)
+
+	queryCache.removeQueries(queryKey, options)
 }
 
 export const typedQueryCache = queryCache as ITypedQueryCache
