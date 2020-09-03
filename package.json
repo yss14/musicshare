@@ -46,7 +46,7 @@
 		"apollo-server-express": "^2.4.8",
 		"argon2": "^0.27.0",
 		"aws-sdk": "^2.462.0",
-		"axios": "^0.19.2",
+		"axios": "^0.20.0",
 		"azure-storage": "^2.10.2",
 		"babel-plugin-import": "^1.11.0",
 		"better-queue": "^3.8.10",
