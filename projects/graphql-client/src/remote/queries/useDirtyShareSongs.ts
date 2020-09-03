@@ -40,9 +40,9 @@ export const useDirtyShareSongs = (shareID: string) => {
 		refetchInterval: 10e3,
 		cacheTime: 9e3,
 		onSuccess: async (data) => {
-			lastUpdateTimestamp.current = data.timestamp
-
 			if (data.nodes.length === 0) return
+
+			lastUpdateTimestamp.current = data.timestamp
 
 			updateShareSongs(shareID, data.nodes)
 		},
