@@ -21,3 +21,4 @@ export * from "./remote/queries/useDirtyMergedViewSongs"
 
 export * from "./remote/mutations/useSongMediaUrl"
 export * from "./remote/mutations/useUpdateSong"
+export * from "./remote/mutations/useUpdateShareMemberPermissions"

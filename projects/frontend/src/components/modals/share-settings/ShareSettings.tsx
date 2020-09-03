@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react"
 import { QuestionCircleOutlined } from "@ant-design/icons"
 import { Modal, Input, Table, Button, Alert, Popconfirm, Typography, message, Form } from "antd"
 import { useDebounce } from "use-debounce/lib"
-import { useShareUsers } from "@musicshare/graphql-client"
+import { useShareUsers, useUpdateShareMemberPermissions } from "@musicshare/graphql-client"
 import Column from "antd/lib/table/Column"
 import { useInviteToShare } from "../../../graphql/mutations/invite-to-share-mutation"
 import { ApolloError } from "@apollo/client"
@@ -15,7 +15,6 @@ import { useHistory } from "react-router-dom"
 import { useLibraryID } from "../../../graphql/client/queries/libraryid-query"
 import styled from "styled-components"
 import { EditableTagGroup } from "../../form/EditableTagGroup"
-import { useUpdateShareMemberPermissions } from "../../../graphql/mutations/update-share-member-permissions"
 
 const { Text } = Typography
 
@@ -186,11 +185,9 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 		(user: IShareMember, permissions: string[]) => {
 			if (permissions.every((perm) => Permissions.ALL.includes(perm as Permission))) {
 				updatePermissions({
-					variables: {
-						permissions,
-						userID: user.id,
-						shareID: user.shareID,
-					},
+					permissions,
+					userID: user.id,
+					shareID: user.shareID,
 				})
 			}
 		},
