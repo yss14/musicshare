@@ -80,7 +80,7 @@ export const useGraphQLQuery = <TData, TDataTransformed, TVar extends {} = {}>(
 	)
 }
 
-export interface IUseMutationOptions<TData, TVar> extends MutationConfig<TData>, GraphQLVariables<TVar> {
+export interface IUseMutationOptions<TData, TVar> extends MutationConfig<TData, unknown, TVar>, GraphQLVariables<TVar> {
 	operatioName?: string
 }
 
