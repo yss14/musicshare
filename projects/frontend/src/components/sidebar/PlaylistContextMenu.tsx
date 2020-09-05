@@ -3,8 +3,8 @@ import { Menu, message } from "antd"
 import { ContextMenu, ContextMenuItem } from "../modals/contextmenu/ContextMenu"
 import { IPlaylist } from "../../graphql/types"
 import { useDeletePlaylist } from "../../graphql/mutations/delete-playlist-mutation"
-import { useRenamePlaylist } from "../../graphql/mutations/rename-playlist-mutation"
 import { Prompt } from "../modals/promt/Prompt"
+import { useRenamePlaylist } from "@musicshare/graphql-client"
 
 interface IPlaylistSongContextMenuProps {
 	playlist: IPlaylist
@@ -21,10 +21,9 @@ export const PlaylistContextMenu = React.forwardRef<HTMLDivElement, IPlaylistSon
 		onError: console.error,
 	})
 	const [renamePlaylist] = useRenamePlaylist({
-		onCompleted: () => {
+		onSuccess: () => {
 			message.success(`Playlist successfully renamed`)
 		},
-		onError: console.error,
 	})
 
 	const onDeletePlaylist = useCallback(() => {
@@ -38,9 +37,13 @@ export const PlaylistContextMenu = React.forwardRef<HTMLDivElement, IPlaylistSon
 	const handleRenamePlaylist = useCallback(() => {
 		if (!newPlaylistName) return
 
-		renamePlaylist(newPlaylistName, playlist.shareID, playlist.id, isMergedView)
+		renamePlaylist({
+			newName: newPlaylistName,
+			shareID: playlist.shareID,
+			playlistID: playlist.id,
+		})
 		setNewPlaylistName(null)
-	}, [renamePlaylist, isMergedView, newPlaylistName, playlist.id, playlist.shareID])
+	}, [renamePlaylist, newPlaylistName, playlist.id, playlist.shareID])
 
 	return (
 		<>

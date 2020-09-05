@@ -135,7 +135,7 @@ export interface ITypedQueryCache extends QueryCache {
 	invalidateTypedQuery: <TData, TDataTransformed, TVar>(
 		query: IQueryCacheQuery<TData, TDataTransformed, TVar>,
 		options?: InvalidateQueriesOptions,
-	) => void
+	) => Promise<void>
 	// TODO add getQuery()
 }
 
@@ -159,7 +159,7 @@ export interface ITypedQueryCache extends QueryCache {
 		queryCache.setQueryData<TDataTransformed>(queryKey, () => update)
 	}
 }
-;(queryCache as ITypedQueryCache).removeTypedQuery = function <TData, TDataTransformed, TVar>(
+;(queryCache as ITypedQueryCache).removeTypedQuery = async function <TData, TDataTransformed, TVar>(
 	{ query: { query }, variables = {} as TVar }: IQueryCacheQuery<TData, TDataTransformed, TVar>,
 	options?: QueryPredicateOptions,
 ) {
@@ -167,13 +167,13 @@ export interface ITypedQueryCache extends QueryCache {
 
 	queryCache.removeQueries(queryKey, options)
 }
-;(queryCache as ITypedQueryCache).invalidateTypedQuery = function <TData, TDataTransformed, TVar>(
+;(queryCache as ITypedQueryCache).invalidateTypedQuery = async function <TData, TDataTransformed, TVar>(
 	{ query: { query }, variables = {} as TVar }: IQueryCacheQuery<TData, TDataTransformed, TVar>,
 	options?: InvalidateQueriesOptions,
 ) {
 	const queryKey = [getQueryKey(query), variables || {}]
 
-	queryCache.invalidateQueries(queryKey, options)
+	await queryCache.invalidateQueries(queryKey, options)
 }
 
 export const typedQueryCache = queryCache as ITypedQueryCache
