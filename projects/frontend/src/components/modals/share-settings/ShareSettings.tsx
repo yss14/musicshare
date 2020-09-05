@@ -8,10 +8,10 @@ import {
 	useRevokeInvitation,
 	useInviteToShare,
 	useRenameShare,
+	useLeaveShare,
 } from "@musicshare/graphql-client"
 import Column from "antd/lib/table/Column"
 import { useDeleteShare } from "../../../graphql/mutations/delete-share-mutation"
-import { useLeaveShare } from "../../../graphql/mutations/leave-share-mutation"
 import { Permissions, UserStatus, IShareMember, Permission, Share } from "@musicshare/shared-types"
 import { useHistory } from "react-router-dom"
 import { useLibraryID } from "../../../graphql/client/queries/libraryid-query"
@@ -43,7 +43,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 		},
 	})
 	const [leaveShare] = useLeaveShare({
-		onCompleted: () => {
+		onSuccess: () => {
 			message.success("Share successfully left")
 			history.push("/")
 			onClose()
@@ -59,7 +59,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 		if (isOwner) {
 			deleteShare(share.id)
 		} else {
-			leaveShare(share.id)
+			leaveShare({ input: { shareID: share.id } })
 		}
 	}, [isOwner, share.id, deleteShare, leaveShare])
 
