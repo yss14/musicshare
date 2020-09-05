@@ -7,9 +7,9 @@ import {
 	useUpdateShareMemberPermissions,
 	useRevokeInvitation,
 	useInviteToShare,
+	useRenameShare,
 } from "@musicshare/graphql-client"
 import Column from "antd/lib/table/Column"
-import { useRenameShare } from "../../../graphql/mutations/rename-share-mutation"
 import { useDeleteShare } from "../../../graphql/mutations/delete-share-mutation"
 import { useLeaveShare } from "../../../graphql/mutations/leave-share-mutation"
 import { Permissions, UserStatus, IShareMember, Permission, Share } from "@musicshare/shared-types"
@@ -109,10 +109,8 @@ const ChangeSongName: React.FC<{ share: Share }> = ({ share: { name, id } }) => 
 	useEffect(() => {
 		if (inputBlured) {
 			renameShare({
-				variables: {
-					shareID: id,
-					name: debouncedShareName,
-				},
+				shareID: id,
+				name: debouncedShareName,
 			})
 		}
 	}, [debouncedShareName, id, renameShare, inputBlured])

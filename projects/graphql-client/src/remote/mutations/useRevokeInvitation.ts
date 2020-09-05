@@ -19,7 +19,7 @@ interface IRevokeInvitationVariables {
 }
 
 const REVOKE_INVITATION = TransformedGraphQLMutation<IRevokeInvitationData, IRevokeInvitationVariables>(gql`
-	mutation RevokeInvitation($input: RevokeInvitationInput!) {
+	mutation revokeInvitation($input: RevokeInvitationInput!) {
 		revokeInvitation(input: $input)
 	}
 `)((data) => data.revokeInvitation)

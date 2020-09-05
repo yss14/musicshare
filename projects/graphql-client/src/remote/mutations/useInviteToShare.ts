@@ -19,7 +19,7 @@ interface IInviteToShareVariables {
 }
 
 const INVITE_TO_SHARE = TransformedGraphQLMutation<IInviteToShareData, IInviteToShareVariables>(gql`
-	mutation InviteToShare($input: InviteToShareInput!) {
+	mutation inviteToShare($input: InviteToShareInput!) {
 		inviteToShare(input: $input)
 	}
 `)((data) => data.inviteToShare)
