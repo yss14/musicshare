@@ -40,6 +40,8 @@ export const useRemoveSongsFromPlaylist = (opts?: IGraphQLMutationOpts<typeof RE
 				},
 				(currentData) => ({ ...currentData!, songs: data }),
 			)
+
+			if (opts?.onSuccess) opts.onSuccess(data, variables)
 		},
 	})
 

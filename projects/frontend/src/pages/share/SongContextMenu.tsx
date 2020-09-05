@@ -6,10 +6,9 @@ import { Menu, message } from "antd"
 import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist"
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
-import { useRemoveSongFromLibrary } from "../../graphql/mutations/remove-song-from-library-mutation"
 import { buildSongName } from "../../utils/songname-builder"
 import { IShareSong } from "@musicshare/shared-types"
-import { useRemoveSongsFromPlaylist } from "@musicshare/graphql-client"
+import { useRemoveSongsFromPlaylist, useRemoveSongFromLibrary } from "@musicshare/graphql-client"
 
 export interface ISongContextMenuEvents {
 	onShowInformation: (song: IShareSong) => void
@@ -32,8 +31,9 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const mutatingSong = useRef<typeof song>(null)
 
 	const [removeSongFromLibrary] = useRemoveSongFromLibrary({
-		onCompleted: () =>
-			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from library`),
+		onSuccess: () => {
+			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from library`)
+		},
 	})
 
 	const [removeSongsFromPlaylist] = useRemoveSongsFromPlaylist({
@@ -88,7 +88,7 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 			await removeSongsFromPlaylist({ shareID: song.shareID, playlistID, playlistSongIDs: [song.playlistSongID] })
 		}
 
-		await removeSongFromLibrary(song.libraryID, song.id)
+		await removeSongFromLibrary({ input: { shareID: song.libraryID, songID: song.id } })
 	}, [song, removeSongFromLibrary, playlistID, removeSongsFromPlaylist, userLibraryID])
 
 	const onRemoveFromPlaylist = useCallback(() => {
