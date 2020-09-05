@@ -143,7 +143,7 @@ export interface ITypedQueryCache extends QueryCache {
 	query: { query },
 	variables = {} as TVar,
 }: IQueryCacheQuery<TData, TDataTransformed, TVar>): TDataTransformed | undefined {
-	const queryKey = variables ? [getQueryKey(query), variables] : getQueryKey(query)
+	const queryKey = [getQueryKey(query), variables || {}]
 
 	return queryCache.getQueryData(queryKey)
 }
@@ -151,7 +151,7 @@ export interface ITypedQueryCache extends QueryCache {
 	{ query: { query }, variables }: IQueryCacheQuery<TData, TDataTransformed, TVar>,
 	update: TDataTransformed | Updater<TDataTransformed | undefined, TDataTransformed>,
 ) {
-	const queryKey = variables ? [getQueryKey(query), variables] : getQueryKey(query)
+	const queryKey = [getQueryKey(query), variables || {}]
 
 	if (typeof update === "function") {
 		queryCache.setQueryData<TDataTransformed>(queryKey, update)
@@ -163,7 +163,7 @@ export interface ITypedQueryCache extends QueryCache {
 	{ query: { query }, variables = {} as TVar }: IQueryCacheQuery<TData, TDataTransformed, TVar>,
 	options?: QueryPredicateOptions,
 ) {
-	const queryKey = variables ? [getQueryKey(query), variables] : getQueryKey(query)
+	const queryKey = [getQueryKey(query), variables || {}]
 
 	queryCache.removeQueries(queryKey, options)
 }
@@ -171,7 +171,7 @@ export interface ITypedQueryCache extends QueryCache {
 	{ query: { query }, variables = {} as TVar }: IQueryCacheQuery<TData, TDataTransformed, TVar>,
 	options?: InvalidateQueriesOptions,
 ) {
-	const queryKey = variables ? [getQueryKey(query), variables] : getQueryKey(query)
+	const queryKey = [getQueryKey(query), variables || {}]
 
 	queryCache.invalidateQueries(queryKey, options)
 }

@@ -29,9 +29,12 @@ export const useRenameShare = (opts?: IGraphQLMutationOpts<typeof RENAME_SHARE>)
 	const mutation = useGraphQLMutation(RENAME_SHARE, {
 		...opts,
 		onSuccess: (data, variables) => {
-			typedQueryCache.invalidateTypedQuery({
-				query: GET_SHARES,
-			})
+			typedQueryCache.setTypedQueryData(
+				{
+					query: GET_SHARES,
+				},
+				(currentData) => currentData?.map((share) => (share.id === data.id ? data : share)) || [],
+			)
 
 			if (opts?.onSuccess) opts.onSuccess(data, variables)
 		},
