@@ -1,10 +1,7 @@
 import { resolvers } from "./graphql/client/resolvers"
 import { makeConfigFromEnv } from "./config"
-import { ISSUE_AUTH_TOKEN, IIssueAuthTokenData, IIssueAuthTokenVariables } from "./graphql/mutations/issue-auth-token"
-import { getRefreshToken, GET_AUTH_TOKEN, IAuthTokenData } from "./graphql/client/queries/auth-token-query"
 import { promiseToObservable } from "./graphql/utils/promise-to-observable"
 import { history } from "./components/routing/history"
-import { logoutUser } from "./graphql/programmatic/logout"
 import { isPlaylistSong } from "./graphql/types"
 import { message } from "antd"
 import {
@@ -148,7 +145,7 @@ const authMiddlewareLink = setContext(() => {
 
 const getNewAuthToken = (client: ApolloClient<NormalizedCacheObject>) => async () => {
 	try {
-		const refreshToken = await getRefreshToken(client)
+		/*const refreshToken = await getRefreshToken(client)
 
 		if (!refreshToken) return null
 
@@ -164,7 +161,9 @@ const getNewAuthToken = (client: ApolloClient<NormalizedCacheObject>) => async (
 			},
 		})
 
-		return response.data ? response.data.issueAuthToken : null
+		return response.data ? response.data.issueAuthToken : null*/
+
+		return null
 	} catch (err) {
 		console.error(err)
 
@@ -177,25 +176,25 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }):
 		for (const error of graphQLErrors) {
 			if (error.message === "Access denied! You need to be authorized to perform this action!") {
 				if (window.location.pathname !== "/login") {
-					logoutUser(client)
+					//logoutUser(client)
 					message.error("You need to be authenticated to access this ressource. Please sign in!")
 					history.push("/login")
 				}
 			} else if (error.extensions && error.extensions.code === "UNAUTHENTICATED") {
 				const obs: any = promiseToObservable(getNewAuthToken(client)()).flatMap((authToken) => {
 					if (authToken) {
-						cache.writeQuery<IAuthTokenData>({
+						/*cache.writeQuery<IAuthTokenData>({
 							query: GET_AUTH_TOKEN,
 							data: {
 								authToken,
 							},
 						})
 
-						localStorage.setItem("auth-token", authToken)
+						localStorage.setItem("auth-token", authToken)*/
 
 						return forward(operation)
 					} else {
-						logoutUser(client)
+						//logoutUser(client)
 						message.error("It seems like your session expired. Please sign in again!")
 						history.push("/login")
 
@@ -205,7 +204,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }):
 
 				return obs
 			} else if (error.message.startsWith("User with id") && error.message.endsWith("not found")) {
-				logoutUser(client)
+				//logoutUser(client)
 				message.error("Ups, this operation failed. We logged you out for safety reasons. Please sign in again!")
 				history.push("/login")
 			}

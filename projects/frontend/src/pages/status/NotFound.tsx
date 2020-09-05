@@ -1,7 +1,8 @@
 import React from "react"
 import styled from "styled-components"
 import { Link } from "react-router-dom"
-import { useAuthToken } from "../../graphql/client/queries/auth-token-query"
+import { useAuth } from "@musicshare/graphql-client"
+import { LoadingSpinner } from "../../components/common/LoadingSpinner"
 
 const NotFoundContainer = styled.div`
 	width: 100%;
@@ -12,13 +13,15 @@ const NotFoundContainer = styled.div`
 `
 
 export const NotFound = () => {
-	const authToken = useAuthToken()
+	const { latestData: auth, isLoading } = useAuth()
+
+	if (isLoading) return <LoadingSpinner />
 
 	return (
 		<NotFoundContainer>
 			<h2>404 Not Found</h2>
 			<p></p>
-			<Link to={authToken ? "/" : "/login"}>{authToken ? "Go to library" : "Login again"}</Link>
+			<Link to={auth?.isLoggedIn ? "/" : "/login"}>{auth?.isLoggedIn ? "Go to library" : "Login again"}</Link>
 		</NotFoundContainer>
 	)
 }

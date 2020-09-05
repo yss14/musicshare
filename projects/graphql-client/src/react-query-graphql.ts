@@ -50,8 +50,18 @@ interface GraphQLVariables<TVariables> {
 	variables?: TVariables
 }
 
+export interface IBaseResolverArgs<TVar> {
+	variables: TVar
+	client: IGraphQLBaseClient
+}
+
+export interface IQueryResolverArgs<TVar> extends IBaseResolverArgs<TVar> {
+	query: DocumentNode
+}
+
 export interface IUseQueryOptions<TData, TVar = {}> extends QueryConfig<TData>, GraphQLVariables<TVar> {
 	operatioName?: string
+	resolver?: (args: IQueryResolverArgs<TVar>) => TData | Promise<TData>
 }
 
 export const useGraphQLQuery = <TData, TDataTransformed, TVar extends {} = {}>(
@@ -59,6 +69,7 @@ export const useGraphQLQuery = <TData, TDataTransformed, TVar extends {} = {}>(
 	{
 		variables = {} as TVar,
 		operatioName = getQueryKey(query),
+		resolver,
 		...opts
 	}: IUseQueryOptions<TDataTransformed, TVar> = {},
 ) => {
@@ -68,7 +79,13 @@ export const useGraphQLQuery = <TData, TDataTransformed, TVar extends {} = {}>(
 
 	const queryObject = usePaginatedQuery<TDataTransformed, unknown, typeof cachingKey>(
 		cachingKey,
-		(_, variables) => graphQLClient.request<TData, TVar>("/graphql", query, variables).then(dataTransformation),
+		async (_, variables) => {
+			if (resolver) {
+				return resolver({ query, client: graphQLClient, variables })
+			} else {
+				return graphQLClient.request<TData, TVar>("/graphql", query, variables).then(dataTransformation)
+			}
+		},
 		opts,
 	)
 
@@ -81,10 +98,15 @@ export const useGraphQLQuery = <TData, TDataTransformed, TVar extends {} = {}>(
 	)
 }
 
+export interface IMutationResolverArgs<TVar> extends IBaseResolverArgs<TVar> {
+	mutation: DocumentNode
+}
+
 export interface IUseMutationOptions<TData, TVar>
 	extends MutationConfig<TData, GraphQLClientError<TData>, TVar>,
 		GraphQLVariables<TVar> {
 	operatioName?: string
+	resolver?: (args: IMutationResolverArgs<TVar>) => TData | Promise<TData>
 }
 
 export const useGraphQLMutation = <TData, TDataTransformed, TVar extends {} = {}>(
@@ -92,13 +114,20 @@ export const useGraphQLMutation = <TData, TDataTransformed, TVar extends {} = {}
 	{
 		variables = {} as TVar,
 		operatioName = getQueryKey(mutation),
+		resolver,
 		...opts
 	}: IUseMutationOptions<TDataTransformed, TVar> = {},
 ) => {
 	const graphQLClient = useGraphQLClient()
 
 	const mutationObject = useMutation<TDataTransformed, GraphQLClientError<TDataTransformed>, TVar>(
-		(variables) => graphQLClient.request<TData, TVar>("/graphql", mutation, variables).then(dataTransformation),
+		async (variables) => {
+			if (resolver) {
+				return resolver({ mutation, client: graphQLClient, variables })
+			} else {
+				return graphQLClient.request<TData, TVar>("/graphql", mutation, variables).then(dataTransformation)
+			}
+		},
 		opts,
 	)
 

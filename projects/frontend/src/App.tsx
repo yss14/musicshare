@@ -1,7 +1,7 @@
 import React, { useMemo } from "react"
 import { ApolloProvider } from "@apollo/client"
 import { Router } from "react-router-dom"
-import { client, cache } from "./Apollo"
+import { client } from "./Apollo"
 import { DndProvider } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
 import { makeConfigFromEnv } from "./config"
@@ -10,12 +10,6 @@ import { ConfigContext } from "./context/configContext"
 import { Routing } from "./components/routing/Routing"
 import { IPrimaryTheme } from "./types/Theme"
 import { history } from "./components/routing/history"
-import {
-	IAuthTokenData,
-	GET_AUTH_TOKEN,
-	IRefreshTokenData,
-	GET_REFRESH_TOKEN,
-} from "./graphql/client/queries/auth-token-query"
 import { GraphQLClient, GraphQLClientContext } from "@musicshare/graphql-client"
 import { ReactQueryConfigProvider, ReactQueryConfig } from "react-query"
 import { ReactQueryDevtools } from "react-query-devtools"
@@ -39,19 +33,6 @@ const GlobalStyle = createGlobalStyle`
 	}
 `
 
-cache.writeQuery<IAuthTokenData>({
-	query: GET_AUTH_TOKEN,
-	data: {
-		authToken: localStorage.getItem("auth-token"),
-	},
-})
-cache.writeQuery<IRefreshTokenData>({
-	query: GET_REFRESH_TOKEN,
-	data: {
-		refreshToken: localStorage.getItem("refresh-token"),
-	},
-})
-
 const theme: IPrimaryTheme = {
 	main: "#275dad",
 	white: "#ffffff",
@@ -72,7 +53,7 @@ export const App = () => {
 		const client = GraphQLClient({ baseURL: config.services.musicshare.backendURL })
 
 		client.useRequestMiddleware((request) => {
-			request.headers["Authorization"] = localStorage.getItem("auth-token")
+			request.headers["Authorization"] = localStorage.getItem("musicshare.authToken")
 
 			return request
 		})

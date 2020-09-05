@@ -6,7 +6,6 @@ import { RedirectToLibrary } from "./RedirectToLibrary"
 import { NotFound } from "../../pages/status/NotFound"
 import { PlaylistSidebar } from "../sidebar/PlaylistsSidebar"
 import { UploadDropzone } from "../upload/UploadDropzone"
-import { useAuthToken } from "../../graphql/client/queries/auth-token-query"
 import { MergedSongs } from "../../pages/share/MergedSongs"
 import { useUpdateLibraryID } from "../../graphql/client/mutations/libraryid-mutation"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
@@ -16,7 +15,7 @@ import { AcceptInvitation } from "../../pages/accept-invitation/AcceptInvitation
 import { RestorePassword } from "../../pages/restore-password/RestorePassword"
 import { PlayerProvider } from "../../player/PlayerContext"
 import { SongUploadProvider } from "../../utils/upload/SongUploadContext"
-import { useViewer } from "@musicshare/graphql-client"
+import { useViewer, useAuth } from "@musicshare/graphql-client"
 
 const Share = lazy(() => import("../../pages/share/Share").then((module) => ({ default: module.Share })))
 
@@ -54,13 +53,13 @@ const LoggedInRoutes = () => {
 	const updateLibraryID = useUpdateLibraryID()
 	const libraryID = useLibraryID()
 	const history = useHistory()
-	const authToken = useAuthToken()
+	const { latestData: auth, isLoading: isLoadingAuth } = useAuth()
 
 	useEffect(() => {
-		if (!authToken) {
+		if (auth && !auth.isLoggedIn) {
 			history.push("/login")
 		}
-	}, [authToken, history])
+	}, [auth, history])
 
 	useEffect(() => {
 		if (error) {
@@ -78,7 +77,7 @@ const LoggedInRoutes = () => {
 		}
 	}, [viewer, updateLibraryID, libraryID])
 
-	if (isLoading) {
+	if (isLoading || isLoadingAuth) {
 		return <LoadingSpinner />
 	}
 

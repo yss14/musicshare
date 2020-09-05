@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react"
+import React, { useState } from "react"
 import { PlusOutlined, ShareAltOutlined, ProfileOutlined } from "@ant-design/icons"
 import { Menu } from "antd"
 import styled from "styled-components"
@@ -7,9 +7,7 @@ import { IShareRoute } from "../interfaces"
 import { CreateShareModal } from "./modals/CreateShareModal"
 import { ShareSettings } from "./modals/share-settings/ShareSettings"
 import { ChangePasswordModal } from "./modals/ChangePasswordModal"
-import { useApolloClient, NormalizedCacheObject, ApolloClient } from "@apollo/client"
-import { logoutUser } from "../graphql/programmatic/logout"
-import { useViewer, useShares } from "@musicshare/graphql-client"
+import { useViewer, useShares, useLogout } from "@musicshare/graphql-client"
 import { Share } from "@musicshare/shared-types"
 
 const { SubMenu, ItemGroup, Item } = Menu
@@ -41,9 +39,8 @@ export const HeaderNavMenu = () => {
 	const [shareSettings, setShareSettings] = useState<Share | null>(null)
 	const [showChangePassword, setShowChangePassword] = useState(false)
 	const [sharesSubmenuHovered, setSharesSubmenuHovered] = useState(false)
-	const client = useApolloClient() as ApolloClient<NormalizedCacheObject>
 
-	const logout = useCallback(() => logoutUser(client), [client])
+	const [logout] = useLogout()
 
 	if (isLoading) {
 		return null
@@ -157,7 +154,7 @@ export const HeaderNavMenu = () => {
 					>
 						Change Password
 					</Item>
-					<Item key="user:logout" title="Logout" onClick={logout}>
+					<Item key="user:logout" title="Logout" onClick={() => logout()}>
 						Logout
 					</Item>
 				</SubMenu>
