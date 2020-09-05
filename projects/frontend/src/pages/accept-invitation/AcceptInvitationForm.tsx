@@ -3,8 +3,8 @@ import { LockOutlined, UserOutlined, MailOutlined } from "@ant-design/icons"
 import { Input, Button, Alert, message, Form } from "antd"
 import { IInvitationPayload } from "@musicshare/shared-types"
 import { useFormik } from "formik"
-import { useAcceptInvitation } from "../../graphql/mutations/accept-invitation-mutation"
 import { Link } from "react-router-dom"
+import { useAcceptInvitation } from "@musicshare/graphql-client"
 
 interface IFormValues {
 	username: string
@@ -47,14 +47,16 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 			console.error(err)
 			message.error(err.message)
 		},
-		onCompleted: () => resetForm(),
+		onSuccess: () => resetForm(),
 	})
 	const onSubmit = useCallback(
 		({ username, password }: IFormValues) => {
 			acceptInvitation({
-				name: username,
-				password,
-				invitationToken,
+				input: {
+					name: username,
+					password,
+					invitationToken,
+				},
 			})
 		},
 		[acceptInvitation, invitationToken],
@@ -73,7 +75,7 @@ export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ inv
 						Your account has been created. Please note the following token and keep it safe! In case you
 						have to restore your password, you need this token!
 					</p>
-					<p>Your restore token: {data.acceptInvitation.restoreToken}</p>
+					<p>Your restore token: {data.restoreToken}</p>
 					<p>
 						Proceed to <Link to={`/login/${invitationPayload.email}`}>Sign In</Link>
 					</p>
