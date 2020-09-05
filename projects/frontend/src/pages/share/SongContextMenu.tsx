@@ -7,9 +7,9 @@ import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-play
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 import { useRemoveSongFromLibrary } from "../../graphql/mutations/remove-song-from-library-mutation"
-import { useRemoveSongsFromPlaylist } from "../../graphql/mutations/remove-songs-from-playlist-mutation"
 import { buildSongName } from "../../utils/songname-builder"
 import { IShareSong } from "@musicshare/shared-types"
+import { useRemoveSongsFromPlaylist } from "@musicshare/graphql-client"
 
 export interface ISongContextMenuEvents {
 	onShowInformation: (song: IShareSong) => void
@@ -37,8 +37,9 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	})
 
 	const [removeSongsFromPlaylist] = useRemoveSongsFromPlaylist({
-		onCompleted: () =>
-			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from playlist`),
+		onSuccess: () => {
+			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from playlist`)
+		},
 	})
 
 	const userLibraryID = useLibraryID()
@@ -84,7 +85,7 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 		mutatingSong.current = song
 
 		if (playlistID && isPlaylistSong(song) && song.shareID === userLibraryID) {
-			await removeSongsFromPlaylist(song.shareID, playlistID, [song.playlistSongID])
+			await removeSongsFromPlaylist({ shareID: song.shareID, playlistID, playlistSongIDs: [song.playlistSongID] })
 		}
 
 		await removeSongFromLibrary(song.libraryID, song.id)
@@ -94,7 +95,7 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 		if (!song || !playlistID || !isPlaylistSong(song)) return
 
 		mutatingSong.current = song
-		removeSongsFromPlaylist(song.shareID, playlistID, [song.playlistSongID])
+		removeSongsFromPlaylist({ shareID: song.shareID, playlistID, playlistSongIDs: [song.playlistSongID] })
 	}, [song, playlistID, removeSongsFromPlaylist])
 
 	return (
