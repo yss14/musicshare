@@ -265,9 +265,7 @@ const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({
 			{addButton && (
 				<SidebarButtonContainer style={{ position: "sticky", bottom: 0 }}>{addButton}</SidebarButtonContainer>
 			)}
-			{contextMenuPlaylist && (
-				<PlaylistContextMenu ref={ref} playlist={contextMenuPlaylist} isMergedView={isMergedView} />
-			)}
+			{contextMenuPlaylist && <PlaylistContextMenu ref={ref} playlist={contextMenuPlaylist} />}
 		</>
 	)
 }
