@@ -53,8 +53,6 @@ export const useDirtyMergedViewSongs = () => {
 		onSuccess: (data) => {
 			if (data.length === 0) return
 
-			lastUpdateTimestamp.current = data[0].songsDirty.timestamp
-
 			try {
 				for (const dirtyShare of data) {
 					if (dirtyShare.songsDirty.nodes.length > 0) {
@@ -73,6 +71,8 @@ export const useDirtyMergedViewSongs = () => {
 			const dirtySongs = flattenDeep(data.map((share) => share.songsDirty.nodes))
 
 			if (!currentMergedSongs || dirtySongs.length === 0) return
+
+			lastUpdateTimestamp.current = data[0].songsDirty.timestamp
 
 			const { dirtySongIDs, newSongs } = getSongsDiff(currentMergedSongs, dirtySongs)
 
