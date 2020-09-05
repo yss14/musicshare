@@ -433,8 +433,10 @@ export interface removeSongsFromPlaylistArgs {
 	shareID: string
 }
 
+export type OrderUpdates = [string, number][]
+
 export interface updateOrderOfPlaylistArgs {
-	orderUpdates: undefined[]
+	orderUpdates: OrderUpdates[]
 	playlistID: string
 	shareID: string
 }

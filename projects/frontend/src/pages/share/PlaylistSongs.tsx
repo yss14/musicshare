@@ -4,13 +4,12 @@ import { useParams } from "react-router-dom"
 import { MainSongsView } from "./MainSongsView"
 import { LoadingSpinner } from "../../components/common/LoadingSpinner"
 import { isPlaylistSong } from "../../graphql/types"
-import { useUpdatePlaylistSongOrder } from "../../graphql/mutations/update-playlist-song-order"
 import { useDeepCompareEffect } from "../../hooks/use-deep-compare-effect"
 import { MoveSong } from "../../components/song-table/MoveSong"
 import { useSongUploadQueueEvents, ISongUploadItem } from "../../utils/upload/SongUploadContext"
 import { useDebouncedCallback } from "use-debounce/lib"
 import { PlaylistSong } from "@musicshare/shared-types"
-import { usePlaylistSongs } from "@musicshare/graphql-client"
+import { usePlaylistSongs, useUpdatePlaylistSongOrder } from "@musicshare/graphql-client"
 
 export interface IPlaylistSongsProps {
 	shareID: string
@@ -20,9 +19,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	const { playlistID } = useParams<ISharePlaylistRoute>()
 	const { isLoading, data: playlist, error, refetch } = usePlaylistSongs(shareID, playlistID)
 	const [songs, setSongs] = useState<PlaylistSong[]>(playlist?.songs || [])
-	const [updateOrder] = useUpdatePlaylistSongOrder({
-		onError: console.error,
-	})
+	const [updateOrder] = useUpdatePlaylistSongOrder()
 
 	const [refetchPlaylist] = useDebouncedCallback(refetch, 1000)
 
@@ -53,11 +50,11 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 
 			setSongs(newSongs)
 
-			updateOrder(
+			updateOrder({
 				shareID,
-				playlist.id,
-				newSongs.map((song, idx) => [song.playlistSongID, idx + 1]),
-			)
+				playlistID: playlist.id,
+				orderUpdates: newSongs.map((song, idx) => [song.playlistSongID, idx + 1]),
+			})
 		},
 		[setSongs, songs, playlist, updateOrder, shareID],
 	)
