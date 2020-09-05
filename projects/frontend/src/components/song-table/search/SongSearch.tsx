@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react"
 import { Input } from "antd"
 import { useDebounce } from "use-debounce"
-import { useSongSearch } from "@musicshare/graphql-client"
+import { useSongSearch, useAddSongsToPlaylist } from "@musicshare/graphql-client"
 import { buildSongName } from "../../../utils/songname-builder"
 import styled from "styled-components"
 import { IPlaylist } from "../../../graphql/types"
@@ -10,7 +10,6 @@ import { SongSearchOptionsPopover } from "./SongSearchOptionsPopover"
 import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd"
 import { DragNDropItem, ISongDNDItem } from "../../../types/DragNDropItems"
 import { useResettingState } from "../../../hooks/use-resetting-state"
-import { useAddSongsToPlaylist } from "../../../graphql/mutations/add-songs-to-playlist"
 import songDragPreviewImg from "../../../images/playlist_add.png"
 import { IShareSong, ShareSong } from "@musicshare/shared-types"
 import { LoadingOutlined, SearchOutlined } from "@ant-design/icons"
@@ -117,7 +116,7 @@ interface ISongSearchItemProps {
 }
 
 const SongSearchItem: React.FC<ISongSearchItemProps> = ({ song, onClick, onDrag }) => {
-	const addSongsToPlaylist = useAddSongsToPlaylist()
+	const [addSongsToPlaylist] = useAddSongsToPlaylist()
 	const [, drag, dragPreview] = useDrag<ISongDNDItem, void, any>({
 		item: { type: DragNDropItem.Song, song, idx: -1 },
 		begin: () => (onDrag ? onDrag(true) : undefined),
@@ -127,7 +126,11 @@ const SongSearchItem: React.FC<ISongSearchItemProps> = ({ song, onClick, onDrag 
 			const dragResult = monitor.getDropResult() as { playlist: IPlaylist }
 
 			if (item && dragResult && dragResult.playlist) {
-				addSongsToPlaylist(dragResult.playlist.shareID, dragResult.playlist.id, [song.id])
+				addSongsToPlaylist({
+					shareID: dragResult.playlist.shareID,
+					playlistID: dragResult.playlist.id,
+					songIDs: [song.id],
+				})
 			}
 		},
 	})

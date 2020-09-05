@@ -3,12 +3,11 @@ import { IPlaylist, isPlaylistSong } from "../../graphql/types"
 import { usePlayerActions, usePlayerQueue } from "../../player/player-hook"
 import { ContextMenu, ContextMenuItem } from "../../components/modals/contextmenu/ContextMenu"
 import { Menu, message } from "antd"
-import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist"
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker"
 import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 import { buildSongName } from "../../utils/songname-builder"
 import { IShareSong } from "@musicshare/shared-types"
-import { useRemoveSongsFromPlaylist, useRemoveSongFromLibrary } from "@musicshare/graphql-client"
+import { useRemoveSongsFromPlaylist, useRemoveSongFromLibrary, useAddSongsToPlaylist } from "@musicshare/graphql-client"
 
 export interface ISongContextMenuEvents {
 	onShowInformation: (song: IShareSong) => void
@@ -27,7 +26,7 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const [showPickPlaylistModal, setShowPickPlaylistModal] = useState(false)
 	const { changeSong } = usePlayerActions()
 	const { enqueueSong, enqueueSongNext } = usePlayerQueue()
-	const addSongsToPlaylist = useAddSongsToPlaylist()
+	const [addSongsToPlaylist] = useAddSongsToPlaylist()
 	const mutatingSong = useRef<typeof song>(null)
 
 	const [removeSongFromLibrary] = useRemoveSongFromLibrary({
@@ -74,7 +73,9 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 
 			setShowPickPlaylistModal(false)
 
-			playlists.map((playlist) => addSongsToPlaylist(playlist.shareID, playlist.id, [song.id]))
+			playlists.map((playlist) =>
+				addSongsToPlaylist({ shareID: playlist.shareID, playlistID: playlist.id, songIDs: [song.id] }),
+			)
 		},
 		[song, setShowPickPlaylistModal, addSongsToPlaylist],
 	)

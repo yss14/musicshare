@@ -10,7 +10,7 @@ import { buildSongName } from "../../utils/songname-builder"
 import { IUploadFileArgs } from "../../utils/upload/uploadFile"
 import { IShareSong } from "@musicshare/shared-types"
 import { useShareName } from "../../hooks/use-share-name"
-import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist"
+import { useAddSongsToPlaylist } from "@musicshare/graphql-client"
 
 const UploadProgressContainer = styled(Scrollbars)`
 	background-color: white;
@@ -84,13 +84,13 @@ interface IDuplicateUploadProps {
 }
 
 const DuplicateUpload: React.FC<IDuplicateUploadProps> = ({ item, duplicateSongs, duplicateActions }) => {
-	const addSongsToPlaylist = useAddSongsToPlaylist()
+	const [addSongsToPlaylist] = useAddSongsToPlaylist()
 
 	const onClickAddToPlaylist = useCallback(
 		async (song: IShareSong) => {
 			const key = "add-song-to-playlist"
 			message.loading({ content: `Adding ${buildSongName(song)} to playlist`, key })
-			await addSongsToPlaylist(item.shareID, item.playlistIDs[0], [song.id])
+			await addSongsToPlaylist({ shareID: item.shareID, playlistID: item.playlistIDs[0], songIDs: [song.id] })
 			message.success({ content: `Added ${buildSongName(song)} to playlist`, key })
 			duplicateActions.abort(item)
 		},
