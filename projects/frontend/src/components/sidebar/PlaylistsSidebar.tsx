@@ -3,7 +3,6 @@ import { Button, message, Popover } from "antd"
 import styled from "styled-components"
 import { Link, useRouteMatch } from "react-router-dom"
 import { IShareRoute } from "../../interfaces"
-import { useCreatePlaylist } from "../../graphql/mutations/create-playlist-mutation"
 import { Prompt } from "../modals/promt/Prompt"
 import { usePlaylistID } from "../../graphql/client/queries/playlistid-query"
 import { SidebarItem } from "./SidebarItem"
@@ -14,7 +13,7 @@ import { LoadingSpinner } from "../common/LoadingSpinner"
 import { useContextMenu } from "../modals/contextmenu/ContextMenu"
 import { PlaylistContextMenu } from "./PlaylistContextMenu"
 import Scrollbars from "react-custom-scrollbars"
-import { useShares, useSharePlaylists, useMergedPlaylists } from "@musicshare/graphql-client"
+import { useShares, useSharePlaylists, useMergedPlaylists, useCreatePlaylist } from "@musicshare/graphql-client"
 
 const Sidebar = styled.div`
 	width: 200px;
@@ -51,13 +50,13 @@ const SharePlaylistsSidebar = () => {
 	const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null)
 	const { isLoading, error, data } = useSharePlaylists(shareID)
 	const [createPlaylist] = useCreatePlaylist({
-		onCompleted: ({ createPlaylist: createdPlaylist }) => {
+		onSuccess: (createdPlaylist) => {
 			message.success(`Playlist ${createdPlaylist.name} successfully created`)
 		},
 	})
 
 	const handleCreatePlaylist = useCallback(() => {
-		createPlaylist(shareID, newPlaylistName || "", false)
+		createPlaylist({ shareID, name: newPlaylistName || "" })
 		setNewPlaylistName(null)
 	}, [createPlaylist, shareID, newPlaylistName])
 
@@ -120,7 +119,7 @@ const MergedPlaylistsSidebar = () => {
 	const [newPlaylistShareID, setNewPlaylistShareID] = useState<string | null>(null)
 
 	const [createPlaylist] = useCreatePlaylist({
-		onCompleted: ({ createPlaylist: createdPlaylist }) => {
+		onSuccess: (createdPlaylist) => {
 			message.success(`Playlist ${createdPlaylist.name} successfully created`)
 		},
 	})
@@ -128,7 +127,7 @@ const MergedPlaylistsSidebar = () => {
 	const handleCreatePlaylist = useCallback(() => {
 		if (!newPlaylistShareID) return
 
-		createPlaylist(newPlaylistShareID, newPlaylistName || "", true)
+		createPlaylist({ shareID: newPlaylistShareID, name: newPlaylistName || "" })
 		setNewPlaylistName(null)
 	}, [createPlaylist, newPlaylistShareID, newPlaylistName])
 
