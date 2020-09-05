@@ -9,9 +9,9 @@ import {
 	useInviteToShare,
 	useRenameShare,
 	useLeaveShare,
+	useDeleteShare,
 } from "@musicshare/graphql-client"
 import Column from "antd/lib/table/Column"
-import { useDeleteShare } from "../../../graphql/mutations/delete-share-mutation"
 import { Permissions, UserStatus, IShareMember, Permission, Share } from "@musicshare/shared-types"
 import { useHistory } from "react-router-dom"
 import { useLibraryID } from "../../../graphql/client/queries/libraryid-query"
@@ -36,7 +36,7 @@ interface IShareSettingsProps {
 export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose }) => {
 	const history = useHistory()
 	const [deleteShare] = useDeleteShare({
-		onCompleted: () => {
+		onSuccess: () => {
 			message.success("Share successfully deleted")
 			history.push("/")
 			onClose()
@@ -57,7 +57,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 
 	const onLeaveDeleteClick = useCallback(() => {
 		if (isOwner) {
-			deleteShare(share.id)
+			deleteShare({ shareID: share.id })
 		} else {
 			leaveShare({ input: { shareID: share.id } })
 		}
