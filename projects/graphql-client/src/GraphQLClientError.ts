@@ -21,6 +21,8 @@ export class GraphQLClientError<TData> extends Error {
 	request: GraphQLRequestContext
 
 	constructor(response: IGraphQLResponse<TData>, request: GraphQLRequestContext) {
+		console.log("New GraphQLClientError", response, request)
+		console.trace()
 		const message = GraphQLClientError.extractMessage(response)
 		super(message)
 		this.response = response
@@ -35,6 +37,8 @@ export class GraphQLClientError<TData> extends Error {
 
 	private static extractMessage<TData>(response: IGraphQLResponse<TData>): string {
 		try {
+			console.log(response)
+			console.log(response.errors![0].message)
 			return response.errors![0].message
 		} catch (e) {
 			return `GraphQL Error (Code: ${response.status})`

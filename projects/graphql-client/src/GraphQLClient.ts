@@ -1,7 +1,10 @@
-import axios, { AxiosRequestConfig } from "axios"
+import axios, { AxiosRequestConfig, AxiosError } from "axios"
 import { DocumentNode } from "graphql"
 import { print } from "graphql/language/printer"
 import { GraphQLClientError, IGraphQLResponse } from "./GraphQLClientError"
+
+const isAxiosResponse = <T>(obj: any): obj is AxiosError<T> =>
+	typeof obj === "object" && typeof obj.request === "object" && typeof obj.request === "object"
 
 export type IGraphQLBaseClient = ReturnType<typeof GraphQLClient>
 
@@ -36,6 +39,8 @@ export const GraphQLClient = (opts?: AxiosRequestConfig) => {
 		} catch (err) {
 			if (err instanceof GraphQLClientError) {
 				throw err
+			} else if (isAxiosResponse<IGraphQLResponse<TData>>(err)) {
+				throw new GraphQLClientError({ ...err.response, status: 400 }, { query: printedQuery, variables })
 			}
 
 			throw new GraphQLClientError({ ...err, status: 400 }, { query: printedQuery, variables })
