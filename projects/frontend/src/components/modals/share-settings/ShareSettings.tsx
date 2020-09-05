@@ -2,11 +2,13 @@ import React, { useState, useEffect, useCallback, useMemo } from "react"
 import { QuestionCircleOutlined } from "@ant-design/icons"
 import { Modal, Input, Table, Button, Alert, Popconfirm, Typography, message, Form } from "antd"
 import { useDebounce } from "use-debounce/lib"
-import { useShareUsers, useUpdateShareMemberPermissions } from "@musicshare/graphql-client"
+import {
+	useShareUsers,
+	useUpdateShareMemberPermissions,
+	useRevokeInvitation,
+	useInviteToShare,
+} from "@musicshare/graphql-client"
 import Column from "antd/lib/table/Column"
-import { useInviteToShare } from "../../../graphql/mutations/invite-to-share-mutation"
-import { ApolloError } from "@apollo/client"
-import { useRevokeInvitation } from "../../../graphql/mutations/revoke-invitation-mutation"
 import { useRenameShare } from "../../../graphql/mutations/rename-share-mutation"
 import { useDeleteShare } from "../../../graphql/mutations/delete-share-mutation"
 import { useLeaveShare } from "../../../graphql/mutations/leave-share-mutation"
@@ -129,26 +131,24 @@ const ChangeSongName: React.FC<{ share: Share }> = ({ share: { name, id } }) => 
 }
 
 const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
-	const { data: users, isLoading, error, refetch } = useShareUsers(shareID)
+	const { data: users, isLoading, error } = useShareUsers(shareID)
 	const [email, setEMail] = useState("")
 	const [invitationLink, setInvitationLink] = useState<string | null>(null)
-	const [inviteError, setInviteError] = useState<ApolloError | null>(null)
+	const [inviteError, setInviteError] = useState<string | null>(null)
 	const [inviteToShare] = useInviteToShare({
-		onCompleted: (data) => {
-			if (data.inviteToShare !== null) {
-				setInvitationLink(data.inviteToShare)
+		onSuccess: (invitationLink) => {
+			if (invitationLink !== null) {
+				setInvitationLink(invitationLink)
 			}
 
 			message.success(`User ${email} succesfully invited`)
 
 			setEMail("")
-			refetch()
 		},
-		onError: setInviteError,
+		onError: (err) => setInviteError(err.message),
 	})
 	const [revokeInvitation] = useRevokeInvitation({
-		onCompleted: () => {
-			refetch()
+		onSuccess: () => {
 			setInvitationLink(null)
 
 			message.success(`User invitation successfully revoked`)
@@ -158,11 +158,9 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 
 	const onInviteClick = useCallback(() => {
 		inviteToShare({
-			variables: {
-				input: {
-					shareID,
-					email,
-				},
+			input: {
+				shareID,
+				email,
 			},
 		})
 	}, [inviteToShare, shareID, email])
@@ -170,11 +168,9 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 	const onRevokeInvitationClick = useCallback(
 		(userID: string) => {
 			revokeInvitation({
-				variables: {
-					input: {
-						shareID,
-						userID,
-					},
+				input: {
+					shareID,
+					userID,
 				},
 			})
 		},
@@ -254,7 +250,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 			)}
 			{inviteError && (
 				<Alert
-					message={inviteError.message.replace("GraphQL error: ", "")}
+					message={inviteError.replace("GraphQL error: ", "")}
 					type="error"
 					closable
 					onClose={() => setInviteError(null)}

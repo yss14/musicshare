@@ -3,6 +3,7 @@ import { IGraphQLBaseClient } from "GraphQLClient"
 import { QueryConfig, usePaginatedQuery, MutationConfig, useMutation, QueryCache, queryCache } from "react-query"
 import { DocumentNode } from "graphql"
 import { Updater } from "react-query/types/core/utils"
+import { GraphQLClientError } from "./GraphQLClientError"
 
 export const GraphQLClientContext = React.createContext<IGraphQLBaseClient | null>(null)
 
@@ -80,7 +81,9 @@ export const useGraphQLQuery = <TData, TDataTransformed, TVar extends {} = {}>(
 	)
 }
 
-export interface IUseMutationOptions<TData, TVar> extends MutationConfig<TData, unknown, TVar>, GraphQLVariables<TVar> {
+export interface IUseMutationOptions<TData, TVar>
+	extends MutationConfig<TData, GraphQLClientError<TData>, TVar>,
+		GraphQLVariables<TVar> {
 	operatioName?: string
 }
 
@@ -94,7 +97,7 @@ export const useGraphQLMutation = <TData, TDataTransformed, TVar extends {} = {}
 ) => {
 	const graphQLClient = useGraphQLClient()
 
-	const mutationObject = useMutation<TDataTransformed, unknown, TVar>(
+	const mutationObject = useMutation<TDataTransformed, GraphQLClientError<TDataTransformed>, TVar>(
 		(variables) => graphQLClient.request<TData, TVar>("/graphql", mutation, variables).then(dataTransformation),
 		opts,
 	)
