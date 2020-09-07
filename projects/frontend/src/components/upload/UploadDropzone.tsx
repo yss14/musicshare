@@ -8,7 +8,7 @@ import Scrollbars from "react-custom-scrollbars"
 import { UploadItemStatus, ISongUploadItem } from "../../utils/upload/SongUploadContext"
 import { buildSongName } from "../../utils/songname-builder"
 import { IUploadFileArgs } from "../../utils/upload/uploadFile"
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong } from "@musicshare/shared-types"
 import { useShareName } from "../../hooks/use-share-name"
 import { useAddSongsToPlaylist } from "@musicshare/react-graphql-client"
 
@@ -81,7 +81,7 @@ export const UploadDropzone: React.FC = ({ children }) => {
 
 interface IDuplicateUploadProps {
 	item: IUploadFileArgs
-	duplicateSongs: IShareSong[]
+	duplicateSongs: ShareSong[]
 	duplicateActions: DuplicateActions
 }
 
@@ -89,7 +89,7 @@ const DuplicateUpload: React.FC<IDuplicateUploadProps> = ({ item, duplicateSongs
 	const [addSongsToPlaylist] = useAddSongsToPlaylist()
 
 	const onClickAddToPlaylist = useCallback(
-		async (song: IShareSong) => {
+		async (song: ShareSong) => {
 			const key = "add-song-to-playlist"
 			message.loading({ content: `Adding ${buildSongName(song)} to playlist`, key })
 			await addSongsToPlaylist({ shareID: item.shareID, playlistID: item.playlistIDs[0], songIDs: [song.id] })
@@ -161,7 +161,7 @@ const DuplicateUpload: React.FC<IDuplicateUploadProps> = ({ item, duplicateSongs
 }
 
 interface IDetectedDuplicateProps {
-	song: IShareSong
+	song: ShareSong
 }
 
 const DetectedDuplicate: React.FC<IDetectedDuplicateProps> = ({ song }) => {

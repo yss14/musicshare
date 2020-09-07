@@ -1,3 +1,3 @@
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong } from "@musicshare/shared-types"
 
-export type MoveSong = (source: IShareSong, target: IShareSong) => void
+export type MoveSong = (source: ShareSong, target: ShareSong) => void

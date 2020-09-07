@@ -14,9 +14,10 @@
 // 💙
 
 export type Maybe<T> = T | null
+import sgtsQL, { DocumentNode } from "graphql-tag"
 
 export interface Query {
-	viewer?: Maybe<Viewer>
+	viewer: Maybe<Viewer>
 	share: Share
 }
 
@@ -91,10 +92,8 @@ export interface FileUpload {
 	accessUrl: string
 }
 
-export type FileSource = FileUpload
-
 export interface TimestampedResult {
-	timestamp: undefined
+	timestamp: string
 	nodes: ShareSong[]
 }
 
@@ -175,16 +174,16 @@ export interface Mutation {
 	renameShare: Share
 	deleteShare: boolean
 	/** Returns an invitation link or null if user already existed and has been added to the share*/
-	inviteToShare?: Maybe<string>
+	inviteToShare: Maybe<string>
 	acceptInvitation: AcceptInviationPayload
 	revokeInvitation: boolean
 	leaveShare: boolean
-	updateSong?: Maybe<ShareSong>
+	updateSong: Maybe<ShareSong>
 	/** Removes a song from a library. If the song is referenced by entities from other shares, the song is copied to a linked library an referenced from there.*/
 	removeSongFromLibrary: boolean
 	incrementSongPlayCount: SongPlay
 	submitSongFromRemoteFile: boolean
-	createPlaylist?: Maybe<Playlist>
+	createPlaylist: Maybe<Playlist>
 	/** Deletes an existing playlists. Does not check if playlist exists.*/
 	deletePlaylist: boolean
 	/** Renames an existing playlists. Does not check if playlist exists.*/
@@ -242,19 +241,19 @@ export interface ShareIDInput {
 }
 
 export interface SongUpdateInput {
-	title?: Maybe<string>
-	suffix?: Maybe<string>
-	year?: Maybe<number>
-	bpm?: Maybe<number>
-	releaseDate?: Maybe<string>
-	isRip?: Maybe<boolean>
-	artists?: Maybe<string[]>
-	remixer?: Maybe<string[]>
-	featurings?: Maybe<string[]>
-	type?: Maybe<string>
-	genres?: Maybe<string[]>
-	labels?: Maybe<string[]>
-	tags?: Maybe<string[]>
+	title?: string
+	suffix?: string
+	year?: number
+	bpm?: number
+	releaseDate?: string
+	isRip?: boolean
+	artists?: string[]
+	remixer?: string[]
+	featurings?: string[]
+	type?: string
+	genres?: string[]
+	labels?: string[]
+	tags?: string[]
 }
 
 export interface RemoveSongFromLibraryInput {
@@ -270,7 +269,7 @@ export interface IncrementSongPlayCountInput {
 export interface SongPlay {
 	song: ShareSong
 	user: Viewer
-	dateAdded: undefined
+	dateAdded: string
 }
 
 export interface SubmitSongFromRemoteFileInput {
@@ -284,15 +283,15 @@ export interface BaseSong {
 	id: string
 	title: string
 	suffix: Maybe<string>
-	year?: Maybe<number>
-	bpm?: Maybe<number>
+	year: Maybe<number>
+	bpm: Maybe<number>
 	dateLastEdit: string
-	releaseDate?: Maybe<string>
+	releaseDate: Maybe<string>
 	isRip: boolean
 	artists: string[]
 	remixer: string[]
 	featurings: string[]
-	type?: Maybe<string>
+	type: Maybe<string>
 	genres: string[]
 	labels: string[]
 	sources: FileSource[]
@@ -315,6 +314,7 @@ export interface UserIDInput {
 	userID: string
 }
 
+export type FileSource = FileUpload
 /** Specifies whether a user already accepted an invitation or is still pending */
 export enum UserStatus {
 	Pending = "Pending",
@@ -433,10 +433,8 @@ export interface removeSongsFromPlaylistArgs {
 	shareID: string
 }
 
-export type OrderUpdates = [string, number][]
-
 export interface updateOrderOfPlaylistArgs {
-	orderUpdates: OrderUpdates[]
+	orderUpdates: [string, number][]
 	playlistID: string
 	shareID: string
 }
@@ -451,3 +449,9 @@ export interface updateShareMemberPermissionsArgs {
 	shareID: string
 	userID: string
 }
+
+export const ViewerFragment = sgtsQL` 
+  fragment ViewerFragment on Viewer {
+    id name email shares {id name isLibrary songs {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels sources duration tags dateAdded libraryID playCount numberOfSources shareID } songsDirty {timestamp } playlists {id name dateAdded shareID songs {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels duration tags dateAdded libraryID playCount numberOfSources shareID playlistSongID position } } members {id name email dateJoined shareID permissions status } permissions userPermissions } artists {name } genres {name group } songTypes {name group hasArtists alternativeNames } tags 
+  }
+`

@@ -1,11 +1,11 @@
 import { IID3Tag } from "id3-parser/lib/interface"
 import { Nullable } from "../../types/Nullable"
-import { IBaseSong } from "@musicshare/shared-types"
+import { BaseSong } from "@musicshare/shared-types"
 
 interface IID3SampleTest {
 	originalFilename: string
 	sample: IID3Tag | false
-	expectedOutput: Partial<Nullable<IBaseSong>>
+	expectedOutput: Partial<Nullable<BaseSong>>
 	knownArtists?: string[]
 }
 

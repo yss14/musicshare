@@ -4,7 +4,6 @@ import { plainToClass } from "class-transformer"
 import { ISongDBResult } from "../database/tables"
 import moment from "moment"
 import { filterNull } from "../utils/array/filter-null"
-import { IBaseSong, IShareSong } from "@musicshare/shared-types"
 
 const mapFileSourceModel = (entry: FileSource): FileSource | null => {
 	if (entry.fileExtension && entry.blob && entry.container) {
@@ -32,7 +31,7 @@ export const isSongDBResultWithPlayCount = <T>(obj: T): obj is T & { play_count:
 	typeof obj === "object" && typeof (obj as any).play_count === "number"
 
 @ObjectType({ description: "This represents the base of song and its properties" })
-export class BaseSong implements IBaseSong {
+export class BaseSong {
 	@Field()
 	public readonly id!: string
 
@@ -126,7 +125,7 @@ export class BaseSong implements IBaseSong {
 }
 
 @ObjectType({ description: "A song belonging to a share. If it belongs to a library, libraryID = shareID" })
-export class ShareSong extends BaseSong implements IShareSong {
+export class ShareSong extends BaseSong {
 	@Field(() => String)
 	public readonly shareID!: string
 

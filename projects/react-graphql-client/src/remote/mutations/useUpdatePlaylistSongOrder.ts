@@ -1,5 +1,5 @@
 import gql from "graphql-tag"
-import { PlaylistSong, OrderUpdates, playlistSongKeys } from "@musicshare/shared-types"
+import { PlaylistSong, playlistSongKeys } from "@musicshare/shared-types"
 import {
 	TransformedGraphQLMutation,
 	useGraphQLMutation,
@@ -15,7 +15,7 @@ interface IUpdatePlaylistSongOrderData {
 interface IUpdatePlaylistSongOrderVariables {
 	shareID: string
 	playlistID: string
-	orderUpdates: OrderUpdates
+	orderUpdates: [string, number][]
 }
 
 const UPDATE_PLAYLIST_SONG_ORDER = TransformedGraphQLMutation<

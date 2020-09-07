@@ -8,7 +8,7 @@ import { useSongUploadQueue, ISongUploadItem } from "../../utils/upload/SongUplo
 import { blobToArrayBuffer } from "../../utils/upload/blob-to-arraybuffer"
 import SparkMD5 from "spark-md5"
 import { v4 as uuid } from "uuid"
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong } from "@musicshare/shared-types"
 import { UploadOutlined } from "@ant-design/icons"
 import { useLibraryID } from "../../hooks/data/useLibraryID"
 import {
@@ -44,7 +44,7 @@ const Blur = styled.div`
 	height: 100%;
 `
 
-export type DetectedDuplicate = [IUploadFileArgs, IShareSong[]]
+export type DetectedDuplicate = [IUploadFileArgs, ShareSong[]]
 export type DuplicateActions = {
 	proceed: (item: IUploadFileArgs) => void
 	abort: (item: IUploadFileArgs) => void

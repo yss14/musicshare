@@ -9,7 +9,7 @@ import {
 import { IFileSourceJSONType } from "../../models/FileSourceModels"
 import { ISongProcessingQueuePayload } from "../../job-queues/SongUploadProcessingQueue"
 import { Nullable } from "../../types/Nullable"
-import { IBaseSong } from "@musicshare/shared-types"
+import { BaseSong } from "@musicshare/shared-types"
 
 export namespace DatabaseV1 {
 	const baseSchema = TableSchema({
@@ -202,7 +202,7 @@ export namespace DatabaseV1 {
 		...baseSchema,
 		file_upload_log_id: { type: ColumnType.UUID, primaryKey: true, unique: true, autoIncrement: true },
 		file: { type: JSONType<ISongProcessingQueuePayload>(), nullable: false },
-		meta: { type: JSONType<Partial<Nullable<IBaseSong>>>(), nullable: true },
+		meta: { type: JSONType<Partial<Nullable<BaseSong>>>(), nullable: true },
 		error: { type: ColumnType.Varchar, nullable: true },
 		user_id_ref: {
 			type: ColumnType.UUID,
