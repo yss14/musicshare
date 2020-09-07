@@ -3,12 +3,11 @@ import { ISharePlaylistRoute } from "../../interfaces"
 import { useParams } from "react-router-dom"
 import { MainSongsView } from "./MainSongsView"
 import { LoadingSpinner } from "../../components/common/LoadingSpinner"
-import { isPlaylistSong } from "../../graphql/types"
 import { useDeepCompareEffect } from "../../hooks/use-deep-compare-effect"
 import { MoveSong } from "../../components/song-table/MoveSong"
 import { useSongUploadQueueEvents, ISongUploadItem } from "../../utils/upload/SongUploadContext"
 import { useDebouncedCallback } from "use-debounce/lib"
-import { PlaylistSong } from "@musicshare/shared-types"
+import { PlaylistSong, isPlaylistSong } from "@musicshare/shared-types"
 import { usePlaylistSongs, useUpdatePlaylistSongOrder } from "@musicshare/graphql-client"
 
 export interface IPlaylistSongsProps {

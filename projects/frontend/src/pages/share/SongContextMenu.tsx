@@ -1,20 +1,19 @@
 import React, { useCallback, useState, useRef } from "react"
-import { IPlaylist, isPlaylistSong } from "../../graphql/types"
 import { usePlayerActions, usePlayerQueue } from "../../player/player-hook"
 import { ContextMenu, ContextMenuItem } from "../../components/modals/contextmenu/ContextMenu"
 import { Menu, message } from "antd"
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker"
 import { buildSongName } from "../../utils/songname-builder"
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong, Playlist, isPlaylistSong } from "@musicshare/shared-types"
 import { useRemoveSongsFromPlaylist, useRemoveSongFromLibrary, useAddSongsToPlaylist } from "@musicshare/graphql-client"
 import { useLibraryID } from "../../hooks/data/useLibraryID"
 
 export interface ISongContextMenuEvents {
-	onShowInformation: (song: IShareSong) => void
+	onShowInformation: (song: ShareSong) => void
 }
 
 interface ISongContextMenuProps {
-	song: IShareSong | null
+	song: ShareSong | null
 	playlistID?: string
 	events: ISongContextMenuEvents
 	contextMenuVisible: boolean
@@ -68,7 +67,7 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	}, [song, setShowPickPlaylistModal])
 
 	const onSubmitPickPlaylists = useCallback(
-		(playlists: IPlaylist[]) => {
+		(playlists: Playlist[]) => {
 			if (!song) return
 
 			setShowPickPlaylistModal(false)

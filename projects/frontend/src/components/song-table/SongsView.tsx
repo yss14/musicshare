@@ -4,9 +4,9 @@ import { zip } from "lodash"
 import { filterUndefined } from "../../utils/filter-null"
 import { SortOrder } from "antd/lib/table/interface"
 import useDeepCompareEffect from "use-deep-compare-effect"
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong } from "@musicshare/shared-types"
 
-type Song = IShareSong
+type Song = ShareSong
 
 export type SongsFilter = (filterValue: string, song: Song) => boolean
 

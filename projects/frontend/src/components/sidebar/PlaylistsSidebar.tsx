@@ -7,13 +7,13 @@ import { Prompt } from "../modals/promt/Prompt"
 import { SidebarItem } from "./SidebarItem"
 import { PlaylistSidebarItem } from "./PlaylistSidebarItem"
 import { SidebarSection } from "./SidebarSection"
-import { IPlaylist } from "../../graphql/types"
 import { LoadingSpinner } from "../common/LoadingSpinner"
 import { useContextMenu } from "../modals/contextmenu/ContextMenu"
 import { PlaylistContextMenu } from "./PlaylistContextMenu"
 import Scrollbars from "react-custom-scrollbars"
 import { useShares, useSharePlaylists, useMergedPlaylists, useCreatePlaylist } from "@musicshare/graphql-client"
 import { usePlaylistID } from "../../hooks/data/usePlaylistID"
+import { Playlist } from "@musicshare/shared-types"
 
 const Sidebar = styled.div`
 	width: 200px;
@@ -33,7 +33,7 @@ const SidebarButtonContainer = styled.div`
 	padding: 4px 0px;
 `
 
-const byPlaylistName = (lhs: IPlaylist, rhs: IPlaylist) => lhs.name.localeCompare(rhs.name)
+const byPlaylistName = (lhs: Playlist, rhs: Playlist) => lhs.name.localeCompare(rhs.name)
 
 interface IPlaylistSidebar {
 	merged: boolean
@@ -193,7 +193,7 @@ const MergedPlaylistsSidebar = () => {
 	)
 }
 
-interface IPlaylistTargeted extends IPlaylist {
+interface IPlaylistTargeted extends Playlist {
 	targetUrl: string
 }
 
@@ -216,7 +216,7 @@ const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({
 }) => {
 	const playlistID = usePlaylistID()
 	const { ref, showContextMenu, isVisible } = useContextMenu()
-	const [contextMenuPlaylist, setContextMenuPlaylist] = useState<IPlaylist | null>(null)
+	const [contextMenuPlaylist, setContextMenuPlaylist] = useState<Playlist | null>(null)
 	const [searchFilter, setSearchFilter] = useState("")
 
 	const filteredPlaylists = useMemo(() => {

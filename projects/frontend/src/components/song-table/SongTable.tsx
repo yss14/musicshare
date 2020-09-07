@@ -15,7 +15,7 @@ import Scrollbars from "react-custom-scrollbars"
 import styled from "styled-components"
 import { useSongsViewContext } from "./SongsView"
 import { SortOrder } from "antd/lib/table/interface"
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong } from "@musicshare/shared-types"
 
 const StyledScrollbars = styled(Scrollbars)`
 	& > div:first-child {
@@ -24,7 +24,7 @@ const StyledScrollbars = styled(Scrollbars)`
 	}
 `
 
-type Song = IShareSong
+type Song = ShareSong
 
 export interface IRowEventsArgs {
 	event: React.MouseEvent
@@ -189,9 +189,9 @@ export const SongTable: React.FC<ISongDataTableProps> = React.memo(
 )
 
 interface ISongRowRendererProps extends ListRowProps {
-	songs: IShareSong[]
+	songs: ShareSong[]
 	rowEvents: IRowEvents
-	hoveredSong: IShareSong | null
+	hoveredSong: ShareSong | null
 	onRowMouseEnter: (song: Song, ref: React.Ref<HTMLDivElement>, idx: number) => void
 	dragPreview: DragElementWrapper<DragPreviewOptions>
 	moveSong?: MoveSong | undefined

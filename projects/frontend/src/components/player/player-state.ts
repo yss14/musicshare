@@ -1,4 +1,4 @@
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong } from "@musicshare/shared-types"
 import create from "zustand"
 import shallow from "zustand/shallow"
 
@@ -7,7 +7,7 @@ const getPersistantVolume = () => parseFloat(window.localStorage.getItem(VOLUME_
 
 export interface IPlayerQueueItem {
 	id: string
-	song: IShareSong
+	song: ShareSong
 }
 
 export type IPlayerState = {
@@ -15,7 +15,7 @@ export type IPlayerState = {
 	playbackProgress: number
 	bufferingProgress: number
 	volume: number
-	currentSong: IShareSong | null
+	currentSong: ShareSong | null
 	duration: number
 	error: string | null
 	queue: IPlayerQueueItem[]

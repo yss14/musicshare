@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from "react"
 import { Menu, message } from "antd"
 import { ContextMenu, ContextMenuItem } from "../modals/contextmenu/ContextMenu"
-import { IPlaylist } from "../../graphql/types"
 import { Prompt } from "../modals/promt/Prompt"
 import { useRenamePlaylist, useDeletePlaylist } from "@musicshare/graphql-client"
+import { Playlist } from "@musicshare/shared-types"
 
 interface IPlaylistSongContextMenuProps {
-	playlist: IPlaylist
+	playlist: Playlist
 }
 
 export const PlaylistContextMenu = React.forwardRef<HTMLDivElement, IPlaylistSongContextMenuProps>(

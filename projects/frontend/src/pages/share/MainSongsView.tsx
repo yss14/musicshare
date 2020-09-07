@@ -11,7 +11,7 @@ import { SongsView } from "../../components/song-table/SongsView"
 import { ISongViewSettings } from "../../components/song-table/search/SongViewSettings"
 import { filterUndefined } from "../../utils/filter-null"
 import { usePlayerPlaybackState } from "../../components/player/player-state"
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong } from "@musicshare/shared-types"
 
 const FlexContainer = styled.div`
 	width: 100%;
@@ -39,7 +39,7 @@ const mapSongTableColumnKeys = (columnKeys: string[]) =>
 
 interface ISongsViewProps {
 	title: string
-	songs: IShareSong[]
+	songs: ShareSong[]
 	playlistID?: string
 	moveSong?: MoveSong
 	isMergedView: boolean
@@ -49,7 +49,7 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 	const { changeSong } = usePlayerActions()
 	const { currentSong } = usePlayerPlaybackState()
 	const { enqueueDefaultSongs, clearQueue } = usePlayerQueue()
-	const [editSong, setEditSong] = useState<IShareSong | null>(null)
+	const [editSong, setEditSong] = useState<ShareSong | null>(null)
 	const [showSongModal, setShowSongModal] = useState(false)
 	const [searchFilter, setSearchFilter] = useState<ISongSearchFilter>({
 		mode: "both",
@@ -84,7 +84,7 @@ export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlis
 	)
 
 	const songFilter = useCallback(
-		(filterValue: string, song: IShareSong) => {
+		(filterValue: string, song: ShareSong) => {
 			const tokenizedQuery = tokenizeQuery(filterValue)
 
 			if (tokenizedQuery.length === 0 || searchFilter.mode === "search") return true

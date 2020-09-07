@@ -1,15 +1,15 @@
 import React, { useState } from "react"
 import { Modal, Select } from "antd"
 import { useSharePlaylists } from "@musicshare/graphql-client"
-import { IPlaylist } from "../../../graphql/types"
 import { filterUndefined } from "../../../utils/filter-null"
 import { useShareID } from "../../../hooks/data/useShareID"
+import { Playlist } from "@musicshare/shared-types"
 
 const { Option } = Select
 
 interface IPlaylistPickerProps {
 	visible: boolean
-	onSubmit: (playlists: IPlaylist[]) => void
+	onSubmit: (playlists: Playlist[]) => void
 }
 
 export const PlaylistPicker: React.FC<IPlaylistPickerProps> = ({ visible, onSubmit }) => {

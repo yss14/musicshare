@@ -7,7 +7,7 @@ import { usePlayerActions } from "../../player/player-hook"
 import { ISongSearchFilter } from "./search/search-types"
 import { SongViewSettings, ISongViewSettings } from "./search/SongViewSettings"
 import { useSongDropzone } from "../upload/Dropzone"
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong } from "@musicshare/shared-types"
 import { ArrowUpOutlined } from "@ant-design/icons"
 
 const { Title, Text } = Typography
@@ -33,7 +33,7 @@ const HeaderButton = styled(Button)`
 `
 
 interface ISongTableHeaderProps {
-	songs: IShareSong[]
+	songs: ShareSong[]
 	title: string
 	onSearchFilterChange: (newFilter: ISongSearchFilter) => void
 	onSongViewSettingsChange: (newSettings: ISongViewSettings) => void
@@ -46,7 +46,7 @@ export const SongTableHeader = React.memo(
 
 		const durationSum = songs.reduce((acc, song) => acc + song.duration, 0)
 
-		const onClickSong = (song: IShareSong) => {
+		const onClickSong = (song: ShareSong) => {
 			changeSong(song)
 		}
 

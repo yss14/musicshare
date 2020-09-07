@@ -4,14 +4,13 @@ import { useDebounce } from "use-debounce"
 import { useSongSearch, useAddSongsToPlaylist } from "@musicshare/graphql-client"
 import { buildSongName } from "../../../utils/songname-builder"
 import styled from "styled-components"
-import { IPlaylist } from "../../../graphql/types"
 import { ISongSearchOptions, allMatchingOptions, ISongSearchFilter } from "./search-types"
 import { SongSearchOptionsPopover } from "./SongSearchOptionsPopover"
 import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd"
 import { DragNDropItem, ISongDNDItem } from "../../../types/DragNDropItems"
 import { useResettingState } from "../../../hooks/use-resetting-state"
 import songDragPreviewImg from "../../../images/playlist_add.png"
-import { IShareSong, ShareSong } from "@musicshare/shared-types"
+import { IShareSong, ShareSong, Playlist } from "@musicshare/shared-types"
 import { LoadingOutlined, SearchOutlined } from "@ant-design/icons"
 
 const SongSearchContainer = styled.div`
@@ -43,7 +42,7 @@ const SearchResultItem = styled.div`
 `
 
 interface ISongSearchProps {
-	onClickSong: (song: IShareSong) => any
+	onClickSong: (song: ShareSong) => any
 	onSearchFilterChange: (newFilter: ISongSearchFilter) => any
 }
 
@@ -71,7 +70,7 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 	}, [isDraggingSong, isClickingSong, setShowResults])
 
 	const onSongClick = useCallback(
-		(song: IShareSong) => {
+		(song: ShareSong) => {
 			setIsClickingSong(true)
 
 			onClickSong(song)
@@ -123,7 +122,7 @@ const SongSearchItem: React.FC<ISongSearchItemProps> = ({ song, onClick, onDrag 
 		end: (item: { song: IShareSong } | undefined, monitor: DragSourceMonitor) => {
 			if (onDrag) onDrag(false)
 
-			const dragResult = monitor.getDropResult() as { playlist: IPlaylist }
+			const dragResult = monitor.getDropResult() as { playlist: Playlist }
 
 			if (item && dragResult && dragResult.playlist) {
 				addSongsToPlaylist({

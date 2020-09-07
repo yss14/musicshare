@@ -1,12 +1,11 @@
 import React, { useMemo, useCallback } from "react"
-import { IGenre, ISongType, IArtist } from "../../../graphql/types"
 import { Formik } from "formik"
 import { Input, Row, Col, DatePicker, Switch, Modal, Select, Form } from "antd"
 import { EditableTagGroup } from "../../form/EditableTagGroup"
 import moment from "moment"
 import { buildSongName } from "../../../utils/songname-builder"
 import styled from "styled-components"
-import { IShareSong, SongUpdateInput, Nullable } from "@musicshare/shared-types"
+import { IShareSong, SongUpdateInput, Nullable, ShareSong, Genre, SongType, Artist } from "@musicshare/shared-types"
 import { useUpdateSong } from "@musicshare/graphql-client"
 
 const StyledModal = styled(Modal)`
@@ -20,10 +19,10 @@ const StyledModal = styled(Modal)`
 `
 
 interface ISongFormProps {
-	song: IShareSong
-	genres: IGenre[]
-	songTypes: ISongType[]
-	artists: IArtist[]
+	song: ShareSong
+	genres: Genre[]
+	songTypes: SongType[]
+	artists: Artist[]
 	tags: string[]
 	playlistID?: string
 	closeForm: () => void

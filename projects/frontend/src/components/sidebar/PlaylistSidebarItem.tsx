@@ -1,12 +1,11 @@
 import React from "react"
-import { IPlaylist } from "../../graphql/types"
 import { useDrop } from "react-dnd"
 import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
 import { SidebarItem } from "./SidebarItem"
 import { Link } from "react-router-dom"
 import styled from "styled-components"
 import { useShareName } from "../../hooks/use-share-name"
-import { IShareSong } from "@musicshare/shared-types"
+import { IShareSong, Playlist } from "@musicshare/shared-types"
 import { useAddSongsToPlaylist } from "@musicshare/graphql-client"
 
 interface IHoverableTagLinkProps {
@@ -35,7 +34,7 @@ interface IMonitorProps {
 }
 
 interface IPlaylistSidebarItemProps {
-	playlist: IPlaylist
+	playlist: Playlist
 	selected: boolean
 	targetUrl: string
 	onContextMenu?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void

@@ -2,7 +2,7 @@ import React, { useContext, useMemo, useEffect, useCallback, useState } from "re
 import useInterval from "@use-it/interval"
 import { usePlayerState, useUpdatePlayerState } from "../components/player/player-state"
 import { message } from "antd"
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong } from "@musicshare/shared-types"
 import { useDebouncedCallback } from "use-debounce"
 import { useSongMediaUrl, ISongMediaUrl, useIncrementSongPlayCount } from "@musicshare/graphql-client"
 
@@ -66,7 +66,7 @@ interface IPlayer {
 	isBufferingNextSong: boolean
 	setIsBufferingNextSong: React.Dispatch<React.SetStateAction<boolean>>
 
-	next: (song?: IShareSong) => Promise<boolean>
+	next: (song?: ShareSong) => Promise<boolean>
 	prev: () => Promise<void>
 }
 
@@ -97,7 +97,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 
 	const [isBufferingNextSong, setIsBufferingNextSong] = useState(false)
 	const [playCountIncremented, setPlayCountIncremented] = useState(false)
-	const [playedSongs, setPlayedSongs] = useState<IShareSong[]>([])
+	const [playedSongs, setPlayedSongs] = useState<ShareSong[]>([])
 
 	const { queue, currentSong } = usePlayerState()
 
@@ -125,7 +125,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 	}, [destroy])
 
 	const next = useCallback(
-		async (song?: IShareSong): Promise<boolean> => {
+		async (song?: ShareSong): Promise<boolean> => {
 			if (currentSong) {
 				setPlayedSongs((currentPlayedSongs) => [...currentPlayedSongs, currentSong])
 			}

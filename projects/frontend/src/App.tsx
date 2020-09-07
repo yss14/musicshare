@@ -1,7 +1,5 @@
 import React from "react"
-import { ApolloProvider } from "@apollo/client"
 import { Router } from "react-router-dom"
-import { client } from "./Apollo"
 import { DndProvider } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
 import { makeConfigFromEnv } from "./config"
@@ -56,15 +54,13 @@ export const App = () => (
 				<GraphQLClientProvider>
 					<GlobalStyle />
 					<ReactQueryDevtools />
-					<ApolloProvider client={client}>
-						<ThemeProvider theme={theme}>
-							<DndProvider backend={HTML5Backend}>
-								<Router history={history}>
-									<Routing />
-								</Router>
-							</DndProvider>
-						</ThemeProvider>
-					</ApolloProvider>
+					<ThemeProvider theme={theme}>
+						<DndProvider backend={HTML5Backend}>
+							<Router history={history}>
+								<Routing />
+							</Router>
+						</DndProvider>
+					</ThemeProvider>
 				</GraphQLClientProvider>
 			</GraphQLClientContext.Provider>
 		</ConfigContext.Provider>
