@@ -5,7 +5,7 @@ import { useHistory } from "react-router"
 import { useFormik } from "formik"
 import { Link } from "react-router-dom"
 import styled from "styled-components"
-import { useLogin } from "@musicshare/graphql-client"
+import { useLogin } from "@musicshare/react-graphql-client"
 
 const StyledSubmitButton = styled(Button)`
 	background-color: #e74c3c;

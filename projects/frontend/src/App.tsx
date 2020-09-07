@@ -11,7 +11,7 @@ import { history } from "./components/routing/history"
 import { ReactQueryConfigProvider, ReactQueryConfig } from "react-query"
 import { ReactQueryDevtools } from "react-query-devtools"
 import { GraphQLClientProvider } from "./GraphqlClientProvider"
-import { GraphQLClient, GraphQLClientContext } from "@musicshare/graphql-client"
+import { GraphQLClient, GraphQLClientContext } from "@musicshare/react-graphql-client"
 
 const config = makeConfigFromEnv()
 

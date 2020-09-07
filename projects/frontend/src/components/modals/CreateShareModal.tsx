@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react"
 import { Prompt } from "./promt/Prompt"
 import { useHistory } from "react-router-dom"
 import { message, Alert } from "antd"
-import { useCreateShare } from "@musicshare/graphql-client"
+import { useCreateShare } from "@musicshare/react-graphql-client"
 import { Share } from "@musicshare/shared-types"
 
 interface ICreateShareModalProps {

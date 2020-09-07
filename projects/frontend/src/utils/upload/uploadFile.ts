@@ -11,7 +11,7 @@ import {
 	UploadAction,
 } from "./SongUploadContext"
 import { uploadFileToStorage } from "./uploadFileToStorage"
-import { GenerateUploadableUrl, SubmitSongFromRemoteFile } from "@musicshare/graphql-client"
+import { GenerateUploadableUrl, SubmitSongFromRemoteFile } from "@musicshare/react-graphql-client"
 
 let currentUploads: number = 0
 

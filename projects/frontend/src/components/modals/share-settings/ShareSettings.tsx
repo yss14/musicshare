@@ -10,7 +10,7 @@ import {
 	useRenameShare,
 	useLeaveShare,
 	useDeleteShare,
-} from "@musicshare/graphql-client"
+} from "@musicshare/react-graphql-client"
 import Column from "antd/lib/table/Column"
 import { Permissions, UserStatus, IShareMember, Permission, Share } from "@musicshare/shared-types"
 import { useHistory } from "react-router-dom"

@@ -1,5 +1,5 @@
 {
-	"name": "@musicshare/graphql-client",
+	"name": "@musicshare/react-graphql-client",
 	"version": "1.0.0",
 	"description": "Core GraphQL Queries and Mutations communicating to the MusicShare Backend",
 	"main": "build/index",

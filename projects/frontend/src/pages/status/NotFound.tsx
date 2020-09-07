@@ -1,7 +1,7 @@
 import React from "react"
 import styled from "styled-components"
 import { Link } from "react-router-dom"
-import { useAuth } from "@musicshare/graphql-client"
+import { useAuth } from "@musicshare/react-graphql-client"
 import { LoadingSpinner } from "../../components/common/LoadingSpinner"
 
 const NotFoundContainer = styled.div`

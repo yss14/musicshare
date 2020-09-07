@@ -7,7 +7,7 @@ import { IShareRoute } from "../interfaces"
 import { CreateShareModal } from "./modals/CreateShareModal"
 import { ShareSettings } from "./modals/share-settings/ShareSettings"
 import { ChangePasswordModal } from "./modals/ChangePasswordModal"
-import { useViewer, useShares, useLogout } from "@musicshare/graphql-client"
+import { useViewer, useShares, useLogout } from "@musicshare/react-graphql-client"
 import { Share } from "@musicshare/shared-types"
 
 const { SubMenu, ItemGroup, Item } = Menu

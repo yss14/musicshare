@@ -8,7 +8,7 @@ import { MoveSong } from "../../components/song-table/MoveSong"
 import { useSongUploadQueueEvents, ISongUploadItem } from "../../utils/upload/SongUploadContext"
 import { useDebouncedCallback } from "use-debounce/lib"
 import { PlaylistSong, isPlaylistSong } from "@musicshare/shared-types"
-import { usePlaylistSongs, useUpdatePlaylistSongOrder } from "@musicshare/graphql-client"
+import { usePlaylistSongs, useUpdatePlaylistSongOrder } from "@musicshare/react-graphql-client"
 
 export interface IPlaylistSongsProps {
 	shareID: string

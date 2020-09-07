@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react"
 import { Input } from "antd"
 import { useDebounce } from "use-debounce"
-import { useSongSearch, useAddSongsToPlaylist } from "@musicshare/graphql-client"
+import { useSongSearch, useAddSongsToPlaylist } from "@musicshare/react-graphql-client"
 import { buildSongName } from "../../../utils/songname-builder"
 import styled from "styled-components"
 import { ISongSearchOptions, allMatchingOptions, ISongSearchFilter } from "./search-types"

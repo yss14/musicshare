@@ -10,7 +10,7 @@ import { buildSongName } from "../../utils/songname-builder"
 import { IUploadFileArgs } from "../../utils/upload/uploadFile"
 import { IShareSong } from "@musicshare/shared-types"
 import { useShareName } from "../../hooks/use-share-name"
-import { useAddSongsToPlaylist } from "@musicshare/graphql-client"
+import { useAddSongsToPlaylist } from "@musicshare/react-graphql-client"
 
 const UploadProgressContainer = styled(Scrollbars)`
 	background-color: white;

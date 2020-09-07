@@ -11,7 +11,7 @@ import { LoadingSpinner } from "../common/LoadingSpinner"
 import { useContextMenu } from "../modals/contextmenu/ContextMenu"
 import { PlaylistContextMenu } from "./PlaylistContextMenu"
 import Scrollbars from "react-custom-scrollbars"
-import { useShares, useSharePlaylists, useMergedPlaylists, useCreatePlaylist } from "@musicshare/graphql-client"
+import { useShares, useSharePlaylists, useMergedPlaylists, useCreatePlaylist } from "@musicshare/react-graphql-client"
 import { usePlaylistID } from "../../hooks/data/usePlaylistID"
 import { Playlist } from "@musicshare/shared-types"
 

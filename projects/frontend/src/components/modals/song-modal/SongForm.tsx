@@ -6,7 +6,7 @@ import moment from "moment"
 import { buildSongName } from "../../../utils/songname-builder"
 import styled from "styled-components"
 import { IShareSong, SongUpdateInput, Nullable, ShareSong, Genre, SongType, Artist } from "@musicshare/shared-types"
-import { useUpdateSong } from "@musicshare/graphql-client"
+import { useUpdateSong } from "@musicshare/react-graphql-client"
 
 const StyledModal = styled(Modal)`
 	& .ant-form-item-label {

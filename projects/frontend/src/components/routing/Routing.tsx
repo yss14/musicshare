@@ -13,7 +13,7 @@ import { AcceptInvitation } from "../../pages/accept-invitation/AcceptInvitation
 import { RestorePassword } from "../../pages/restore-password/RestorePassword"
 import { PlayerProvider } from "../../player/PlayerContext"
 import { SongUploadProvider } from "../../utils/upload/SongUploadContext"
-import { useViewer, useAuth } from "@musicshare/graphql-client"
+import { useViewer, useAuth } from "@musicshare/react-graphql-client"
 import { useLibraryID } from "../../hooks/data/useLibraryID"
 import { useUpdateLibraryID } from "../../hooks/data/useUpdateLibraryID"
 

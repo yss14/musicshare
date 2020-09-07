@@ -4,7 +4,7 @@ import { usePlayerState, useUpdatePlayerState } from "../components/player/playe
 import { message } from "antd"
 import { ShareSong } from "@musicshare/shared-types"
 import { useDebouncedCallback } from "use-debounce"
-import { useSongMediaUrl, ISongMediaUrl, useIncrementSongPlayCount } from "@musicshare/graphql-client"
+import { useSongMediaUrl, ISongMediaUrl, useIncrementSongPlayCount } from "@musicshare/react-graphql-client"
 
 const getMediaErrorCode = (event: ErrorEvent) => {
 	if (!event.target) {

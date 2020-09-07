@@ -1,5 +1,5 @@
 import React from "react"
-import { useArtists, useGenres, useTags, useSongTypes, useSong } from "@musicshare/graphql-client"
+import { useArtists, useGenres, useTags, useSongTypes, useSong } from "@musicshare/react-graphql-client"
 import { SongForm } from "./SongForm"
 import { IShareSong } from "@musicshare/shared-types"
 import { useLibraryID } from "../../../hooks/data/useLibraryID"

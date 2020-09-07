@@ -15,7 +15,7 @@ import {
 	useSongFileDuplicates,
 	useGenerateUploadableUrl,
 	useSubmitSongFromRemoteFile,
-} from "@musicshare/graphql-client"
+} from "@musicshare/react-graphql-client"
 
 const StyledUploadIcon = styled(UploadOutlined)`
 	font-size: 64px;

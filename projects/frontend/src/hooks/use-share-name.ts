@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { useShares } from "@musicshare/graphql-client"
+import { useShares } from "@musicshare/react-graphql-client"
 import { useLibraryID } from "./data/useLibraryID"
 
 export const useShareName = (shareID: string) => {

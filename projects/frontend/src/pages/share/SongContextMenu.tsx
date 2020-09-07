@@ -5,7 +5,11 @@ import { Menu, message } from "antd"
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker"
 import { buildSongName } from "../../utils/songname-builder"
 import { ShareSong, Playlist, isPlaylistSong } from "@musicshare/shared-types"
-import { useRemoveSongsFromPlaylist, useRemoveSongFromLibrary, useAddSongsToPlaylist } from "@musicshare/graphql-client"
+import {
+	useRemoveSongsFromPlaylist,
+	useRemoveSongFromLibrary,
+	useAddSongsToPlaylist,
+} from "@musicshare/react-graphql-client"
 import { useLibraryID } from "../../hooks/data/useLibraryID"
 
 export interface ISongContextMenuEvents {

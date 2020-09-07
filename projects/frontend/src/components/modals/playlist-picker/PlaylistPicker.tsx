@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { Modal, Select } from "antd"
-import { useSharePlaylists } from "@musicshare/graphql-client"
+import { useSharePlaylists } from "@musicshare/react-graphql-client"
 import { filterUndefined } from "../../../utils/filter-null"
 import { useShareID } from "../../../hooks/data/useShareID"
 import { Playlist } from "@musicshare/shared-types"

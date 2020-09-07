@@ -4,7 +4,7 @@ import { Input, Button, Alert, message, Form } from "antd"
 import { IInvitationPayload } from "@musicshare/shared-types"
 import { useFormik } from "formik"
 import { Link } from "react-router-dom"
-import { useAcceptInvitation } from "@musicshare/graphql-client"
+import { useAcceptInvitation } from "@musicshare/react-graphql-client"
 
 interface IFormValues {
 	username: string

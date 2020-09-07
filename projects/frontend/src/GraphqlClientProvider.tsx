@@ -5,7 +5,7 @@ import {
 	useLogout,
 	useIssueAuthToken,
 	useUpdateAuth,
-} from "@musicshare/graphql-client"
+} from "@musicshare/react-graphql-client"
 import axios, { AxiosError, AxiosResponse } from "axios"
 import { useConfig } from "./hooks/use-config"
 import React, { useMemo, useCallback, useRef } from "react"

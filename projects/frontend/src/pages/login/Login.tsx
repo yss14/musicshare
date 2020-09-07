@@ -3,7 +3,7 @@ import { LoginForm } from "./LoginForm"
 import { useParams, useHistory } from "react-router-dom"
 import { Container, Title } from "../CustomerActionForm"
 import styled from "styled-components"
-import { useAuth } from "@musicshare/graphql-client"
+import { useAuth } from "@musicshare/react-graphql-client"
 
 const BackgroundPane = styled.div`
 	background-color: black;

@@ -22,7 +22,7 @@
 	],
 	"dependencies": {
 		"@musicshare/shared-types": "*",
-		"@musicshare/graphql-client": "*"
+		"@musicshare/react-graphql-client": "*"
 	},
 	"devDependencies": {}
 }

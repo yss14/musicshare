@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react"
 import { Menu, message } from "antd"
 import { ContextMenu, ContextMenuItem } from "../modals/contextmenu/ContextMenu"
 import { Prompt } from "../modals/promt/Prompt"
-import { useRenamePlaylist, useDeletePlaylist } from "@musicshare/graphql-client"
+import { useRenamePlaylist, useDeletePlaylist } from "@musicshare/react-graphql-client"
 import { Playlist } from "@musicshare/shared-types"
 
 interface IPlaylistSongContextMenuProps {

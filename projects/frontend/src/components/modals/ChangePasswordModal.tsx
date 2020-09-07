@@ -2,7 +2,7 @@ import React, { useCallback } from "react"
 import { LockOutlined } from "@ant-design/icons"
 import { Modal, Input, Alert, message, Form } from "antd"
 import { useFormik } from "formik"
-import { useChangePassword } from "@musicshare/graphql-client"
+import { useChangePassword } from "@musicshare/react-graphql-client"
 
 interface IFormValues {
 	oldPassword: string

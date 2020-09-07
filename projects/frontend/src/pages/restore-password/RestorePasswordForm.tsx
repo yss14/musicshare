@@ -4,7 +4,7 @@ import { useFormik } from "formik"
 import { IdcardOutlined, LockOutlined, UserOutlined } from "@ant-design/icons"
 import { Input, Button, Alert, message, Form } from "antd"
 import { Link } from "react-router-dom"
-import { useRestorePassword } from "@musicshare/graphql-client"
+import { useRestorePassword } from "@musicshare/react-graphql-client"
 
 interface IFormValues {
 	email: string

@@ -6,7 +6,7 @@ import { Link } from "react-router-dom"
 import styled from "styled-components"
 import { useShareName } from "../../hooks/use-share-name"
 import { IShareSong, Playlist } from "@musicshare/shared-types"
-import { useAddSongsToPlaylist } from "@musicshare/graphql-client"
+import { useAddSongsToPlaylist } from "@musicshare/react-graphql-client"
 
 interface IHoverableTagLinkProps {
 	text?: string
