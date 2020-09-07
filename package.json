@@ -109,7 +109,8 @@
 		"use-local-storage-state": "^4.0.0",
 		"use-react-router": "^1.0.6",
 		"use-set-timeout": "^1.0.4",
-		"uuid": "^8.0.0"
+		"uuid": "^8.0.0",
+		"zustand": "^3.1.0"
 	},
 	"devDependencies": {
 		"@addbots/eslint-config": "^1.1.0",

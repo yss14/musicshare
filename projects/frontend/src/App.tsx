@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React from "react"
 import { ApolloProvider } from "@apollo/client"
 import { Router } from "react-router-dom"
 import { client } from "./Apollo"
@@ -10,9 +10,10 @@ import { ConfigContext } from "./context/configContext"
 import { Routing } from "./components/routing/Routing"
 import { IPrimaryTheme } from "./types/Theme"
 import { history } from "./components/routing/history"
-import { GraphQLClient, GraphQLClientContext } from "@musicshare/graphql-client"
 import { ReactQueryConfigProvider, ReactQueryConfig } from "react-query"
 import { ReactQueryDevtools } from "react-query-devtools"
+import { GraphQLClientProvider } from "./GraphqlClientProvider"
+import { GraphQLClient, GraphQLClientContext } from "@musicshare/graphql-client"
 
 const config = makeConfigFromEnv()
 
@@ -48,36 +49,24 @@ const queryConfig: ReactQueryConfig = {
 	},
 }
 
-export const App = () => {
-	const graphQLClient = useMemo(() => {
-		const client = GraphQLClient({ baseURL: config.services.musicshare.backendURL })
-
-		client.useRequestMiddleware((request) => {
-			request.headers["Authorization"] = localStorage.getItem("musicshare.authToken")
-
-			return request
-		})
-
-		return client
-	}, [])
-
-	return (
-		<ReactQueryConfigProvider config={queryConfig}>
-			<GraphQLClientContext.Provider value={graphQLClient}>
-				<GlobalStyle />
-				<ReactQueryDevtools />
-				<ApolloProvider client={client}>
-					<ThemeProvider theme={theme}>
-						<ConfigContext.Provider value={config}>
+export const App = () => (
+	<ReactQueryConfigProvider config={queryConfig}>
+		<ConfigContext.Provider value={config}>
+			<GraphQLClientContext.Provider value={GraphQLClient({ baseURL: config.services.musicshare.backendURL })}>
+				<GraphQLClientProvider>
+					<GlobalStyle />
+					<ReactQueryDevtools />
+					<ApolloProvider client={client}>
+						<ThemeProvider theme={theme}>
 							<DndProvider backend={HTML5Backend}>
 								<Router history={history}>
 									<Routing />
 								</Router>
 							</DndProvider>
-						</ConfigContext.Provider>
-					</ThemeProvider>
-				</ApolloProvider>
+						</ThemeProvider>
+					</ApolloProvider>
+				</GraphQLClientProvider>
 			</GraphQLClientContext.Provider>
-		</ReactQueryConfigProvider>
-	)
-}
+		</ConfigContext.Provider>
+	</ReactQueryConfigProvider>
+)

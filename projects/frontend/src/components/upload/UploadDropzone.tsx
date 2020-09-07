@@ -35,47 +35,49 @@ const DuplicateActionButtonGroup = styled.div`
 	margin-left: auto;
 `
 
-export const UploadDropzone: React.FC = ({ children }) => (
-	<Dropzone>
-		{(uploadItems, duplicates, duplicateActions) => {
-			return (
-				<Flex direction="column" style={{ width: "100%", height: "100%" }}>
-					{uploadItems.length > 0 || duplicates.length > 0 ? (
-						<UploadProgressContainer autoHide autoHeight>
-							<>
-								{duplicates.map(([item, duplicateSongs]) => (
-									<DuplicateUpload
-										key={item.id}
-										item={item}
-										duplicateSongs={duplicateSongs}
-										duplicateActions={duplicateActions}
-									/>
-								))}
-								{uploadItems
-									.filter((item) => item.progress > 0)
-									.concat(uploadItems.filter((item) => item.progress === 0))
-									.map((item) => (
-										<ActiveUpload key={item.id} item={item} />
+export const UploadDropzone: React.FC = ({ children }) => {
+	return (
+		<Dropzone>
+			{(uploadItems, duplicates, duplicateActions) => {
+				return (
+					<Flex direction="column" style={{ width: "100%", height: "100%" }}>
+						{uploadItems.length > 0 || duplicates.length > 0 ? (
+							<UploadProgressContainer autoHide autoHeight>
+								<>
+									{duplicates.map(([item, duplicateSongs]) => (
+										<DuplicateUpload
+											key={item.id}
+											item={item}
+											duplicateSongs={duplicateSongs}
+											duplicateActions={duplicateActions}
+										/>
 									))}
-							</>
-						</UploadProgressContainer>
-					) : null}
-					<Box style={{ width: "100%", height: "100%" }}>
-						<div
-							style={{
-								width: "100%",
-								height: "100%",
-								position: "relative",
-							}}
-						>
-							{children}
-						</div>
-					</Box>
-				</Flex>
-			)
-		}}
-	</Dropzone>
-)
+									{uploadItems
+										.filter((item) => item.progress > 0)
+										.concat(uploadItems.filter((item) => item.progress === 0))
+										.map((item) => (
+											<ActiveUpload key={item.id} item={item} />
+										))}
+								</>
+							</UploadProgressContainer>
+						) : null}
+						<Box style={{ width: "100%", height: "100%" }}>
+							<div
+								style={{
+									width: "100%",
+									height: "100%",
+									position: "relative",
+								}}
+							>
+								{children}
+							</div>
+						</Box>
+					</Flex>
+				)
+			}}
+		</Dropzone>
+	)
+}
 
 interface IDuplicateUploadProps {
 	item: IUploadFileArgs

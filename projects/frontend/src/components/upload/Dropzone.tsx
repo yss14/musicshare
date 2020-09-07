@@ -3,7 +3,6 @@ import { useDropzone, FileRejection, DropzoneState } from "react-dropzone"
 import { Typography, message } from "antd"
 import styled from "styled-components"
 import { uploadFile, IUploadFileArgs } from "../../utils/upload/uploadFile"
-import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 import { last, uniqBy } from "lodash"
 import { useSongUploadQueue, ISongUploadItem } from "../../utils/upload/SongUploadContext"
 import { useApolloClient } from "@apollo/client"
@@ -15,6 +14,7 @@ import SparkMD5 from "spark-md5"
 import { v4 as uuid } from "uuid"
 import { IShareSong } from "@musicshare/shared-types"
 import { UploadOutlined } from "@ant-design/icons"
+import { useLibraryID } from "../../hooks/data/useLibraryID"
 
 const StyledUploadIcon = styled(UploadOutlined)`
 	font-size: 64px;
@@ -76,6 +76,7 @@ const getPlaylistIDsFromUrl = (): string[] => {
 
 export default ({ children }: WrapperProps) => {
 	const libraryID = useLibraryID()
+
 	return libraryID ? <Dropzone shareID={libraryID}>{(...args) => children(...args)}</Dropzone> : null
 }
 

@@ -14,9 +14,9 @@ import {
 import Column from "antd/lib/table/Column"
 import { Permissions, UserStatus, IShareMember, Permission, Share } from "@musicshare/shared-types"
 import { useHistory } from "react-router-dom"
-import { useLibraryID } from "../../../graphql/client/queries/libraryid-query"
 import styled from "styled-components"
 import { EditableTagGroup } from "../../form/EditableTagGroup"
+import { useLibraryID } from "../../../hooks/data/useLibraryID"
 
 const { Text } = Typography
 

@@ -1,8 +1,8 @@
 import React from "react"
 import { useArtists, useGenres, useTags, useSongTypes, useSong } from "@musicshare/graphql-client"
 import { SongForm } from "./SongForm"
-import { useLibraryID } from "../../../graphql/client/queries/libraryid-query"
 import { IShareSong } from "@musicshare/shared-types"
+import { useLibraryID } from "../../../hooks/data/useLibraryID"
 
 interface ISongModalProps {
 	song: IShareSong

@@ -1,6 +1,6 @@
-import { useLibraryID } from "../graphql/client/queries/libraryid-query"
 import { useMemo } from "react"
 import { useShares } from "@musicshare/graphql-client"
+import { useLibraryID } from "./data/useLibraryID"
 
 export const useShareName = (shareID: string) => {
 	const { isLoading, data: shares } = useShares()

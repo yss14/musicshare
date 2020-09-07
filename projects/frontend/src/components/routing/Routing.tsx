@@ -7,8 +7,6 @@ import { NotFound } from "../../pages/status/NotFound"
 import { PlaylistSidebar } from "../sidebar/PlaylistsSidebar"
 import { UploadDropzone } from "../upload/UploadDropzone"
 import { MergedSongs } from "../../pages/share/MergedSongs"
-import { useUpdateLibraryID } from "../../graphql/client/mutations/libraryid-mutation"
-import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 import { Offline } from "../../pages/status/Offline"
 import { LoadingSpinner } from "../common/LoadingSpinner"
 import { AcceptInvitation } from "../../pages/accept-invitation/AcceptInvitation"
@@ -16,6 +14,8 @@ import { RestorePassword } from "../../pages/restore-password/RestorePassword"
 import { PlayerProvider } from "../../player/PlayerContext"
 import { SongUploadProvider } from "../../utils/upload/SongUploadContext"
 import { useViewer, useAuth } from "@musicshare/graphql-client"
+import { useLibraryID } from "../../hooks/data/useLibraryID"
+import { useUpdateLibraryID } from "../../hooks/data/useUpdateLibraryID"
 
 const Share = lazy(() => import("../../pages/share/Share").then((module) => ({ default: module.Share })))
 
@@ -70,10 +70,10 @@ const LoggedInRoutes = () => {
 	}, [error, history])
 
 	useEffect(() => {
-		if (viewer && !libraryID) {
-			const library = viewer.shares.find((share) => share.isLibrary === true)
+		const library = viewer?.shares.find((share) => share.isLibrary === true)
 
-			updateLibraryID(library ? library.id : null)
+		if (library?.id) {
+			updateLibraryID(library!.id)
 		}
 	}, [viewer, updateLibraryID, libraryID])
 

@@ -4,10 +4,10 @@ import { usePlayerActions, usePlayerQueue } from "../../player/player-hook"
 import { ContextMenu, ContextMenuItem } from "../../components/modals/contextmenu/ContextMenu"
 import { Menu, message } from "antd"
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker"
-import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 import { buildSongName } from "../../utils/songname-builder"
 import { IShareSong } from "@musicshare/shared-types"
 import { useRemoveSongsFromPlaylist, useRemoveSongFromLibrary, useAddSongsToPlaylist } from "@musicshare/graphql-client"
+import { useLibraryID } from "../../hooks/data/useLibraryID"
 
 export interface ISongContextMenuEvents {
 	onShowInformation: (song: IShareSong) => void
