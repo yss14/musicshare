@@ -105,15 +105,14 @@ export interface IMutationResolverArgs<TVar> extends IBaseResolverArgs<TVar> {
 export interface IUseMutationOptions<TData, TVar>
 	extends MutationConfig<TData, GraphQLClientError<TData>, TVar>,
 		GraphQLVariables<TVar> {
-	operatioName?: string
 	resolver?: (args: IMutationResolverArgs<TVar>) => TData | Promise<TData>
 }
 
 export const useGraphQLMutation = <TData, TDataTransformed, TVar extends {} = {}>(
 	{ query: mutation, dataTransformation }: ITypedGraphQLOperation<TData, TDataTransformed, TVar>,
 	{
+		// eslint-disable-next-line
 		variables = {} as TVar,
-		operatioName = getQueryKey(mutation),
 		resolver,
 		...opts
 	}: IUseMutationOptions<TDataTransformed, TVar> = {},

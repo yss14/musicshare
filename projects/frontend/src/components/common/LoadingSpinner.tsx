@@ -21,7 +21,7 @@ interface ILoadingSpinnerProps {
 }
 
 export const LoadingSpinner: React.FC<ILoadingSpinnerProps> = ({ dimension, color }) => {
-	const finalColor = color || [0.137, 0.137, 0.137, 1]
+	const finalColor: ColorType = useMemo(() => color || [0.137, 0.137, 0.137, 1], [color])
 	const animationData = useMemo(() => loadingAnimation(finalColor), [finalColor])
 
 	const opts: Options = {
