@@ -14,6 +14,7 @@
 // 💙
 
 export type Maybe<T> = T | null
+import sgtsQL, { DocumentNode } from "graphql-tag"
 
 export interface Query {
 	viewer: Maybe<Viewer>
@@ -451,81 +452,6 @@ export interface updateShareMemberPermissionsArgs {
 
 export const ViewerFragment = sgtsQL` 
   fragment ViewerFragment on Viewer {
-    id name email shares {id name isLibrary songs {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels sources {} duration tags dateAdded libraryID playCount numberOfSources shareID } songsDirty {timestamp } playlists {id name dateAdded shareID songs {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels duration tags dateAdded libraryID playCount numberOfSources shareID playlistSongID position } } members {id name email dateJoined shareID permissions status } permissions userPermissions } artists {name } genres {name group } songTypes {name group hasArtists alternativeNames } tags 
-  }
-`
-export const ShareFragment = sgtsQL` 
-  fragment ShareFragment on Share {
-    id name isLibrary songs {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels sources {} duration tags dateAdded libraryID playCount numberOfSources shareID } songsDirty {timestamp } playlists {id name dateAdded shareID songs {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels duration tags dateAdded libraryID playCount numberOfSources shareID playlistSongID position } } members {id name email dateJoined shareID permissions status } permissions userPermissions 
-  }
-`
-export const ShareSongFragment = sgtsQL` 
-  fragment ShareSongFragment on ShareSong {
-    id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels sources {} duration tags dateAdded libraryID playCount numberOfSources shareID 
-  }
-`
-export const FileUploadFragment = sgtsQL` 
-  fragment FileUploadFragment on FileUpload {
-    container blob fileExtension originalFilename hash accessUrl 
-  }
-`
-export const TimestampedResultFragment = sgtsQL` 
-  fragment TimestampedResultFragment on TimestampedResult {
-    timestamp nodes {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels sources {} duration tags dateAdded libraryID playCount numberOfSources shareID } 
-  }
-`
-export const PlaylistFragment = sgtsQL` 
-  fragment PlaylistFragment on Playlist {
-    id name dateAdded shareID songs {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels sources {} duration tags dateAdded libraryID playCount numberOfSources shareID playlistSongID position } 
-  }
-`
-export const PlaylistSongFragment = sgtsQL` 
-  fragment PlaylistSongFragment on PlaylistSong {
-    id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels sources {} duration tags dateAdded libraryID playCount numberOfSources shareID playlistSongID position 
-  }
-`
-export const ShareMemberFragment = sgtsQL` 
-  fragment ShareMemberFragment on ShareMember {
-    id name email dateJoined shareID permissions status 
-  }
-`
-export const ArtistFragment = sgtsQL` 
-  fragment ArtistFragment on Artist {
-    name 
-  }
-`
-export const GenreFragment = sgtsQL` 
-  fragment GenreFragment on Genre {
-    name group 
-  }
-`
-export const SongTypeFragment = sgtsQL` 
-  fragment SongTypeFragment on SongType {
-    name group hasArtists alternativeNames 
-  }
-`
-export const AuthTokenBundleFragment = sgtsQL` 
-  fragment AuthTokenBundleFragment on AuthTokenBundle {
-    authToken refreshToken 
-  }
-`
-export const AcceptInviationPayloadFragment = sgtsQL` 
-  fragment AcceptInviationPayloadFragment on AcceptInviationPayload {
-    restoreToken user {id name email shares {id name isLibrary songs {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels sources {} duration tags dateAdded libraryID playCount numberOfSources shareID } songsDirty {timestamp } playlists {id name dateAdded shareID songs {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels duration tags dateAdded libraryID playCount numberOfSources shareID playlistSongID position } } members {id name email dateJoined shareID permissions status } permissions userPermissions } artists {name } genres {name group } songTypes {name group hasArtists alternativeNames } tags } 
-  }
-`
-export const SongPlayFragment = sgtsQL` 
-  fragment SongPlayFragment on SongPlay {
-    song {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels sources {} duration tags dateAdded libraryID playCount numberOfSources shareID } user {id name email shares {id name isLibrary songsDirty {timestamp } playlists {id name dateAdded shareID songs {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels duration tags dateAdded libraryID playCount numberOfSources shareID playlistSongID position } } members {id name email dateJoined shareID permissions status } permissions userPermissions } artists {name } genres {name group } songTypes {name group hasArtists alternativeNames } tags } dateAdded 
-  }
-`
-export const BaseSongFragment = sgtsQL` 
-  fragment BaseSongFragment on BaseSong {
-    id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels sources {} duration tags dateAdded libraryID playCount numberOfSources 
-  }
-`
-export const PageInfoFragment = sgtsQL` 
-  fragment PageInfoFragment on PageInfo {
-    hasNextPage hasPreviousPage startCursor endCursor 
+    id name email shares {id name isLibrary songs {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels sources duration tags dateAdded libraryID playCount numberOfSources shareID } songsDirty {timestamp } playlists {id name dateAdded shareID songs {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels duration tags dateAdded libraryID playCount numberOfSources shareID playlistSongID position } } members {id name email dateJoined shareID permissions status } permissions userPermissions } artists {name } genres {name group } songTypes {name group hasArtists alternativeNames } tags 
   }
 `

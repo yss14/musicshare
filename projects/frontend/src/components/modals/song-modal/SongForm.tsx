@@ -5,7 +5,7 @@ import { EditableTagGroup } from "../../form/EditableTagGroup"
 import moment from "moment"
 import { buildSongName } from "../../../utils/songname-builder"
 import styled from "styled-components"
-import { IShareSong, SongUpdateInput, Nullable, ShareSong, Genre, SongType, Artist } from "@musicshare/shared-types"
+import { ShareSong, SongUpdateInput, Nullable, Genre, SongType, Artist } from "@musicshare/shared-types"
 import { useUpdateSong } from "@musicshare/react-graphql-client"
 
 const StyledModal = styled(Modal)`
@@ -53,7 +53,7 @@ export const SongForm = ({
 	})
 
 	const updateSong = useCallback(
-		(values: IShareSong) => {
+		(values: ShareSong) => {
 			updateSongMutation({
 				shareID: song.libraryID,
 				songID: song.id,
@@ -244,7 +244,7 @@ export const SongForm = ({
 	)
 }
 
-const validateSong = (data: IShareSong) => {
+const validateSong = (data: ShareSong) => {
 	let errors: any = {}
 
 	if (data.title.trim().length === 0) {
@@ -274,7 +274,7 @@ const removeTypename = <O extends {}>(obj: O): O => {
 	return value
 }
 
-const makeSongInput = (song: IShareSong): Nullable<SongUpdateInput> => {
+const makeSongInput = (song: ShareSong): Nullable<SongUpdateInput> => {
 	const allowedProperties = [
 		"title",
 		"suffix",

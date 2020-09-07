@@ -10,7 +10,7 @@ import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd"
 import { DragNDropItem, ISongDNDItem } from "../../../types/DragNDropItems"
 import { useResettingState } from "../../../hooks/use-resetting-state"
 import songDragPreviewImg from "../../../images/playlist_add.png"
-import { IShareSong, ShareSong, Playlist } from "@musicshare/shared-types"
+import { ShareSong, Playlist } from "@musicshare/shared-types"
 import { LoadingOutlined, SearchOutlined } from "@ant-design/icons"
 
 const SongSearchContainer = styled.div`
@@ -119,7 +119,7 @@ const SongSearchItem: React.FC<ISongSearchItemProps> = ({ song, onClick, onDrag 
 	const [, drag, dragPreview] = useDrag<ISongDNDItem, void, any>({
 		item: { type: DragNDropItem.Song, song, idx: -1 },
 		begin: () => (onDrag ? onDrag(true) : undefined),
-		end: (item: { song: IShareSong } | undefined, monitor: DragSourceMonitor) => {
+		end: (item: { song: ShareSong } | undefined, monitor: DragSourceMonitor) => {
 			if (onDrag) onDrag(false)
 
 			const dragResult = monitor.getDropResult() as { playlist: Playlist }

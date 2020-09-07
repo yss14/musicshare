@@ -3,7 +3,7 @@ import { buildSongName } from "../../utils/songname-builder"
 import styled from "styled-components"
 import { useDrop, DropTargetMonitor, XYCoord, useDrag } from "react-dnd"
 import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong } from "@musicshare/shared-types"
 import { CloseCircleOutlined } from "@ant-design/icons"
 
 const SongQueueItemContainer = styled.div`
@@ -39,7 +39,7 @@ const RemoveButton = styled(CloseCircleOutlined)`
 `
 
 interface ISongQueueItemProps {
-	song: IShareSong
+	song: ShareSong
 	index: number
 	moveItem: (dragIndex: number, hoverIndex: number) => void
 	onRemove: (index: number) => void

@@ -12,7 +12,7 @@ import {
 	useDeleteShare,
 } from "@musicshare/react-graphql-client"
 import Column from "antd/lib/table/Column"
-import { Permissions, UserStatus, IShareMember, Permission, Share } from "@musicshare/shared-types"
+import { Permissions, UserStatus, ShareMember, Permission, Share } from "@musicshare/shared-types"
 import { useHistory } from "react-router-dom"
 import styled from "styled-components"
 import { EditableTagGroup } from "../../form/EditableTagGroup"
@@ -176,7 +176,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 	)
 
 	const onPermissionsValueChange = useCallback(
-		(user: IShareMember, permissions: string[]) => {
+		(user: ShareMember, permissions: string[]) => {
 			if (permissions.every((perm) => Permissions.ALL.includes(perm as Permission))) {
 				updatePermissions({
 					permissions,
@@ -207,7 +207,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 						title="Actions"
 						key="actions"
 						width={120}
-						render={(_, user: IShareMember) => (
+						render={(_, user: ShareMember) => (
 							<>
 								{user.status === UserStatus.Pending && (
 									<Button type="link" onClick={() => onRevokeInvitationClick(user.id)}>
@@ -220,7 +220,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 					<Column
 						title="Permissions"
 						key="permissions"
-						render={(_, user: IShareMember) => {
+						render={(_, user: ShareMember) => {
 							return (
 								<EditableTagGroup
 									values={user.permissions}

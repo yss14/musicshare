@@ -5,7 +5,7 @@ import { SidebarItem } from "./SidebarItem"
 import { Link } from "react-router-dom"
 import styled from "styled-components"
 import { useShareName } from "../../hooks/use-share-name"
-import { IShareSong, Playlist } from "@musicshare/shared-types"
+import { Playlist, ShareSong } from "@musicshare/shared-types"
 import { useAddSongsToPlaylist } from "@musicshare/react-graphql-client"
 
 interface IHoverableTagLinkProps {
@@ -57,7 +57,7 @@ export const PlaylistSidebarItem: React.FC<IPlaylistSidebarItemProps> = ({
 		accept: DragNDropItem.Song,
 		drop: (item) => {
 			if (item && item.song) {
-				const song = item.song as IShareSong
+				const song = item.song as ShareSong
 
 				if (song) {
 					addSongsToPlaylist({ shareID: playlist.shareID, playlistID: playlist.id, songIDs: [song.id] })

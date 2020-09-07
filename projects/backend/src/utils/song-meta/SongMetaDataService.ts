@@ -34,7 +34,7 @@ export class SongMetaDataService implements ISongMetaDataService {
 				const newValue = rhs[key]
 
 				if (currentValue instanceof Array && newValue instanceof Array) {
-					;(mergedMetaData[key] as any) = currentValue.concat(newValue)
+					;(mergedMetaData[key] as any) = [...currentValue, ...newValue]
 				} else {
 					;(mergedMetaData[key] as any) = newValue
 				}

@@ -1,11 +1,10 @@
 import { ISongDBResultWithShare, ShareSong } from "./SongModel"
 import { ObjectType, Field } from "type-graphql"
 import { plainToClass } from "class-transformer"
-import { IPlaylistSong } from "@musicshare/shared-types/src"
 import { IPlaylistSongDBResult } from "../database/tables"
 
 @ObjectType()
-export class PlaylistSong extends ShareSong implements IPlaylistSong {
+export class PlaylistSong extends ShareSong {
 	@Field()
 	public readonly playlistSongID!: string
 
