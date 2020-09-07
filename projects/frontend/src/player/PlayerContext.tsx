@@ -2,11 +2,10 @@ import React, { useContext, useMemo, useEffect, useCallback, useState } from "re
 import useInterval from "@use-it/interval"
 import { useApolloClient } from "@apollo/client"
 import { makeUpdatePlayerState, usePlayerState } from "../components/player/player-state"
-import { makeIncrementSongPlayCount } from "../graphql/programmatic/increment-song-playcount"
 import { message } from "antd"
 import { IShareSong } from "@musicshare/shared-types"
 import { useDebouncedCallback } from "use-debounce"
-import { useSongMediaUrl, ISongMediaUrl } from "@musicshare/graphql-client"
+import { useSongMediaUrl, ISongMediaUrl, useIncrementSongPlayCount } from "@musicshare/graphql-client"
 
 const getMediaErrorCode = (event: ErrorEvent) => {
 	if (!event.target) {
@@ -107,7 +106,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 	const client = useApolloClient()
 	const updatePlayerState = useMemo(() => makeUpdatePlayerState(client), [client])
 	const [getMediaUrls] = useSongMediaUrl()
-	const incrementSongPlayCount = useMemo(() => makeIncrementSongPlayCount(client), [client])
+	const [incrementSongPlayCount] = useIncrementSongPlayCount()
 
 	const destroy = useCallback(() => {
 		try {
@@ -271,7 +270,9 @@ export const PlayerProvider: React.FC = ({ children }) => {
 		if (!playCountIncremented && progress >= 0.7 && currentSong) {
 			setPlayCountIncremented(true)
 
-			incrementSongPlayCount(currentSong.id, currentSong.shareID).catch(console.error)
+			incrementSongPlayCount({ input: { songID: currentSong.id, shareID: currentSong.shareID } }).catch(
+				console.error,
+			)
 		}
 	}, [updatePlayerState, currentSong, incrementSongPlayCount, playCountIncremented, primaryDeck])
 
