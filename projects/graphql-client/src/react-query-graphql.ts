@@ -27,7 +27,6 @@ export interface ITypedGraphQLOperation<TData, TDataTransformed, TVar> {
 	varType: TVar
 }
 
-// TODO add overload for constructor function without data transformation function
 export const TransformedGraphQLQuery = <TData, TVar = {}>(query: DocumentNode) => <TDataTransformed>(
 	dataTransformation: (data: TData) => TDataTransformed,
 ): ITypedGraphQLOperation<TData, TDataTransformed, TVar> => ({
@@ -164,7 +163,6 @@ export interface ITypedQueryCache extends QueryCache {
 		query: IQueryCacheQuery<TData, TDataTransformed, TVar>,
 		options?: InvalidateQueriesOptions,
 	) => Promise<void>
-	// TODO add getQuery()
 }
 
 ;(queryCache as ITypedQueryCache).getTypedQueryData = function <TData, TDataTransformed, TVar>({
