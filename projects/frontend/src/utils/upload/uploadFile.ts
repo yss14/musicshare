@@ -10,9 +10,8 @@ import {
 	uploadRemove,
 	UploadAction,
 } from "./SongUploadContext"
-import { GenerateUploadableUrl } from "../../graphql/programmatic/generate-file-uploadable-url"
 import { uploadFileToStorage } from "./uploadFileToStorage"
-import { SubmitSongFromRemoteFile } from "../../graphql/programmatic/submit-song-from-remote-file"
+import { GenerateUploadableUrl, SubmitSongFromRemoteFile } from "@musicshare/react-graphql-client"
 
 let currentUploads: number = 0
 
@@ -75,12 +74,16 @@ export const uploadFile = async ({
 			throw new Error(`Cannot read file extension from filename ${file.name}`)
 		}
 
-		const targetFileUrl = await generateUploadableUrl(fileExtension)
+		const targetFileUrl = await generateUploadableUrl({ fileExtension })
+
+		if (!targetFileUrl) {
+			throw new Error(`No target file url was generated for file ${file.name}`)
+		}
 
 		currentUploads++
 
 		await uploadFileToStorage({ blob: file, targetFileUrl, contentType: file.type, onProgress })
-		await submitSongFromRemoteUrl({ filename: file.name, playlistIDs, remoteFileUrl: targetFileUrl })
+		await submitSongFromRemoteUrl({ input: { filename: file.name, playlistIDs, remoteFileUrl: targetFileUrl } })
 
 		dispatch(uploadFinish(id, true))
 

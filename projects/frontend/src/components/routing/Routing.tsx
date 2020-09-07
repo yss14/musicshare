@@ -1,22 +1,21 @@
 import React, { Suspense, lazy, useEffect } from "react"
 import { Route, useHistory, Switch, useRouteMatch } from "react-router-dom"
 import { Login } from "../../pages/login/Login"
-import { useUser } from "../../graphql/queries/user-query"
 import { MainLayout } from "../MainLayout"
 import { RedirectToLibrary } from "./RedirectToLibrary"
 import { NotFound } from "../../pages/status/NotFound"
 import { PlaylistSidebar } from "../sidebar/PlaylistsSidebar"
 import { UploadDropzone } from "../upload/UploadDropzone"
-import { useAuthToken } from "../../graphql/client/queries/auth-token-query"
 import { MergedSongs } from "../../pages/share/MergedSongs"
-import { useUpdateLibraryID } from "../../graphql/client/mutations/libraryid-mutation"
-import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
 import { Offline } from "../../pages/status/Offline"
 import { LoadingSpinner } from "../common/LoadingSpinner"
 import { AcceptInvitation } from "../../pages/accept-invitation/AcceptInvitation"
 import { RestorePassword } from "../../pages/restore-password/RestorePassword"
 import { PlayerProvider } from "../../player/PlayerContext"
 import { SongUploadProvider } from "../../utils/upload/SongUploadContext"
+import { useViewer, useAuth } from "@musicshare/react-graphql-client"
+import { useLibraryID } from "../../hooks/data/useLibraryID"
+import { useUpdateLibraryID } from "../../hooks/data/useUpdateLibraryID"
 
 const Share = lazy(() => import("../../pages/share/Share").then((module) => ({ default: module.Share })))
 
@@ -50,17 +49,17 @@ const ShareRoute = () => {
 }
 
 const LoggedInRoutes = () => {
-	const { data, error, loading } = useUser()
+	const { data: viewer, error, isLoading } = useViewer()
 	const updateLibraryID = useUpdateLibraryID()
 	const libraryID = useLibraryID()
 	const history = useHistory()
-	const authToken = useAuthToken()
+	const { latestData: auth, isLoading: isLoadingAuth } = useAuth()
 
 	useEffect(() => {
-		if (!authToken) {
+		if (auth && !auth.isLoggedIn) {
 			history.push("/login")
 		}
-	}, [authToken, history])
+	}, [auth, history])
 
 	useEffect(() => {
 		if (error) {
@@ -71,14 +70,14 @@ const LoggedInRoutes = () => {
 	}, [error, history])
 
 	useEffect(() => {
-		if (data && !libraryID) {
-			const library = data.viewer.shares.find((share) => share.isLibrary === true)
+		const library = viewer?.shares.find((share) => share.isLibrary === true)
 
-			updateLibraryID(library ? library.id : null)
+		if (library?.id) {
+			updateLibraryID(library!.id)
 		}
-	}, [data, updateLibraryID, libraryID])
+	}, [viewer, updateLibraryID, libraryID])
 
-	if (loading) {
+	if (isLoading || isLoadingAuth) {
 		return <LoadingSpinner />
 	}
 
@@ -100,7 +99,7 @@ const LoggedInRoutes = () => {
 					)}
 				/>
 				<Route path={["/shares/:shareID", "/all/shares/:shareID"]} render={() => <ShareRoute />} />
-				{data && <Route exact path="/" render={() => <RedirectToLibrary shares={data.viewer.shares} />} />}
+				{viewer && <Route exact path="/" render={() => <RedirectToLibrary shares={viewer.shares} />} />}
 			</SongUploadProvider>
 		</PlayerProvider>
 	)

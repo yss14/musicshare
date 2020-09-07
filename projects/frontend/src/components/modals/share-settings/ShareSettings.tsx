@@ -1,22 +1,22 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react"
 import { QuestionCircleOutlined } from "@ant-design/icons"
 import { Modal, Input, Table, Button, Alert, Popconfirm, Typography, message, Form } from "antd"
-import { IShare } from "../../../graphql/types"
 import { useDebounce } from "use-debounce/lib"
-import { useShareUsers } from "../../../graphql/queries/share-users-query"
+import {
+	useShareUsers,
+	useUpdateShareMemberPermissions,
+	useRevokeInvitation,
+	useInviteToShare,
+	useRenameShare,
+	useLeaveShare,
+	useDeleteShare,
+} from "@musicshare/react-graphql-client"
 import Column from "antd/lib/table/Column"
-import { useInviteToShare } from "../../../graphql/mutations/invite-to-share-mutation"
-import { ApolloError } from "@apollo/client"
-import { useRevokeInvitation } from "../../../graphql/mutations/revoke-invitation-mutation"
-import { useRenameShare } from "../../../graphql/mutations/rename-share-mutation"
-import { useDeleteShare } from "../../../graphql/mutations/delete-share-mutation"
-import { useLeaveShare } from "../../../graphql/mutations/leave-share-mutation"
-import { Permissions, UserStatus, IShareMember, Permission } from "@musicshare/shared-types"
+import { Permissions, UserStatus, IShareMember, Permission, Share } from "@musicshare/shared-types"
 import { useHistory } from "react-router-dom"
-import { useLibraryID } from "../../../graphql/client/queries/libraryid-query"
 import styled from "styled-components"
 import { EditableTagGroup } from "../../form/EditableTagGroup"
-import { useUpdateShareMemberPermissions } from "../../../graphql/mutations/update-share-member-permissions"
+import { useLibraryID } from "../../../hooks/data/useLibraryID"
 
 const { Text } = Typography
 
@@ -29,21 +29,21 @@ const FormItemVertical = styled(Form.Item)`
 `
 
 interface IShareSettingsProps {
-	share: IShare
+	share: Share
 	onClose: () => void
 }
 
 export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose }) => {
 	const history = useHistory()
 	const [deleteShare] = useDeleteShare({
-		onCompleted: () => {
+		onSuccess: () => {
 			message.success("Share successfully deleted")
 			history.push("/")
 			onClose()
 		},
 	})
 	const [leaveShare] = useLeaveShare({
-		onCompleted: () => {
+		onSuccess: () => {
 			message.success("Share successfully left")
 			history.push("/")
 			onClose()
@@ -57,9 +57,9 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 
 	const onLeaveDeleteClick = useCallback(() => {
 		if (isOwner) {
-			deleteShare(share.id)
+			deleteShare({ shareID: share.id })
 		} else {
-			leaveShare(share.id)
+			leaveShare({ input: { shareID: share.id } })
 		}
 	}, [isOwner, share.id, deleteShare, leaveShare])
 
@@ -100,7 +100,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 	)
 }
 
-const ChangeSongName: React.FC<{ share: IShare }> = ({ share: { name, id } }) => {
+const ChangeSongName: React.FC<{ share: Share }> = ({ share: { name, id } }) => {
 	const [shareName, setShareName] = useState(name)
 	const [inputBlured, setInputBlured] = useState(false)
 	const [debouncedShareName] = useDebounce(shareName, 1000)
@@ -109,10 +109,8 @@ const ChangeSongName: React.FC<{ share: IShare }> = ({ share: { name, id } }) =>
 	useEffect(() => {
 		if (inputBlured) {
 			renameShare({
-				variables: {
-					shareID: id,
-					name: debouncedShareName,
-				},
+				shareID: id,
+				name: debouncedShareName,
 			})
 		}
 	}, [debouncedShareName, id, renameShare, inputBlured])
@@ -131,26 +129,24 @@ const ChangeSongName: React.FC<{ share: IShare }> = ({ share: { name, id } }) =>
 }
 
 const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
-	const { data: users, loading, error, refetch } = useShareUsers(shareID)
+	const { data: users, isLoading, error } = useShareUsers(shareID)
 	const [email, setEMail] = useState("")
 	const [invitationLink, setInvitationLink] = useState<string | null>(null)
-	const [inviteError, setInviteError] = useState<ApolloError | null>(null)
+	const [inviteError, setInviteError] = useState<string | null>(null)
 	const [inviteToShare] = useInviteToShare({
-		onCompleted: (data) => {
-			if (data.inviteToShare !== null) {
-				setInvitationLink(data.inviteToShare)
+		onSuccess: (invitationLink) => {
+			if (invitationLink !== null) {
+				setInvitationLink(invitationLink)
 			}
 
 			message.success(`User ${email} succesfully invited`)
 
 			setEMail("")
-			refetch()
 		},
-		onError: setInviteError,
+		onError: (err) => setInviteError(err.message),
 	})
 	const [revokeInvitation] = useRevokeInvitation({
-		onCompleted: () => {
-			refetch()
+		onSuccess: () => {
 			setInvitationLink(null)
 
 			message.success(`User invitation successfully revoked`)
@@ -160,11 +156,9 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 
 	const onInviteClick = useCallback(() => {
 		inviteToShare({
-			variables: {
-				input: {
-					shareID,
-					email,
-				},
+			input: {
+				shareID,
+				email,
 			},
 		})
 	}, [inviteToShare, shareID, email])
@@ -172,11 +166,9 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 	const onRevokeInvitationClick = useCallback(
 		(userID: string) => {
 			revokeInvitation({
-				variables: {
-					input: {
-						shareID,
-						userID,
-					},
+				input: {
+					shareID,
+					userID,
 				},
 			})
 		},
@@ -187,11 +179,9 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 		(user: IShareMember, permissions: string[]) => {
 			if (permissions.every((perm) => Permissions.ALL.includes(perm as Permission))) {
 				updatePermissions({
-					variables: {
-						permissions,
-						userID: user.id,
-						shareID: user.shareID,
-					},
+					permissions,
+					userID: user.id,
+					shareID: user.shareID,
 				})
 			}
 		},
@@ -206,7 +196,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 				<Table
 					dataSource={users || []}
 					pagination={false}
-					loading={loading}
+					loading={isLoading}
 					scroll={{ y: 300 }}
 					rowKey={(user) => user.id}
 				>
@@ -258,7 +248,7 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 			)}
 			{inviteError && (
 				<Alert
-					message={inviteError.message.replace("GraphQL error: ", "")}
+					message={inviteError.replace("GraphQL error: ", "")}
 					type="error"
 					closable
 					onClose={() => setInviteError(null)}

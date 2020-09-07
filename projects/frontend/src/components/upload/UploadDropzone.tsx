@@ -10,7 +10,7 @@ import { buildSongName } from "../../utils/songname-builder"
 import { IUploadFileArgs } from "../../utils/upload/uploadFile"
 import { IShareSong } from "@musicshare/shared-types"
 import { useShareName } from "../../hooks/use-share-name"
-import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist"
+import { useAddSongsToPlaylist } from "@musicshare/react-graphql-client"
 
 const UploadProgressContainer = styled(Scrollbars)`
 	background-color: white;
@@ -35,47 +35,49 @@ const DuplicateActionButtonGroup = styled.div`
 	margin-left: auto;
 `
 
-export const UploadDropzone: React.FC = ({ children }) => (
-	<Dropzone>
-		{(uploadItems, duplicates, duplicateActions) => {
-			return (
-				<Flex direction="column" style={{ width: "100%", height: "100%" }}>
-					{uploadItems.length > 0 || duplicates.length > 0 ? (
-						<UploadProgressContainer autoHide autoHeight>
-							<>
-								{duplicates.map(([item, duplicateSongs]) => (
-									<DuplicateUpload
-										key={item.id}
-										item={item}
-										duplicateSongs={duplicateSongs}
-										duplicateActions={duplicateActions}
-									/>
-								))}
-								{uploadItems
-									.filter((item) => item.progress > 0)
-									.concat(uploadItems.filter((item) => item.progress === 0))
-									.map((item) => (
-										<ActiveUpload key={item.id} item={item} />
+export const UploadDropzone: React.FC = ({ children }) => {
+	return (
+		<Dropzone>
+			{(uploadItems, duplicates, duplicateActions) => {
+				return (
+					<Flex direction="column" style={{ width: "100%", height: "100%" }}>
+						{uploadItems.length > 0 || duplicates.length > 0 ? (
+							<UploadProgressContainer autoHide autoHeight>
+								<>
+									{duplicates.map(([item, duplicateSongs]) => (
+										<DuplicateUpload
+											key={item.id}
+											item={item}
+											duplicateSongs={duplicateSongs}
+											duplicateActions={duplicateActions}
+										/>
 									))}
-							</>
-						</UploadProgressContainer>
-					) : null}
-					<Box style={{ width: "100%", height: "100%" }}>
-						<div
-							style={{
-								width: "100%",
-								height: "100%",
-								position: "relative",
-							}}
-						>
-							{children}
-						</div>
-					</Box>
-				</Flex>
-			)
-		}}
-	</Dropzone>
-)
+									{uploadItems
+										.filter((item) => item.progress > 0)
+										.concat(uploadItems.filter((item) => item.progress === 0))
+										.map((item) => (
+											<ActiveUpload key={item.id} item={item} />
+										))}
+								</>
+							</UploadProgressContainer>
+						) : null}
+						<Box style={{ width: "100%", height: "100%" }}>
+							<div
+								style={{
+									width: "100%",
+									height: "100%",
+									position: "relative",
+								}}
+							>
+								{children}
+							</div>
+						</Box>
+					</Flex>
+				)
+			}}
+		</Dropzone>
+	)
+}
 
 interface IDuplicateUploadProps {
 	item: IUploadFileArgs
@@ -84,13 +86,13 @@ interface IDuplicateUploadProps {
 }
 
 const DuplicateUpload: React.FC<IDuplicateUploadProps> = ({ item, duplicateSongs, duplicateActions }) => {
-	const addSongsToPlaylist = useAddSongsToPlaylist()
+	const [addSongsToPlaylist] = useAddSongsToPlaylist()
 
 	const onClickAddToPlaylist = useCallback(
 		async (song: IShareSong) => {
 			const key = "add-song-to-playlist"
 			message.loading({ content: `Adding ${buildSongName(song)} to playlist`, key })
-			await addSongsToPlaylist(item.shareID, item.playlistIDs[0], [song.id])
+			await addSongsToPlaylist({ shareID: item.shareID, playlistID: item.playlistIDs[0], songIDs: [song.id] })
 			message.success({ content: `Added ${buildSongName(song)} to playlist`, key })
 			duplicateActions.abort(item)
 		},

@@ -1,20 +1,21 @@
 import React, { useState } from "react"
 import { Modal, Select } from "antd"
-import { useSharePlaylists } from "../../../graphql/queries/playlists-query"
-import { IPlaylist } from "../../../graphql/types"
+import { useSharePlaylists } from "@musicshare/react-graphql-client"
 import { filterUndefined } from "../../../utils/filter-null"
-import { useShareID } from "../../../graphql/client/queries/shareid-query"
+import { useShareID } from "../../../hooks/data/useShareID"
+import { Playlist } from "@musicshare/shared-types"
 
 const { Option } = Select
 
 interface IPlaylistPickerProps {
 	visible: boolean
-	onSubmit: (playlists: IPlaylist[]) => void
+	onSubmit: (playlists: Playlist[]) => void
 }
 
 export const PlaylistPicker: React.FC<IPlaylistPickerProps> = ({ visible, onSubmit }) => {
-	const shareID = useShareID()
-	const { data, loading, error } = useSharePlaylists({ shareID })
+	const shareID = useShareID()!
+
+	const { data, isLoading, error } = useSharePlaylists(shareID, { enabled: !!shareID })
 	const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([])
 
 	const onSelectPlaylist = (playlistIDs: string[]) => {
@@ -25,7 +26,7 @@ export const PlaylistPicker: React.FC<IPlaylistPickerProps> = ({ visible, onSubm
 		setSelectedPlaylists((playlistIDs) => playlistIDs.filter((id) => id !== playlistID))
 	}
 
-	if (loading || error || !data) return null
+	if (isLoading || error || !data) return null
 
 	const onSubmitModal = () => {
 		const playlists = selectedPlaylists

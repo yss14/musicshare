@@ -1,17 +1,10 @@
-import { useCallback, useMemo } from "react"
-import {
-	makeUpdatePlayerState,
-	IPlayerQueueItem,
-	useSetPlayerQueue,
-	usePlayerQueueState,
-} from "../components/player/player-state"
-import { useApolloClient } from "@apollo/client"
+import { useCallback } from "react"
+import { IPlayerQueueItem, usePlayerQueueState, useUpdatePlayerState } from "../components/player/player-state"
 import { v4 as uuid } from "uuid"
 import { usePlayerContext } from "./PlayerContext"
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong } from "@musicshare/shared-types"
 
-const QueueItem = (song: IShareSong): IPlayerQueueItem => ({
-	__typename: "PlayerQueueItem",
+const QueueItem = (song: ShareSong): IPlayerQueueItem => ({
 	id: uuid(),
 	song,
 })
@@ -20,7 +13,7 @@ export const usePlayerActions = () => {
 	const { primaryDeck, next, prev } = usePlayerContext()
 
 	const changeSong = useCallback(
-		async (newSong: IShareSong) => {
+		async (newSong: ShareSong) => {
 			await next(newSong)
 		},
 		[next],
@@ -60,13 +53,8 @@ export const usePlayerActions = () => {
 }
 
 export const usePlayerQueue = () => {
-	const { data } = usePlayerQueueState()
-	const { isDefaultQueue, queue } = data!.player
-
-	const client = useApolloClient()
-
-	const updatePlayerState = useMemo(() => makeUpdatePlayerState(client), [client])
-	const [setPlayerQueue] = useSetPlayerQueue()
+	const { isDefaultQueue, queue } = usePlayerQueueState()
+	const updatePlayerState = useUpdatePlayerState()
 
 	const setSongQueue = useCallback(
 		(items: IPlayerQueueItem[]) => {
@@ -78,7 +66,7 @@ export const usePlayerQueue = () => {
 	)
 
 	const enqueueSong = useCallback(
-		(song: IShareSong) => {
+		(song: ShareSong) => {
 			const newItem = QueueItem(song)
 			const newQueue = isDefaultQueue ? [newItem] : [...queue, newItem]
 
@@ -91,7 +79,7 @@ export const usePlayerQueue = () => {
 	)
 
 	const enqueueSongs = useCallback(
-		(songs: IShareSong[]) => {
+		(songs: ShareSong[]) => {
 			const newItems = songs.map((song) => QueueItem(song))
 			const newQueue = isDefaultQueue ? newItems : [...queue, ...newItems]
 
@@ -104,7 +92,7 @@ export const usePlayerQueue = () => {
 	)
 
 	const enqueueSongNext = useCallback(
-		(song: IShareSong) => {
+		(song: ShareSong) => {
 			const newItem = QueueItem(song)
 			const newQueue = isDefaultQueue ? [newItem] : [newItem, ...queue]
 
@@ -117,22 +105,18 @@ export const usePlayerQueue = () => {
 	)
 
 	const enqueueDefaultSongs = useCallback(
-		(songs: IShareSong[]) => {
+		(songs: ShareSong[]) => {
 			updatePlayerState({
 				isDefaultQueue: true,
-			})
-			setPlayerQueue({
-				variables: { items: songs.map((song) => QueueItem(song)) },
+				queue: songs.map((song) => QueueItem(song)),
 			})
 		},
-		[updatePlayerState, setPlayerQueue],
+		[updatePlayerState],
 	)
 
 	const clearQueue = useCallback(() => {
-		setPlayerQueue({
-			variables: { items: [] },
-		})
-	}, [setPlayerQueue])
+		updatePlayerState({ queue: [] })
+	}, [updatePlayerState])
 
 	return {
 		setSongQueue,

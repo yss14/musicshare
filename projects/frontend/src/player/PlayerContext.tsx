@@ -1,13 +1,10 @@
 import React, { useContext, useMemo, useEffect, useCallback, useState } from "react"
 import useInterval from "@use-it/interval"
-import { useApolloClient } from "@apollo/client"
-import { makeUpdatePlayerState, usePlayerState } from "../components/player/player-state"
-import { makeGetSongMediaUrls } from "../graphql/programmatic/get-song-mediaurl"
-import { ISongMediaUrl } from "../graphql/queries/song-mediaurl-query"
-import { makeIncrementSongPlayCount } from "../graphql/programmatic/increment-song-playcount"
+import { usePlayerState, useUpdatePlayerState } from "../components/player/player-state"
 import { message } from "antd"
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong } from "@musicshare/shared-types"
 import { useDebouncedCallback } from "use-debounce"
+import { useSongMediaUrl, ISongMediaUrl, useIncrementSongPlayCount } from "@musicshare/react-graphql-client"
 
 const getMediaErrorCode = (event: ErrorEvent) => {
 	if (!event.target) {
@@ -69,7 +66,7 @@ interface IPlayer {
 	isBufferingNextSong: boolean
 	setIsBufferingNextSong: React.Dispatch<React.SetStateAction<boolean>>
 
-	next: (song?: IShareSong) => Promise<boolean>
+	next: (song?: ShareSong) => Promise<boolean>
 	prev: () => Promise<void>
 }
 
@@ -100,15 +97,13 @@ export const PlayerProvider: React.FC = ({ children }) => {
 
 	const [isBufferingNextSong, setIsBufferingNextSong] = useState(false)
 	const [playCountIncremented, setPlayCountIncremented] = useState(false)
-	const [playedSongs, setPlayedSongs] = useState<IShareSong[]>([])
+	const [playedSongs, setPlayedSongs] = useState<ShareSong[]>([])
 
-	const { data } = usePlayerState()
-	const { queue, currentSong } = data!.player
+	const { queue, currentSong } = usePlayerState()
 
-	const client = useApolloClient()
-	const updatePlayerState = useMemo(() => makeUpdatePlayerState(client), [client])
-	const getMediaUrls = useMemo(() => makeGetSongMediaUrls(client), [client])
-	const incrementSongPlayCount = useMemo(() => makeIncrementSongPlayCount(client), [client])
+	const updatePlayerState = useUpdatePlayerState()
+	const [getMediaUrls] = useSongMediaUrl()
+	const [incrementSongPlayCount] = useIncrementSongPlayCount()
 
 	const destroy = useCallback(() => {
 		try {
@@ -130,7 +125,7 @@ export const PlayerProvider: React.FC = ({ children }) => {
 	}, [destroy])
 
 	const next = useCallback(
-		async (song?: IShareSong): Promise<boolean> => {
+		async (song?: ShareSong): Promise<boolean> => {
 			if (currentSong) {
 				setPlayedSongs((currentPlayedSongs) => [...currentPlayedSongs, currentSong])
 			}
@@ -160,7 +155,13 @@ export const PlayerProvider: React.FC = ({ children }) => {
 				return false
 			}
 
-			const songMediaUrls = await getMediaUrls(nextSong.shareID, nextSong.id)
+			const songMediaUrls = await getMediaUrls({ shareID: nextSong.shareID, songID: nextSong.id })
+
+			if (!songMediaUrls) {
+				console.error(`Couln't fetch song media url for shareID=${nextSong.shareID} songID=${nextSong.id}`)
+
+				return false
+			}
 
 			updatePlayerState({
 				currentSong: nextSong,
@@ -204,7 +205,13 @@ export const PlayerProvider: React.FC = ({ children }) => {
 			return
 		}
 
-		const songMediaUrls = await getMediaUrls(prevSong.shareID, prevSong.id)
+		const songMediaUrls = await getMediaUrls({ shareID: prevSong.shareID, songID: prevSong.id })
+
+		if (!songMediaUrls) {
+			console.error(`Couln't fetch song media url for shareID=${prevSong.shareID} songID=${prevSong.id}`)
+
+			return
+		}
 
 		updatePlayerState({
 			currentSong: prevSong,
@@ -260,7 +267,9 @@ export const PlayerProvider: React.FC = ({ children }) => {
 		if (!playCountIncremented && progress >= 0.7 && currentSong) {
 			setPlayCountIncremented(true)
 
-			incrementSongPlayCount(currentSong.id, currentSong.shareID).catch(console.error)
+			incrementSongPlayCount({ input: { songID: currentSong.id, shareID: currentSong.shareID } }).catch(
+				console.error,
+			)
 		}
 	}, [updatePlayerState, currentSong, incrementSongPlayCount, playCountIncremented, primaryDeck])
 
@@ -297,7 +306,19 @@ export const PlayerProvider: React.FC = ({ children }) => {
 					try {
 						const currentPlaybackProgress = primaryDeck.currentTime
 
-						const songMediaUrls = await getMediaUrls(currentSong.shareID, currentSong.id)
+						const songMediaUrls = await getMediaUrls({
+							shareID: currentSong.shareID,
+							songID: currentSong.id,
+						})
+
+						if (!songMediaUrls) {
+							console.error(
+								`Couln't fetch song media url for shareID=${currentSong.shareID} songID=${currentSong.id}`,
+							)
+
+							return
+						}
+
 						const mediaUrl = pickMediaUrl(songMediaUrls)
 
 						if (mediaUrl) {
@@ -382,7 +403,14 @@ export const PlayerProvider: React.FC = ({ children }) => {
 			setIsBufferingNextSong(true)
 
 			try {
-				const songMediaUrls = await getMediaUrls(nextSong.shareID, nextSong.id)
+				const songMediaUrls = await getMediaUrls({ shareID: nextSong.shareID, songID: nextSong.id })
+
+				if (!songMediaUrls) {
+					console.error(`Couln't fetch song media url for shareID=${nextSong.shareID} songID=${nextSong.id}`)
+
+					return
+				}
+
 				const mediaUrl = pickMediaUrl(songMediaUrls)
 
 				if (mediaUrl) {

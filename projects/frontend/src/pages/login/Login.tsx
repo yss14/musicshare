@@ -2,8 +2,8 @@ import React, { useEffect } from "react"
 import { LoginForm } from "./LoginForm"
 import { useParams, useHistory } from "react-router-dom"
 import { Container, Title } from "../CustomerActionForm"
-import { useAuthToken } from "../../graphql/client/queries/auth-token-query"
 import styled from "styled-components"
+import { useAuth } from "@musicshare/react-graphql-client"
 
 const BackgroundPane = styled.div`
 	background-color: black;
@@ -35,16 +35,16 @@ interface ILoginRouteParams {
 
 export const Login = () => {
 	const { email } = useParams<ILoginRouteParams>()
-	const authToken = useAuthToken()
+	const { latestData: auth } = useAuth()
 	const history = useHistory()
 
 	useEffect(() => {
-		if (authToken) {
+		if (auth && auth.isLoggedIn) {
 			history.push("/")
 		}
-	}, [authToken, history])
+	}, [auth, history])
 
-	if (authToken) return null
+	if (auth && auth.isLoggedIn) return null
 
 	return (
 		<>

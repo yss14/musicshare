@@ -1,13 +1,12 @@
 import React from "react"
-import { IPlaylist } from "../../graphql/types"
 import { useDrop } from "react-dnd"
 import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
 import { SidebarItem } from "./SidebarItem"
 import { Link } from "react-router-dom"
-import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist"
 import styled from "styled-components"
 import { useShareName } from "../../hooks/use-share-name"
-import { IShareSong } from "@musicshare/shared-types"
+import { IShareSong, Playlist } from "@musicshare/shared-types"
+import { useAddSongsToPlaylist } from "@musicshare/react-graphql-client"
 
 interface IHoverableTagLinkProps {
 	text?: string
@@ -35,7 +34,7 @@ interface IMonitorProps {
 }
 
 interface IPlaylistSidebarItemProps {
-	playlist: IPlaylist
+	playlist: Playlist
 	selected: boolean
 	targetUrl: string
 	onContextMenu?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void
@@ -51,7 +50,7 @@ export const PlaylistSidebarItem: React.FC<IPlaylistSidebarItemProps> = ({
 	onMouseEnter,
 	isMergedView,
 }) => {
-	const addSongsToPlaylist = useAddSongsToPlaylist()
+	const [addSongsToPlaylist] = useAddSongsToPlaylist()
 	const playlistShareName = useShareName(playlist.shareID)
 
 	const [{ canDrop, isOver }, drop] = useDrop<ISongDNDItem, void, IMonitorProps>({
@@ -61,7 +60,7 @@ export const PlaylistSidebarItem: React.FC<IPlaylistSidebarItemProps> = ({
 				const song = item.song as IShareSong
 
 				if (song) {
-					addSongsToPlaylist(playlist.shareID, playlist.id, [song.id])
+					addSongsToPlaylist({ shareID: playlist.shareID, playlistID: playlist.id, songIDs: [song.id] })
 				}
 			}
 		},

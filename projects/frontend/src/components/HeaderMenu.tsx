@@ -1,17 +1,14 @@
-import React, { useState, useCallback } from "react"
+import React, { useState } from "react"
 import { PlusOutlined, ShareAltOutlined, ProfileOutlined } from "@ant-design/icons"
 import { Menu } from "antd"
 import styled from "styled-components"
 import { Link, useParams, useRouteMatch } from "react-router-dom"
-import { useShares } from "../graphql/queries/shares-query"
 import { IShareRoute } from "../interfaces"
 import { CreateShareModal } from "./modals/CreateShareModal"
 import { ShareSettings } from "./modals/share-settings/ShareSettings"
-import { IShare } from "../graphql/types"
-import { useUser } from "../graphql/queries/user-query"
 import { ChangePasswordModal } from "./modals/ChangePasswordModal"
-import { useApolloClient, NormalizedCacheObject, ApolloClient } from "@apollo/client"
-import { logoutUser } from "../graphql/programmatic/logout"
+import { useViewer, useShares, useLogout } from "@musicshare/react-graphql-client"
+import { Share } from "@musicshare/shared-types"
 
 const { SubMenu, ItemGroup, Item } = Menu
 
@@ -36,35 +33,32 @@ const CurrentShareItem = styled(Item)`
 export const HeaderNavMenu = () => {
 	const { shareID } = useParams<IShareRoute>()
 	const match = useRouteMatch()
-	const { data, loading, error } = useShares()
-	const { data: user } = useUser()
+	const { data: shares, isLoading, error } = useShares()
+	const { data: viewer } = useViewer()
 	const [showCreateShare, setShowCreateShare] = useState(false)
-	const [shareSettings, setShareSettings] = useState<IShare | null>(null)
+	const [shareSettings, setShareSettings] = useState<Share | null>(null)
 	const [showChangePassword, setShowChangePassword] = useState(false)
 	const [sharesSubmenuHovered, setSharesSubmenuHovered] = useState(false)
-	const client = useApolloClient() as ApolloClient<NormalizedCacheObject>
 
-	const logout = useCallback(() => logoutUser(client), [client])
+	const [logout] = useLogout()
 
-	if (loading) {
+	if (isLoading) {
 		return null
 	}
 
-	if (error || !data) {
+	if (error || !shares) {
 		if (error) console.log(error)
 
 		return null
 	}
 
-	const libraryShare = data.viewer.shares.find((share) => share.isLibrary)
-	const otherShares = data.viewer.shares.filter((share) =>
-		libraryShare === undefined ? false : share.id !== libraryShare.id,
-	)
+	const libraryShare = shares.find((share) => share.isLibrary)
+	const otherShares = shares.filter((share) => (libraryShare === undefined ? false : share.id !== libraryShare.id))
 	const currentShareName = (() => {
 		if (match) {
 			if (!match.path.endsWith("/all")) {
 				if (shareID) {
-					const currentShare = data.viewer.shares.find((share) => share.id === shareID)
+					const currentShare = shares.find((share) => share.id === shareID)
 
 					if (currentShare) {
 						if (match.path.startsWith("/all/")) {
@@ -152,7 +146,7 @@ export const HeaderNavMenu = () => {
 						</Menu.Item>
 					</ItemGroup>
 				</SubMenu>
-				<SubMenu key="user" title={user?.viewer.name || "..."} style={{ float: "right" }}>
+				<SubMenu key="user" title={viewer?.name || "..."} style={{ float: "right" }}>
 					<Item
 						key="user:change_password"
 						title="Change Password"
@@ -160,7 +154,7 @@ export const HeaderNavMenu = () => {
 					>
 						Change Password
 					</Item>
-					<Item key="user:logout" title="Logout" onClick={logout}>
+					<Item key="user:logout" title="Logout" onClick={() => logout()}>
 						Logout
 					</Item>
 				</SubMenu>

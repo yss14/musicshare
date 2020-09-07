@@ -1,22 +1,23 @@
 import React, { useCallback, useState, useRef } from "react"
-import { IPlaylist, isPlaylistSong } from "../../graphql/types"
 import { usePlayerActions, usePlayerQueue } from "../../player/player-hook"
 import { ContextMenu, ContextMenuItem } from "../../components/modals/contextmenu/ContextMenu"
 import { Menu, message } from "antd"
-import { useAddSongsToPlaylist } from "../../graphql/mutations/add-songs-to-playlist"
 import { PlaylistPicker } from "../../components/modals/playlist-picker/PlaylistPicker"
-import { useLibraryID } from "../../graphql/client/queries/libraryid-query"
-import { useRemoveSongFromLibrary } from "../../graphql/mutations/remove-song-from-library-mutation"
-import { useRemoveSongsFromPlaylist } from "../../graphql/mutations/remove-songs-from-playlist-mutation"
 import { buildSongName } from "../../utils/songname-builder"
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong, Playlist, isPlaylistSong } from "@musicshare/shared-types"
+import {
+	useRemoveSongsFromPlaylist,
+	useRemoveSongFromLibrary,
+	useAddSongsToPlaylist,
+} from "@musicshare/react-graphql-client"
+import { useLibraryID } from "../../hooks/data/useLibraryID"
 
 export interface ISongContextMenuEvents {
-	onShowInformation: (song: IShareSong) => void
+	onShowInformation: (song: ShareSong) => void
 }
 
 interface ISongContextMenuProps {
-	song: IShareSong | null
+	song: ShareSong | null
 	playlistID?: string
 	events: ISongContextMenuEvents
 	contextMenuVisible: boolean
@@ -28,17 +29,19 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const [showPickPlaylistModal, setShowPickPlaylistModal] = useState(false)
 	const { changeSong } = usePlayerActions()
 	const { enqueueSong, enqueueSongNext } = usePlayerQueue()
-	const addSongsToPlaylist = useAddSongsToPlaylist()
+	const [addSongsToPlaylist] = useAddSongsToPlaylist()
 	const mutatingSong = useRef<typeof song>(null)
 
 	const [removeSongFromLibrary] = useRemoveSongFromLibrary({
-		onCompleted: () =>
-			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from library`),
+		onSuccess: () => {
+			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from library`)
+		},
 	})
 
 	const [removeSongsFromPlaylist] = useRemoveSongsFromPlaylist({
-		onCompleted: () =>
-			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from playlist`),
+		onSuccess: () => {
+			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from playlist`)
+		},
 	})
 
 	const userLibraryID = useLibraryID()
@@ -68,12 +71,14 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	}, [song, setShowPickPlaylistModal])
 
 	const onSubmitPickPlaylists = useCallback(
-		(playlists: IPlaylist[]) => {
+		(playlists: Playlist[]) => {
 			if (!song) return
 
 			setShowPickPlaylistModal(false)
 
-			playlists.map((playlist) => addSongsToPlaylist(playlist.shareID, playlist.id, [song.id]))
+			playlists.map((playlist) =>
+				addSongsToPlaylist({ shareID: playlist.shareID, playlistID: playlist.id, songIDs: [song.id] }),
+			)
 		},
 		[song, setShowPickPlaylistModal, addSongsToPlaylist],
 	)
@@ -84,17 +89,17 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 		mutatingSong.current = song
 
 		if (playlistID && isPlaylistSong(song) && song.shareID === userLibraryID) {
-			await removeSongsFromPlaylist(song.shareID, playlistID, [song.playlistSongID])
+			await removeSongsFromPlaylist({ shareID: song.shareID, playlistID, playlistSongIDs: [song.playlistSongID] })
 		}
 
-		await removeSongFromLibrary(song.libraryID, song.id)
+		await removeSongFromLibrary({ input: { shareID: song.libraryID, songID: song.id } })
 	}, [song, removeSongFromLibrary, playlistID, removeSongsFromPlaylist, userLibraryID])
 
 	const onRemoveFromPlaylist = useCallback(() => {
 		if (!song || !playlistID || !isPlaylistSong(song)) return
 
 		mutatingSong.current = song
-		removeSongsFromPlaylist(song.shareID, playlistID, [song.playlistSongID])
+		removeSongsFromPlaylist({ shareID: song.shareID, playlistID, playlistSongIDs: [song.playlistSongID] })
 	}, [song, playlistID, removeSongsFromPlaylist])
 
 	return (

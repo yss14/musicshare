@@ -1,11 +1,11 @@
 import React, { useCallback } from "react"
 import { LockOutlined, UserOutlined } from "@ant-design/icons"
 import { Input, Button, Alert, Form } from "antd"
-import { useLogin } from "../../graphql/mutations/login-mutation"
 import { useHistory } from "react-router"
 import { useFormik } from "formik"
 import { Link } from "react-router-dom"
 import styled from "styled-components"
+import { useLogin } from "@musicshare/react-graphql-client"
 
 const StyledSubmitButton = styled(Button)`
 	background-color: #e74c3c;
@@ -50,12 +50,12 @@ interface ILoginFormProps {
 export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 	const history = useHistory()
 	const [login, { error }] = useLogin({
-		onCompleted: () => history.push("/"),
+		onSuccess: () => history.push("/"),
 		onError: console.error,
 	})
 	const onSubmit = useCallback(
 		({ email, password }: IFormValues) => {
-			login(email, password)
+			login({ email, password })
 		},
 		[login],
 	)

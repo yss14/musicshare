@@ -8,10 +8,10 @@ import { DragNDropItem, ISongDNDItem } from "../../types/DragNDropItems"
 import { MoveSong } from "./MoveSong"
 import { CalculatedColumnWidths } from "./SongTableColumns"
 import { useSongsViewContext } from "./SongsView"
-import { IShareSong } from "@musicshare/shared-types"
+import { ShareSong } from "@musicshare/shared-types"
 
 interface ISongRowProps extends ListRowProps {
-	song: IShareSong
+	song: ShareSong
 	rowEvents?: IRowEvents
 	hovered: boolean
 	onMouseEnter?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, ref: React.Ref<HTMLDivElement>) => void

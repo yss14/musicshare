@@ -2,7 +2,7 @@ import React, { useCallback } from "react"
 import { LockOutlined } from "@ant-design/icons"
 import { Modal, Input, Alert, message, Form } from "antd"
 import { useFormik } from "formik"
-import { useChangePassword } from "../../graphql/mutations/change-password-mutation"
+import { useChangePassword } from "@musicshare/react-graphql-client"
 
 interface IFormValues {
 	oldPassword: string
@@ -41,7 +41,7 @@ interface IChangePasswordModalProps {
 export const ChangePasswordModal: React.FC<IChangePasswordModalProps> = ({ onClose }) => {
 	const [changePassword, { error }] = useChangePassword({
 		onError: console.error,
-		onCompleted: () => {
+		onSuccess: () => {
 			message.success("Password has been changed")
 			onClose()
 		},
@@ -50,7 +50,7 @@ export const ChangePasswordModal: React.FC<IChangePasswordModalProps> = ({ onClo
 		(input: IFormValues) => {
 			delete input.newPasswordRepitition
 
-			changePassword(input)
+			changePassword({ input })
 		},
 		[changePassword],
 	)

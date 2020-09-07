@@ -1,14 +1,12 @@
 import React, { useMemo, useCallback } from "react"
-import { IGenre, ISongType, IArtist } from "../../../graphql/types"
 import { Formik } from "formik"
 import { Input, Row, Col, DatePicker, Switch, Modal, Select, Form } from "antd"
 import { EditableTagGroup } from "../../form/EditableTagGroup"
 import moment from "moment"
-import { ISongUpdateInput, useUpdateSongMutation } from "../../../graphql/mutations/update-song-mutation"
-import { Nullable } from "../../../types/Nullable"
 import { buildSongName } from "../../../utils/songname-builder"
 import styled from "styled-components"
-import { IShareSong } from "@musicshare/shared-types"
+import { IShareSong, SongUpdateInput, Nullable, ShareSong, Genre, SongType, Artist } from "@musicshare/shared-types"
+import { useUpdateSong } from "@musicshare/react-graphql-client"
 
 const StyledModal = styled(Modal)`
 	& .ant-form-item-label {
@@ -21,10 +19,10 @@ const StyledModal = styled(Modal)`
 `
 
 interface ISongFormProps {
-	song: IShareSong
-	genres: IGenre[]
-	songTypes: ISongType[]
-	artists: IArtist[]
+	song: ShareSong
+	genres: Genre[]
+	songTypes: SongType[]
+	artists: Artist[]
 	tags: string[]
 	playlistID?: string
 	closeForm: () => void
@@ -48,8 +46,8 @@ export const SongForm = ({
 		[songTypes],
 	)
 
-	const [updateSongMutation, { loading }] = useUpdateSongMutation(song, playlistID, {
-		onCompleted: () => {
+	const [updateSongMutation, { isLoading }] = useUpdateSong(playlistID, {
+		onSuccess: () => {
 			closeForm()
 		},
 	})
@@ -57,11 +55,9 @@ export const SongForm = ({
 	const updateSong = useCallback(
 		(values: IShareSong) => {
 			updateSongMutation({
-				variables: {
-					shareID: song.libraryID,
-					songID: song.id,
-					song: makeSongInput(values),
-				},
+				shareID: song.libraryID,
+				songID: song.id,
+				song: makeSongInput(values),
 			})
 		},
 		[updateSongMutation, song.libraryID, song.id],
@@ -78,7 +74,7 @@ export const SongForm = ({
 						onOk={submitForm}
 						width={700}
 						okText={readOnly ? "OK" : "Save"}
-						okButtonProps={{ loading }}
+						okButtonProps={{ loading: isLoading }}
 					>
 						<Form>
 							<Form.Item label="Title" validateStatus={errors.title ? "error" : "success"}>
@@ -278,7 +274,7 @@ const removeTypename = <O extends {}>(obj: O): O => {
 	return value
 }
 
-const makeSongInput = (song: IShareSong): Nullable<ISongUpdateInput> => {
+const makeSongInput = (song: IShareSong): Nullable<SongUpdateInput> => {
 	const allowedProperties = [
 		"title",
 		"suffix",
@@ -295,7 +291,7 @@ const makeSongInput = (song: IShareSong): Nullable<ISongUpdateInput> => {
 		"tags",
 	]
 
-	const songInput: Nullable<ISongUpdateInput> = Object.entries(song).reduce((acc, [key, value]) => {
+	const songInput: Nullable<SongUpdateInput> = Object.entries(song).reduce((acc, [key, value]) => {
 		if (allowedProperties.includes(key)) {
 			acc[key] = value
 		}

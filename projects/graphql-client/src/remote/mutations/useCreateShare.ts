@@ -1,0 +1,43 @@
+import gql from "graphql-tag"
+import { Share, shareKeys } from "@musicshare/shared-types"
+import {
+	TransformedGraphQLMutation,
+	IGraphQLMutationOpts,
+	useGraphQLMutation,
+	typedQueryCache,
+} from "../../react-query-graphql"
+import { GET_SHARES } from "../queries/useShares"
+
+interface ICreateShareVariables {
+	name: string
+}
+
+interface ICreateShareData {
+	createShare: Share
+}
+
+const CREATE_SHARE = TransformedGraphQLMutation<ICreateShareData, ICreateShareVariables>(gql`
+	mutation createShare($name: String!) {
+		createShare(name: $name) {
+			${shareKeys}
+		}
+	}
+`)((data) => data.createShare)
+
+export const useCreateShare = (opts?: IGraphQLMutationOpts<typeof CREATE_SHARE>) => {
+	const mutation = useGraphQLMutation(CREATE_SHARE, {
+		...opts,
+		onSuccess: (data, variables) => {
+			typedQueryCache.setTypedQueryData(
+				{
+					query: GET_SHARES,
+				},
+				(currentData) => [...(currentData || []), data],
+			)
+
+			if (opts?.onSuccess) opts.onSuccess(data, variables)
+		},
+	})
+
+	return mutation
+}

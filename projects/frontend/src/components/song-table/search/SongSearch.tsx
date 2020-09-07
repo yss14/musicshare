@@ -1,20 +1,16 @@
 import React, { useState, useEffect, useCallback } from "react"
 import { Input } from "antd"
 import { useDebounce } from "use-debounce"
-import { useSongSearch } from "../../../graphql/queries/song-search"
+import { useSongSearch, useAddSongsToPlaylist } from "@musicshare/react-graphql-client"
 import { buildSongName } from "../../../utils/songname-builder"
 import styled from "styled-components"
-import { IPlaylist } from "../../../graphql/types"
-import { usePrevValue } from "../../../hooks/use-prev-value"
-import { useDeferedFlag } from "../../../hooks/use-defered-flag"
 import { ISongSearchOptions, allMatchingOptions, ISongSearchFilter } from "./search-types"
 import { SongSearchOptionsPopover } from "./SongSearchOptionsPopover"
 import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd"
 import { DragNDropItem, ISongDNDItem } from "../../../types/DragNDropItems"
 import { useResettingState } from "../../../hooks/use-resetting-state"
-import { useAddSongsToPlaylist } from "../../../graphql/mutations/add-songs-to-playlist"
 import songDragPreviewImg from "../../../images/playlist_add.png"
-import { IShareSong } from "@musicshare/shared-types"
+import { IShareSong, ShareSong, Playlist } from "@musicshare/shared-types"
 import { LoadingOutlined, SearchOutlined } from "@ant-design/icons"
 
 const SongSearchContainer = styled.div`
@@ -46,7 +42,7 @@ const SearchResultItem = styled.div`
 `
 
 interface ISongSearchProps {
-	onClickSong: (song: IShareSong) => any
+	onClickSong: (song: ShareSong) => any
 	onSearchFilterChange: (newFilter: ISongSearchFilter) => any
 }
 
@@ -57,9 +53,10 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 	})
 	const [query, setQuery] = useState("")
 	const [debouncedQuery] = useDebounce(query, 150)
-	const prevDebouncedQuery = usePrevValue(debouncedQuery)
-	const [isSearching, toggleSearching, resetSearching] = useDeferedFlag(500)
-	const { data: songs, loading, search } = useSongSearch()
+	const { resolvedData: songs, isFetching } = useSongSearch({
+		query: debouncedQuery,
+		matcher: searchOptions.matcher,
+	})
 	const [showResults, setShowResults] = useState(false)
 	const [isDraggingSong, setIsDraggingSong] = useState(false)
 	const [isClickingSong, setIsClickingSong] = useResettingState(false, 1000)
@@ -73,26 +70,13 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 	}, [isDraggingSong, isClickingSong, setShowResults])
 
 	const onSongClick = useCallback(
-		(song: IShareSong) => {
+		(song: ShareSong) => {
 			setIsClickingSong(true)
 
 			onClickSong(song)
 		},
 		[setIsClickingSong, onClickSong],
 	)
-
-	useEffect(() => {
-		if (debouncedQuery) {
-			search(debouncedQuery, searchOptions.matcher)
-			toggleSearching()
-		}
-	}, [debouncedQuery, prevDebouncedQuery, searchOptions.matcher, search, toggleSearching])
-
-	useEffect(() => {
-		if (!loading) {
-			resetSearching()
-		}
-	}, [loading, resetSearching])
 
 	useEffect(() => {
 		onSearchFilterChange({ mode: searchOptions.mode, query: debouncedQuery, matcher: searchOptions.matcher })
@@ -109,7 +93,7 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 	return (
 		<SongSearchContainer>
 			<Input
-				suffix={isSearching ? <LoadingOutlined /> : <SearchOutlined />}
+				suffix={isFetching ? <LoadingOutlined /> : <SearchOutlined />}
 				addonAfter={<SongSearchOptionsPopover onOptionChange={setSearchOptions} />}
 				onChange={(e) => setQuery(e.target.value)}
 				onFocus={() => setShowResults(true)}
@@ -125,23 +109,27 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 }
 
 interface ISongSearchItemProps {
-	song: IShareSong
+	song: ShareSong
 	onClick: () => any
 	onDrag?: (isDragging: boolean) => any
 }
 
 const SongSearchItem: React.FC<ISongSearchItemProps> = ({ song, onClick, onDrag }) => {
-	const addSongsToPlaylist = useAddSongsToPlaylist()
+	const [addSongsToPlaylist] = useAddSongsToPlaylist()
 	const [, drag, dragPreview] = useDrag<ISongDNDItem, void, any>({
 		item: { type: DragNDropItem.Song, song, idx: -1 },
 		begin: () => (onDrag ? onDrag(true) : undefined),
 		end: (item: { song: IShareSong } | undefined, monitor: DragSourceMonitor) => {
 			if (onDrag) onDrag(false)
 
-			const dragResult = monitor.getDropResult() as { playlist: IPlaylist }
+			const dragResult = monitor.getDropResult() as { playlist: Playlist }
 
 			if (item && dragResult && dragResult.playlist) {
-				addSongsToPlaylist(dragResult.playlist.shareID, dragResult.playlist.id, [song.id])
+				addSongsToPlaylist({
+					shareID: dragResult.playlist.shareID,
+					playlistID: dragResult.playlist.id,
+					songIDs: [song.id],
+				})
 			}
 		},
 	})

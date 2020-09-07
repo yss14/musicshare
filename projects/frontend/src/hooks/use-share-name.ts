@@ -1,14 +1,12 @@
-import { useLibraryID } from "../graphql/client/queries/libraryid-query"
 import { useMemo } from "react"
-import { useShares } from "../graphql/queries/shares-query"
+import { useShares } from "@musicshare/react-graphql-client"
+import { useLibraryID } from "./data/useLibraryID"
 
 export const useShareName = (shareID: string) => {
-	const { loading, data: shares } = useShares()
+	const { isLoading, data: shares } = useShares()
 	const userLibraryID = useLibraryID()
 
-	const sharesMap = useMemo(() => new Map((shares?.viewer.shares || []).map((share) => [share.id, share.name])), [
-		shares,
-	])
+	const sharesMap = useMemo(() => new Map((shares || []).map((share) => [share.id, share.name])), [shares])
 
 	const displayName = useMemo(() => {
 		if (shareID === userLibraryID) return "Library"
@@ -17,7 +15,7 @@ export const useShareName = (shareID: string) => {
 		return "Unknown"
 	}, [sharesMap, shareID, userLibraryID])
 
-	if (loading) return "Loading..."
+	if (isLoading) return "Loading..."
 
 	return displayName
 }

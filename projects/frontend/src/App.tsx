@@ -1,7 +1,5 @@
 import React from "react"
-import { ApolloProvider } from "@apollo/client"
 import { Router } from "react-router-dom"
-import { client, cache } from "./Apollo"
 import { DndProvider } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
 import { makeConfigFromEnv } from "./config"
@@ -10,12 +8,10 @@ import { ConfigContext } from "./context/configContext"
 import { Routing } from "./components/routing/Routing"
 import { IPrimaryTheme } from "./types/Theme"
 import { history } from "./components/routing/history"
-import {
-	IAuthTokenData,
-	GET_AUTH_TOKEN,
-	IRefreshTokenData,
-	GET_REFRESH_TOKEN,
-} from "./graphql/client/queries/auth-token-query"
+import { ReactQueryConfigProvider, ReactQueryConfig } from "react-query"
+import { ReactQueryDevtools } from "react-query-devtools"
+import { GraphQLClientProvider } from "./GraphqlClientProvider"
+import { GraphQLClient, GraphQLClientContext } from "@musicshare/react-graphql-client"
 
 const config = makeConfigFromEnv()
 
@@ -36,19 +32,6 @@ const GlobalStyle = createGlobalStyle`
 	}
 `
 
-cache.writeQuery<IAuthTokenData>({
-	query: GET_AUTH_TOKEN,
-	data: {
-		authToken: localStorage.getItem("auth-token"),
-	},
-})
-cache.writeQuery<IRefreshTokenData>({
-	query: GET_REFRESH_TOKEN,
-	data: {
-		refreshToken: localStorage.getItem("refresh-token"),
-	},
-})
-
 const theme: IPrimaryTheme = {
 	main: "#275dad",
 	white: "#ffffff",
@@ -57,21 +40,29 @@ const theme: IPrimaryTheme = {
 	darkgrey: "#474350",
 }
 
-export const App = () => {
-	return (
-		<>
-			<GlobalStyle />
-			<ApolloProvider client={client}>
-				<ThemeProvider theme={theme}>
-					<ConfigContext.Provider value={config}>
+const queryConfig: ReactQueryConfig = {
+	queries: {
+		refetchOnWindowFocus: false,
+		retry: 1,
+	},
+}
+
+export const App = () => (
+	<ReactQueryConfigProvider config={queryConfig}>
+		<ConfigContext.Provider value={config}>
+			<GraphQLClientContext.Provider value={GraphQLClient({ baseURL: config.services.musicshare.backendURL })}>
+				<GraphQLClientProvider>
+					<GlobalStyle />
+					<ReactQueryDevtools />
+					<ThemeProvider theme={theme}>
 						<DndProvider backend={HTML5Backend}>
 							<Router history={history}>
 								<Routing />
 							</Router>
 						</DndProvider>
-					</ConfigContext.Provider>
-				</ThemeProvider>
-			</ApolloProvider>
-		</>
-	)
-}
+					</ThemeProvider>
+				</GraphQLClientProvider>
+			</GraphQLClientContext.Provider>
+		</ConfigContext.Provider>
+	</ReactQueryConfigProvider>
+)

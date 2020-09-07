@@ -1,9 +1,9 @@
 import React from "react"
-import { IShare } from "../../graphql/types"
 import { Redirect } from "react-router-dom"
+import { Share } from "@musicshare/shared-types"
 
 interface IRedirectToLibraryProps {
-	shares: IShare[]
+	shares: Share[]
 }
 
 export const RedirectToLibrary: React.FC<IRedirectToLibraryProps> = ({ shares }) => {

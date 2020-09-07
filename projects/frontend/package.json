@@ -21,7 +21,8 @@
 		"not op_mini all"
 	],
 	"dependencies": {
-		"@musicshare/shared-types": "*"
+		"@musicshare/shared-types": "*",
+		"@musicshare/react-graphql-client": "*"
 	},
 	"devDependencies": {}
 }

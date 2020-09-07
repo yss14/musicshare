@@ -9,8 +9,7 @@ import { Tag } from "antd"
 import { padStart } from "lodash"
 import moment from "moment"
 import { useShareName } from "../../hooks/use-share-name"
-import { IShareSong } from "@musicshare/shared-types"
-import { isPlaylistSong } from "../../graphql/types"
+import { ShareSong, isPlaylistSong } from "@musicshare/shared-types"
 
 const Indicator = styled.div`
 	width: 20px;
@@ -38,7 +37,7 @@ interface IColumnBase {
 }
 
 interface ISongTableBaseColumn<T> extends IColumnBase {
-	render: (song: IShareSong, index: number, ctx: ISongsViewContext) => T
+	render: (song: ShareSong, index: number, ctx: ISongsViewContext) => T
 }
 
 interface ISongTableColumnSortable extends ISongTableBaseColumn<string> {
@@ -201,7 +200,7 @@ export const SongTableColumn: SongTableColumnMap = {
 }
 
 interface ISongShareProps {
-	song: IShareSong
+	song: ShareSong
 }
 
 const SongShare: React.FC<ISongShareProps> = ({ song }) => {
