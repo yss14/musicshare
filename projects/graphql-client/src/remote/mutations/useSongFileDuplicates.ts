@@ -17,7 +17,7 @@ const GET_SONG_FILE_DUPLICATES = TransformedGraphQLMutation<
 	IFindSongFileDuplicatesData,
 	IFindSongFileDuplicatesVariables
 >(gql`
-	query FindSongFileDuplicates($hash: String!) {
+	query findSongFileDuplicates($hash: String!) {
 		viewer {
 			id
 			findSongFileDuplicates(hash: $hash) {

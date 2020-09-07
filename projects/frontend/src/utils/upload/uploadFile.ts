@@ -10,9 +10,9 @@ import {
 	uploadRemove,
 	UploadAction,
 } from "./SongUploadContext"
-import { GenerateUploadableUrl } from "../../graphql/programmatic/generate-file-uploadable-url"
 import { uploadFileToStorage } from "./uploadFileToStorage"
 import { SubmitSongFromRemoteFile } from "../../graphql/programmatic/submit-song-from-remote-file"
+import { GenerateUploadableUrl } from "@musicshare/graphql-client"
 
 let currentUploads: number = 0
 
@@ -75,7 +75,11 @@ export const uploadFile = async ({
 			throw new Error(`Cannot read file extension from filename ${file.name}`)
 		}
 
-		const targetFileUrl = await generateUploadableUrl(fileExtension)
+		const targetFileUrl = await generateUploadableUrl({ fileExtension })
+
+		if (!targetFileUrl) {
+			throw new Error(`No target file url was generated for file ${file.name}`)
+		}
 
 		currentUploads++
 

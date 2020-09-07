@@ -14,7 +14,7 @@ import { v4 as uuid } from "uuid"
 import { IShareSong } from "@musicshare/shared-types"
 import { UploadOutlined } from "@ant-design/icons"
 import { useLibraryID } from "../../hooks/data/useLibraryID"
-import { useSongFileDuplicates } from "@musicshare/graphql-client"
+import { useSongFileDuplicates, useGenerateUploadableUrl } from "@musicshare/graphql-client"
 
 const StyledUploadIcon = styled(UploadOutlined)`
 	font-size: 64px;
@@ -97,7 +97,7 @@ const Dropzone = ({ shareID, children }: IDropzoneProps) => {
 	const [detectedDuplicates, setDetectedDuplicates] = useState<DetectedDuplicate[]>([])
 	const client = useApolloClient()
 
-	const generateUploadableUrl = useMemo(() => makeGenerateUploadableUrl(client), [client])
+	const [generateUploadableUrl] = useGenerateUploadableUrl()
 	const submitSongFromRemoteUrl = useMemo(() => makeSubmitSongFromRemoteFile(client), [client])
 
 	const [findSongFileDuplicates] = useSongFileDuplicates()
@@ -132,7 +132,7 @@ const Dropzone = ({ shareID, children }: IDropzoneProps) => {
 				setDetectedDuplicates((currentState) => [...currentState, [uploadItem, duplicateSongs]])
 			}
 		},
-		[client, submitSongFromRemoteUrl, generateUploadableUrl, dispatch, shareID],
+		[submitSongFromRemoteUrl, generateUploadableUrl, findSongFileDuplicates, dispatch, shareID],
 	)
 
 	const duplicateActions = useMemo(
