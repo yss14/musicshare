@@ -4,7 +4,6 @@ import styled from "styled-components"
 import { Link, useRouteMatch } from "react-router-dom"
 import { IShareRoute } from "../../interfaces"
 import { Prompt } from "../modals/promt/Prompt"
-import { usePlaylistID } from "../../graphql/client/queries/playlistid-query"
 import { SidebarItem } from "./SidebarItem"
 import { PlaylistSidebarItem } from "./PlaylistSidebarItem"
 import { SidebarSection } from "./SidebarSection"
@@ -14,6 +13,7 @@ import { useContextMenu } from "../modals/contextmenu/ContextMenu"
 import { PlaylistContextMenu } from "./PlaylistContextMenu"
 import Scrollbars from "react-custom-scrollbars"
 import { useShares, useSharePlaylists, useMergedPlaylists, useCreatePlaylist } from "@musicshare/graphql-client"
+import { usePlaylistID } from "../../hooks/data/usePlaylistID"
 
 const Sidebar = styled.div`
 	width: 200px;

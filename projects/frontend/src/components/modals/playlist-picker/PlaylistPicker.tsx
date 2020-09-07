@@ -3,7 +3,7 @@ import { Modal, Select } from "antd"
 import { useSharePlaylists } from "@musicshare/graphql-client"
 import { IPlaylist } from "../../../graphql/types"
 import { filterUndefined } from "../../../utils/filter-null"
-import { useShareID } from "../../../graphql/client/queries/shareid-query"
+import { useShareID } from "../../../hooks/data/useShareID"
 
 const { Option } = Select
 
@@ -14,6 +14,7 @@ interface IPlaylistPickerProps {
 
 export const PlaylistPicker: React.FC<IPlaylistPickerProps> = ({ visible, onSubmit }) => {
 	const shareID = useShareID()!
+
 	const { data, isLoading, error } = useSharePlaylists(shareID, { enabled: !!shareID })
 	const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([])
 

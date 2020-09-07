@@ -3,12 +3,12 @@ import { Route, useParams, useRouteMatch, Redirect } from "react-router"
 import { ShareSongs } from "./ShareSongs"
 import { PlaylistSongs } from "./PlaylistSongs"
 import { IShareRoute, ISharePlaylistRoute } from "../../interfaces"
-import { useUpdateShareID } from "../../graphql/client/mutations/shareid-mutation"
-import { useUpdateplaylistID } from "../../graphql/client/mutations/playlistid-mutation"
+import { useUpdatePlaylistID } from "../../hooks/data/useUpdatePlaylistID"
+import { useUpdateShareID } from "../../hooks/data/useUpdateShareID"
 
 const UpdatePlaylistID: React.FC = ({ children }) => {
 	const { playlistID } = useParams<ISharePlaylistRoute>()
-	const updatePlaylistID = useUpdateplaylistID()
+	const updatePlaylistID = useUpdatePlaylistID()
 
 	useEffect(() => {
 		updatePlaylistID(playlistID)
@@ -27,7 +27,11 @@ const UpdatePlaylistID: React.FC = ({ children }) => {
 export const Share = React.memo(() => {
 	const { shareID } = useParams<IShareRoute>()
 	const match = useRouteMatch()
-	useUpdateShareID(shareID)
+	const updateShareID = useUpdateShareID()
+
+	useEffect(() => {
+		updateShareID(shareID)
+	}, [shareID, updateShareID])
 
 	if (!match) return <Redirect to="/" />
 
