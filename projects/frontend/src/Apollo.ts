@@ -1,16 +1,8 @@
-import { resolvers } from "./graphql/client/resolvers"
 import { makeConfigFromEnv } from "./config"
 import { promiseToObservable } from "./graphql/utils/promise-to-observable"
 import { history } from "./components/routing/history"
 import { isPlaylistSong } from "./graphql/types"
 import { message } from "antd"
-import {
-	playerStateTypeDefs,
-	playerStateDefaultValue,
-	persistVolume,
-	IGetPlayerStateData,
-	GET_PLAYER_STATE,
-} from "./components/player/player-state"
 import {
 	ServerError,
 	HttpLink,
@@ -117,7 +109,6 @@ const typeDefs = `
 		shareID: String!
 	  }
 
-	${playerStateTypeDefs}
 `
 
 const httpLink = new HttpLink({
@@ -234,23 +225,7 @@ const cache = new InMemoryCache({
 const client = new ApolloClient<NormalizedCacheObject>({
 	link: ApolloLink.from([errorLink, authMiddlewareLink, httpLink]),
 	cache,
-	resolvers,
 	typeDefs,
 })
-
-cache.writeQuery<IGetPlayerStateData, void>({
-	query: GET_PLAYER_STATE,
-	data: {
-		player: playerStateDefaultValue,
-	},
-})
-
-setInterval(() => {
-	try {
-		persistVolume(client)
-	} catch (err) {
-		console.error(err)
-	}
-}, 1000)
 
 export { client, cache }

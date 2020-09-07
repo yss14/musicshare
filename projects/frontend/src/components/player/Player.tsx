@@ -143,8 +143,7 @@ const PlayerSlider: React.FC<IPlayerSliderProps> = ({ progresses, onClick, progr
 export const Player = () => {
 	const { play, pause, next, prev, changeVolume, seek } = usePlayerActions()
 	const { queue, setSongQueue, clearQueue } = usePlayerQueue()
-	const { data } = usePlayerState()
-	const { volume, playing, currentSong, playbackProgress, duration, bufferingProgress, error } = data!.player
+	const { volume, playing, currentSong, playbackProgress, duration, bufferingProgress, error } = usePlayerState()
 	const tabIsVisible = usePageVisibility()
 
 	const handleClickMute = useCallback(() => {

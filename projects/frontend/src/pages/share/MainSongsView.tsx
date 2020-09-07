@@ -47,8 +47,7 @@ interface ISongsViewProps {
 
 export const MainSongsView: React.FC<ISongsViewProps> = ({ title, songs, playlistID, moveSong, isMergedView }) => {
 	const { changeSong } = usePlayerActions()
-	const { data } = usePlayerPlaybackState()
-	const { currentSong } = data!.player
+	const { currentSong } = usePlayerPlaybackState()
 	const { enqueueDefaultSongs, clearQueue } = usePlayerQueue()
 	const [editSong, setEditSong] = useState<IShareSong | null>(null)
 	const [showSongModal, setShowSongModal] = useState(false)

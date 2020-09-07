@@ -1,17 +1,10 @@
-import { useCallback, useMemo } from "react"
-import {
-	makeUpdatePlayerState,
-	IPlayerQueueItem,
-	useSetPlayerQueue,
-	usePlayerQueueState,
-} from "../components/player/player-state"
-import { useApolloClient } from "@apollo/client"
+import { useCallback } from "react"
+import { IPlayerQueueItem, usePlayerQueueState, useUpdatePlayerState } from "../components/player/player-state"
 import { v4 as uuid } from "uuid"
 import { usePlayerContext } from "./PlayerContext"
 import { IShareSong } from "@musicshare/shared-types"
 
 const QueueItem = (song: IShareSong): IPlayerQueueItem => ({
-	__typename: "PlayerQueueItem",
 	id: uuid(),
 	song,
 })
@@ -60,13 +53,8 @@ export const usePlayerActions = () => {
 }
 
 export const usePlayerQueue = () => {
-	const { data } = usePlayerQueueState()
-	const { isDefaultQueue, queue } = data!.player
-
-	const client = useApolloClient()
-
-	const updatePlayerState = useMemo(() => makeUpdatePlayerState(client), [client])
-	const [setPlayerQueue] = useSetPlayerQueue()
+	const { isDefaultQueue, queue } = usePlayerQueueState()
+	const updatePlayerState = useUpdatePlayerState()
 
 	const setSongQueue = useCallback(
 		(items: IPlayerQueueItem[]) => {
@@ -120,19 +108,15 @@ export const usePlayerQueue = () => {
 		(songs: IShareSong[]) => {
 			updatePlayerState({
 				isDefaultQueue: true,
-			})
-			setPlayerQueue({
-				variables: { items: songs.map((song) => QueueItem(song)) },
+				queue: songs.map((song) => QueueItem(song)),
 			})
 		},
-		[updatePlayerState, setPlayerQueue],
+		[updatePlayerState],
 	)
 
 	const clearQueue = useCallback(() => {
-		setPlayerQueue({
-			variables: { items: [] },
-		})
-	}, [setPlayerQueue])
+		updatePlayerState({ queue: [] })
+	}, [updatePlayerState])
 
 	return {
 		setSongQueue,

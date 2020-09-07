@@ -1,7 +1,6 @@
 import React, { useContext, useMemo, useEffect, useCallback, useState } from "react"
 import useInterval from "@use-it/interval"
-import { useApolloClient } from "@apollo/client"
-import { makeUpdatePlayerState, usePlayerState } from "../components/player/player-state"
+import { usePlayerState, useUpdatePlayerState } from "../components/player/player-state"
 import { message } from "antd"
 import { IShareSong } from "@musicshare/shared-types"
 import { useDebouncedCallback } from "use-debounce"
@@ -100,11 +99,9 @@ export const PlayerProvider: React.FC = ({ children }) => {
 	const [playCountIncremented, setPlayCountIncremented] = useState(false)
 	const [playedSongs, setPlayedSongs] = useState<IShareSong[]>([])
 
-	const { data } = usePlayerState()
-	const { queue, currentSong } = data!.player
+	const { queue, currentSong } = usePlayerState()
 
-	const client = useApolloClient()
-	const updatePlayerState = useMemo(() => makeUpdatePlayerState(client), [client])
+	const updatePlayerState = useUpdatePlayerState()
 	const [getMediaUrls] = useSongMediaUrl()
 	const [incrementSongPlayCount] = useIncrementSongPlayCount()
 
