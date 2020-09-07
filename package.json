@@ -28,7 +28,7 @@
 		"test:cov": "lerna run test:cov --stream",
 		"postinstall": "npm run bootstrap",
 		"prettify": "prettier --config .prettierrc.js --ignore-path .prettierignore --write ./projects/**/*.{ts,tsx,js}",
-		"generatetypes": "sgts -e http://localhost:4000/graphql -o ./projects/shared-types/src/GeneratedTypesV2.ts --customScalars '{\"DateTime\": \"string\", \"OrderUpdate\": \"[string, number]\"}'"
+		"generatetypes": "sgts -e http://localhost:4000/graphql -o ./projects/shared-types/src/GeneratedTypes.ts --customScalars '{\"DateTime\": \"string\", \"OrderUpdate\": \"[string, number]\"}'"
 	},
 	"husky": {
 		"hooks": {
