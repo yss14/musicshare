@@ -38,6 +38,7 @@ jobs:
         - npm run lint
         - npm run test:ci
     - # stage name not required, will continue to use `test`
-      script:
+	  script:
+		- npm run build:graphql-client
         - npm run verify:frontend
         - npm run build:frontend
