@@ -9,12 +9,12 @@ import { useApolloClient } from "@apollo/client"
 import { makeGenerateUploadableUrl } from "../../graphql/programmatic/generate-file-uploadable-url"
 import { makeSubmitSongFromRemoteFile } from "../../graphql/programmatic/submit-song-from-remote-file"
 import { blobToArrayBuffer } from "../../utils/upload/blob-to-arraybuffer"
-import { findSongFileDuplicates } from "../../graphql/programmatic/find-song-file-duplicates"
 import SparkMD5 from "spark-md5"
 import { v4 as uuid } from "uuid"
 import { IShareSong } from "@musicshare/shared-types"
 import { UploadOutlined } from "@ant-design/icons"
 import { useLibraryID } from "../../hooks/data/useLibraryID"
+import { useSongFileDuplicates } from "@musicshare/graphql-client"
 
 const StyledUploadIcon = styled(UploadOutlined)`
 	font-size: 64px;
@@ -100,6 +100,8 @@ const Dropzone = ({ shareID, children }: IDropzoneProps) => {
 	const generateUploadableUrl = useMemo(() => makeGenerateUploadableUrl(client), [client])
 	const submitSongFromRemoteUrl = useMemo(() => makeSubmitSongFromRemoteFile(client), [client])
 
+	const [findSongFileDuplicates] = useSongFileDuplicates()
+
 	const processFile = useCallback(
 		async (file: File) => {
 			const id = uuid()
@@ -110,7 +112,7 @@ const Dropzone = ({ shareID, children }: IDropzoneProps) => {
 			spark.appendBinary(buffer as any)
 			const hash = spark.end()
 
-			const duplicateSongs = uniqBy(await findSongFileDuplicates(client, hash), (song) => song.id)
+			const duplicateSongs = uniqBy(await findSongFileDuplicates({ hash }), (song) => song.id)
 
 			const uploadItem: IUploadFileArgs = {
 				id,
