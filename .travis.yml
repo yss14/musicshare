@@ -1,44 +1,44 @@
 dist: trusty
 
 services:
-  - postgresql
-  - docker
+    - postgresql
+    - docker
 
 language: node_js
 node_js:
-  - "10"
+    - "10"
 
 cache: npm
 
 env:
-  - CXX=g++-6
+    - CXX=g++-6
 addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-6
-  postgresql: "9.6"
+    apt:
+        sources:
+            - ubuntu-toolchain-r-test
+        packages:
+            - g++-6
+    postgresql: "9.6"
 
 before_install:
-- docker pull bitnami/minio:latest
-- docker run -d -p 127.0.0.1:9000:9000 -e MINIO_ACCESS_KEY=musicshare -e MINIO_SECRET_KEY=musicshare bitnami/minio 
-      
-install:  
-  - npm install
-  - npm run bootstrap
-  - npm run build:shared-types
+    - docker pull bitnami/minio:latest
+    - docker run -d -p 127.0.0.1:9000:9000 -e MINIO_ACCESS_KEY=musicshare -e MINIO_SECRET_KEY=musicshare bitnami/minio
+
+install:
+    - npm install
+    - npm run bootstrap
+    - npm run build:shared-types
 
 jobs:
-  include:
-    - stage: Build and Test
-      script:
-        - npm run build:backend
-        - npm run verify:backend
-        - npm run lint
-        - npm run test:ci
-    - # stage name not required, will continue to use `test`
-	  script:
-		- npm run build:graphql-client
-        - npm run verify:frontend
-        - npm run build:frontend
+    include:
+        - stage: Build and Test
+          script:
+              - npm run build:backend
+              - npm run verify:backend
+              - npm run lint
+              - npm run test:ci
+        - # stage name not required, will continue to use `test`
+          script:
+              - npm run build:graphql-client
+              - npm run verify:frontend
+              - npm run build:frontend
