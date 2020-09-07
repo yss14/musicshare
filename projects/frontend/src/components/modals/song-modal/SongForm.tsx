@@ -46,7 +46,7 @@ export const SongForm = ({
 		() => songTypes.map((songType) => ({ value: songType.name, label: songType.name })),
 		[songTypes],
 	)
-	console.log({ playlistID })
+
 	const [updateSongMutation, { isLoading }] = useUpdateSong(playlistID, {
 		onSuccess: () => {
 			closeForm()

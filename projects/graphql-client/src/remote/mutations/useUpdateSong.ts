@@ -9,6 +9,7 @@ import {
 import { GET_DIRTY_SHARE_SONGS } from "../queries/useDirtyShareSongs"
 import { GET_DIRTY_MERGED_VIEW_SONGS } from "../queries/useDirtyMergedViewSongs"
 import { GET_PLAYLIST_WITH_SONGS } from "../queries/usePlaylistSongs"
+import { addArtistsToCache } from "../../utils/addArtistsToCache"
 
 export interface ISongUpdateInput {
 	title?: string
@@ -56,12 +57,17 @@ export const useUpdateSong = (playlistID?: string, opts?: IGraphQLMutationOpts<t
 			})
 
 			if (playlistID) {
-				console.log({ shareID: updatedSong.shareID, playlistID })
 				typedQueryCache.invalidateTypedQuery({
 					query: GET_PLAYLIST_WITH_SONGS,
 					variables: { shareID: updatedSong.shareID, playlistID },
 				})
 			}
+
+			addArtistsToCache(
+				[...updatedSong.artists, ...updatedSong.remixer, ...updatedSong.featurings].map((artist) => ({
+					name: artist,
+				})),
+			)
 
 			if (opts?.onSuccess) opts.onSuccess(updatedSong, variables)
 		},
