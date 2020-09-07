@@ -4,7 +4,7 @@ import { useFormik } from "formik"
 import { IdcardOutlined, LockOutlined, UserOutlined } from "@ant-design/icons"
 import { Input, Button, Alert, message, Form } from "antd"
 import { Link } from "react-router-dom"
-import { useRestorePassword } from "../../graphql/mutations/restore-password-mutation"
+import { useRestorePassword } from "@musicshare/graphql-client"
 
 interface IFormValues {
 	email: string
@@ -39,15 +39,14 @@ const validateForm = ({ email, restoreToken, newPassword }: IFormValues) => {
 export const RestorePasswordForm: React.FC = () => {
 	const [email, setEMail] = useState("")
 	const [restorePassword, { error, data }] = useRestorePassword({
-		onError: console.error,
-		onCompleted: () => {
+		onSuccess: () => {
 			resetForm()
 			message.success(`Password has been restored successfully`)
 		},
 	})
 	const onSubmit = useCallback(
 		(values: IFormValues) => {
-			restorePassword(values)
+			restorePassword({ input: values })
 			setEMail(values.email)
 		},
 		[restorePassword],
@@ -66,7 +65,7 @@ export const RestorePasswordForm: React.FC = () => {
 						Your password has been restored. We issued a new restore token, which you can use the next time
 						to restore your password. Please again note the token and keep it safe!
 					</p>
-					<p>Your new restore token: {data.restorePassword}</p>
+					<p>Your new restore token: {data}</p>
 					<p>
 						Proceed to <Link to={`/login/${email}`}>Sign In</Link>
 					</p>
