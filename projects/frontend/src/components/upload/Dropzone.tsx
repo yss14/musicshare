@@ -5,16 +5,17 @@ import styled from "styled-components"
 import { uploadFile, IUploadFileArgs } from "../../utils/upload/uploadFile"
 import { last, uniqBy } from "lodash"
 import { useSongUploadQueue, ISongUploadItem } from "../../utils/upload/SongUploadContext"
-import { useApolloClient } from "@apollo/client"
-import { makeGenerateUploadableUrl } from "../../graphql/programmatic/generate-file-uploadable-url"
-import { makeSubmitSongFromRemoteFile } from "../../graphql/programmatic/submit-song-from-remote-file"
 import { blobToArrayBuffer } from "../../utils/upload/blob-to-arraybuffer"
 import SparkMD5 from "spark-md5"
 import { v4 as uuid } from "uuid"
 import { IShareSong } from "@musicshare/shared-types"
 import { UploadOutlined } from "@ant-design/icons"
 import { useLibraryID } from "../../hooks/data/useLibraryID"
-import { useSongFileDuplicates, useGenerateUploadableUrl } from "@musicshare/graphql-client"
+import {
+	useSongFileDuplicates,
+	useGenerateUploadableUrl,
+	useSubmitSongFromRemoteFile,
+} from "@musicshare/graphql-client"
 
 const StyledUploadIcon = styled(UploadOutlined)`
 	font-size: 64px;
@@ -95,10 +96,9 @@ export const useSongDropzone = () => {
 const Dropzone = ({ shareID, children }: IDropzoneProps) => {
 	const [state, dispatch] = useSongUploadQueue()
 	const [detectedDuplicates, setDetectedDuplicates] = useState<DetectedDuplicate[]>([])
-	const client = useApolloClient()
 
 	const [generateUploadableUrl] = useGenerateUploadableUrl()
-	const submitSongFromRemoteUrl = useMemo(() => makeSubmitSongFromRemoteFile(client), [client])
+	const [submitSongFromRemoteUrl] = useSubmitSongFromRemoteFile()
 
 	const [findSongFileDuplicates] = useSongFileDuplicates()
 

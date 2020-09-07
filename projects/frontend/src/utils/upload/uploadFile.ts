@@ -11,8 +11,7 @@ import {
 	UploadAction,
 } from "./SongUploadContext"
 import { uploadFileToStorage } from "./uploadFileToStorage"
-import { SubmitSongFromRemoteFile } from "../../graphql/programmatic/submit-song-from-remote-file"
-import { GenerateUploadableUrl } from "@musicshare/graphql-client"
+import { GenerateUploadableUrl, SubmitSongFromRemoteFile } from "@musicshare/graphql-client"
 
 let currentUploads: number = 0
 
@@ -84,7 +83,7 @@ export const uploadFile = async ({
 		currentUploads++
 
 		await uploadFileToStorage({ blob: file, targetFileUrl, contentType: file.type, onProgress })
-		await submitSongFromRemoteUrl({ filename: file.name, playlistIDs, remoteFileUrl: targetFileUrl })
+		await submitSongFromRemoteUrl({ input: { filename: file.name, playlistIDs, remoteFileUrl: targetFileUrl } })
 
 		dispatch(uploadFinish(id, true))
 
