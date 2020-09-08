@@ -7,17 +7,17 @@ import {
 } from "../../react-query-graphql"
 import { GET_SHARES } from "../queries/useShares"
 
-interface ILeaveShareData {
+export interface ILeaveShareData {
 	leaveShare: boolean
 }
 
-interface ILeaveShareVariables {
+export interface ILeaveShareVariables {
 	input: {
 		shareID: string
 	}
 }
 
-const LEAVE_SHARE = TransformedGraphQLMutation<ILeaveShareData, ILeaveShareVariables>(gql`
+export const LEAVE_SHARE = TransformedGraphQLMutation<ILeaveShareData, ILeaveShareVariables>(gql`
 	mutation leaveShare($input: ShareIDInput!) {
 		leaveShare(input: $input)
 	}

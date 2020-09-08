@@ -8,17 +8,17 @@ import {
 } from "../../react-query-graphql"
 import { GET_PLAYLIST_WITH_SONGS } from "../queries/usePlaylistSongs"
 
-interface IUpdatePlaylistSongOrderData {
+export interface IUpdatePlaylistSongOrderData {
 	updateOrderOfPlaylist: PlaylistSong[]
 }
 
-interface IUpdatePlaylistSongOrderVariables {
+export interface IUpdatePlaylistSongOrderVariables {
 	shareID: string
 	playlistID: string
 	orderUpdates: [string, number][]
 }
 
-const UPDATE_PLAYLIST_SONG_ORDER = TransformedGraphQLMutation<
+export const UPDATE_PLAYLIST_SONG_ORDER = TransformedGraphQLMutation<
 	IUpdatePlaylistSongOrderData,
 	IUpdatePlaylistSongOrderVariables
 >(gql`

@@ -7,18 +7,18 @@ import {
 } from "../../react-query-graphql"
 import { GET_SHARE_USERS } from "../queries/useShareUsers"
 
-interface IInviteToShareData {
+export interface IInviteToShareData {
 	inviteToShare: string | null
 }
 
-interface IInviteToShareVariables {
+export interface IInviteToShareVariables {
 	input: {
 		shareID: string
 		email: string
 	}
 }
 
-const INVITE_TO_SHARE = TransformedGraphQLMutation<IInviteToShareData, IInviteToShareVariables>(gql`
+export const INVITE_TO_SHARE = TransformedGraphQLMutation<IInviteToShareData, IInviteToShareVariables>(gql`
 	mutation inviteToShare($input: InviteToShareInput!) {
 		inviteToShare(input: $input)
 	}

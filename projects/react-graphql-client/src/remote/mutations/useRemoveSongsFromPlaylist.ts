@@ -8,17 +8,17 @@ import {
 } from "../../react-query-graphql"
 import { GET_PLAYLIST_WITH_SONGS } from "../queries/usePlaylistSongs"
 
-interface IRemoveSongsFromPlaylistData {
+export interface IRemoveSongsFromPlaylistData {
 	removeSongsFromPlaylist: PlaylistSong[]
 }
 
-interface IRemoveSongsFromPlaylistVariables {
+export interface IRemoveSongsFromPlaylistVariables {
 	playlistSongIDs: string[]
 	playlistID: string
 	shareID: string
 }
 
-const REMOVE_SONGS_FROM_PLAYLIST = TransformedGraphQLMutation<
+export const REMOVE_SONGS_FROM_PLAYLIST = TransformedGraphQLMutation<
 	IRemoveSongsFromPlaylistData,
 	IRemoveSongsFromPlaylistVariables
 >(gql`

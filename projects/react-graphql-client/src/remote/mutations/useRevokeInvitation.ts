@@ -7,18 +7,18 @@ import {
 } from "../../react-query-graphql"
 import { GET_SHARE_USERS } from "../queries/useShareUsers"
 
-interface IRevokeInvitationData {
+export interface IRevokeInvitationData {
 	revokeInvitation: boolean
 }
 
-interface IRevokeInvitationVariables {
+export interface IRevokeInvitationVariables {
 	input: {
 		shareID: string
 		userID: string
 	}
 }
 
-const REVOKE_INVITATION = TransformedGraphQLMutation<IRevokeInvitationData, IRevokeInvitationVariables>(gql`
+export const REVOKE_INVITATION = TransformedGraphQLMutation<IRevokeInvitationData, IRevokeInvitationVariables>(gql`
 	mutation revokeInvitation($input: RevokeInvitationInput!) {
 		revokeInvitation(input: $input)
 	}

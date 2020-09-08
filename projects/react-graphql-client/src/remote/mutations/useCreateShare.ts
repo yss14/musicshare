@@ -8,15 +8,15 @@ import {
 } from "../../react-query-graphql"
 import { GET_SHARES } from "../queries/useShares"
 
-interface ICreateShareVariables {
+export interface ICreateShareVariables {
 	name: string
 }
 
-interface ICreateShareData {
+export interface ICreateShareData {
 	createShare: Share
 }
 
-const CREATE_SHARE = TransformedGraphQLMutation<ICreateShareData, ICreateShareVariables>(gql`
+export const CREATE_SHARE = TransformedGraphQLMutation<ICreateShareData, ICreateShareVariables>(gql`
 	mutation createShare($name: String!) {
 		createShare(name: $name) {
 			${shareKeys}

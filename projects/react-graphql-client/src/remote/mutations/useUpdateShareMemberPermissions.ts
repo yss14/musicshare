@@ -8,17 +8,17 @@ import {
 } from "../../react-query-graphql"
 import { GET_SHARE_USERS } from "../queries/useShareUsers"
 
-interface IUpdateShareMemberPermissionsData {
+export interface IUpdateShareMemberPermissionsData {
 	updateShareMemberPermissions: ShareMember
 }
 
-interface IUpdateShareMemberPermissionsVariables {
+export interface IUpdateShareMemberPermissionsVariables {
 	shareID: string
 	userID: string
 	permissions: string[]
 }
 
-const UPDATE_SHARE_MEMBER_PERMISSIONS = TransformedGraphQLMutation<
+export const UPDATE_SHARE_MEMBER_PERMISSIONS = TransformedGraphQLMutation<
 	IUpdateShareMemberPermissionsData,
 	IUpdateShareMemberPermissionsVariables
 >(gql`

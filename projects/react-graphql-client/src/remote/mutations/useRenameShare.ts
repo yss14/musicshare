@@ -8,16 +8,16 @@ import {
 } from "../../react-query-graphql"
 import { GET_SHARES } from "../queries/useShares"
 
-interface IRenameShareData {
+export interface IRenameShareData {
 	renameShare: Share
 }
 
-interface IRenameShareVariables {
+export interface IRenameShareVariables {
 	name: string
 	shareID: string
 }
 
-const RENAME_SHARE = TransformedGraphQLMutation<IRenameShareData, IRenameShareVariables>(gql`
+export const RENAME_SHARE = TransformedGraphQLMutation<IRenameShareData, IRenameShareVariables>(gql`
 	mutation renameShare($name: String! $shareID: String!) {
 		renameShare(name: $name shareID: $shareID) {
 			${shareKeys}

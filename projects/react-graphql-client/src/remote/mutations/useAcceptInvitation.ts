@@ -2,24 +2,24 @@ import gql from "graphql-tag"
 import { Viewer, userKeys } from "@musicshare/shared-types"
 import { TransformedGraphQLMutation, IGraphQLMutationOpts, useGraphQLMutation } from "../../react-query-graphql"
 
-interface IAcceptInvitationData {
+export interface IAcceptInvitationData {
 	acceptInvitation: {
 		user: Viewer
 		restoreToken: string
 	}
 }
 
-interface IAcceptInvitationInput {
+export interface IAcceptInvitationInput {
 	name: string
 	password: string
 	invitationToken: string
 }
 
-interface IAcceptInvitationVariables {
+export interface IAcceptInvitationVariables {
 	input: IAcceptInvitationInput
 }
 
-const ACCEPT_INVITATION = TransformedGraphQLMutation<IAcceptInvitationData, IAcceptInvitationVariables>(gql`
+export const ACCEPT_INVITATION = TransformedGraphQLMutation<IAcceptInvitationData, IAcceptInvitationVariables>(gql`
 	mutation acceptInvitation($input: AcceptInvitationInput!) {
 		acceptInvitation(input: $input){
 			user{

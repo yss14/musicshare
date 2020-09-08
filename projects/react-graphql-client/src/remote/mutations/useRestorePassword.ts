@@ -1,21 +1,21 @@
 import gql from "graphql-tag"
 import { TransformedGraphQLMutation, IGraphQLMutationOpts, useGraphQLMutation } from "../../react-query-graphql"
 
-interface IRestorePasswordData {
+export interface IRestorePasswordData {
 	restorePassword: string
 }
 
-interface IRestorePasswordInput {
+export interface IRestorePasswordInput {
 	email: string
 	restoreToken: string
 	newPassword: string
 }
 
-interface IRestorePasswordVariables {
+export interface IRestorePasswordVariables {
 	input: IRestorePasswordInput
 }
 
-const RESTORE_PASSWORD = TransformedGraphQLMutation<IRestorePasswordData, IRestorePasswordVariables>(gql`
+export const RESTORE_PASSWORD = TransformedGraphQLMutation<IRestorePasswordData, IRestorePasswordVariables>(gql`
 	mutation RestorePassword($input: RestorePasswordInput!) {
 		restorePassword(input: $input)
 	}
