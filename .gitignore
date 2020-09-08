@@ -53,6 +53,7 @@ jspm_packages/
 
 # dotenv environment variables file
 *.env
+!*sample.env
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -83,3 +84,5 @@ scripts
 
 # ts incremental build meta
 *.tsbuildinfo
+
+.npmrc
