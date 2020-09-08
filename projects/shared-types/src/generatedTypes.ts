@@ -449,9 +449,3 @@ export interface updateShareMemberPermissionsArgs {
 	shareID: string
 	userID: string
 }
-
-export const ViewerFragment = sgtsQL` 
-  fragment ViewerFragment on Viewer {
-    id name email shares {id name isLibrary songs {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels sources duration tags dateAdded libraryID playCount numberOfSources shareID } songsDirty {timestamp } playlists {id name dateAdded shareID songs {id title suffix year bpm dateLastEdit releaseDate isRip artists remixer featurings type genres labels duration tags dateAdded libraryID playCount numberOfSources shareID playlistSongID position } } members {id name email dateJoined shareID permissions status } permissions userPermissions } artists {name } genres {name group } songTypes {name group hasArtists alternativeNames } tags 
-  }
-`
