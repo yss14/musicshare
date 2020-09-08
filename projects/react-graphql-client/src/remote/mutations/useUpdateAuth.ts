@@ -7,12 +7,12 @@ import {
 import gql from "graphql-tag"
 import { GET_AUTH } from "../queries/useAuth"
 
-interface IUpdateAuthVariables {
+export interface IUpdateAuthVariables {
 	authToken?: string | null
 	refreshToken?: string | null
 }
 
-const UPDATE_AUTH = TransformedGraphQLMutation<void, IUpdateAuthVariables>(gql`
+export const UPDATE_AUTH = TransformedGraphQLMutation<void, IUpdateAuthVariables>(gql`
 	mutation updateAuth {
 		updateAuth # client mutation
 	}

@@ -13,14 +13,14 @@ export interface IIncrementSongPlayCountData {
 	}
 }
 
-interface IIncrementSongPlayCountVariables {
+export interface IIncrementSongPlayCountVariables {
 	input: {
 		songID: string
 		shareID: string
 	}
 }
 
-const INCREMENT_SONG_PLAYCOUNT = TransformedGraphQLMutation<
+export const INCREMENT_SONG_PLAYCOUNT = TransformedGraphQLMutation<
 	IIncrementSongPlayCountData,
 	IIncrementSongPlayCountVariables
 >(gql`

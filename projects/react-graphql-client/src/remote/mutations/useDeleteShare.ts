@@ -7,15 +7,15 @@ import {
 } from "../../react-query-graphql"
 import { GET_SHARES } from "../queries/useShares"
 
-interface IDeleteShareData {
+export interface IDeleteShareData {
 	deleteShare: boolean
 }
 
-interface IDeleteShareVariables {
+export interface IDeleteShareVariables {
 	shareID: string
 }
 
-const DELETE_SHARE = TransformedGraphQLMutation<IDeleteShareData, IDeleteShareVariables>(gql`
+export const DELETE_SHARE = TransformedGraphQLMutation<IDeleteShareData, IDeleteShareVariables>(gql`
 	mutation DeleteShare($shareID: String!) {
 		deleteShare(shareID: $shareID)
 	}

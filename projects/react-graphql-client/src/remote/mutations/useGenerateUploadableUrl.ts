@@ -3,15 +3,15 @@ import { TransformedGraphQLMutation, IGraphQLMutationOpts, useGraphQLMutation } 
 import { MutateFunction } from "react-query"
 import { GraphQLClientError } from "../../GraphQLClientError"
 
-interface IGenerateUploadableUrlData {
+export interface IGenerateUploadableUrlData {
 	generateUploadableUrl: string
 }
 
-interface IGenerateUploadableUrlVariables {
+export interface IGenerateUploadableUrlVariables {
 	fileExtension: string
 }
 
-const GENERATE_UPLOADABLE_URL = TransformedGraphQLMutation<
+export const GENERATE_UPLOADABLE_URL = TransformedGraphQLMutation<
 	IGenerateUploadableUrlData,
 	IGenerateUploadableUrlVariables
 >(gql`

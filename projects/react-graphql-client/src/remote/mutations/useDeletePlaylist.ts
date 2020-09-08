@@ -8,16 +8,16 @@ import {
 import { GET_SHARE_PLAYLISTS } from "../queries/useSharePlaylists"
 import { GET_MERGED_PLAYLISTS } from "../queries/useMergedPlaylists"
 
-interface IDeletePlaylistData {
+export interface IDeletePlaylistData {
 	deletePlaylist: boolean
 }
 
-interface IDeletePlaylistVariables {
+export interface IDeletePlaylistVariables {
 	playlistID: string
 	shareID: string
 }
 
-const DELETE_PLAYLIST = TransformedGraphQLMutation<IDeletePlaylistData, IDeletePlaylistVariables>(gql`
+export const DELETE_PLAYLIST = TransformedGraphQLMutation<IDeletePlaylistData, IDeletePlaylistVariables>(gql`
 	mutation deletePlaylist($shareID: String!, $playlistID: String!) {
 		deletePlaylist(shareID: $shareID, playlistID: $playlistID)
 	}

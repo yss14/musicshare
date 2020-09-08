@@ -7,18 +7,18 @@ import {
 } from "../../react-query-graphql"
 import { GET_SHARE_SONGS } from "../queries/useShareSongs"
 
-interface IRemoveSongFromLibraryData {
+export interface IRemoveSongFromLibraryData {
 	removeSongFromLibrary: boolean
 }
 
-interface IRemoveSongFromLibraryVariables {
+export interface IRemoveSongFromLibraryVariables {
 	input: {
 		shareID: string
 		songID: string
 	}
 }
 
-const REMOVE_SONG_FROM_LIBRARY = TransformedGraphQLMutation<
+export const REMOVE_SONG_FROM_LIBRARY = TransformedGraphQLMutation<
 	IRemoveSongFromLibraryData,
 	IRemoveSongFromLibraryVariables
 >(gql`

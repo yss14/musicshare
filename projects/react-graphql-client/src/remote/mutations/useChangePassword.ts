@@ -1,20 +1,20 @@
 import gql from "graphql-tag"
 import { TransformedGraphQLMutation, IGraphQLMutationOpts, useGraphQLMutation } from "../../react-query-graphql"
 
-interface IChangePasswordData {
+export interface IChangePasswordData {
 	changePassword: boolean
 }
 
-interface IChangePasswordInput {
+export interface IChangePasswordInput {
 	oldPassword: string
 	newPassword: string
 }
 
-interface IChangePasswordVariables {
+export interface IChangePasswordVariables {
 	input: IChangePasswordInput
 }
 
-const CHANGE_PASSWORD = TransformedGraphQLMutation<IChangePasswordData, IChangePasswordVariables>(gql`
+export const CHANGE_PASSWORD = TransformedGraphQLMutation<IChangePasswordData, IChangePasswordVariables>(gql`
 	mutation ChangePassword($input: ChangePasswordInput!) {
 		changePassword(input: $input)
 	}

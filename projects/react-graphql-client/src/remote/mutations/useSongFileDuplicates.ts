@@ -2,18 +2,18 @@ import gql from "graphql-tag"
 import { ShareSong, shareSongKeys } from "@musicshare/shared-types"
 import { TransformedGraphQLMutation, IGraphQLMutationOpts, useGraphQLMutation } from "../../react-query-graphql"
 
-interface IFindSongFileDuplicatesData {
+export interface IFindSongFileDuplicatesData {
 	viewer: {
 		id: string
 		findSongFileDuplicates: ShareSong[]
 	}
 }
 
-interface IFindSongFileDuplicatesVariables {
+export interface IFindSongFileDuplicatesVariables {
 	hash: string
 }
 
-const GET_SONG_FILE_DUPLICATES = TransformedGraphQLMutation<
+export const GET_SONG_FILE_DUPLICATES = TransformedGraphQLMutation<
 	IFindSongFileDuplicatesData,
 	IFindSongFileDuplicatesVariables
 >(gql`

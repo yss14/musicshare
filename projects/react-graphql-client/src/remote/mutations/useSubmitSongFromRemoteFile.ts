@@ -3,17 +3,17 @@ import { TransformedGraphQLMutation, IGraphQLMutationOpts, useGraphQLMutation } 
 import { MutateFunction } from "react-query"
 import { GraphQLClientError } from "../../GraphQLClientError"
 
-interface ISubmitSongFromRemoteFileData {
+export interface ISubmitSongFromRemoteFileData {
 	submitSongFromRemoteFile: boolean
 }
 
-interface ISubmitSongFromRemoteFileInput {
+export interface ISubmitSongFromRemoteFileInput {
 	filename: string
 	remoteFileUrl: string
 	playlistIDs: string[]
 }
 
-interface ISubmitSongFromRemoteFileVariables {
+export interface ISubmitSongFromRemoteFileVariables {
 	input: ISubmitSongFromRemoteFileInput
 }
 

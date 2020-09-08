@@ -8,17 +8,17 @@ import {
 import { GET_SHARE_PLAYLISTS } from "../queries/useSharePlaylists"
 import { GET_MERGED_PLAYLISTS } from "../queries/useMergedPlaylists"
 
-interface IRenamePlaylistData {
+export interface IRenamePlaylistData {
 	renamePlaylist: boolean
 }
 
-interface IRenamePlaylistVariables {
+export interface IRenamePlaylistVariables {
 	newName: string
 	shareID: string
 	playlistID: string
 }
 
-const RENAME_PLAYLIST_MUTATION = TransformedGraphQLMutation<IRenamePlaylistData, IRenamePlaylistVariables>(gql`
+export const RENAME_PLAYLIST_MUTATION = TransformedGraphQLMutation<IRenamePlaylistData, IRenamePlaylistVariables>(gql`
 	mutation renamePlaylist($newName: String!, $playlistID: String!, $shareID: String!) {
 		renamePlaylist(newName: $newName, playlistID: $playlistID, shareID: $shareID)
 	}
