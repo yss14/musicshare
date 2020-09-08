@@ -8,8 +8,7 @@
 		"build": "tsc --project tsconfig.json --noUnusedLocals",
 		"build:watch": "tsc --watch --preserveWatchOutput",
 		"verify": "tsc --incremental false --composite false --noEmit --noUnusedLocals",
-		"tsc:version": "tsc -v && pwd",
-		"prepublish": "npm run build"
+		"tsc:version": "tsc -v && pwd"
 	},
 	"author": "Yannick Stachelscheid",
 	"license": "UNLICENSED",
