@@ -3,17 +3,24 @@
 	"version": "1.0.0",
 	"description": "Core GraphQL Queries and Mutations communicating to the MusicShare Backend",
 	"main": "build/index",
-	"private": true,
+	"private": false,
 	"scripts": {
 		"build": "tsc --project tsconfig.json --noUnusedLocals",
 		"build:watch": "tsc --watch --preserveWatchOutput",
 		"verify": "tsc --incremental false --composite false --noEmit --noUnusedLocals",
-		"tsc:version": "tsc -v && pwd"
+		"tsc:version": "tsc -v && pwd",
+		"prepublish": "npm run build"
 	},
 	"author": "Yannick Stachelscheid",
 	"license": "UNLICENSED",
 	"devDependencies": {},
 	"dependencies": {
 		"@musicshare/shared-types": "*"
+	},
+	"peerDependencies": {
+		"axios": "^0.20.0",
+		"react-query": "^2.14.1",
+		"graphql-tag": "^2.10.1",
+		"graphql": "^14.2.1"
 	}
 }
