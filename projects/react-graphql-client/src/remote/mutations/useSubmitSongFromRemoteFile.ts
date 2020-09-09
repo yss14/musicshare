@@ -2,9 +2,10 @@ import gql from "graphql-tag"
 import { TransformedGraphQLMutation, IGraphQLMutationOpts, useGraphQLMutation } from "../../react-query-graphql"
 import { MutateFunction } from "react-query"
 import { GraphQLClientError } from "../../GraphQLClientError"
+import { ShareSong, shareSongKeys } from "@musicshare/shared-types"
 
 export interface ISubmitSongFromRemoteFileData {
-	submitSongFromRemoteFile: boolean
+	submitSongFromRemoteFile: ShareSong
 }
 
 export interface ISubmitSongFromRemoteFileInput {
@@ -22,13 +23,15 @@ export const SUBMIT_SONG_FROM_REMOTE_FILE = TransformedGraphQLMutation<
 	ISubmitSongFromRemoteFileVariables
 >(gql`
 	mutation SubmitSongFromRemoteFile($input: SubmitSongFromRemoteFileInput!) {
-		submitSongFromRemoteFile(input: $input)
+		submitSongFromRemoteFile(input: $input){
+			${shareSongKeys}
+		}
 	}
 `)((data) => data.submitSongFromRemoteFile)
 
 export type SubmitSongFromRemoteFile = MutateFunction<
-	boolean,
-	GraphQLClientError<boolean>,
+	ShareSong,
+	GraphQLClientError<ShareSong>,
 	ISubmitSongFromRemoteFileVariables,
 	unknown
 >

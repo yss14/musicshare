@@ -12,7 +12,7 @@ import { v4 as uuid } from "uuid"
 import { ShareSongsTable } from "../database/tables"
 import * as path from "path"
 import * as fs from "fs"
-import { Permissions } from "@musicshare/shared-types"
+import { Permissions, shareSongKeys } from "@musicshare/shared-types"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
@@ -384,7 +384,7 @@ describe("submit remote file", () => {
 		mutation {
 			submitSongFromRemoteFile(input: {filename: "${filename}", remoteFileUrl: "${remoteFileUrl}", playlistIDs: [${playlistIDs.map(
 		(id) => `"${id}"`,
-	)}]})
+	)}]}){${shareSongKeys}}
 		}
 	`
 
@@ -412,7 +412,7 @@ describe("submit remote file", () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body.data.submitSongFromRemoteFile).toBeTrue()
+		expect(body.data.submitSongFromRemoteFile).toBeObject()
 	})
 
 	test("invalid filename fails", async () => {

@@ -86,11 +86,11 @@ export class SongResolver implements ResolverInterface<ShareSong> {
 
 	@Authorized()
 	@PermissionAuth([Permissions.SONG_UPLOAD])
-	@Mutation(() => Boolean)
+	@Mutation(() => ShareSong)
 	public async submitSongFromRemoteFile(
 		@Arg("input") { filename, playlistIDs, remoteFileUrl }: SubmitSongFromRemoteFileInput,
 		@Ctx() { userID, library }: IGraphQLContext,
-	): Promise<boolean> {
+	): Promise<ShareSong> {
 		if (!filename.match(/^[^\\\/]*\.(\w+)$/)) {
 			throw new ValidationError("<filename> is not valid")
 		}
@@ -110,8 +110,8 @@ export class SongResolver implements ResolverInterface<ShareSong> {
 			playlistIDs,
 		}
 
-		await this.services.songProcessingQueue.enqueueUpload(jobQueuePayload)
+		const songID = await this.services.songProcessingQueue.enqueueUpload(jobQueuePayload)
 
-		return true
+		return this.services.songService.getByID(library!.id, songID)
 	}
 }
