@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"description": "Types and artefacts which are shared between backend and frontend",
 	"main": "build/index",
-	"private": true,
+	"private": false,
 	"scripts": {
 		"build": "tsc --project tsconfig.json --noUnusedLocals",
 		"build:watch": "tsc --watch --preserveWatchOutput",
