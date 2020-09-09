@@ -19,8 +19,6 @@ import { ServiceFactory } from "./services"
 import { isFileUpload } from "../models/FileSourceModels"
 import stringSimilarity from "string-similarity"
 import { buildSongName } from "@musicshare/shared-types"
-import { promises as fs } from "fs"
-import { config } from "dotenv/types"
 import { IConfig } from "../types/config"
 
 export class SongNotFoundError extends ForbiddenError {
