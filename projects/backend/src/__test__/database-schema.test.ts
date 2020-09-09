@@ -48,6 +48,7 @@ test("insertProductionSetupSeed", async () => {
 			seed: false,
 		},
 		setup: {
+			...defaultConfig.setup,
 			seed: {
 				name: "Some Testuser",
 				password: "password1234",
