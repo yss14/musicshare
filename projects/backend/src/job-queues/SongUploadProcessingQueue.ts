@@ -37,7 +37,7 @@ export interface ISongUploadProcessingQueue {
 }
 
 export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
-	private readonly jobQueue: BetterQueue
+	private readonly jobQueue: BetterQueue<ISongProcessingQueuePayload, string>
 	private readonly logger: ILogger = Logger("SongUploadQueue")
 
 	constructor(
@@ -48,7 +48,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 		private readonly playlistService: IPlaylistService,
 		private readonly database: IDatabaseClient,
 	) {
-		this.jobQueue = new BetterQueue<ISongProcessingQueuePayload, string>(this.process)
+		this.jobQueue = new BetterQueue(this.process)
 	}
 
 	public enqueueUpload(uploadMeta: ISongProcessingQueuePayload) {
@@ -84,7 +84,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 
 			const hash = crypto.createHash("md5").update(audioBuffer).digest("hex")
 
-			const song = await this.songService.create(uploadMeta.shareID, {
+			const songID = await this.songService.create(uploadMeta.shareID, {
 				song_id: uuid(),
 				title: songMeta.title || uploadMeta.file.originalFilename,
 				suffix: songMeta.suffix || null,
@@ -113,7 +113,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 
 			for (const playlistID of uploadMeta.playlistIDs) {
 				try {
-					await this.playlistService.addSongs(uploadMeta.shareID, playlistID, [song])
+					await this.playlistService.addSongs(uploadMeta.shareID, playlistID, [songID])
 				} catch (err) {
 					console.error(err)
 				}
@@ -127,7 +127,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 				}),
 			)
 
-			return callback(undefined, song)
+			return callback(undefined, songID)
 		} catch (err) {
 			console.error(err)
 
