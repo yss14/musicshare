@@ -77,13 +77,19 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 		this.logger.log(JSON.stringify(uploadMeta))
 
 		try {
+			console.info(`[SongUploadPrcoessingQueue] start processing of ${uploadMeta.file.originalFilename}`)
 			const audioBuffer = await this.fileService.getFileAsBuffer(uploadMeta.file.blob)
 			const songTypes = await this.songTypeService.getSongTypesForShare(uploadMeta.shareID)
 
+			console.info(`[SongUploadPrcoessingQueue] start analyzing id3 tags of ${uploadMeta.file.originalFilename}`)
 			const songMeta = await this.songMetaDataService.analyse(uploadMeta.file, audioBuffer, songTypes)
+			console.info(`[SongUploadPrcoessingQueue] done analyzing id3 tags of ${uploadMeta.file.originalFilename}`)
 
+			console.info(`[SongUploadPrcoessingQueue] calculating hash of ${uploadMeta.file.originalFilename}`)
 			const hash = crypto.createHash("md5").update(audioBuffer).digest("hex")
+			console.info(`[SongUploadPrcoessingQueue] hash of ${uploadMeta.file.originalFilename} is ${hash}`)
 
+			console.info(`[SongUploadPrcoessingQueue] saving song to database ${uploadMeta.file.originalFilename}`)
 			const songID = await this.songService.create(uploadMeta.shareID, {
 				song_id: uuid(),
 				title: songMeta.title || uploadMeta.file.originalFilename,
@@ -113,12 +119,16 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 
 			for (const playlistID of uploadMeta.playlistIDs) {
 				try {
+					console.info(
+						`[SongUploadPrcoessingQueue] adding song to playlist ${playlistID} ${uploadMeta.file.originalFilename}`,
+					)
 					await this.playlistService.addSongs(uploadMeta.shareID, playlistID, [songID])
 				} catch (err) {
 					console.error(err)
 				}
 			}
 
+			console.info(`[SongUploadPrcoessingQueue] write log to database ${uploadMeta.file.originalFilename}`)
 			await this.database.query(
 				writeLogToDatabase({
 					file: uploadMeta,
@@ -131,15 +141,21 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 		} catch (err) {
 			console.error(err)
 
-			await this.database.query(
-				writeLogToDatabase({
-					file: uploadMeta,
-					error: err,
-					user_id_ref: uploadMeta.userID,
-				}),
-			)
+			try {
+				await this.database.query(
+					writeLogToDatabase({
+						file: uploadMeta,
+						error: err,
+						user_id_ref: uploadMeta.userID,
+					}),
+				)
+			} catch (err) {
+				console.error(err)
+			}
 
 			return callback(err)
+		} finally {
+			console.info(`[SongUploadPrcoessingQueue] done processing of ${uploadMeta.file.originalFilename}`)
 		}
 	}
 }
