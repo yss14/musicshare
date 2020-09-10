@@ -14,6 +14,7 @@ import { Artist } from "../models/ArtistModel"
 import { defaultGenres, defaultSongTypes } from "../database/fixtures"
 import { songKeys } from "./fixtures/song-query"
 import { ShareSong } from "../models/SongModel"
+import { buildSongName } from "@musicshare/shared-types"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
@@ -483,5 +484,42 @@ describe("find song file duplicates", () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		expect(body.data.viewer.findSongFileDuplicates).toEqual([])
+	})
+})
+
+describe("find near song duplicates", () => {
+	const makeUserQuery = (subQuery: string) => {
+		return `
+			query{
+				viewer{
+					${subQuery}
+				}
+			}
+		`
+	}
+	const makeFindNearDuplicateSongsQuery = (title: string, artist: string) => `
+		findNearDuplicateSongs(title: "${title}", artist: "${artist}"){
+			${songKeys}
+		}
+	`
+
+	test("returns duplicates", async () => {
+		const { graphQLServer } = await setupTest({})
+		const song = testData.songs.song1_library_user1
+		const title = buildSongName(
+			ShareSong.fromDBResult(
+				song,
+				testData.shares.library_user1.share_id,
+				testData.shares.library_user1.share_id,
+			) as any,
+		)
+		const artist = song.artists!.join(", ")
+
+		const query = makeUserQuery(makeFindNearDuplicateSongsQuery(title, artist))
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+		console.log(JSON.stringify(body, null, 4))
+
+		expect(body.data.viewer.findNearDuplicateSongs.map((song: ShareSong) => song.id)).toContain(song.song_id)
 	})
 })

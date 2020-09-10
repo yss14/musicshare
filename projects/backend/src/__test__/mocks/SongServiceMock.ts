@@ -55,4 +55,8 @@ export class SongServiceMock implements ISongService {
 	public async findSongFileDuplicates(): Promise<ShareSong[]> {
 		throw "Not implemented yet"
 	}
+
+	public async findNearDuplicateSongs(): Promise<ShareSong[]> {
+		throw "Not implemented yet"
+	}
 }

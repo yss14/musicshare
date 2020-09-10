@@ -163,4 +163,16 @@ export class ViewerResolver {
 
 		return songs
 	}
+
+	@Authorized()
+	@FieldResolver(() => [ShareSong])
+	public async findNearDuplicateSongs(
+		@Root() user: Viewer,
+		@Arg("title") title: string,
+		@Arg("artist") artist: string,
+	): Promise<ShareSong[]> {
+		const songs = await this.services.songService.findNearDuplicateSongs(user.id, title, artist)
+
+		return songs
+	}
 }
