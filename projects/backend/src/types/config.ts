@@ -32,6 +32,9 @@ export interface IConfig {
 			email: string
 			shareName: string
 		}
+		duplicateDetection: {
+			nearDuplicatesThreshould: number
+		}
 	}
 	fileStorage: {
 		provider: "azureblob" | "awss3"
@@ -108,6 +111,11 @@ export const configFromEnv = (): IConfig => {
 				password: process.env[CustomEnv.SETUP_PASSWORD] || "WeLoveMusic",
 				email: process.env[CustomEnv.SETUP_EMAIL] || "donotreply@musicshare.rocks",
 				shareName: process.env[CustomEnv.SETUP_SHARE_NAME] || "MyShare",
+			},
+			duplicateDetection: {
+				nearDuplicatesThreshould: parseFloat(
+					process.env[CustomEnv.DUPLICATE_DETECTION_NEAR_DUPLICATES_THRESHOULD] || "0.75",
+				),
 			},
 		},
 		fileStorage: {

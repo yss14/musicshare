@@ -13,10 +13,13 @@ import {
 } from "../database/tables"
 import { v4 as uuid } from "uuid"
 import { ForbiddenError, ValidationError } from "apollo-server-core"
-import { flatten, take } from "lodash"
+import { flatten, take, uniqBy } from "lodash"
 import { SongSearchMatcher } from "../inputs/SongSearchInput"
 import { ServiceFactory } from "./services"
 import { isFileUpload } from "../models/FileSourceModels"
+import stringSimilarity from "string-similarity"
+import { buildSongName } from "@musicshare/shared-types"
+import { IConfig } from "../types/config"
 
 export class SongNotFoundError extends ForbiddenError {
 	constructor(shareID: string, songID: string) {
@@ -35,7 +38,7 @@ const tokenizeQuery = (query: string) =>
 
 export type ISongService = ReturnType<typeof SongService>
 
-export const SongService = (database: IDatabaseClient, services: ServiceFactory) => {
+export const SongService = (database: IDatabaseClient, services: ServiceFactory, config: IConfig) => {
 	const getByID = async (shareID: string, songID: string): Promise<ShareSong> => {
 		const dbResults = await database.query(
 			SQL.raw<SongDBResultWithLibraryAndShare>(
@@ -405,6 +408,27 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		return dbResults.map((result) => ShareSong.fromDBResult(result))
 	}
 
+	const findNearDuplicateSongs = async (userID: string, title: string, artist: string): Promise<ShareSong[]> => {
+		const { shareService } = services()
+
+		const userShares = await shareService.getSharesOfUser(userID)
+		const allSongs = uniqBy(
+			(await Promise.all(userShares.map((share) => getByShare(share.id)))).flat(),
+			(song) => song.id,
+		)
+
+		const nearDuplicates = allSongs.filter((song) => {
+			const similarity = stringSimilarity.compareTwoStrings(
+				`${title} ${artist}`,
+				buildSongName(song as any) + " " + song.artists.join(", "),
+			)
+
+			return similarity >= config.setup.duplicateDetection.nearDuplicatesThreshould
+		})
+
+		return nearDuplicates
+	}
+
 	return {
 		getByID,
 		getByShare,
@@ -418,5 +442,6 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		increasePlayCount,
 		addLibrarySongsToShare,
 		findSongFileDuplicates,
+		findNearDuplicateSongs,
 	}
 }
