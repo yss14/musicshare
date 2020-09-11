@@ -12,6 +12,7 @@ export interface IFindSongNearDuplicatesData {
 export interface IFindSongNearDuplicatesVariables {
 	title: string
 	artist: string
+	threshould?: number
 }
 
 export const GET_SONG_NEAR_DUPLICATES = TransformedGraphQLMutation<
