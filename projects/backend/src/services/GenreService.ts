@@ -3,6 +3,7 @@ import { IDatabaseClient } from "postgres-schema-builder"
 import { GenresTable, IGenreDBResult } from "../database/tables"
 import { flatten, uniqBy } from "lodash"
 import { IShareService } from "./ShareService"
+import { IGenreWithoutID } from "../models/interfaces/Genre"
 import { v4 as uuid } from "uuid"
 
 export interface IGenreService {
@@ -10,15 +11,15 @@ export interface IGenreService {
 	getGenresForShares(shareIDs: string[]): Promise<Genre[]>
 	getAggregatedGenresForUser(userID: string): Promise<Genre[]>
 
-	addGenreToShare(shareID: string, genre: Genre): Promise<void>
-	removeGenreFromShare(shareID: string, genre: Genre): Promise<void>
+	addGenreToShare(shareID: string, genre: IGenreWithoutID): Promise<void>
+	removeGenreFromShare(shareID: string, genreID: string): Promise<void>
 }
 
 const selectQueryWithShareID = (database: IDatabaseClient, shareID: string) =>
 	database.query(GenresTable.select("*", ["share_id_ref"])([shareID]))
 
 const makeInsertSongTypeQuery = (genreObj: IGenreDBResult) => GenresTable.insertFromObj(genreObj)
-const makeDeleteSongTypeQuery = () => GenresTable.update(["date_removed"], ["share_id_ref", "name", "group"])
+const makeDeleteSongTypeQuery = () => GenresTable.delete(["share_id_ref", "genre_id"])
 
 const filterNotRemoved = (row: IGenreDBResult) => row.date_removed === null
 
@@ -44,7 +45,7 @@ export class GenreService implements IGenreService {
 		return uniqBy(aggregatedGenres, (genre) => `${genre.group}-${genre.name}`)
 	}
 
-	public async addGenreToShare(shareID: string, genre: Genre) {
+	public async addGenreToShare(shareID: string, genre: IGenreWithoutID) {
 		const insertQuery = makeInsertSongTypeQuery({
 			genre_id: uuid(),
 			name: genre.name,
@@ -57,9 +58,8 @@ export class GenreService implements IGenreService {
 		await this.database.query(insertQuery)
 	}
 
-	public async removeGenreFromShare(shareID: string, genre: Genre) {
-		const { name, group } = genre
-		const deleteQuery = makeDeleteSongTypeQuery()([new Date()], [shareID, name, group])
+	public async removeGenreFromShare(shareID: string, genreID: string) {
+		const deleteQuery = makeDeleteSongTypeQuery()([shareID, genreID])
 
 		await this.database.query(deleteQuery)
 	}

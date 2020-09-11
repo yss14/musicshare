@@ -3,6 +3,7 @@ import { SongType } from "../models/SongType"
 import { flatten, uniqBy } from "lodash"
 import { SongTypesTable, ISongTypeDBResult } from "../database/tables"
 import { IShareService } from "./ShareService"
+import { ISongTypeWithoutID } from "../models/interfaces/SongType"
 import { v4 as uuid } from "uuid"
 
 export interface ISongTypeService {
@@ -10,15 +11,15 @@ export interface ISongTypeService {
 	getSongTypesForShares(shareIDs: string[]): Promise<SongType[]>
 	getAggregatedSongTypesForUser(userID: string): Promise<SongType[]>
 
-	addSongTypeToShare(shareID: string, songType: SongType): Promise<void>
-	removeSongTypeFromShare(shareID: string, songType: SongType): Promise<void>
+	addSongTypeToShare(shareID: string, songType: ISongTypeWithoutID): Promise<void>
+	removeSongTypeFromShare(shareID: string, songTypeID: string): Promise<void>
 }
 
 const selectQueryWithShareID = (database: IDatabaseClient, shareID: string) =>
 	database.query(SongTypesTable.select("*", ["share_id_ref"])([shareID]))
 
 const makeInsertSongTypeQuery = (songTypeObj: ISongTypeDBResult) => SongTypesTable.insertFromObj(songTypeObj)
-const makeDeleteSongTypeQuery = () => SongTypesTable.update(["date_removed"], ["share_id_ref", "name", "group"])
+const makeDeleteSongTypeQuery = () => SongTypesTable.delete(["share_id_ref", "song_type_id"])
 
 const filterNotRemoved = (row: ISongTypeDBResult) => row.date_removed === null
 
@@ -46,13 +47,13 @@ export class SongTypeService implements ISongTypeService {
 		return uniqBy(aggregatedSongTypes, (songType) => `${songType.group}-${songType.name}`)
 	}
 
-	public async addSongTypeToShare(shareID: string, songType: SongType) {
+	public async addSongTypeToShare(shareID: string, songType: ISongTypeWithoutID) {
 		const insertQuery = makeInsertSongTypeQuery({
 			song_type_id: uuid(),
 			share_id_ref: shareID,
 			name: songType.name,
 			group: songType.group,
-			alternative_names: songType.alternativeNames,
+			alternative_names: songType.alternativeNames || null,
 			has_artists: songType.hasArtists,
 			date_added: new Date(),
 			date_removed: null,
@@ -61,9 +62,8 @@ export class SongTypeService implements ISongTypeService {
 		await this.database.query(insertQuery)
 	}
 
-	public async removeSongTypeFromShare(shareID: string, songType: SongType) {
-		const { name, group } = songType
-		const deleteQuery = makeDeleteSongTypeQuery()([new Date()], [shareID, name, group])
+	public async removeSongTypeFromShare(shareID: string, songTypeID: string) {
+		const deleteQuery = makeDeleteSongTypeQuery()([shareID, songTypeID])
 
 		await this.database.query(deleteQuery)
 	}

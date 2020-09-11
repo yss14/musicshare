@@ -16,7 +16,6 @@ export const Migrations = ({ database }: IMigrationsArgs) => {
 	migrations.set(
 		2,
 		Migration(async (transaction) => {
-			console.log("Start migration")
 			await transaction.query(
 				SQL.raw(SQL.addColumns("song_types", { song_type_id: { type: ColumnType.UUID, nullable: true } })),
 			)

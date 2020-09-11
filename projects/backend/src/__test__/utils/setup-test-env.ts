@@ -9,6 +9,7 @@ import {
 	IDatabaseClient,
 	DatabaseSchema,
 	composeCreateTableStatements,
+	SQL,
 } from "postgres-schema-builder"
 import { seedDatabase, testData } from "../../database/seed"
 import { v4 as uuid } from "uuid"
@@ -93,10 +94,13 @@ export const setupTestEnv = async ({ seed, database, customResolvers }: SetupTes
 }
 
 export const initDatabaseSchema = async (database: IDatabaseClient) => {
+	await database.query(SQL.raw(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`))
+
 	const migrations = Migrations({ database })
 
 	const schema = DatabaseSchema({
 		client: database,
+		version: 2,
 		name: "MusicShare",
 		createStatements: composeCreateTableStatements(Tables),
 		migrations,

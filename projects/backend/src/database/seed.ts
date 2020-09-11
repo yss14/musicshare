@@ -375,16 +375,10 @@ export const seedDatabase = async ({ database, services }: IMakeDatabaseSeedArgs
 			}
 
 			await Promise.all(
-				defaultSongTypes.map((songType) =>
-					songTypeService.addSongTypeToShare(shareByUser.share_id, SongType.fromObject(songType)),
-				),
+				defaultSongTypes.map((songType) => songTypeService.addSongTypeToShare(shareByUser.share_id, songType)),
 			)
 
-			await Promise.all(
-				defaultGenres.map((genre) =>
-					genreService.addGenreToShare(shareByUser.share_id, Genre.fromObject(genre)),
-				),
-			)
+			await Promise.all(defaultGenres.map((genre) => genreService.addGenreToShare(shareByUser.share_id, genre)))
 		}
 
 		for (const [key, song] of Object.entries(testData.songs)) {

@@ -75,6 +75,7 @@ export const connectAndSetupDatabase = async (config: IConfig) => {
 
 	const schema = DatabaseSchema({
 		client: database,
+		version: 2,
 		name: "MusicShare",
 		createStatements: composeCreateTableStatements(Tables),
 		migrations,

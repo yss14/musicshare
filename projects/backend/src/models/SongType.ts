@@ -6,6 +6,9 @@ import { plainToClass } from "class-transformer"
 @ObjectType({ description: "This represents a song song" })
 export class SongType implements ISongType {
 	@Field()
+	public readonly id!: string
+
+	@Field()
 	public readonly name!: string
 
 	@Field()
@@ -19,6 +22,7 @@ export class SongType implements ISongType {
 
 	public static fromDBResult(dbResult: ISongTypeDBResult): SongType {
 		return plainToClass(SongType, {
+			id: dbResult.song_type_id,
 			name: dbResult.name,
 			group: dbResult.group,
 			hasArtists: dbResult.has_artists,
@@ -28,6 +32,7 @@ export class SongType implements ISongType {
 
 	public static fromObject(obj: ISongType): SongType {
 		return plainToClass(SongType, {
+			id: obj.id,
 			name: obj.name,
 			group: obj.group,
 			hasArtists: obj.hasArtists,

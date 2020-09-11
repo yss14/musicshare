@@ -1,16 +1,16 @@
 import { ISongMetaDataSource, ExtractedSongMetaData } from "./song-meta-formats/ISongMetaDataSource"
 import { objectKeys } from "../object/object-keys"
 import { IFile } from "../../models/interfaces/IFile"
-import { ISongType } from "../../models/interfaces/SongType"
+import { ISongTypeWithoutID } from "../../models/interfaces/SongType"
 
 export interface ISongMetaDataService {
-	analyse(file: IFile, audioBuffer: Buffer, songTypes: ISongType[]): Promise<ExtractedSongMetaData>
+	analyse(file: IFile, audioBuffer: Buffer, songTypes: ISongTypeWithoutID[]): Promise<ExtractedSongMetaData>
 }
 
 export class SongMetaDataService implements ISongMetaDataService {
 	constructor(private readonly metaDataSources: ISongMetaDataSource[]) {}
 
-	public async analyse(file: IFile, audioBuffer: Buffer, songTypes: ISongType[]) {
+	public async analyse(file: IFile, audioBuffer: Buffer, songTypes: ISongTypeWithoutID[]) {
 		let extractedMetaData: ExtractedSongMetaData = {}
 
 		for (const metaDataSource of this.metaDataSources) {
