@@ -19,10 +19,10 @@ export const GET_SONG_NEAR_DUPLICATES = TransformedGraphQLMutation<
 	IFindSongNearDuplicatesData,
 	IFindSongNearDuplicatesVariables
 >(gql`
-	query findNearDuplicateSongs($title: String!, $artist: String!) {
+	query findNearDuplicateSongs($title: String!, $artist: String!, $threshold: Float) {
 		viewer {
 			id
-			findNearDuplicateSongs(title: $title, artist: $artist) {
+			findNearDuplicateSongs(title: $title, artist: $artist, threshold: $threshold) {
 				${shareSongKeys}
 			}
 		}
