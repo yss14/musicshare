@@ -15,10 +15,12 @@ import { ShareSong } from "../models/SongModel"
 import { SongSearchInput, SongSearchMatcher } from "../inputs/SongSearchInput"
 import { ChangePasswordInput } from "../inputs/ChangePasswordInput"
 import { RestorePasswordInput } from "../inputs/RestorePasswordInput"
+import { IConfig } from "../types/config"
+import { FindNearDuplicatesInput } from "../args/duplicate-threshould"
 
 @Resolver(() => Viewer)
 export class ViewerResolver {
-	constructor(private readonly services: IServices) {}
+	constructor(private readonly services: IServices, private readonly config: IConfig) {}
 
 	@Authorized()
 	@Query(() => Viewer, { nullable: true })
@@ -168,10 +170,14 @@ export class ViewerResolver {
 	@FieldResolver(() => [ShareSong])
 	public async findNearDuplicateSongs(
 		@Root() user: Viewer,
-		@Arg("title") title: string,
-		@Arg("artist") artist: string,
+		@Args() { title, artist, threshold }: FindNearDuplicatesInput,
 	): Promise<ShareSong[]> {
-		const songs = await this.services.songService.findNearDuplicateSongs(user.id, title, artist)
+		const songs = await this.services.songService.findNearDuplicateSongs(
+			user.id,
+			title,
+			artist,
+			threshold || this.config.setup.duplicateDetection.nearDuplicatesThreshould,
+		)
 
 		return songs
 	}

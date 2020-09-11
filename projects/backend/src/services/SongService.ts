@@ -19,7 +19,6 @@ import { ServiceFactory } from "./services"
 import { isFileUpload } from "../models/FileSourceModels"
 import stringSimilarity from "string-similarity"
 import { buildSongName } from "@musicshare/shared-types"
-import { IConfig } from "../types/config"
 
 export class SongNotFoundError extends ForbiddenError {
 	constructor(shareID: string, songID: string) {
@@ -38,7 +37,7 @@ const tokenizeQuery = (query: string) =>
 
 export type ISongService = ReturnType<typeof SongService>
 
-export const SongService = (database: IDatabaseClient, services: ServiceFactory, config: IConfig) => {
+export const SongService = (database: IDatabaseClient, services: ServiceFactory) => {
 	const getByID = async (shareID: string, songID: string): Promise<ShareSong> => {
 		const dbResults = await database.query(
 			SQL.raw<SongDBResultWithLibraryAndShare>(
@@ -408,7 +407,12 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory,
 		return dbResults.map((result) => ShareSong.fromDBResult(result))
 	}
 
-	const findNearDuplicateSongs = async (userID: string, title: string, artist: string): Promise<ShareSong[]> => {
+	const findNearDuplicateSongs = async (
+		userID: string,
+		title: string,
+		artist: string,
+		threshold: number,
+	): Promise<ShareSong[]> => {
 		const { shareService } = services()
 
 		const userShares = await shareService.getSharesOfUser(userID)
@@ -423,7 +427,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory,
 				buildSongName(song as any) + " " + song.artists.join(", "),
 			)
 
-			return similarity >= config.setup.duplicateDetection.nearDuplicatesThreshould
+			return similarity >= threshold
 		})
 
 		return nearDuplicates

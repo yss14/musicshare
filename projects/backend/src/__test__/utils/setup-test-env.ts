@@ -48,7 +48,7 @@ export const setupTestEnv = async ({ seed, database, customResolvers }: SetupTes
 
 	const shareResolver = new ShareResolver(services)
 	const songResolver = new SongResolver(services)
-	const userResolver = new ViewerResolver(services)
+	const userResolver = new ViewerResolver(services, config)
 	const shareMemberResolver = new ShareMemberResolver(services)
 	const playlistResolver = new PlaylistResolver(services)
 	const fileUploadResolver = new FileUploadResolver(services, config)
