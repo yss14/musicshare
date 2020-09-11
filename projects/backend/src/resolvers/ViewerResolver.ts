@@ -1,5 +1,5 @@
 import { Viewer } from "../models/UserModel"
-import { Resolver, Arg, Query, FieldResolver, Root, Mutation, Authorized, Ctx, Args, Int, Float } from "type-graphql"
+import { Resolver, Arg, Query, FieldResolver, Root, Mutation, Authorized, Ctx, Args } from "type-graphql"
 import { Share } from "../models/ShareModel"
 import { UserNotFoundError } from "../services/UserService"
 import { LoginNotFound, CredentialsInvalid } from "../auth/PasswordLoginService"

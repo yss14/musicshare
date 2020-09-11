@@ -19,7 +19,6 @@ import { ServiceFactory } from "./services"
 import { isFileUpload } from "../models/FileSourceModels"
 import stringSimilarity from "string-similarity"
 import { buildSongName } from "@musicshare/shared-types"
-import { IConfig } from "../types/config"
 
 export class SongNotFoundError extends ForbiddenError {
 	constructor(shareID: string, songID: string) {
@@ -38,7 +37,7 @@ const tokenizeQuery = (query: string) =>
 
 export type ISongService = ReturnType<typeof SongService>
 
-export const SongService = (database: IDatabaseClient, services: ServiceFactory, config: IConfig) => {
+export const SongService = (database: IDatabaseClient, services: ServiceFactory) => {
 	const getByID = async (shareID: string, songID: string): Promise<ShareSong> => {
 		const dbResults = await database.query(
 			SQL.raw<SongDBResultWithLibraryAndShare>(
