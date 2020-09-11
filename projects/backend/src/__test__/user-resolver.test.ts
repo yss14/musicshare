@@ -518,7 +518,6 @@ describe("find near song duplicates", () => {
 		const query = makeUserQuery(makeFindNearDuplicateSongsQuery(title, artist))
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
-		console.log(JSON.stringify(body, null, 4))
 
 		expect(body.data.viewer.findNearDuplicateSongs.map((song: ShareSong) => song.id)).toContain(song.song_id)
 	})

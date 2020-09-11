@@ -408,7 +408,12 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory,
 		return dbResults.map((result) => ShareSong.fromDBResult(result))
 	}
 
-	const findNearDuplicateSongs = async (userID: string, title: string, artist: string): Promise<ShareSong[]> => {
+	const findNearDuplicateSongs = async (
+		userID: string,
+		title: string,
+		artist: string,
+		threshould: number,
+	): Promise<ShareSong[]> => {
 		const { shareService } = services()
 
 		const userShares = await shareService.getSharesOfUser(userID)
@@ -423,7 +428,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory,
 				buildSongName(song as any) + " " + song.artists.join(", "),
 			)
 
-			return similarity >= config.setup.duplicateDetection.nearDuplicatesThreshould
+			return similarity >= threshould
 		})
 
 		return nearDuplicates
