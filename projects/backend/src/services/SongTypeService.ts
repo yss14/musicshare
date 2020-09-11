@@ -3,6 +3,7 @@ import { SongType } from "../models/SongType"
 import { flatten, uniqBy } from "lodash"
 import { SongTypesTable, ISongTypeDBResult } from "../database/tables"
 import { IShareService } from "./ShareService"
+import { v4 as uuid } from "uuid"
 
 export interface ISongTypeService {
 	getSongTypesForShare(shareID: string): Promise<SongType[]>
@@ -47,6 +48,7 @@ export class SongTypeService implements ISongTypeService {
 
 	public async addSongTypeToShare(shareID: string, songType: SongType) {
 		const insertQuery = makeInsertSongTypeQuery({
+			song_type_id: uuid(),
 			share_id_ref: shareID,
 			name: songType.name,
 			group: songType.group,

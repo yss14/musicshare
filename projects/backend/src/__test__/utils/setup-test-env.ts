@@ -19,7 +19,7 @@ import { isMockedDatabase } from "../mocks/mock-database"
 import { configFromEnv } from "../../types/config"
 import { initServices } from "../../services/services"
 import { FileUploadResolver } from "../../resolvers/FileUploadResolver"
-import { migrations } from "../../database/migrations"
+import { Migrations } from "../../database/migrations"
 import { Tables } from "../../database/tables"
 import { ShareMemberResolver } from "../../resolvers/ShareMemberResolver"
 
@@ -93,6 +93,8 @@ export const setupTestEnv = async ({ seed, database, customResolvers }: SetupTes
 }
 
 export const initDatabaseSchema = async (database: IDatabaseClient) => {
+	const migrations = Migrations({ database })
+
 	const schema = DatabaseSchema({
 		client: database,
 		name: "MusicShare",

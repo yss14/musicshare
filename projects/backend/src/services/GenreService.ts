@@ -3,6 +3,7 @@ import { IDatabaseClient } from "postgres-schema-builder"
 import { GenresTable, IGenreDBResult } from "../database/tables"
 import { flatten, uniqBy } from "lodash"
 import { IShareService } from "./ShareService"
+import { v4 as uuid } from "uuid"
 
 export interface IGenreService {
 	getGenresForShare(shareID: string): Promise<Genre[]>
@@ -45,6 +46,7 @@ export class GenreService implements IGenreService {
 
 	public async addGenreToShare(shareID: string, genre: Genre) {
 		const insertQuery = makeInsertSongTypeQuery({
+			genre_id: uuid(),
 			name: genre.name,
 			group: genre.group,
 			share_id_ref: shareID,
