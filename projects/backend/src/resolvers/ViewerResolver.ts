@@ -170,13 +170,13 @@ export class ViewerResolver {
 	@FieldResolver(() => [ShareSong])
 	public async findNearDuplicateSongs(
 		@Root() user: Viewer,
-		@Args() { title, artist, threshould }: FindNearDuplicatesInput,
+		@Args() { title, artist, threshold }: FindNearDuplicatesInput,
 	): Promise<ShareSong[]> {
 		const songs = await this.services.songService.findNearDuplicateSongs(
 			user.id,
 			title,
 			artist,
-			threshould || this.config.setup.duplicateDetection.nearDuplicatesThreshould,
+			threshold || this.config.setup.duplicateDetection.nearDuplicatesThreshould,
 		)
 
 		return songs

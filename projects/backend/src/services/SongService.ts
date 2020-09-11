@@ -411,7 +411,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		userID: string,
 		title: string,
 		artist: string,
-		threshould: number,
+		threshold: number,
 	): Promise<ShareSong[]> => {
 		const { shareService } = services()
 
@@ -427,7 +427,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 				buildSongName(song as any) + " " + song.artists.join(", "),
 			)
 
-			return similarity >= threshould
+			return similarity >= threshold
 		})
 
 		return nearDuplicates

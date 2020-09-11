@@ -12,5 +12,5 @@ export class FindNearDuplicatesInput {
 	@Min(0)
 	@Max(1)
 	@Field(() => Float, { nullable: true })
-	public readonly threshould!: number
+	public readonly threshold!: number
 }
