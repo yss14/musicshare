@@ -6,6 +6,7 @@ import { Permissions, Share } from "@musicshare/shared-types"
 import { useHistory } from "react-router-dom"
 import { useLibraryID } from "../../../hooks/data/useLibraryID"
 import { ShareSettingsGeneral } from "./ShareSettingsGeneral"
+import { ShareSettingsMetaData } from "./ShareSettingsMetaData"
 
 const { TabPane } = Tabs
 
@@ -17,7 +18,7 @@ interface IShareSettingsProps {
 }
 
 export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose }) => {
-	const [tab, setTab] = useState<ShareSettingsTab>("general")
+	const [tab, setTab] = useState<ShareSettingsTab>("metadata")
 	const history = useHistory()
 	const [deleteShare] = useDeleteShare({
 		onSuccess: () => {
@@ -79,7 +80,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 				</TabPane>
 				{isLibrary && (
 					<TabPane tab="Meta Data" key="metadata">
-						Content of Tab Pane 2
+						<ShareSettingsMetaData share={share} />
 					</TabPane>
 				)}
 			</Tabs>

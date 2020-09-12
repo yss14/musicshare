@@ -33,6 +33,7 @@ export interface Viewer {
 	tags: string[]
 	searchSongs: ShareSong[]
 	findSongFileDuplicates: ShareSong[]
+	findNearDuplicateSongs: ShareSong[]
 }
 
 export interface IUser {
@@ -151,12 +152,14 @@ export interface Artist {
 
 /** This represents a song genre */
 export interface Genre {
+	id: string
 	name: string
 	group: string
 }
 
 /** This represents a song song */
 export interface SongType {
+	id: string
 	name: string
 	group: string
 	hasArtists: boolean
@@ -182,7 +185,7 @@ export interface Mutation {
 	/** Removes a song from a library. If the song is referenced by entities from other shares, the song is copied to a linked library an referenced from there.*/
 	removeSongFromLibrary: boolean
 	incrementSongPlayCount: SongPlay
-	submitSongFromRemoteFile: boolean
+	submitSongFromRemoteFile: ShareSong
 	createPlaylist: Maybe<Playlist>
 	/** Deletes an existing playlists. Does not check if playlist exists.*/
 	deletePlaylist: boolean
@@ -194,6 +197,9 @@ export interface Mutation {
 	generateUploadableUrl: string
 	/** Updates permissions of a user and returns the updated permission list*/
 	updateShareMemberPermissions: ShareMember
+	addGenre: Maybe<SongType>
+	updateGenre: Maybe<SongType>
+	removeGenre: boolean
 }
 
 /** This represents an auth token bundle received during the login process */
@@ -448,4 +454,23 @@ export interface updateShareMemberPermissionsArgs {
 	permissions: string[]
 	shareID: string
 	userID: string
+}
+
+export interface addGenreArgs {
+	group: string
+	name: string
+	alternativeNames?: string[]
+	hasArtists?: boolean
+}
+
+export interface updateGenreArgs {
+	group: string
+	name: string
+	alternativeNames?: string[]
+	hasArtists?: boolean
+	songTypeID: string
+}
+
+export interface removeGenreArgs {
+	songTypeID: string
 }
