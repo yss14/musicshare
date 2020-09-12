@@ -13,15 +13,14 @@ export interface IUpdateGenreData {
 }
 
 export interface IUpdateGenreVariables {
+	genreID: string
 	name: string
 	group: string
-	alternativeNames: []
-	hasArtists: boolean
 }
 
 export const UPDATE_GENRE = TransformedGraphQLMutation<IUpdateGenreData, IUpdateGenreVariables>(gql`
-	mutation updateGenre($genreID: String! $name: String! $group: String! $alternativeNames: [String!]! $hasArtists: Boolean!) {
-		updateGenre(genreID: $genreID name: $name group: $group alternativeNames: $alternativeNames hasArtists: $hasArtists){
+	mutation updateGenre($genreID: String! $name: String! $group: String!) {
+		updateGenre(genreID: $genreID name: $name group: $group){
 			${genreKeys}
 		}
 	}
