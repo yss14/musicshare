@@ -29,6 +29,9 @@ afterAll(async () => {
 
 const makeMutation = (mutation: string) => `mutation{${mutation}}`
 
+const name = "Hard Core Techno"
+const group = "Electronic Music"
+
 describe("add genre", () => {
 	const makeAddGenreMutation = (name: string, group: string) => `
 		addGenre(name: "${name}" group: "${group}"){${genreKeys}}
@@ -36,9 +39,6 @@ describe("add genre", () => {
 
 	test("add genre succeeds", async () => {
 		const { graphQLServer } = await setupTest({})
-
-		const name = "Hard Core Techno"
-		const group = "Electronic Music"
 
 		const query = makeMutation(makeAddGenreMutation(name, group))
 
@@ -63,8 +63,6 @@ describe("update genre", () => {
 		const shareID = testData.shares.library_user1.share_id
 		const genres = await genreService.getGenresForShare(shareID)
 		const genre = genres[0]
-		const name = "Hard Core Techno"
-		const group = "Electronic Music"
 
 		const query = makeMutation(makeUpdateGenreMutation(genre.id, name, group))
 
@@ -81,8 +79,6 @@ describe("update genre", () => {
 		const { graphQLServer } = await setupTest({})
 
 		const genreID = uuid()
-		const name = "Hard Core Techno"
-		const group = "Electronic Music"
 
 		const query = makeMutation(makeUpdateGenreMutation(genreID, name, group))
 
@@ -98,8 +94,6 @@ describe("update genre", () => {
 		const shareID = testData.shares.some_unrelated_library.share_id
 		const genres = await genreService.getGenresForShare(shareID)
 		const genre = genres[0]
-		const name = "Hard Core Techno"
-		const group = "Electronic Music"
 
 		const query = makeMutation(makeUpdateGenreMutation(genre.id, name, group))
 
@@ -137,7 +131,7 @@ describe("remove genre", () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body.data.removeGenre).toBeNull()
+		expect(body.data).toBeNull()
 		expect(body.errors).toMatchObject([{ message: `Genre with id ${genreID} not found` }])
 	})
 
@@ -152,7 +146,7 @@ describe("remove genre", () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		expect(body.data.removeGenre).toBeNull()
+		expect(body.data).toBeNull()
 		expect(body.errors).toMatchObject([{ message: `Genre with id ${genre.id} not found` }])
 	})
 })

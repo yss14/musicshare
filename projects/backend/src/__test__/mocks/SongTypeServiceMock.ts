@@ -4,6 +4,7 @@ import { SongType } from "../../models/SongType"
 import { v4 as uuid } from "uuid"
 
 export const SongTypeServiceMock = (): ISongTypeService => ({
+	getSongTypeForShare: jest.fn(),
 	getSongTypesForShare: async () =>
 		defaultSongTypes.map((songType) => SongType.fromObject({ id: uuid(), ...songType })),
 	getSongTypesForShares: async () =>
@@ -11,5 +12,6 @@ export const SongTypeServiceMock = (): ISongTypeService => ({
 	getAggregatedSongTypesForUser: async () =>
 		defaultSongTypes.map((songType) => SongType.fromObject({ id: uuid(), ...songType })),
 	addSongTypeToShare: jest.fn(),
+	updateSongTypeOfShare: jest.fn(),
 	removeSongTypeFromShare: jest.fn(),
 })

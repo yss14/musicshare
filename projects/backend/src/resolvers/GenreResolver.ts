@@ -12,24 +12,24 @@ export class GenreResolver {
 	@Mutation(() => Genre, { nullable: true })
 	public async addGenre(
 		@Ctx() { library }: IGraphQLContext,
-		@Args() { group, name }: CreateGenreInput,
+		@Args() payload: CreateGenreInput,
 	): Promise<Genre | null> {
-		return this.services.genreService.addGenreToShare(library!.id, { name, group })
+		return this.services.genreService.addGenreToShare(library!.id, payload)
 	}
 
 	@Authorized()
 	@Mutation(() => Genre, { nullable: true })
 	public async updateGenre(
 		@Ctx() { library }: IGraphQLContext,
-		@Args() { genreID, group, name }: UpdateGenreInput,
+		@Args() { genreID, ...payload }: UpdateGenreInput,
 	): Promise<Genre | null> {
-		await this.services.genreService.updateGenreOfShare(library!.id, genreID, { name, group })
+		await this.services.genreService.updateGenreOfShare(library!.id, genreID, payload)
 
 		return this.services.genreService.getGenreForShare(library!.id, genreID)
 	}
 
 	@Authorized()
-	@Mutation(() => Boolean, { nullable: true })
+	@Mutation(() => Boolean)
 	public async removeGenre(
 		@Ctx() { library }: IGraphQLContext,
 		@Args() { genreID }: RemoveGenreInput,

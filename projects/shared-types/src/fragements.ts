@@ -69,4 +69,5 @@ export const songTypeKeys = `
 	name
 	group
 	alternativeNames
+	hasArtists
 `
