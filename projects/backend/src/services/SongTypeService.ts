@@ -6,15 +6,6 @@ import { IShareService } from "./ShareService"
 import { ISongTypeWithoutID } from "../models/interfaces/SongType"
 import { v4 as uuid } from "uuid"
 
-export interface ISongTypeService {
-	getSongTypesForShare(shareID: string): Promise<SongType[]>
-	getSongTypesForShares(shareIDs: string[]): Promise<SongType[]>
-	getAggregatedSongTypesForUser(userID: string): Promise<SongType[]>
-
-	addSongTypeToShare(shareID: string, songType: ISongTypeWithoutID): Promise<void>
-	removeSongTypeFromShare(shareID: string, songTypeID: string): Promise<void>
-}
-
 const selectQueryWithShareID = (database: IDatabaseClient, shareID: string) =>
 	database.query(SongTypesTable.select("*", ["share_id_ref"])([shareID]))
 
@@ -23,31 +14,31 @@ const makeDeleteSongTypeQuery = () => SongTypesTable.delete(["share_id_ref", "so
 
 const filterNotRemoved = (row: ISongTypeDBResult) => row.date_removed === null
 
-export class SongTypeService implements ISongTypeService {
-	constructor(private readonly database: IDatabaseClient, private readonly shareService: IShareService) {}
+export type ISongTypeService = ReturnType<typeof SongTypeService>
 
-	public async getSongTypesForShare(shareID: string) {
-		const dbResult = await selectQueryWithShareID(this.database, shareID)
+export const SongTypeService = (database: IDatabaseClient, shareService: IShareService) => {
+	const getSongTypesForShare = async (shareID: string) => {
+		const dbResult = await selectQueryWithShareID(database, shareID)
 
 		return dbResult.filter(filterNotRemoved).map(SongType.fromDBResult)
 	}
 
-	public async getSongTypesForShares(shareIDs: string[]) {
-		const dbResults = await Promise.all(shareIDs.map((shareID) => selectQueryWithShareID(this.database, shareID)))
+	const getSongTypesForShares = async (shareIDs: string[]) => {
+		const dbResults = await Promise.all(shareIDs.map((shareID) => selectQueryWithShareID(database, shareID)))
 
 		return flatten(dbResults).filter(filterNotRemoved).map(SongType.fromDBResult)
 	}
 
-	public async getAggregatedSongTypesForUser(userID: string): Promise<SongType[]> {
-		const linkedLibraries = await this.shareService.getLinkedLibrariesOfUser(userID)
-		const aggregatedSongTypes = await this.getSongTypesForShares(
+	const getAggregatedSongTypesForUser = async (userID: string): Promise<SongType[]> => {
+		const linkedLibraries = await shareService.getLinkedLibrariesOfUser(userID)
+		const aggregatedSongTypes = await getSongTypesForShares(
 			linkedLibraries.map((linkedLibrary) => linkedLibrary.id),
 		)
 
 		return uniqBy(aggregatedSongTypes, (songType) => `${songType.group}-${songType.name}`)
 	}
 
-	public async addSongTypeToShare(shareID: string, songType: ISongTypeWithoutID) {
+	const addSongTypeToShare = async (shareID: string, songType: ISongTypeWithoutID) => {
 		const insertQuery = makeInsertSongTypeQuery({
 			song_type_id: uuid(),
 			share_id_ref: shareID,
@@ -59,12 +50,20 @@ export class SongTypeService implements ISongTypeService {
 			date_removed: null,
 		})
 
-		await this.database.query(insertQuery)
+		await database.query(insertQuery)
 	}
 
-	public async removeSongTypeFromShare(shareID: string, songTypeID: string) {
+	const removeSongTypeFromShare = async (shareID: string, songTypeID: string) => {
 		const deleteQuery = makeDeleteSongTypeQuery()([shareID, songTypeID])
 
-		await this.database.query(deleteQuery)
+		await database.query(deleteQuery)
+	}
+
+	return {
+		getSongTypesForShare,
+		getSongTypesForShares,
+		getAggregatedSongTypesForUser,
+		addSongTypeToShare,
+		removeSongTypeFromShare,
 	}
 }
