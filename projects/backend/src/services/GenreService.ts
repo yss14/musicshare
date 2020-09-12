@@ -5,49 +5,57 @@ import { flatten, uniqBy } from "lodash"
 import { IShareService } from "./ShareService"
 import { IGenreWithoutID } from "../models/interfaces/Genre"
 import { v4 as uuid } from "uuid"
+import { ForbiddenError } from "apollo-server-core"
 
-export interface IGenreService {
-	getGenresForShare(shareID: string): Promise<Genre[]>
-	getGenresForShares(shareIDs: string[]): Promise<Genre[]>
-	getAggregatedGenresForUser(userID: string): Promise<Genre[]>
-
-	addGenreToShare(shareID: string, genre: IGenreWithoutID): Promise<void>
-	removeGenreFromShare(shareID: string, genreID: string): Promise<void>
+export class GenreNotFoundError extends ForbiddenError {
+	constructor(genreID: string) {
+		super(`Genre with id ${genreID} not found`)
+	}
 }
 
 const selectQueryWithShareID = (database: IDatabaseClient, shareID: string) =>
 	database.query(GenresTable.select("*", ["share_id_ref"])([shareID]))
 
-const makeInsertSongTypeQuery = (genreObj: IGenreDBResult) => GenresTable.insertFromObj(genreObj)
-const makeDeleteSongTypeQuery = () => GenresTable.delete(["share_id_ref", "genre_id"])
+const makeInsertGenreQuery = (genreObj: IGenreDBResult) => GenresTable.insertFromObj(genreObj)
+const makeDeleteGenreQuery = () => GenresTable.delete(["share_id_ref", "genre_id"])
 
-const filterNotRemoved = (row: IGenreDBResult) => row.date_removed === null
+export type IGenreService = ReturnType<typeof GenreService>
 
-export class GenreService implements IGenreService {
-	constructor(private readonly database: IDatabaseClient, private readonly shareService: IShareService) {}
+export const GenreService = (database: IDatabaseClient, shareService: IShareService) => {
+	const getGenreForShare = async (shareID: string, genreID: string) => {
+		const dbResult = await selectQueryWithShareID(database, shareID)
+		const genreResult = dbResult.find((result) => result.genre_id === genreID)
 
-	public async getGenresForShare(shareID: string) {
-		const dbResult = await selectQueryWithShareID(this.database, shareID)
+		if (!genreResult) {
+			throw new GenreNotFoundError(genreID)
+		}
 
-		return dbResult.filter(filterNotRemoved).map(Genre.fromDBResult)
+		return Genre.fromDBResult(genreResult)
 	}
 
-	public async getGenresForShares(shareIDs: string[]): Promise<Genre[]> {
-		const dbResults = await Promise.all(shareIDs.map((shareID) => selectQueryWithShareID(this.database, shareID)))
+	const getGenresForShare = async (shareID: string) => {
+		const dbResult = await selectQueryWithShareID(database, shareID)
 
-		return flatten(dbResults).filter(filterNotRemoved).map(Genre.fromDBResult)
+		return dbResult.map(Genre.fromDBResult)
 	}
 
-	public async getAggregatedGenresForUser(userID: string): Promise<Genre[]> {
-		const linkedLibraries = await this.shareService.getLinkedLibrariesOfUser(userID)
-		const aggregatedGenres = await this.getGenresForShares(linkedLibraries.map((linkedLibrary) => linkedLibrary.id))
+	const getGenresForShares = async (shareIDs: string[]): Promise<Genre[]> => {
+		const dbResults = await Promise.all(shareIDs.map((shareID) => selectQueryWithShareID(database, shareID)))
+
+		return flatten(dbResults).map(Genre.fromDBResult)
+	}
+
+	const getAggregatedGenresForUser = async (userID: string): Promise<Genre[]> => {
+		const linkedLibraries = await shareService.getLinkedLibrariesOfUser(userID)
+		const aggregatedGenres = await getGenresForShares(linkedLibraries.map((linkedLibrary) => linkedLibrary.id))
 
 		return uniqBy(aggregatedGenres, (genre) => `${genre.group}-${genre.name}`)
 	}
 
-	public async addGenreToShare(shareID: string, genre: IGenreWithoutID) {
-		const insertQuery = makeInsertSongTypeQuery({
-			genre_id: uuid(),
+	const addGenreToShare = async (shareID: string, genre: IGenreWithoutID) => {
+		const genreID = uuid()
+		const insertQuery = makeInsertGenreQuery({
+			genre_id: genreID,
 			name: genre.name,
 			group: genre.group,
 			share_id_ref: shareID,
@@ -55,12 +63,33 @@ export class GenreService implements IGenreService {
 			date_removed: null,
 		})
 
-		await this.database.query(insertQuery)
+		await database.query(insertQuery)
+
+		return getGenreForShare(shareID, genreID)
 	}
 
-	public async removeGenreFromShare(shareID: string, genreID: string) {
-		const deleteQuery = makeDeleteSongTypeQuery()([shareID, genreID])
+	const updateGenreOfShare = async (shareID: string, genreID: string, payload: IGenreWithoutID) => {
+		await database.query(
+			GenresTable.update(["group", "name"], ["genre_id", "share_id_ref"])(
+				[payload.group, payload.name],
+				[genreID, shareID],
+			),
+		)
+	}
 
-		await this.database.query(deleteQuery)
+	const removeGenreFromShare = async (shareID: string, genreID: string) => {
+		const deleteQuery = makeDeleteGenreQuery()([shareID, genreID])
+
+		await database.query(deleteQuery)
+	}
+
+	return {
+		getGenreForShare,
+		getGenresForShare,
+		getGenresForShares,
+		getAggregatedGenresForUser,
+		addGenreToShare,
+		updateGenreOfShare,
+		removeGenreFromShare,
 	}
 }

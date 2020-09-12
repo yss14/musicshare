@@ -23,6 +23,7 @@ import { FileUploadResolver } from "../../resolvers/FileUploadResolver"
 import { Migrations } from "../../database/migrations"
 import { Tables } from "../../database/tables"
 import { ShareMemberResolver } from "../../resolvers/ShareMemberResolver"
+import { GenreResolver } from "../../resolvers/GenreResolver"
 
 export type CustomResolver = [Function, unknown]
 
@@ -53,6 +54,7 @@ export const setupTestEnv = async ({ seed, database, customResolvers }: SetupTes
 	const shareMemberResolver = new ShareMemberResolver(services)
 	const playlistResolver = new PlaylistResolver(services)
 	const fileUploadResolver = new FileUploadResolver(services, config)
+	const genreResolver = new GenreResolver(services)
 
 	Container.of(testID).set(ShareResolver, shareResolver)
 	Container.of(testID).set(SongResolver, songResolver)
@@ -60,6 +62,7 @@ export const setupTestEnv = async ({ seed, database, customResolvers }: SetupTes
 	Container.of(testID).set(PlaylistResolver, playlistResolver)
 	Container.of(testID).set(FileUploadResolver, fileUploadResolver)
 	Container.of(testID).set(ShareMemberResolver, shareMemberResolver)
+	Container.of(testID).set(GenreResolver, genreResolver)
 
 	const resolvers = customResolvers ? customResolvers() : []
 	for (const [ResolverClass, resolverInstance] of resolvers) {
