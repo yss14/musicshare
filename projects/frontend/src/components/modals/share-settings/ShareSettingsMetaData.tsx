@@ -13,10 +13,10 @@ interface IShareSettingsMetaDataProps {
 
 export const ShareSettingsMetaData = ({ share }: IShareSettingsMetaDataProps) => {
 	return (
-		<div>
-			<Divider>Genres</Divider>
+		<div style={{ minHeight: 600 }}>
+			<Divider orientation="left">Genres</Divider>
 			<Genres />
-			<Divider>Song Types</Divider>
+			<Divider orientation="left">Song Types</Divider>
 		</div>
 	)
 }

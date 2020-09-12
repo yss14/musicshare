@@ -75,7 +75,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 			}}
 		>
 			<Tabs defaultActiveKey={tab} activeKey={tab} onChange={(tabKey) => setTab(tabKey as ShareSettingsTab)}>
-				<TabPane tab="Generak" key="general">
+				<TabPane tab="General" key="general">
 					<ShareSettingsGeneral share={share} isLibrary={isLibrary} isOwner={isOwner} />
 				</TabPane>
 				{isLibrary && (
