@@ -18,3 +18,10 @@ export class UpdateGenreInput extends CreateGenreInput {
 	@Field(() => String)
 	public readonly genreID!: string
 }
+
+@ArgsType()
+export class RemoveGenreInput {
+	@Length(36, 36)
+	@Field(() => String)
+	public readonly genreID!: string
+}

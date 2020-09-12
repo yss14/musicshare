@@ -2,7 +2,7 @@ import { Resolver, Authorized, Mutation, Args, Ctx } from "type-graphql"
 import { IServices } from "../services/services"
 import { IGraphQLContext } from "../types/context"
 import { Genre } from "../models/GenreModel"
-import { CreateGenreInput, UpdateGenreInput } from "../inputs/GenreInput"
+import { CreateGenreInput, UpdateGenreInput, RemoveGenreInput } from "../inputs/GenreInput"
 
 @Resolver(() => Genre)
 export class GenreResolver {
@@ -26,5 +26,17 @@ export class GenreResolver {
 		await this.services.genreService.updateGenreOfShare(library!.id, genreID, { name, group })
 
 		return this.services.genreService.getGenreForShare(library!.id, genreID)
+	}
+
+	@Authorized()
+	@Mutation(() => Boolean, { nullable: true })
+	public async removeGenre(
+		@Ctx() { library }: IGraphQLContext,
+		@Args() { genreID }: RemoveGenreInput,
+	): Promise<Boolean> {
+		await this.services.genreService.getGenreForShare(library!.id, genreID)
+		await this.services.genreService.removeGenreFromShare(library!.id, genreID)
+
+		return true
 	}
 }

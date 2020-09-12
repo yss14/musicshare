@@ -109,3 +109,50 @@ describe("update genre", () => {
 		expect(body.errors).toMatchObject([{ message: `Genre with id ${genre.id} not found` }])
 	})
 })
+
+describe("remove genre", () => {
+	const makeRemoveGenreMutation = (genreID: string) => `
+		removeGenre(genreID: "${genreID}")
+	`
+
+	test("existing genre succeeds", async () => {
+		const { graphQLServer, genreService } = await setupTest({})
+
+		const shareID = testData.shares.library_user1.share_id
+		const genres = await genreService.getGenresForShare(shareID)
+		const genre = genres[0]
+
+		const query = makeMutation(makeRemoveGenreMutation(genre.id))
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body.data.removeGenre).toBeTrue()
+	})
+
+	test("not existing genre fails", async () => {
+		const { graphQLServer } = await setupTest({})
+
+		const genreID = uuid()
+		const query = makeMutation(makeRemoveGenreMutation(genreID))
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body.data.removeGenre).toBeNull()
+		expect(body.errors).toMatchObject([{ message: `Genre with id ${genreID} not found` }])
+	})
+
+	test("foreign genre fails", async () => {
+		const { graphQLServer, genreService } = await setupTest({})
+
+		const shareID = testData.shares.some_unrelated_library.share_id
+		const genres = await genreService.getGenresForShare(shareID)
+		const genre = genres[0]
+
+		const query = makeMutation(makeRemoveGenreMutation(genre.id))
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body.data.removeGenre).toBeNull()
+		expect(body.errors).toMatchObject([{ message: `Genre with id ${genre.id} not found` }])
+	})
+})
