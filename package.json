@@ -60,7 +60,7 @@
 		"dequal": "^1.0.0",
 		"dotenv": "^8.2.0",
 		"express": "^4.16.4",
-		"faker": "^4.1.0",
+		"faker": "^5.1.0",
 		"flexbox-react": "^4.4.0",
 		"formik": "^2.0.3",
 		"graphql": "^14.2.1",
