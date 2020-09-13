@@ -21,6 +21,7 @@ import { AWSS3FileService } from "../file-service/AWSS3FileService"
 import { S3 } from "aws-sdk"
 import { IFileService } from "../file-service/FileService"
 import { ISeedService, SeedService } from "./SeedService"
+import { ICaptchaService, CaptchaService } from "./CaptchaService"
 
 export interface IServices {
 	songFileService: IFileService
@@ -39,6 +40,7 @@ export interface IServices {
 	permissionService: IPermissionService
 	tagService: ITagService
 	seedService: ISeedService
+	captchaService: ICaptchaService
 }
 
 export interface IService {
@@ -75,6 +77,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	const permissionService = PermissionService({ database })
 	const tagService = TagService({ songService, shareService })
 	const seedService = SeedService(database, serviceFactory)
+	const captchaService = CaptchaService({ database })
 
 	services = {
 		songFileService,
@@ -93,6 +96,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 		permissionService,
 		tagService,
 		seedService,
+		captchaService,
 	}
 
 	for (const service of Object.values(services)) {

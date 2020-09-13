@@ -100,6 +100,7 @@
 		"string-similarity": "^4.0.2",
 		"styled-components": "^5.1.0",
 		"supertest": "^4.0.2",
+		"svg-captcha": "^1.4.0",
 		"ts-node": "^9.0.0",
 		"type-graphql": "^0.17.6",
 		"typedi": "^0.8.0",

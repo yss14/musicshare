@@ -71,3 +71,8 @@ export const songTypeKeys = `
 	alternativeNames
 	hasArtists
 `
+
+export const captchaKeys = `
+	id
+	image
+`
