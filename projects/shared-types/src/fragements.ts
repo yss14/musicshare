@@ -57,3 +57,17 @@ export const playlistKeys = `
 	shareID
 	dateAdded
 `
+
+export const genreKeys = `
+	id
+	name
+	group
+`
+
+export const songTypeKeys = `
+	id
+	name
+	group
+	alternativeNames
+	hasArtists
+`

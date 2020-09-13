@@ -9,6 +9,7 @@ import {
 	IDatabaseClient,
 	DatabaseSchema,
 	composeCreateTableStatements,
+	SQL,
 } from "postgres-schema-builder"
 import { seedDatabase, testData } from "../../database/seed"
 import { v4 as uuid } from "uuid"
@@ -19,9 +20,11 @@ import { isMockedDatabase } from "../mocks/mock-database"
 import { configFromEnv } from "../../types/config"
 import { initServices } from "../../services/services"
 import { FileUploadResolver } from "../../resolvers/FileUploadResolver"
-import { migrations } from "../../database/migrations"
+import { Migrations } from "../../database/migrations"
 import { Tables } from "../../database/tables"
 import { ShareMemberResolver } from "../../resolvers/ShareMemberResolver"
+import { GenreResolver } from "../../resolvers/GenreResolver"
+import { SongTypeResolver } from "../../resolvers/SongTypesResolver"
 
 export type CustomResolver = [Function, unknown]
 
@@ -52,6 +55,8 @@ export const setupTestEnv = async ({ seed, database, customResolvers }: SetupTes
 	const shareMemberResolver = new ShareMemberResolver(services)
 	const playlistResolver = new PlaylistResolver(services)
 	const fileUploadResolver = new FileUploadResolver(services, config)
+	const genreResolver = new GenreResolver(services)
+	const songTypeResolver = new SongTypeResolver(services)
 
 	Container.of(testID).set(ShareResolver, shareResolver)
 	Container.of(testID).set(SongResolver, songResolver)
@@ -59,6 +64,8 @@ export const setupTestEnv = async ({ seed, database, customResolvers }: SetupTes
 	Container.of(testID).set(PlaylistResolver, playlistResolver)
 	Container.of(testID).set(FileUploadResolver, fileUploadResolver)
 	Container.of(testID).set(ShareMemberResolver, shareMemberResolver)
+	Container.of(testID).set(GenreResolver, genreResolver)
+	Container.of(testID).set(SongTypeResolver, songTypeResolver)
 
 	const resolvers = customResolvers ? customResolvers() : []
 	for (const [ResolverClass, resolverInstance] of resolvers) {
@@ -93,6 +100,10 @@ export const setupTestEnv = async ({ seed, database, customResolvers }: SetupTes
 }
 
 export const initDatabaseSchema = async (database: IDatabaseClient) => {
+	await database.query(SQL.raw(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`))
+
+	const migrations = Migrations()
+
 	const schema = DatabaseSchema({
 		client: database,
 		name: "MusicShare",

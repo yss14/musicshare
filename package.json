@@ -78,7 +78,7 @@
 		"morgan": "^1.9.1",
 		"mp3-duration": "^1.1.0",
 		"pg": "^8.0.3",
-		"postgres-schema-builder": "^1.1.0-beta.2",
+		"postgres-schema-builder": "^1.2.0-beta.2",
 		"react": "^16.8.6",
 		"react-app-rewired": "^2.1.1",
 		"react-custom-scrollbars": "^4.2.1",

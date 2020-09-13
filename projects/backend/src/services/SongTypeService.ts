@@ -3,66 +3,100 @@ import { SongType } from "../models/SongType"
 import { flatten, uniqBy } from "lodash"
 import { SongTypesTable, ISongTypeDBResult } from "../database/tables"
 import { IShareService } from "./ShareService"
+import { ISongTypeWithoutID } from "../models/interfaces/SongType"
+import { v4 as uuid } from "uuid"
+import { ForbiddenError } from "apollo-server-core"
 
-export interface ISongTypeService {
-	getSongTypesForShare(shareID: string): Promise<SongType[]>
-	getSongTypesForShares(shareIDs: string[]): Promise<SongType[]>
-	getAggregatedSongTypesForUser(userID: string): Promise<SongType[]>
-
-	addSongTypeToShare(shareID: string, songType: SongType): Promise<void>
-	removeSongTypeFromShare(shareID: string, songType: SongType): Promise<void>
+export class SongTypeNotFoundError extends ForbiddenError {
+	constructor(songTypeID: string) {
+		super(`SongType with id ${songTypeID} not found`)
+	}
 }
 
 const selectQueryWithShareID = (database: IDatabaseClient, shareID: string) =>
 	database.query(SongTypesTable.select("*", ["share_id_ref"])([shareID]))
 
 const makeInsertSongTypeQuery = (songTypeObj: ISongTypeDBResult) => SongTypesTable.insertFromObj(songTypeObj)
-const makeDeleteSongTypeQuery = () => SongTypesTable.update(["date_removed"], ["share_id_ref", "name", "group"])
+const makeDeleteSongTypeQuery = () => SongTypesTable.delete(["share_id_ref", "song_type_id"])
 
-const filterNotRemoved = (row: ISongTypeDBResult) => row.date_removed === null
+export type ISongTypeService = ReturnType<typeof SongTypeService>
 
-export class SongTypeService implements ISongTypeService {
-	constructor(private readonly database: IDatabaseClient, private readonly shareService: IShareService) {}
+export const SongTypeService = (database: IDatabaseClient, shareService: IShareService) => {
+	const getSongTypeForShare = async (shareID: string, songTypeID: string) => {
+		const dbResult = await selectQueryWithShareID(database, shareID)
+		const songTypeResult = dbResult.find((result) => result.song_type_id === songTypeID)
 
-	public async getSongTypesForShare(shareID: string) {
-		const dbResult = await selectQueryWithShareID(this.database, shareID)
+		if (!songTypeResult) {
+			throw new SongTypeNotFoundError(songTypeID)
+		}
 
-		return dbResult.filter(filterNotRemoved).map(SongType.fromDBResult)
+		return SongType.fromDBResult(songTypeResult)
 	}
 
-	public async getSongTypesForShares(shareIDs: string[]) {
-		const dbResults = await Promise.all(shareIDs.map((shareID) => selectQueryWithShareID(this.database, shareID)))
+	const getSongTypesForShare = async (shareID: string) => {
+		const dbResult = await selectQueryWithShareID(database, shareID)
 
-		return flatten(dbResults).filter(filterNotRemoved).map(SongType.fromDBResult)
+		return dbResult.map(SongType.fromDBResult)
 	}
 
-	public async getAggregatedSongTypesForUser(userID: string): Promise<SongType[]> {
-		const linkedLibraries = await this.shareService.getLinkedLibrariesOfUser(userID)
-		const aggregatedSongTypes = await this.getSongTypesForShares(
+	const getSongTypesForShares = async (shareIDs: string[]) => {
+		const dbResults = await Promise.all(shareIDs.map((shareID) => selectQueryWithShareID(database, shareID)))
+
+		return flatten(dbResults).map(SongType.fromDBResult)
+	}
+
+	const getAggregatedSongTypesForUser = async (userID: string): Promise<SongType[]> => {
+		const linkedLibraries = await shareService.getLinkedLibrariesOfUser(userID)
+		const aggregatedSongTypes = await getSongTypesForShares(
 			linkedLibraries.map((linkedLibrary) => linkedLibrary.id),
 		)
 
 		return uniqBy(aggregatedSongTypes, (songType) => `${songType.group}-${songType.name}`)
 	}
 
-	public async addSongTypeToShare(shareID: string, songType: SongType) {
+	const addSongTypeToShare = async (shareID: string, songType: ISongTypeWithoutID) => {
+		const songTypeID = uuid()
 		const insertQuery = makeInsertSongTypeQuery({
+			song_type_id: songTypeID,
 			share_id_ref: shareID,
 			name: songType.name,
 			group: songType.group,
-			alternative_names: songType.alternativeNames,
+			alternative_names: songType.alternativeNames || null,
 			has_artists: songType.hasArtists,
 			date_added: new Date(),
 			date_removed: null,
 		})
 
-		await this.database.query(insertQuery)
+		await database.query(insertQuery)
+
+		return getSongTypeForShare(shareID, songTypeID)
 	}
 
-	public async removeSongTypeFromShare(shareID: string, songType: SongType) {
-		const { name, group } = songType
-		const deleteQuery = makeDeleteSongTypeQuery()([new Date()], [shareID, name, group])
+	const updateSongTypeOfShare = async (shareID: string, songTypeID: string, payload: ISongTypeWithoutID) => {
+		await database.query(
+			SongTypesTable.update(
+				["group", "name", "alternative_names", "has_artists"],
+				["song_type_id", "share_id_ref"],
+			)(
+				[payload.group, payload.name, payload.alternativeNames || null, payload.hasArtists],
+				[songTypeID, shareID],
+			),
+		)
+	}
 
-		await this.database.query(deleteQuery)
+	const removeSongTypeFromShare = async (shareID: string, songTypeID: string) => {
+		const deleteQuery = makeDeleteSongTypeQuery()([shareID, songTypeID])
+
+		await database.query(deleteQuery)
+	}
+
+	return {
+		getSongTypeForShare,
+		getSongTypesForShare,
+		getSongTypesForShares,
+		getAggregatedSongTypesForUser,
+		addSongTypeToShare,
+		updateSongTypeOfShare,
+		removeSongTypeFromShare,
 	}
 }

@@ -579,7 +579,7 @@ describe("invite to share", () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		expect(body.data.inviteToShare).toBeString()
-	})
+	}, 9999999)
 
 	test("email of already user not member succeeds", async () => {
 		const { graphQLServer, services } = await setupTest({})

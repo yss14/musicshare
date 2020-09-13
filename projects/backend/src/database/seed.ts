@@ -7,8 +7,6 @@ import { v4 as uuid } from "uuid"
 import { UsersTable, IUserDBResult, IShareDBResult, ISongDBResult, IPlaylistDBResult } from "./tables"
 import { IDatabaseClient } from "postgres-schema-builder"
 import { defaultSongTypes, defaultGenres } from "./fixtures"
-import { SongType } from "../models/SongType"
-import { Genre } from "../models/GenreModel"
 import { IServices } from "../services/services"
 import { IConfig } from "../types/config"
 import { Permissions } from "@musicshare/shared-types"
@@ -375,16 +373,10 @@ export const seedDatabase = async ({ database, services }: IMakeDatabaseSeedArgs
 			}
 
 			await Promise.all(
-				defaultSongTypes.map((songType) =>
-					songTypeService.addSongTypeToShare(shareByUser.share_id, SongType.fromObject(songType)),
-				),
+				defaultSongTypes.map((songType) => songTypeService.addSongTypeToShare(shareByUser.share_id, songType)),
 			)
 
-			await Promise.all(
-				defaultGenres.map((genre) =>
-					genreService.addGenreToShare(shareByUser.share_id, Genre.fromObject(genre)),
-				),
-			)
+			await Promise.all(defaultGenres.map((genre) => genreService.addGenreToShare(shareByUser.share_id, genre)))
 		}
 
 		for (const [key, song] of Object.entries(testData.songs)) {

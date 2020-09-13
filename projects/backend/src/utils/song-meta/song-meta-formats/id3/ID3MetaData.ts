@@ -7,7 +7,7 @@ import { IFile } from "../../../../models/interfaces/IFile"
 import { ArtistExtractor, IArtist, ArtistType } from "./ArtistExtractor"
 import { IID3Tag } from "id3-parser/lib/interface"
 import moment from "moment"
-import { ISongType } from "../../../../models/interfaces/SongType"
+import { ISongTypeWithoutID } from "../../../../models/interfaces/SongType"
 const similarity = require("similarity")
 
 export class ID3MetaData implements ISongMetaDataSource {
@@ -17,7 +17,11 @@ export class ID3MetaData implements ISongMetaDataSource {
 		return file.fileExtension.toLowerCase() === "mp3"
 	}
 
-	public async analyse(file: IFile, audioBuffer: Buffer, songTypes: ISongType[]): Promise<ExtractedSongMetaData> {
+	public async analyse(
+		file: IFile,
+		audioBuffer: Buffer,
+		songTypes: ISongTypeWithoutID[],
+	): Promise<ExtractedSongMetaData> {
 		const id3Tags = await ID3Parser.parse(audioBuffer)
 
 		const extractedMetaData: ExtractedSongMetaData = {
@@ -234,13 +238,13 @@ export class ID3MetaData implements ISongMetaDataSource {
 		return extractedMetaData
 	}
 
-	private findBestSongtypeMatch(title: string, songTypes: ISongType[]): [ISongType, string] | null {
+	private findBestSongtypeMatch(title: string, songTypes: ISongTypeWithoutID[]): [ISongTypeWithoutID, string] | null {
 		interface IMatch {
 			matchingString: string
-			type: ISongType
+			type: ISongTypeWithoutID
 		}
 
-		const titleIncludesSongtype = (type: ISongType): [boolean, string] => {
+		const titleIncludesSongtype = (type: ISongTypeWithoutID): [boolean, string] => {
 			if (title.toLowerCase().indexOf(type.name.toLowerCase()) > -1) {
 				return [true, type.name]
 			}

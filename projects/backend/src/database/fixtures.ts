@@ -1,22 +1,37 @@
-import { ISongType } from "../models/interfaces/SongType"
-import { IGenre } from "../models/interfaces/Genre"
+import { ISongTypeWithoutID } from "../models/interfaces/SongType"
+import { IGenreWithoutID } from "../models/interfaces/Genre"
 
-export const defaultSongTypes: ISongType[] = [
+export const defaultSongTypes: ISongTypeWithoutID[] = [
 	{ name: "Acapella", hasArtists: false, group: "Electronic Music" },
 	{ name: "Radio Edit", hasArtists: false, group: "Electronic Music" },
 	{ name: "Bootleg", hasArtists: true, group: "Electronic Music" },
-	{ name: "Club Mix", hasArtists: true, group: "Electronic Music", alternativeNames: ["Extended Club Mix"] },
+	{
+		name: "Club Mix",
+		hasArtists: true,
+		group: "Electronic Music",
+		alternativeNames: ["Extended Club Mix"],
+	},
 	{ name: "Edit", hasArtists: true, group: "Electronic Music" },
 	{ name: "Extended Mix", hasArtists: true, group: "Electronic Music" },
-	{ name: "Instrumental Mix", hasArtists: true, alternativeNames: ["Instrumental"], group: "Electronic Music" },
+	{
+		name: "Instrumental Mix",
+		hasArtists: true,
+		alternativeNames: ["Instrumental"],
+		group: "Electronic Music",
+	},
 	{ name: "MashUp", hasArtists: true, group: "Electronic Music" },
 	{ name: "Original Mix", hasArtists: false, group: "Electronic Music" },
 	{ name: "Remake", hasArtists: true, group: "Electronic Music" },
 	{ name: "Vocal Mix", hasArtists: false, group: "Electronic Music" },
-	{ name: "Remix", hasArtists: true, alternativeNames: ["Mix", "Extended Remix"], group: "Electronic Music" },
+	{
+		name: "Remix",
+		hasArtists: true,
+		alternativeNames: ["Mix", "Extended Remix"],
+		group: "Electronic Music",
+	},
 ]
 
-export const defaultGenres: IGenre[] = [
+export const defaultGenres: IGenreWithoutID[] = [
 	"Big Room",
 	"Chillstep",
 	"Dance",

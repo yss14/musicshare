@@ -10,7 +10,7 @@ import {
 } from "postgres-schema-builder"
 import { Pool } from "pg"
 import { Tables } from "./tables"
-import { migrations } from "./migrations"
+import { Migrations } from "./migrations"
 
 /* istanbul ignore file */
 
@@ -69,9 +69,13 @@ export const connectAndSetupDatabase = async (config: IConfig) => {
 		await clearDatabase(database, config.database.user)
 	}
 
+	await database.query(SQL.raw(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`))
+
+	const migrations = Migrations()
+
 	const schema = DatabaseSchema({
 		client: database,
-		name: "What2Work",
+		name: "MusicShare",
 		createStatements: composeCreateTableStatements(Tables),
 		migrations,
 	})

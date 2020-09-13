@@ -1,7 +1,6 @@
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env"
 import { testData } from "../database/seed"
 import { defaultGenres } from "../database/fixtures"
-import { Genre } from "../models/GenreModel"
 import { IDatabaseClient } from "postgres-schema-builder"
 import { clearTables } from "../database/database"
 
@@ -39,10 +38,15 @@ test("remove genre from share", async () => {
 	const { genreService } = await setupTest({})
 
 	const shareID = testData.shares.library_user1.share_id.toString()
-	await genreService.removeGenreFromShare(shareID, Genre.fromObject(defaultGenres[4]))
-	await genreService.removeGenreFromShare(shareID, Genre.fromObject(defaultGenres[9]))
+	const genres = await genreService.getGenresForShare(shareID)
+	const genre1 = genres[0]
+	const genre2 = genres[4]
+	await genreService.removeGenreFromShare(shareID, genre1.id)
+	await genreService.removeGenreFromShare(shareID, genre2.id)
 
 	const result = await genreService.getGenresForShare(shareID)
 
 	expect(result).toBeArrayOfSize(defaultGenres.length - 2)
+	expect(result).not.toContain(genre1)
+	expect(result).not.toContain(genre2)
 })

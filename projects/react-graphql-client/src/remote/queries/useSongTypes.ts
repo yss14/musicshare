@@ -1,4 +1,4 @@
-import { SongType } from "@musicshare/shared-types"
+import { SongType, songTypeKeys } from "@musicshare/shared-types"
 import gql from "graphql-tag"
 import { useGraphQLQuery, TransformedGraphQLQuery, IGraphQLQueryOpts } from "../../react-query-graphql"
 
@@ -13,10 +13,7 @@ export const GET_SONGTYPES = TransformedGraphQLQuery<IGetSongTypesData>(gql`
 		viewer {
 			id
 			songTypes {
-				name
-				group
-				hasArtists
-				alternativeNames
+				${songTypeKeys}
 			}
 		}
 	}
