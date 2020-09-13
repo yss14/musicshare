@@ -7,6 +7,7 @@ import { buildSongName } from "../../../utils/songname-builder"
 import styled from "styled-components"
 import { ShareSong, SongUpdateInput, Nullable, Genre, SongType, Artist } from "@musicshare/shared-types"
 import { useUpdateSong } from "@musicshare/react-graphql-client"
+import { groupBy } from "lodash"
 
 const StyledModal = styled(Modal)`
 	& .ant-form-item-label {
@@ -41,8 +42,13 @@ export const SongForm = ({
 }: ISongFormProps) => {
 	const artistsDataSource = useMemo(() => artists.map((artist) => artist.name), [artists])
 	const genresDataSource = useMemo(() => genres.map((genre) => genre.name), [genres])
-	const songTypeOptions = useMemo(
-		() => songTypes.map((songType) => ({ value: songType.name, label: songType.name })),
+	const songTypeGroups = useMemo(
+		() =>
+			Object.fromEntries(
+				Object.entries(groupBy(songTypes, (songType) => songType.group))
+					.sort((lhs, rhs) => lhs[0].localeCompare(rhs[0]))
+					.map(([key, values]) => [key, values.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name))]),
+			),
 		[songTypes],
 	)
 
@@ -180,10 +186,14 @@ export const SongForm = ({
 											disabled={readOnly}
 											style={{ width: 200 }}
 										>
-											{songTypeOptions.map((songType) => (
-												<Select.Option key={songType.value} value={songType.value}>
-													{songType.label}
-												</Select.Option>
+											{Object.entries(songTypeGroups).map(([group, songTypes]) => (
+												<Select.OptGroup key={group} label={group}>
+													{songTypes.map((songType) => (
+														<Select.Option key={songType.id} value={songType.name}>
+															{songType.name}
+														</Select.Option>
+													))}
+												</Select.OptGroup>
 											))}
 										</Select>
 									</Form.Item>
