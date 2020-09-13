@@ -62,13 +62,14 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 
 	return (
 		<Modal
-			title="Share Settings"
+			title={`${isLibrary ? "Library" : "Share"} Settings`}
 			okText="OK"
 			cancelText={!isLibrary ? cancelButton : null}
 			onCancel={onClose}
 			onOk={onClose}
 			visible={true}
 			width="90%"
+			style={{ maxWidth: "1200px" }}
 			cancelButtonProps={{
 				style: { border: "none", padding: "0px", display: isLibrary ? "none" : "inline-block" },
 				onClick: (e) => e.preventDefault(),
