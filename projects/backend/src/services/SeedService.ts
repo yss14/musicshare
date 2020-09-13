@@ -1,8 +1,6 @@
 import { IDatabaseClient } from "postgres-schema-builder"
 import { ServiceFactory } from "./services"
 import { defaultSongTypes, defaultGenres } from "../database/fixtures"
-import { SongType } from "../models/SongType"
-import { Genre } from "../models/GenreModel"
 
 export type ISeedService = ReturnType<typeof SeedService>
 

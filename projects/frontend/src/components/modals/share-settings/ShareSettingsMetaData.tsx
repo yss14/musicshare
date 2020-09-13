@@ -1,14 +1,9 @@
 import React from "react"
-import { Share } from "@musicshare/shared-types"
 import { Divider, Alert } from "antd"
 import { GenreSettings } from "./GenreSettings"
 import { SongTypeSettings } from "./SongTypeSettings"
 
-interface IShareSettingsMetaDataProps {
-	share: Share
-}
-
-export const ShareSettingsMetaData = ({ share }: IShareSettingsMetaDataProps) => {
+export const ShareSettingsMetaData = () => {
 	return (
 		<div style={{ minHeight: 300 }}>
 			<Alert

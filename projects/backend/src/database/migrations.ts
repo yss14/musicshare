@@ -1,4 +1,4 @@
-import { IMigration, Migration, SQL, IDatabaseClient, ColumnType } from "postgres-schema-builder"
+import { IMigration, Migration, SQL, ColumnType } from "postgres-schema-builder"
 import { DatabaseV2 } from "./versions/SchemaV2"
 
 /*
@@ -6,16 +6,12 @@ import { DatabaseV2 } from "./versions/SchemaV2"
 	https://github.com/yss14/postgres-schema-builder
 */
 
-interface IMigrationsArgs {
-	database: IDatabaseClient
-}
-
-export const Migrations = ({ database }: IMigrationsArgs) => {
+export const Migrations = () => {
 	const migrations = new Map<number, IMigration>()
 
 	migrations.set(
 		2,
-		Migration(async (transaction) => {
+		Migration(async ({ transaction }) => {
 			await transaction.query(
 				SQL.raw(SQL.addColumns("song_types", { song_type_id: { type: ColumnType.UUID, nullable: true } })),
 			)

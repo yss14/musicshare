@@ -1,7 +1,6 @@
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env"
 import { testData } from "../database/seed"
 import { defaultSongTypes } from "../database/fixtures"
-import { SongType } from "../models/SongType"
 import { IDatabaseClient } from "postgres-schema-builder"
 import { clearTables } from "../database/database"
 

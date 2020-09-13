@@ -7,7 +7,7 @@ import { IFile } from "../../../../models/interfaces/IFile"
 import { ArtistExtractor, IArtist, ArtistType } from "./ArtistExtractor"
 import { IID3Tag } from "id3-parser/lib/interface"
 import moment from "moment"
-import { ISongType, ISongTypeWithoutID } from "../../../../models/interfaces/SongType"
+import { ISongTypeWithoutID } from "../../../../models/interfaces/SongType"
 const similarity = require("similarity")
 
 export class ID3MetaData implements ISongMetaDataSource {

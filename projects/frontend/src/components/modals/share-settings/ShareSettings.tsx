@@ -81,7 +81,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 				</TabPane>
 				{isLibrary && (
 					<TabPane tab="Meta Data" key="metadata">
-						<ShareSettingsMetaData share={share} />
+						<ShareSettingsMetaData />
 					</TabPane>
 				)}
 			</Tabs>

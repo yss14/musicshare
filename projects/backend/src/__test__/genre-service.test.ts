@@ -1,7 +1,6 @@
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env"
 import { testData } from "../database/seed"
 import { defaultGenres } from "../database/fixtures"
-import { Genre } from "../models/GenreModel"
 import { IDatabaseClient } from "postgres-schema-builder"
 import { clearTables } from "../database/database"
 
