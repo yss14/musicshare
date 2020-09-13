@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import { PlusOutlined, ShareAltOutlined, ProfileOutlined } from "@ant-design/icons"
 import { Menu } from "antd"
 import styled from "styled-components"
@@ -165,7 +165,7 @@ export const HeaderNavMenu = () => {
 					onCancel={() => setShowCreateShare(false)}
 				/>
 			)}
-			{libraryShare && <ShareSettings share={libraryShare} onClose={() => setShareSettings(null)} />}
+			{shareSettings && <ShareSettings share={shareSettings} onClose={() => setShareSettings(null)} />}
 			{showChangePassword && <ChangePasswordModal onClose={() => setShowChangePassword(false)} />}
 		</>
 	)

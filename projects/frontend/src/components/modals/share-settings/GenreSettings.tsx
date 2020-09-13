@@ -121,7 +121,7 @@ const EditGenreModal = ({ genre: { id: genreID, ...genrePayload }, onClose }: IE
 			formikHelpers.resetForm()
 			onClose()
 		},
-		[updateGenre, genreID],
+		[updateGenre, genreID, onClose],
 	)
 
 	return (

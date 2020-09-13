@@ -18,7 +18,7 @@ interface IShareSettingsProps {
 }
 
 export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose }) => {
-	const [tab, setTab] = useState<ShareSettingsTab>("metadata")
+	const [tab, setTab] = useState<ShareSettingsTab>("general")
 	const history = useHistory()
 	const [deleteShare] = useDeleteShare({
 		onSuccess: () => {

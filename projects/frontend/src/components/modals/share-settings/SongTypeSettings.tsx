@@ -1,16 +1,7 @@
 import React, { useState, useCallback } from "react"
-import { Genre, SongType } from "@musicshare/shared-types"
-import { Table, Button, Form, message, Modal, Tag, Select } from "antd"
-import {
-	useGenres,
-	useRemoveGenre,
-	useAddGenre,
-	useUpdateGenre,
-	useSongTypes,
-	useRemoveSongType,
-	useAddSongType,
-	useUpdateSongType,
-} from "@musicshare/react-graphql-client"
+import { SongType } from "@musicshare/shared-types"
+import { Table, Button, Form, message, Modal, Tag } from "antd"
+import { useSongTypes, useRemoveSongType, useAddSongType, useUpdateSongType } from "@musicshare/react-graphql-client"
 import Column from "antd/lib/table/Column"
 import { ButtonBar } from "../../common/ButtonBar"
 import { Formik, FormikHelpers } from "formik"
@@ -155,7 +146,7 @@ const EditSongTypeModal = ({ songType: { id: songTypeID, ...songTypePayload }, o
 			formikHelpers.resetForm()
 			onClose()
 		},
-		[updateSongType, songTypeID],
+		[updateSongType, songTypeID, onClose],
 	)
 
 	return (
