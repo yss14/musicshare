@@ -17,7 +17,7 @@ import { RevokeInvitationInput } from "../inputs/RevokeInvitationInput"
 import { ShareIDInput } from "../inputs/ShareIDInput"
 import { TimestampedResults } from "../models/helper/TimestampedResultModel"
 import { TimestampArgs } from "../args/pagination-args"
-import { AcceptInviationPayload } from "../models/return-models/AcceptInvitationPayloadModel"
+import { RegistrationSuccess } from "../models/return-models/RegistrationSuccess"
 
 const TimedstampSongResult = TimestampedResults(ShareSong)
 
@@ -164,10 +164,10 @@ export class ShareResolver {
 		return invitationLink
 	}
 
-	@Mutation(() => AcceptInviationPayload)
+	@Mutation(() => RegistrationSuccess)
 	public async acceptInvitation(
 		@Arg("input") { invitationToken, name, password }: AcceptInvitationInput,
-	): Promise<AcceptInviationPayload> {
+	): Promise<RegistrationSuccess> {
 		const user = await this.services.userService.acceptInvitation(invitationToken, name, password)
 		const restoreToken = await this.services.passwordLoginService.getRestoreToken(user.id)
 

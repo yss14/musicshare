@@ -17,6 +17,8 @@ import { ChangePasswordInput } from "../inputs/ChangePasswordInput"
 import { RestorePasswordInput } from "../inputs/RestorePasswordInput"
 import { IConfig } from "../types/config"
 import { FindNearDuplicatesInput } from "../args/duplicate-threshould"
+import { RegistrationSuccess } from "../models/return-models/RegistrationSuccess"
+import { RegistrationInput } from "../inputs/RegistrationInput"
 
 @Resolver(() => Viewer)
 export class ViewerResolver {
@@ -180,5 +182,27 @@ export class ViewerResolver {
 		)
 
 		return songs
+	}
+
+	@Mutation(() => RegistrationSuccess)
+	public async register(
+		@Args() { email, name, password, captchaID, captchaSolution }: RegistrationInput,
+	): Promise<RegistrationSuccess> {
+		const captchaIsValid = await this.services.captchaService.checkCaptcha(captchaID, captchaSolution)
+
+		if (!captchaIsValid) {
+			throw new Error("Invalid Captcha")
+		}
+
+		await this.services.captchaService.invalidateCaptcha(captchaID)
+
+		const user = await this.services.userService.create(name, email)
+		await this.services.shareService.create(user.id, `${name}'s Library`, true)
+		const restoreToken = await this.services.passwordLoginService.register({ userID: user.id, password })
+
+		return {
+			restoreToken,
+			user,
+		}
 	}
 }

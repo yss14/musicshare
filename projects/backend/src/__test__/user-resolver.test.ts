@@ -14,7 +14,8 @@ import { Artist } from "../models/ArtistModel"
 import { defaultGenres, defaultSongTypes } from "../database/fixtures"
 import { songKeys } from "./fixtures/song-query"
 import { ShareSong } from "../models/SongModel"
-import { buildSongName } from "@musicshare/shared-types"
+import { buildSongName, userKeys } from "@musicshare/shared-types"
+import { CaptchaTable } from "../database/tables"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
@@ -521,4 +522,43 @@ describe("find near song duplicates", () => {
 
 		expect(body.data.viewer.findNearDuplicateSongs.map((song: ShareSong) => song.id)).toContain(song.song_id)
 	})
+})
+
+describe.only("public registration", () => {
+	const makeRegisterMutation = (
+		email: string,
+		name: string,
+		password: string,
+		captchaID: string,
+		captchaSolution: string,
+	) => `
+		mutation{register(email: "${email}" name: "${name}" password: "${password}" captchaID: "${captchaID}" captchaSolution: "${captchaSolution}" ){restoreToken, user{${userKeys}}}}
+	`
+
+	test("valid captcha succeeds", async () => {
+		const { graphQLServer, captchaService, database } = await setupTest({})
+
+		const captcha = await captchaService.createCaptcha()
+		const solution = (await database.query(CaptchaTable.selectAll("*")))[0].solution
+
+		const email = "yolo@swag.de"
+		const name = "Some Name"
+
+		const query = makeRegisterMutation(email, name, "test1234", captcha.id, solution)
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body.data.register).toMatchObject({
+			restoreToken: expect.toBeString(),
+			user: {
+				id: expect.toBeString(),
+				email,
+				name,
+			},
+		})
+	})
+
+	test("wrong captcha fails", async () => {})
+
+	test("replayed captcha fails", async () => {})
 })
