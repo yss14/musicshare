@@ -8,6 +8,7 @@ import { ServiceFactory } from "./services"
 import { isFileUpload } from "../models/FileSourceModels"
 import { config } from "aws-sdk"
 import { IConfig } from "../types/config"
+import { ShareQuota } from "../models/ShareQuotaModel"
 
 export class ShareNotFoundError extends ForbiddenError {
 	constructor(shareID: string) {
@@ -137,7 +138,15 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 		const date = new Date()
 
 		await database.query(
-			SharesTable.insertFromObj({ share_id: id, name, date_added: date, is_library: isLib, date_removed: null }),
+			SharesTable.insertFromObj({
+				share_id: id,
+				name,
+				date_added: date,
+				is_library: isLib,
+				date_removed: null,
+				quota: config.setup.shareQuota,
+				quota_used: 0,
+			}),
 		)
 		await addUserToShare(id, ownerUserID, Permissions.ALL)
 		await syncLibraryWithNewlyCreatedShare(ownerUserID, id)
@@ -297,6 +306,20 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 		await database.query(SharesTable.update(["date_removed"], ["share_id"])([new Date()], [shareID]))
 	}
 
+	const getQuota = async (shareID: string) => {
+		const dbResults = await database.query(SharesTable.select("*", ["share_id"])([shareID]))
+
+		if (!dbResults || dbResults.length === 0 || dbResults[0].date_removed !== null) {
+			throw new ShareNotFoundError(shareID)
+		}
+
+		return ShareQuota.fromDBResult(dbResults[0])
+	}
+
+	const adjustQuotaUsed = async (shareID: string, amount: number) => {
+		await database.query(SQL.raw(`UPDATE shares SET quota = quota + $1 WHERE shareID = $2;`, [amount, shareID]))
+	}
+
 	return {
 		getSharesOfUser,
 		getUserLibrary,
@@ -308,5 +331,7 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 		removeUser,
 		rename,
 		remove,
+		getQuota,
+		adjustQuotaUsed,
 	}
 }
