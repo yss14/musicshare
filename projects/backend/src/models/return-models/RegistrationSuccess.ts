@@ -2,7 +2,7 @@ import { ObjectType, Field } from "type-graphql"
 import { Viewer } from "../UserModel"
 
 @ObjectType()
-export class AcceptInviationPayload {
+export class RegistrationSuccess {
 	@Field()
 	public readonly restoreToken!: string
 

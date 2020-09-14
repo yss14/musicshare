@@ -1,7 +1,7 @@
 import { TableRecord, Table, TableSchema, ColumnType, PArray } from "postgres-schema-builder"
-import { DatabaseV2 } from "./versions/SchemaV2"
+import { DatabaseV3 } from "./versions/SchemaV3"
 
-export const Tables = DatabaseV2
+export const Tables = DatabaseV3
 
 export interface IUserDBResult extends TableRecord<typeof Tables.users> {}
 export interface IShareDBResult extends TableRecord<typeof Tables.shares> {}
@@ -16,6 +16,7 @@ export interface ISongPlayDBResult extends TableRecord<typeof Tables.song_plays>
 export interface IShareSongDBResult extends TableRecord<typeof Tables.share_songs> {}
 export interface IPlaylistSongDBResult extends TableRecord<typeof Tables.playlist_songs> {}
 export interface IUserShareDBResult extends TableRecord<typeof Tables.user_shares> {}
+export interface ICaptchaDBResult extends TableRecord<typeof Tables.captchas> {}
 
 export const UsersTable = Table(Tables, "users")
 export const SharesTable = Table(Tables, "shares")
@@ -31,6 +32,7 @@ export const ShareTokensTable = Table(Tables, "share_tokens")
 export const FileUploadLogsTable = Table(Tables, "file_upload_logs")
 export const SongPlaysTable = Table(Tables, "song_plays")
 export const ShareSongsTable = Table(Tables, "share_songs")
+export const CaptchaTable = Table(Tables, "captchas")
 
 // common helper types for custom sql queries
 const library_id_query = TableSchema({

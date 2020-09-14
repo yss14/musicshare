@@ -1,6 +1,6 @@
 import { Viewer, ShareMember } from "../models/UserModel"
 import { UserStatus, IInvitationPayload, isInvitationPayload, Permissions } from "@musicshare/shared-types"
-import { IDatabaseClient, SQL } from "postgres-schema-builder"
+import { IDatabaseClient, SQL, SQLError } from "postgres-schema-builder"
 import { UsersTable, UserSharesTable, Tables, ShareMemberDBResult } from "../database/tables"
 import { v4 as uuid } from "uuid"
 import { ForbiddenError, ValidationError } from "apollo-server-core"
@@ -19,6 +19,12 @@ export class UserNotFoundError extends ForbiddenError {
 export class ShareHasBeenDeleted extends Error {
 	constructor() {
 		super("The share you have been invited to has been deleted in the meantime")
+	}
+}
+
+export class DuplicateEMail extends Error {
+	constructor() {
+		super("This email is already taken")
 	}
 }
 
@@ -65,21 +71,34 @@ export class UserService implements IUserService, IService {
 	}
 
 	public async create(name: string, email: string): Promise<Viewer> {
-		const id = uuid()
-		const date = new Date()
+		try {
+			const id = uuid()
+			const date = new Date()
 
-		await this.database.query(
-			UsersTable.insert(["user_id", "name", "email", "date_added"])([id, name, email, date]),
-		)
+			await this.database.query(
+				UsersTable.insert(["user_id", "name", "email", "date_added"])([id, name, email, date]),
+			)
 
-		return Viewer.fromDBResult({
-			user_id: id,
-			name,
-			email,
-			date_added: date,
-			date_removed: null,
-			invitation_token: null,
-		})
+			return Viewer.fromDBResult({
+				user_id: id,
+				name,
+				email,
+				date_added: date,
+				date_removed: null,
+				invitation_token: null,
+			})
+		} catch (err) {
+			if (
+				err instanceof SQLError &&
+				err.message
+					.toLowerCase()
+					.indexOf('error: duplicate key value violates unique constraint "users_email_uindex"') > -1
+			) {
+				throw new DuplicateEMail()
+			}
+
+			throw err
+		}
 	}
 
 	public async getAll(): Promise<Viewer[]> {

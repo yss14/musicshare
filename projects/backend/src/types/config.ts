@@ -35,6 +35,7 @@ export interface IConfig {
 		duplicateDetection: {
 			nearDuplicatesThreshould: number
 		}
+		publicRegistration: boolean
 	}
 	fileStorage: {
 		provider: "azureblob" | "awss3"
@@ -117,6 +118,7 @@ export const configFromEnv = (): IConfig => {
 					process.env[CustomEnv.DUPLICATE_DETECTION_NEAR_DUPLICATES_THRESHOULD] || "0.75",
 				),
 			},
+			publicRegistration: getBoolean(process.env[CustomEnv.PUBLIC_REGISTRATION]),
 		},
 		fileStorage: {
 			provider: processFileStorageProvider(process.env[CustomEnv.FILE_STORAGE_PROVIDER]) || "awss3",

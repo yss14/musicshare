@@ -1,5 +1,6 @@
 import { IMigration, Migration, SQL, ColumnType } from "postgres-schema-builder"
 import { DatabaseV2 } from "./versions/SchemaV2"
+import { DatabaseV3 } from "./versions/SchemaV3"
 
 /*
 	Docs on how migrations work can be found here:
@@ -50,6 +51,14 @@ export const Migrations = () => {
 						UNIQUE (name, "group", share_id_ref);
 			`),
 			)
+		}),
+	)
+
+	migrations.set(
+		3,
+		Migration(async ({ transaction }) => {
+			await transaction.query(SQL.raw(SQL.createTable("captchas", DatabaseV3.captchas)))
+			await transaction.query(SQL.raw(SQL.createIndex(true, "users", "email")))
 		}),
 	)
 

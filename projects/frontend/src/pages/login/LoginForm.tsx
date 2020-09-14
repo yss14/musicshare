@@ -6,6 +6,7 @@ import { useFormik } from "formik"
 import { Link } from "react-router-dom"
 import styled from "styled-components"
 import { useLogin } from "@musicshare/react-graphql-client"
+import { useConfig } from "../../hooks/use-config"
 
 const StyledSubmitButton = styled(Button)`
 	background-color: #e74c3c;
@@ -49,6 +50,7 @@ interface ILoginFormProps {
 
 export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 	const history = useHistory()
+	const config = useConfig()
 	const [login, { error }] = useLogin({
 		onSuccess: () => history.push("/"),
 		onError: console.error,
@@ -94,6 +96,11 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 				/>
 			</StyledFormItem>
 			<Form.Item>
+				{config.settings.publicRegistration === true && (
+					<Link to="/registration" style={{ color: "#e74c3c", marginRight: 16 }}>
+						Sign Up
+					</Link>
+				)}
 				<Link to="/password/restore" style={{ color: "#e74c3c" }}>
 					Forgot password
 				</Link>

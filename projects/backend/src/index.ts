@@ -22,6 +22,7 @@ import { onShutdown } from "./utils/shutdown"
 import { ShareMemberResolver } from "./resolvers/ShareMemberResolver"
 import { GenreResolver } from "./resolvers/GenreResolver"
 import { SongTypeResolver } from "./resolvers/SongTypesResolver"
+import { CaptchaResolver } from "./resolvers/CaptchaResolver"
 
 require("source-map-support").install()
 
@@ -48,6 +49,7 @@ loadEnvsFromDotenvFile(nodeEnv)
 	const fileUploadResolver = new FileUploadResolver(services, config)
 	const genreResolver = new GenreResolver(services)
 	const songTypeResolver = new SongTypeResolver(services)
+	const captchaResolver = new CaptchaResolver(services)
 
 	Container.set(ShareResolver, shareResolver)
 	Container.set(SongResolver, songResolver)
@@ -57,6 +59,7 @@ loadEnvsFromDotenvFile(nodeEnv)
 	Container.set(ShareMemberResolver, shareMemberResolver)
 	Container.set(GenreResolver, genreResolver)
 	Container.set(SongTypeResolver, songTypeResolver)
+	Container.set(CaptchaResolver, captchaResolver)
 
 	await services.songFileService.createContainerIfNotExists()
 	console.info("FileStorage connected")
