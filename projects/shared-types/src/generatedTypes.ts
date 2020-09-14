@@ -19,6 +19,7 @@ import sgtsQL, { DocumentNode } from "graphql-tag"
 export interface Query {
 	viewer: Maybe<Viewer>
 	share: Share
+	captcha: Captcha
 }
 
 /** Object representing the viewer */
@@ -166,6 +167,11 @@ export interface SongType {
 	alternativeNames: string[]
 }
 
+export interface Captcha {
+	id: string
+	image: string
+}
+
 export interface Mutation {
 	login: AuthTokenBundle
 	changePassword: boolean
@@ -173,12 +179,13 @@ export interface Mutation {
 	restorePassword: string
 	/** Issue a new authToken after the old one was invalidated*/
 	issueAuthToken: string
+	register: RegistrationSuccess
 	createShare: Share
 	renameShare: Share
 	deleteShare: boolean
 	/** Returns an invitation link or null if user already existed and has been added to the share*/
 	inviteToShare: Maybe<string>
-	acceptInvitation: AcceptInviationPayload
+	acceptInvitation: RegistrationSuccess
 	revokeInvitation: boolean
 	leaveShare: boolean
 	updateSong: Maybe<ShareSong>
@@ -197,9 +204,12 @@ export interface Mutation {
 	generateUploadableUrl: string
 	/** Updates permissions of a user and returns the updated permission list*/
 	updateShareMemberPermissions: ShareMember
-	addGenre: Maybe<SongType>
-	updateGenre: Maybe<SongType>
+	addGenre: Maybe<Genre>
+	updateGenre: Maybe<Genre>
 	removeGenre: boolean
+	addSongType: Maybe<SongType>
+	updateSongType: Maybe<SongType>
+	removeSongType: boolean
 }
 
 /** This represents an auth token bundle received during the login process */
@@ -221,6 +231,11 @@ export interface RestorePasswordInput {
 	newPassword: string
 }
 
+export interface RegistrationSuccess {
+	restoreToken: string
+	user: Viewer
+}
+
 export interface InviteToShareInput {
 	shareID: string
 	email: string
@@ -230,11 +245,6 @@ export interface AcceptInvitationInput {
 	name: string
 	password: string
 	invitationToken: string
-}
-
-export interface AcceptInviationPayload {
-	restoreToken: string
-	user: Viewer
 }
 
 export interface RevokeInvitationInput {
@@ -340,6 +350,8 @@ export interface shareArgs {
 	shareID: string
 }
 
+export interface captchaArgs {}
+
 export interface loginArgs {
 	/** Plain text, hashing takes place at server side*/
 	password: string
@@ -358,6 +370,14 @@ export interface restorePasswordArgs {
 /** Issue a new authToken after the old one was invalidated */
 export interface issueAuthTokenArgs {
 	refreshToken: string
+}
+
+export interface registerArgs {
+	email: string
+	name: string
+	password: string
+	captchaID: string
+	captchaSolution: string
 }
 
 export interface createShareArgs {
@@ -459,11 +479,26 @@ export interface updateShareMemberPermissionsArgs {
 export interface addGenreArgs {
 	group: string
 	name: string
+}
+
+export interface updateGenreArgs {
+	group: string
+	name: string
+	genreID: string
+}
+
+export interface removeGenreArgs {
+	genreID: string
+}
+
+export interface addSongTypeArgs {
+	group: string
+	name: string
 	alternativeNames?: string[]
 	hasArtists?: boolean
 }
 
-export interface updateGenreArgs {
+export interface updateSongTypeArgs {
 	group: string
 	name: string
 	alternativeNames?: string[]
@@ -471,6 +506,6 @@ export interface updateGenreArgs {
 	songTypeID: string
 }
 
-export interface removeGenreArgs {
+export interface removeSongTypeArgs {
 	songTypeID: string
 }
