@@ -604,7 +604,7 @@ describe("public registration", () => {
 	})
 
 	test("deactivated public registration fails", async () => {
-		const { graphQLServer, captchaService, database } = await setupTest({})
+		const { graphQLServer } = await setupTest({})
 
 		const query = makeRegisterMutation(email, name, "test1234", uuid(), "yooooo")
 
