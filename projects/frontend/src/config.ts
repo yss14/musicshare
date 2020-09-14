@@ -4,6 +4,9 @@ export interface IConfig {
 			backendURL: string
 		}
 	}
+	settings: {
+		publicRegistration: boolean
+	}
 }
 
 const requiredEnvVars = ["REACT_APP_MUSICSHARE_BACKEND_URL"]
@@ -32,6 +35,9 @@ export const makeConfigFromEnv = (): IConfig => {
 			musicshare: {
 				backendURL: getEnvValue("REACT_APP_MUSICSHARE_BACKEND_URL"),
 			},
+		},
+		settings: {
+			publicRegistration: getEnvValue("REACT_APP_PUBLIC_REGISTRATION") === "true",
 		},
 	}
 }
