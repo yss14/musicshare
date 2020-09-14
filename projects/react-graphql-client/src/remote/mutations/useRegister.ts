@@ -18,9 +18,9 @@ export interface IRegisterData {
 }
 
 export const REGISTER = TransformedGraphQLMutation<IRegisterData, IRegisterVariables>(gql`
-	mutation register($name: String! $password: String!, $email: String! $captchaID: String! $captchaSolution: String!) {
+	mutation register($name: String! $password: String! $email: String! $captchaID: String! $captchaSolution: String!) {
 		register(name: $name password: $password email: $email captchaID: $captchaID captchaSolution: $captchaSolution) {
-			user: {
+			user {
 				${userKeys}
 			}
 			restoreToken

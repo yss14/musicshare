@@ -16,6 +16,7 @@ import { SongUploadProvider } from "../../utils/upload/SongUploadContext"
 import { useViewer, useAuth } from "@musicshare/react-graphql-client"
 import { useLibraryID } from "../../hooks/data/useLibraryID"
 import { useUpdateLibraryID } from "../../hooks/data/useUpdateLibraryID"
+import { Registration } from "../../pages/registration/Registration"
 
 const Share = lazy(() => import("../../pages/share/Share").then((module) => ({ default: module.Share })))
 
@@ -23,6 +24,7 @@ export const Routing = () => (
 	<Suspense fallback={<LoadingSpinner />}>
 		<Switch>
 			<Route path="/login/:email?" render={() => <Login />} />
+			<Route path="/registration" render={() => <Registration />} />
 			<Route path="/invitation/:invitationToken" render={() => <AcceptInvitation />} />
 			<Route path="/password/restore" render={() => <RestorePassword />} />
 			<Route exact path="/404" render={() => <NotFound />} />
