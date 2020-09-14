@@ -21,7 +21,7 @@ export namespace DatabaseV3 {
 		...baseSchema,
 		user_id: { type: ColumnType.UUID, primaryKey: true, unique: true },
 		name: { type: ColumnType.Varchar, nullable: false },
-		email: { type: ColumnType.Varchar, nullable: false },
+		email: { type: ColumnType.Varchar, nullable: false, unique: true },
 		invitation_token: { type: ColumnType.Varchar, nullable: true },
 	})
 

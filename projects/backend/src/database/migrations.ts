@@ -58,6 +58,7 @@ export const Migrations = () => {
 		3,
 		Migration(async ({ transaction }) => {
 			await transaction.query(SQL.raw(SQL.createTable("captchas", DatabaseV3.captchas)))
+			await transaction.query(SQL.raw(SQL.createIndex(true, "users", "email")))
 		}),
 	)
 

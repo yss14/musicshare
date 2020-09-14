@@ -188,6 +188,10 @@ export class ViewerResolver {
 	public async register(
 		@Args() { email, name, password, captchaID, captchaSolution }: RegistrationInput,
 	): Promise<RegistrationSuccess> {
+		if (!this.config.setup.publicRegistration) {
+			throw new Error("Public registration is not activated")
+		}
+
 		const captchaIsValid = await this.services.captchaService.checkCaptcha(captchaID, captchaSolution)
 
 		if (!captchaIsValid) {

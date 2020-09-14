@@ -17,7 +17,7 @@ import { PlaylistResolver } from "../../resolvers/PlaylistResolver"
 import { makeGraphQLContextProvider, Scopes } from "../../types/context"
 import { Permissions } from "@musicshare/shared-types"
 import { isMockedDatabase } from "../mocks/mock-database"
-import { configFromEnv } from "../../types/config"
+import { configFromEnv, IConfig } from "../../types/config"
 import { initServices } from "../../services/services"
 import { FileUploadResolver } from "../../resolvers/FileUploadResolver"
 import { Migrations } from "../../database/migrations"
@@ -33,12 +33,17 @@ export interface SetupTestEnvArgs {
 	database: IDatabaseClient
 	seed?: boolean
 	customResolvers?: () => CustomResolver[]
+	configTransformation?: (config: IConfig) => IConfig
 }
 
-export const setupTestEnv = async ({ seed, database, customResolvers }: SetupTestEnvArgs) => {
+export const setupTestEnv = async ({ seed, database, customResolvers, configTransformation }: SetupTestEnvArgs) => {
 	let shouldSeedDatabase = seed === undefined ? true : seed
 
-	const config = configFromEnv()
+	let config = configFromEnv()
+
+	if (configTransformation) {
+		config = configTransformation(config)
+	}
 
 	if (isMockedDatabase(database)) {
 		shouldSeedDatabase = false

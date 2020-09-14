@@ -34,7 +34,7 @@ export const CaptchaService = ({ database }: ICaptchaServiceArgs) => {
 		const result = await database.query(CaptchaTable.select("*", ["captcha_id"])([captchaID]))
 
 		if (!result || result.length !== 1 || result[0].date_removed !== null) {
-			throw new Error("Invalid captcha")
+			throw new Error("Invalid Captcha")
 		}
 
 		return result[0].solution === solution
