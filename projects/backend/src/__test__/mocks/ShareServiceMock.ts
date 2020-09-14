@@ -56,10 +56,8 @@ export class ShareServiceMock implements IShareService {
 	}
 
 	public async getQuota(): Promise<ShareQuota> {
-		throw "Not implemented yet"
+		return { shareID: "", quota: 100000, used: 0 }
 	}
 
-	public async adjustQuotaUsed(): Promise<void> {
-		throw "Not implemented yet"
-	}
+	public async adjustQuotaUsed(): Promise<void> {}
 }
