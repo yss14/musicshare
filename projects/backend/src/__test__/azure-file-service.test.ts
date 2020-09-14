@@ -245,7 +245,7 @@ describe("get file as buffer", () => {
 	)
 })
 
-describe.only("remove file", () => {
+describe("remove file", () => {
 	const mp3FilePath = path.join(__dirname, "assets", "SampleAudio.mp3")
 
 	test("remove existing file succeeds", async () => {
