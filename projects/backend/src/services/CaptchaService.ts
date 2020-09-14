@@ -14,7 +14,7 @@ export const CaptchaService = ({ database }: ICaptchaServiceArgs) => {
 	const createCaptcha = async () => {
 		const generatedCaptcha = svgCaptcha.create({
 			size: 6,
-			noise: 2,
+			noise: 6,
 		})
 
 		const captchaID = await insertCaptcha(generatedCaptcha.text)
