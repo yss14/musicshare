@@ -1,6 +1,8 @@
-import { IMigration, Migration, SQL, ColumnType } from "postgres-schema-builder"
+import { IMigration, Migration, SQL, ColumnType, SchemaDiff } from "postgres-schema-builder"
+import { defaultShareQuota } from "./fixtures"
 import { DatabaseV2 } from "./versions/SchemaV2"
 import { DatabaseV3 } from "./versions/SchemaV3"
+import { DatabaseV4 } from "./versions/SchemaV4"
 
 /*
 	Docs on how migrations work can be found here:
@@ -59,6 +61,23 @@ export const Migrations = () => {
 		Migration(async ({ transaction }) => {
 			await transaction.query(SQL.raw(SQL.createTable("captchas", DatabaseV3.captchas)))
 			await transaction.query(SQL.raw(SQL.createIndex(true, "users", "email")))
+		}),
+	)
+
+	migrations.set(
+		4,
+		Migration(async ({ transaction }) => {
+			const diffs = SchemaDiff(DatabaseV3, DatabaseV4)
+
+			await transaction.query(
+				SQL.raw(
+					diffs.addRequiredColumn("shares", "quota", [
+						`UPDATE shares SET quota = ${defaultShareQuota} WHERE is_library = True;`,
+						`UPDATE shares SET quota = 0 WHERE is_library = False;`,
+					]),
+				),
+			)
+			await transaction.query(SQL.raw(diffs.addTableColumn("shares", "quota_used")))
 		}),
 	)
 

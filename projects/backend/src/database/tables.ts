@@ -1,7 +1,7 @@
 import { TableRecord, Table, TableSchema, ColumnType, PArray } from "postgres-schema-builder"
-import { DatabaseV3 } from "./versions/SchemaV3"
+import { DatabaseV4 } from "./versions/SchemaV4"
 
-export const Tables = DatabaseV3
+export const Tables = DatabaseV4
 
 export interface IUserDBResult extends TableRecord<typeof Tables.users> {}
 export interface IShareDBResult extends TableRecord<typeof Tables.shares> {}

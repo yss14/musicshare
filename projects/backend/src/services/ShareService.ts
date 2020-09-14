@@ -6,6 +6,8 @@ import { v4 as uuid } from "uuid"
 import { ForbiddenError } from "apollo-server-core"
 import { ServiceFactory } from "./services"
 import { isFileUpload } from "../models/FileSourceModels"
+import { config } from "aws-sdk"
+import { IConfig } from "../types/config"
 
 export class ShareNotFoundError extends ForbiddenError {
 	constructor(shareID: string) {
@@ -15,7 +17,7 @@ export class ShareNotFoundError extends ForbiddenError {
 
 export type IShareService = ReturnType<typeof ShareService>
 
-export const ShareService = (database: IDatabaseClient, services: ServiceFactory) => {
+export const ShareService = (database: IDatabaseClient, services: ServiceFactory, config: IConfig) => {
 	const getSharesOfUser = async (userID: string): Promise<Share[]> => {
 		const userSharesQuery = SQL.raw<typeof Tables.shares>(
 			`
@@ -140,7 +142,15 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 		await addUserToShare(id, ownerUserID, Permissions.ALL)
 		await syncLibraryWithNewlyCreatedShare(ownerUserID, id)
 
-		return Share.fromDBResult({ share_id: id, name: name, is_library: true, date_added: date, date_removed: null })
+		return Share.fromDBResult({
+			share_id: id,
+			name: name,
+			is_library: true,
+			date_added: date,
+			date_removed: null,
+			quota: config.setup.shareQuota,
+			quota_used: 0,
+		})
 	}
 
 	const addUser = async (shareID: string, userID: string, permissions: Permission[]): Promise<void> => {

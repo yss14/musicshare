@@ -56,7 +56,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 
 	const songFileService = initFileStore(config)
 	const songService = SongService(database, serviceFactory)
-	const shareService = ShareService(database, serviceFactory)
+	const shareService = ShareService(database, serviceFactory, config)
 	const userService = new UserService(database, config)
 	const songTypeService = SongTypeService(database, shareService)
 	const genreService = GenreService(database, shareService)

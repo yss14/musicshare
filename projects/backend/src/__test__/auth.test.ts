@@ -31,6 +31,7 @@ import { ShareSong } from "../models/SongModel"
 import { v4 as uuid } from "uuid"
 import { ShareServiceMock } from "./mocks/ShareServiceMock"
 import { IPermissionService } from "../services/PermissionsService"
+import { config } from "aws-sdk"
 
 @ObjectType()
 class TestRouteReturnValue {
@@ -316,7 +317,7 @@ describe("auth middleware", () => {
 		test("check ref defaults to true", async () => {
 			const database = makeMockedDatabase()
 			;(database.query as jest.Mock).mockReturnValue([])
-			const shareService = ShareService(database, jest.fn())
+			const shareService = ShareService(database, jest.fn(), {} as any)
 
 			const shareID = uuid()
 			const middleware = makeShareAuthMiddleware({}) as Function
