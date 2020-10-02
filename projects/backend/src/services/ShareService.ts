@@ -6,7 +6,6 @@ import { v4 as uuid } from "uuid"
 import { ForbiddenError } from "apollo-server-core"
 import { ServiceFactory } from "./services"
 import { isFileUpload } from "../models/FileSourceModels"
-import { config } from "aws-sdk"
 import { IConfig } from "../types/config"
 import { ShareQuota } from "../models/ShareQuotaModel"
 

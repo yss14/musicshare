@@ -31,7 +31,6 @@ import { ShareSong } from "../models/SongModel"
 import { v4 as uuid } from "uuid"
 import { ShareServiceMock } from "./mocks/ShareServiceMock"
 import { IPermissionService } from "../services/PermissionsService"
-import { config } from "aws-sdk"
 
 @ObjectType()
 class TestRouteReturnValue {
