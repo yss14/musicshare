@@ -74,7 +74,7 @@ export const uploadFile = async ({
 			throw new Error(`Cannot read file extension from filename ${file.name}`)
 		}
 
-		const targetFileUrl = await generateUploadableUrl({ fileExtension })
+		const targetFileUrl = await generateUploadableUrl({ fileExtension, fileSize: file.size })
 
 		if (!targetFileUrl) {
 			throw new Error(`No target file url was generated for file ${file.name}`)

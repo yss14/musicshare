@@ -9,14 +9,15 @@ export interface IGenerateUploadableUrlData {
 
 export interface IGenerateUploadableUrlVariables {
 	fileExtension: string
+	fileSize: number
 }
 
 export const GENERATE_UPLOADABLE_URL = TransformedGraphQLMutation<
 	IGenerateUploadableUrlData,
 	IGenerateUploadableUrlVariables
 >(gql`
-	mutation generateUploadableUrl($fileExtension: String!) {
-		generateUploadableUrl(fileExtension: $fileExtension)
+	mutation generateUploadableUrl($fileExtension: String!, $fileSize: Int!) {
+		generateUploadableUrl(fileExtension: $fileExtension, fileSize: $fileSize)
 	}
 `)((data) => data.generateUploadableUrl)
 
