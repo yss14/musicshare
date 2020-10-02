@@ -16,6 +16,9 @@ export class FileUpload {
 
 	@Field()
 	public readonly hash!: string
+
+	@Field()
+	public readonly fileSize!: number
 }
 
 export const isFileUpload = (obj: any): obj is FileUpload =>
@@ -23,7 +26,8 @@ export const isFileUpload = (obj: any): obj is FileUpload =>
 	typeof obj.container === "string" &&
 	typeof obj.blob === "string" &&
 	typeof obj.fileExtension === "string" &&
-	typeof obj.originalFilename === "string"
+	typeof obj.originalFilename === "string" &&
+	typeof obj.fileSize === "number"
 
 export const FileSource = createUnionType({
 	name: "FileSource",

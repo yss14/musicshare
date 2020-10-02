@@ -76,6 +76,7 @@ export const songZeroOliverSmith: ISongDBResult = {
 	sources: makeFileSourceJSONType({
 		...makeFileObject("songs", "zero", "zero_somesuffic", "mp3"),
 		hash: nextFilehash(),
+		fileSize: 1337,
 	}),
 	duration: 401,
 	tags: ["Anjuna", "Progressive"],
@@ -102,6 +103,7 @@ export const songPerthDusky: ISongDBResult = {
 	sources: makeFileSourceJSONType({
 		...makeFileObject("songs", "perth", "perth_abgtrip", "mp3"),
 		hash: nextFilehash(),
+		fileSize: 1337,
 	}),
 	duration: 370,
 	tags: ["Anjuna", "Deep", "Funky"],
@@ -128,6 +130,7 @@ export const songContactAlastor: ISongDBResult = {
 	sources: makeFileSourceJSONType({
 		...makeFileObject("songs", "contact", "contact_rue_alastor", "mp3"),
 		hash: nextFilehash(),
+		fileSize: 1337,
 	}),
 	duration: 248,
 	tags: ["Dark", "Party Chill"],
@@ -154,6 +157,7 @@ export const songIsItLove: ISongDBResult = {
 	sources: makeFileSourceJSONType({
 		...makeFileObject("songs", "isitlove", "is_it_love_beatport", "mp3"),
 		hash: nextFilehash(),
+		fileSize: 1337,
 	}),
 	duration: 357,
 	tags: [],
@@ -180,6 +184,7 @@ export const songThunder: ISongDBResult = {
 	sources: makeFileSourceJSONType({
 		...makeFileObject("songs", "thunder_imaginedragins", "thunder_imaginedragins_yt_downloader", "mp3"),
 		hash: nextFilehash(),
+		fileSize: 1337,
 	}),
 	duration: 234,
 	tags: ["Good Mood"],
@@ -338,6 +343,7 @@ export const createTestSongs = (amount: number) => {
 			sources: makeFileSourceJSONType({
 				...makeFileObject("songs", faker.name.lastName(), faker.name.firstName(), "mp3"),
 				hash: nextFilehash(),
+				fileSize: 1337,
 			}),
 			duration: 120 + Math.floor(Math.random() * 400),
 			tags: [],

@@ -112,7 +112,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 					songMeta.title.trim().length === 0 ||
 					!songMeta.artists ||
 					songMeta.artists.length === 0,
-				sources: makeFileSourceJSONType({ ...uploadMeta.file, hash }),
+				sources: makeFileSourceJSONType({ ...uploadMeta.file, hash, fileSize }),
 				duration: songMeta.duration || 0,
 				tags: [],
 				date_added: new Date(),
