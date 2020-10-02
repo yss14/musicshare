@@ -1,5 +1,4 @@
 import { IMigration, Migration, SQL, ColumnType, SchemaDiff, IQuery, Table } from "postgres-schema-builder"
-import { isFileUpload } from "../models/FileSourceModels"
 import { defaultShareQuota } from "./fixtures"
 import { DatabaseV2 } from "./versions/SchemaV2"
 import { DatabaseV3 } from "./versions/SchemaV3"
