@@ -1,4 +1,5 @@
-import { IMigration, Migration, SQL, ColumnType, SchemaDiff } from "postgres-schema-builder"
+import { IMigration, Migration, SQL, ColumnType, SchemaDiff, IQuery, Table } from "postgres-schema-builder"
+import { isFileUpload } from "../models/FileSourceModels"
 import { defaultShareQuota } from "./fixtures"
 import { DatabaseV2 } from "./versions/SchemaV2"
 import { DatabaseV3 } from "./versions/SchemaV3"
@@ -66,10 +67,11 @@ export const Migrations = () => {
 
 	migrations.set(
 		4,
-		Migration(async ({ transaction }) => {
+		Migration(async ({ database }) => {
+			const updates: IQuery<{}>[] = []
 			const diffs = SchemaDiff(DatabaseV3, DatabaseV4)
 
-			await transaction.query(
+			updates.push(
 				SQL.raw(
 					diffs.addRequiredColumn("shares", "quota", [
 						`UPDATE shares SET quota = ${defaultShareQuota} WHERE is_library = True;`,
@@ -77,7 +79,24 @@ export const Migrations = () => {
 					]),
 				),
 			)
-			await transaction.query(SQL.raw(diffs.addTableColumn("shares", "quota_used")))
+			updates.push(SQL.raw(diffs.addTableColumn("shares", "quota_used")))
+
+			const SongsTableV4 = Table(DatabaseV4, "songs")
+			const songs = await database.query(SongsTableV4.selectAll("*"))
+			songs.forEach((song) =>
+				updates.push(
+					SongsTableV4.update(["sources"], ["song_id"])(
+						[
+							{
+								data: song.sources.data.map((source) => ({ ...source, fileSize: 0 })),
+							},
+						],
+						[song.song_id],
+					),
+				),
+			)
+
+			return updates
 		}),
 	)
 
