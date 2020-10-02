@@ -244,3 +244,33 @@ describe("get file as buffer", () => {
 		TIMEOUT,
 	)
 })
+
+describe("remove file", () => {
+	const mp3FilePath = path.join(__dirname, "assets", "SampleAudio.mp3")
+
+	test("remove existing file succeeds", async () => {
+		const fileService = new AzureFileService(uuid())
+		await fileService.createContainerIfNotExists()
+
+		const filenameRemote = "file-" + uuid().split("-").join("") + ".mp3"
+
+		await fileService.uploadFile({
+			filenameRemote: filenameRemote,
+			contentType: "audio/mp3",
+			source: fs.createReadStream(mp3FilePath),
+		})
+
+		await fileService.removeFile(filenameRemote)
+
+		await expect(fileService.getFileAsBuffer(filenameRemote)).rejects.toThrow()
+	})
+
+	test("remove not existing file succeeds", async () => {
+		const fileService = new AzureFileService(uuid())
+		await fileService.createContainerIfNotExists()
+
+		const filenameRemote = "file-" + uuid().split("-").join("") + ".mp3"
+
+		await fileService.removeFile(filenameRemote)
+	})
+})

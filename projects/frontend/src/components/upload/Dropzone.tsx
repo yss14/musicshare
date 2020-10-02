@@ -97,8 +97,20 @@ const Dropzone = ({ shareID, children }: IDropzoneProps) => {
 	const [state, dispatch] = useSongUploadQueue()
 	const [detectedDuplicates, setDetectedDuplicates] = useState<DetectedDuplicate[]>([])
 
-	const [generateUploadableUrl] = useGenerateUploadableUrl()
-	const [submitSongFromRemoteUrl] = useSubmitSongFromRemoteFile()
+	const [generateUploadableUrl] = useGenerateUploadableUrl({
+		onError: (err) => {
+			if (err.message) {
+				message.error(err.message)
+			}
+		},
+	})
+	const [submitSongFromRemoteUrl] = useSubmitSongFromRemoteFile({
+		onError: (err) => {
+			if (err.message) {
+				message.error(err.message)
+			}
+		},
+	})
 
 	const [findSongFileDuplicates] = useSongFileDuplicates()
 

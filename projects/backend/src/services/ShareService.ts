@@ -6,6 +6,8 @@ import { v4 as uuid } from "uuid"
 import { ForbiddenError } from "apollo-server-core"
 import { ServiceFactory } from "./services"
 import { isFileUpload } from "../models/FileSourceModels"
+import { IConfig } from "../types/config"
+import { ShareQuota } from "../models/ShareQuotaModel"
 
 export class ShareNotFoundError extends ForbiddenError {
 	constructor(shareID: string) {
@@ -15,7 +17,7 @@ export class ShareNotFoundError extends ForbiddenError {
 
 export type IShareService = ReturnType<typeof ShareService>
 
-export const ShareService = (database: IDatabaseClient, services: ServiceFactory) => {
+export const ShareService = (database: IDatabaseClient, services: ServiceFactory, config: IConfig) => {
 	const getSharesOfUser = async (userID: string): Promise<Share[]> => {
 		const userSharesQuery = SQL.raw<typeof Tables.shares>(
 			`
@@ -135,12 +137,28 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 		const date = new Date()
 
 		await database.query(
-			SharesTable.insertFromObj({ share_id: id, name, date_added: date, is_library: isLib, date_removed: null }),
+			SharesTable.insertFromObj({
+				share_id: id,
+				name,
+				date_added: date,
+				is_library: isLib,
+				date_removed: null,
+				quota: config.setup.shareQuota,
+				quota_used: 0,
+			}),
 		)
 		await addUserToShare(id, ownerUserID, Permissions.ALL)
 		await syncLibraryWithNewlyCreatedShare(ownerUserID, id)
 
-		return Share.fromDBResult({ share_id: id, name: name, is_library: true, date_added: date, date_removed: null })
+		return Share.fromDBResult({
+			share_id: id,
+			name: name,
+			is_library: true,
+			date_added: date,
+			date_removed: null,
+			quota: config.setup.shareQuota,
+			quota_used: 0,
+		})
 	}
 
 	const addUser = async (shareID: string, userID: string, permissions: Permission[]): Promise<void> => {
@@ -287,6 +305,20 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 		await database.query(SharesTable.update(["date_removed"], ["share_id"])([new Date()], [shareID]))
 	}
 
+	const getQuota = async (shareID: string) => {
+		const dbResults = await database.query(SharesTable.select("*", ["share_id"])([shareID]))
+
+		if (!dbResults || dbResults.length === 0 || dbResults[0].date_removed !== null) {
+			throw new ShareNotFoundError(shareID)
+		}
+
+		return ShareQuota.fromDBResult(dbResults[0])
+	}
+
+	const adjustQuotaUsed = async (shareID: string, amount: number) => {
+		await database.query(SQL.raw(`UPDATE shares SET quota = quota + $1 WHERE share_id = $2;`, [amount, shareID]))
+	}
+
 	return {
 		getSharesOfUser,
 		getUserLibrary,
@@ -298,5 +330,7 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 		removeUser,
 		rename,
 		remove,
+		getQuota,
+		adjustQuotaUsed,
 	}
 }

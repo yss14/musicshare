@@ -119,4 +119,16 @@ export class AzureFileService implements IFileService {
 			resolve(streamToBuffer(stream))
 		})
 	}
+
+	public removeFile(filenameRemote: string) {
+		return new Promise<void>((resolve, reject) => {
+			this.blobStorage.deleteBlobIfExists(this.container, filenameRemote, (err) => {
+				if (err) {
+					return reject(err)
+				}
+
+				resolve()
+			})
+		})
+	}
 }

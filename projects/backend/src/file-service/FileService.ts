@@ -27,6 +27,7 @@ export interface IFileService {
 	getLinkToFile(args: GetLinkToFileArgs): Promise<string>
 	getFileAsBuffer(filenameRemote: string): Promise<Buffer>
 	createContainerIfNotExists(): Promise<void>
+	removeFile(filenameRemote: string): Promise<void>
 
 	readonly container: string
 }

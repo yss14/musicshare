@@ -6,7 +6,7 @@ import moment from "moment"
 import { v4 as uuid } from "uuid"
 import { UsersTable, IUserDBResult, IShareDBResult, ISongDBResult, IPlaylistDBResult } from "./tables"
 import { IDatabaseClient } from "postgres-schema-builder"
-import { defaultSongTypes, defaultGenres } from "./fixtures"
+import { defaultSongTypes, defaultGenres, defaultShareQuota } from "./fixtures"
 import { IServices } from "../services/services"
 import { IConfig } from "../types/config"
 import { Permissions } from "@musicshare/shared-types"
@@ -76,6 +76,7 @@ export const songZeroOliverSmith: ISongDBResult = {
 	sources: makeFileSourceJSONType({
 		...makeFileObject("songs", "zero", "zero_somesuffic", "mp3"),
 		hash: nextFilehash(),
+		fileSize: 1337,
 	}),
 	duration: 401,
 	tags: ["Anjuna", "Progressive"],
@@ -102,6 +103,7 @@ export const songPerthDusky: ISongDBResult = {
 	sources: makeFileSourceJSONType({
 		...makeFileObject("songs", "perth", "perth_abgtrip", "mp3"),
 		hash: nextFilehash(),
+		fileSize: 1337,
 	}),
 	duration: 370,
 	tags: ["Anjuna", "Deep", "Funky"],
@@ -128,6 +130,7 @@ export const songContactAlastor: ISongDBResult = {
 	sources: makeFileSourceJSONType({
 		...makeFileObject("songs", "contact", "contact_rue_alastor", "mp3"),
 		hash: nextFilehash(),
+		fileSize: 1337,
 	}),
 	duration: 248,
 	tags: ["Dark", "Party Chill"],
@@ -154,6 +157,7 @@ export const songIsItLove: ISongDBResult = {
 	sources: makeFileSourceJSONType({
 		...makeFileObject("songs", "isitlove", "is_it_love_beatport", "mp3"),
 		hash: nextFilehash(),
+		fileSize: 1337,
 	}),
 	duration: 357,
 	tags: [],
@@ -180,6 +184,7 @@ export const songThunder: ISongDBResult = {
 	sources: makeFileSourceJSONType({
 		...makeFileObject("songs", "thunder_imaginedragins", "thunder_imaginedragins_yt_downloader", "mp3"),
 		hash: nextFilehash(),
+		fileSize: 1337,
 	}),
 	duration: 234,
 	tags: ["Good Mood"],
@@ -222,6 +227,8 @@ export const testData: ITestDataSchema = {
 			date_added: moment().subtract(3, "hours").toDate(),
 			date_removed: null,
 			user_ids: [user1ID],
+			quota: defaultShareQuota,
+			quota_used: 0,
 		},
 		library_user2: {
 			share_id: libraryUser2ShareID,
@@ -230,6 +237,8 @@ export const testData: ITestDataSchema = {
 			date_added: moment().subtract(2, "hours").toDate(),
 			date_removed: null,
 			user_ids: [user2ID],
+			quota: defaultShareQuota,
+			quota_used: 0,
 		},
 		some_share: {
 			share_id: someShareShareID,
@@ -238,6 +247,8 @@ export const testData: ITestDataSchema = {
 			date_added: moment().subtract(1, "hours").toDate(),
 			date_removed: null,
 			user_ids: [user1ID, user2ID],
+			quota: defaultShareQuota,
+			quota_used: 0,
 		},
 		some_unrelated_library: {
 			share_id: libraryUser3ShareID,
@@ -246,6 +257,8 @@ export const testData: ITestDataSchema = {
 			date_added: moment().subtract(1, "hours").toDate(),
 			date_removed: null,
 			user_ids: [user3ID],
+			quota: defaultShareQuota,
+			quota_used: 0,
 		},
 		some_unrelated_share: {
 			share_id: someUnrelatedShareID,
@@ -254,6 +267,8 @@ export const testData: ITestDataSchema = {
 			date_added: moment().subtract(30, "minutes").toDate(),
 			date_removed: null,
 			user_ids: [user3ID],
+			quota: defaultShareQuota,
+			quota_used: 0,
 		},
 	},
 	songs: {
@@ -328,6 +343,7 @@ export const createTestSongs = (amount: number) => {
 			sources: makeFileSourceJSONType({
 				...makeFileObject("songs", faker.name.lastName(), faker.name.firstName(), "mp3"),
 				hash: nextFilehash(),
+				fileSize: 1337,
 			}),
 			duration: 120 + Math.floor(Math.random() * 400),
 			tags: [],

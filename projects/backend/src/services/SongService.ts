@@ -302,7 +302,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 	}
 
 	const removeSongFromLibrary = async (libraryID: string, songID: string) => {
-		const { playlistService } = services()
+		const { playlistService, shareService, songFileService } = services()
 
 		const affectedPlaylists = await database.query(
 			SQL.raw<typeof Tables.playlists & typeof Tables.shares>(
@@ -368,6 +368,12 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		}
 
 		await database.query(SongsTable.update(["date_removed"], ["song_id"])([new Date()], [songID]))
+
+		const fileDataSources = songResult.sources.data.filter((source) => isFileUpload(source))
+		for (const fileDataSource of fileDataSources) {
+			await shareService.adjustQuotaUsed(libraryID, fileDataSource.fileSize)
+			await songFileService.removeFile(fileDataSource.blob)
+		}
 	}
 
 	const increasePlayCount = async (shareID: string, songID: string, userID: string) => {

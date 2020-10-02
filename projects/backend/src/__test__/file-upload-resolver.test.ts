@@ -29,15 +29,15 @@ afterAll(async () => {
 const makeMutation = (mutation: string) => `mutation{${mutation}}`
 
 describe("generate uploadable url", () => {
-	const makeGenerateUploadableUrlMutation = (fileExtension: string) => `
-		generateUploadableUrl(fileExtension: "${fileExtension}")
+	const makeGenerateUploadableUrlMutation = (fileExtension: string, fileSize: number) => `
+		generateUploadableUrl(fileExtension: "${fileExtension}" fileSize: ${fileSize})
 	`
 
 	test("valid file extension with dot succeeds", async () => {
 		const { graphQLServer } = await setupTest({})
 		const fileExtension = ".mp3"
 
-		const query = makeMutation(makeGenerateUploadableUrlMutation(fileExtension))
+		const query = makeMutation(makeGenerateUploadableUrlMutation(fileExtension, 0))
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
@@ -50,7 +50,7 @@ describe("generate uploadable url", () => {
 		const { graphQLServer } = await setupTest({})
 		const fileExtension = "mp3"
 
-		const query = makeMutation(makeGenerateUploadableUrlMutation(fileExtension))
+		const query = makeMutation(makeGenerateUploadableUrlMutation(fileExtension, 0))
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
@@ -63,7 +63,7 @@ describe("generate uploadable url", () => {
 		const { graphQLServer } = await setupTest({})
 		const fileExtension = "  "
 
-		const query = makeMutation(makeGenerateUploadableUrlMutation(fileExtension))
+		const query = makeMutation(makeGenerateUploadableUrlMutation(fileExtension, 0))
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
@@ -80,10 +80,27 @@ describe("generate uploadable url", () => {
 		const scopes = makeAllScopes()
 		scopes[0].permissions = scopes[0].permissions.filter((permission) => permission !== Permissions.SONG_UPLOAD)
 
-		const query = makeMutation(makeGenerateUploadableUrlMutation(fileExtension))
+		const query = makeMutation(makeGenerateUploadableUrlMutation(fileExtension, 0))
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, scopes })
 
 		expect(body).toMatchObject(insufficientPermissionsError())
+	})
+
+	test("quota exceeds fails", async () => {
+		const { graphQLServer } = await setupTest({
+			configTransformation: (config) => ({ ...config, setup: { ...config.setup, shareQuota: 200 } }),
+		})
+		const fileExtension = "mp3"
+		const fileSize = 500
+
+		const query = makeMutation(makeGenerateUploadableUrlMutation(fileExtension, fileSize))
+
+		const { body } = await executeGraphQLQuery({ graphQLServer, query })
+
+		expect(body).toMatchObject({
+			data: null,
+			errors: [{ message: "Quota of 200 B exceeded" }],
+		})
 	})
 })

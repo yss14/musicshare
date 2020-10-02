@@ -1,5 +1,6 @@
 import { IShareService, ShareNotFoundError } from "../../services/ShareService"
 import { Share } from "../../models/ShareModel"
+import { ShareQuota } from "../../models/ShareQuotaModel"
 
 export class ShareServiceMock implements IShareService {
 	constructor(private readonly shares: Share[]) {}
@@ -53,4 +54,10 @@ export class ShareServiceMock implements IShareService {
 	public async removeUser(): Promise<void> {
 		throw "Not implemented yet"
 	}
+
+	public async getQuota(): Promise<ShareQuota> {
+		return { shareID: "", quota: 100000, used: 0 }
+	}
+
+	public async adjustQuotaUsed(): Promise<void> {}
 }

@@ -1,3 +1,4 @@
+import { defaultShareQuota } from "../database/fixtures"
 import { CustomEnv } from "../utils/env/CustomEnv"
 import { __PROD__ } from "../utils/env/env-constants"
 
@@ -36,6 +37,7 @@ export interface IConfig {
 			nearDuplicatesThreshould: number
 		}
 		publicRegistration: boolean
+		shareQuota: number
 	}
 	fileStorage: {
 		provider: "azureblob" | "awss3"
@@ -119,6 +121,7 @@ export const configFromEnv = (): IConfig => {
 				),
 			},
 			publicRegistration: getBoolean(process.env[CustomEnv.PUBLIC_REGISTRATION]),
+			shareQuota: parseInt(process.env[CustomEnv.SHARE_QUOTA] || defaultShareQuota.toString()),
 		},
 		fileStorage: {
 			provider: processFileStorageProvider(process.env[CustomEnv.FILE_STORAGE_PROVIDER]) || "awss3",

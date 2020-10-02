@@ -1,6 +1,8 @@
-import { IMigration, Migration, SQL, ColumnType } from "postgres-schema-builder"
+import { IMigration, Migration, SQL, ColumnType, SchemaDiff, IQuery, Table } from "postgres-schema-builder"
+import { defaultShareQuota } from "./fixtures"
 import { DatabaseV2 } from "./versions/SchemaV2"
 import { DatabaseV3 } from "./versions/SchemaV3"
+import { DatabaseV4 } from "./versions/SchemaV4"
 
 /*
 	Docs on how migrations work can be found here:
@@ -59,6 +61,41 @@ export const Migrations = () => {
 		Migration(async ({ transaction }) => {
 			await transaction.query(SQL.raw(SQL.createTable("captchas", DatabaseV3.captchas)))
 			await transaction.query(SQL.raw(SQL.createIndex(true, "users", "email")))
+		}),
+	)
+
+	migrations.set(
+		4,
+		Migration(async ({ database }) => {
+			const updates: IQuery<{}>[] = []
+			const diffs = SchemaDiff(DatabaseV3, DatabaseV4)
+
+			updates.push(
+				SQL.raw(
+					diffs.addRequiredColumn("shares", "quota", [
+						`UPDATE shares SET quota = ${defaultShareQuota} WHERE is_library = True;`,
+						`UPDATE shares SET quota = 0 WHERE is_library = False;`,
+					]),
+				),
+			)
+			updates.push(SQL.raw(diffs.addTableColumn("shares", "quota_used")))
+
+			const SongsTableV4 = Table(DatabaseV4, "songs")
+			const songs = await database.query(SongsTableV4.selectAll("*"))
+			songs.forEach((song) =>
+				updates.push(
+					SongsTableV4.update(["sources"], ["song_id"])(
+						[
+							{
+								data: song.sources.data.map((source) => ({ ...source, fileSize: 0 })),
+							},
+						],
+						[song.song_id],
+					),
+				),
+			)
+
+			return updates
 		}),
 	)
 

@@ -56,3 +56,5 @@ export const defaultGenres: IGenreWithoutID[] = [
 	"Trap",
 	"Pop",
 ].map((name) => ({ name, group: "Electronic Music" }))
+
+export const defaultShareQuota = 1e12

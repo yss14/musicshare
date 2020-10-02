@@ -78,6 +78,18 @@ export class AWSS3FileService implements IFileService {
 		})
 	}
 
+	public removeFile(filenameRemote: string) {
+		return new Promise<void>((resolve, reject) => {
+			this.s3Client.deleteObject({ Bucket: this.bucket, Key: filenameRemote }, (err) => {
+				if (err) {
+					return reject(err)
+				}
+
+				resolve()
+			})
+		})
+	}
+
 	public get container(): string {
 		return this.bucket
 	}

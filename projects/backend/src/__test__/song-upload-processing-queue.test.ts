@@ -6,28 +6,42 @@ import { v4 as uuid } from "uuid"
 import { SongTypeServiceMock } from "./mocks/SongTypeServiceMock"
 import { PlaylistServiceMock } from "./mocks/PlaylistServiceMock"
 import { makeMockDatabase } from "postgres-schema-builder"
+import { ShareServiceMock } from "./mocks/ShareServiceMock"
+import { ShareQuota } from "../models/ShareQuotaModel"
 
 const setupTestEnv = () => {
 	const songService = new SongServiceMock()
-	const fileService = new FileServiceMock(
+	const songFileService = new FileServiceMock(
 		() => undefined,
 		() => "",
 	)
 	const songMetaDataService: ISongMetaDataService = { analyse: async () => ({}) }
 	const playlistService = PlaylistServiceMock()
-	const songTypeServiceMock = SongTypeServiceMock()
+	const songTypeService = SongTypeServiceMock()
+	const shareService = new ShareServiceMock([])
 	const database = makeMockDatabase()
 
 	const songUploadProcessingQueue = new SongUploadProcessingQueue(
-		songService,
-		fileService,
-		songMetaDataService,
-		songTypeServiceMock,
-		playlistService,
+		() =>
+			({
+				songService,
+				songFileService,
+				songMetaDataService,
+				songTypeService,
+				playlistService,
+				shareService,
+			} as any),
 		database,
 	)
 
-	return { songService, fileService, songMetaDataService, songUploadProcessingQueue, playlistService }
+	return {
+		songService,
+		songFileService,
+		songMetaDataService,
+		songUploadProcessingQueue,
+		playlistService,
+		shareService,
+	}
 }
 
 const makeValidPayload = (): ISongProcessingQueuePayload => ({
@@ -70,4 +84,16 @@ test("meta data error", async () => {
 	await expect(songUploadProcessingQueue.enqueueUpload(payload)).rejects.toMatch(
 		"Cannot read property title of undefined",
 	)
+})
+
+test("quota exceeds fails", async () => {
+	const { songUploadProcessingQueue, shareService, songFileService } = setupTestEnv()
+	shareService.getQuota = jest.fn(async () => <ShareQuota>{ quota: 10, used: 0 })
+	songFileService.removeFile = jest.fn()
+	const payload = makeValidPayload()
+
+	const result = songUploadProcessingQueue.enqueueUpload(payload)
+
+	await expect(result).rejects.toThrow("Quota of 10 B exceeded")
+	expect(songFileService.removeFile).toBeCalled()
 })

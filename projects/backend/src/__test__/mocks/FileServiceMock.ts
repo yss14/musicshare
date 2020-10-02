@@ -20,4 +20,8 @@ export class FileServiceMock implements IFileService {
 	public async createContainerIfNotExists(): Promise<void> {
 		throw "Not implemented yet"
 	}
+
+	public async removeFile() {
+		throw "Not implemented yet"
+	}
 }
