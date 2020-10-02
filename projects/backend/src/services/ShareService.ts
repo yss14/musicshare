@@ -317,7 +317,7 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 	}
 
 	const adjustQuotaUsed = async (shareID: string, amount: number) => {
-		await database.query(SQL.raw(`UPDATE shares SET quota = quota + $1 WHERE shareID = $2;`, [amount, shareID]))
+		await database.query(SQL.raw(`UPDATE shares SET quota = quota + $1 WHERE share_id = $2;`, [amount, shareID]))
 	}
 
 	return {
