@@ -20,7 +20,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	const [songs, setSongs] = useState<PlaylistSong[]>(playlist?.songs || [])
 	const [updateOrder] = useUpdatePlaylistSongOrder()
 
-	const [refetchPlaylist] = useDebouncedCallback(refetch, 1000)
+	const {callback: refetchPlaylist} = useDebouncedCallback(refetch, 1000)
 
 	const onPlaylistSongUploaded = useCallback(
 		(item: ISongUploadItem) => {

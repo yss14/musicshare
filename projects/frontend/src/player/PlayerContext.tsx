@@ -343,8 +343,8 @@ export const PlayerProvider: React.FC = ({ children }) => {
 		[getMediaUrls, currentSong, updatePlayerState, primaryDeck],
 	)
 
-	const [onPlayerTimeUpdateDebounced] = useDebouncedCallback(onPlayerTimeUpdate, 500, { maxWait: 900 })
-	const [onPlayerDurationChangeDebounced] = useDebouncedCallback(onPlayerDurationChange, 500, { maxWait: 900 })
+	const {callback: onPlayerTimeUpdateDebounced} = useDebouncedCallback(onPlayerTimeUpdate, 500, { maxWait: 900 })
+	const {callback: onPlayerDurationChangeDebounced} = useDebouncedCallback(onPlayerDurationChange, 500, { maxWait: 900 })
 
 	useEffect(() => {
 		bufferingDeck.volume = 0
