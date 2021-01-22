@@ -31,7 +31,7 @@ export const isFileUpload = (obj: any): obj is FileUpload =>
 
 export const FileSource = createUnionType({
 	name: "FileSource",
-	types: [FileUpload],
+	types: () => [FileUpload],
 })
 
 export type FileSource = typeof FileSource

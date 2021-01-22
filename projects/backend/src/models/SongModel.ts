@@ -71,7 +71,7 @@ export class BaseSong {
 	@Field(() => [String])
 	public readonly genres!: string[]
 
-	@Field(() => String)
+	@Field(() => [String])
 	public readonly labels!: string[]
 
 	@Field(() => [FileSource])

@@ -1,4 +1,4 @@
-import { buildSchema, ContainerType, AuthChecker } from "type-graphql"
+import { buildSchema, ContainerType, AuthChecker, NonEmptyArray } from "type-graphql"
 import { ApolloServer } from "apollo-server-express"
 import { ExpressContext } from "apollo-server-express/dist/ApolloServer"
 import { ContextFunction } from "apollo-server-core"
@@ -10,7 +10,7 @@ export const makeGraphQLServer = async <C = unknown>(
 	contextProvider: ContextFunction<ExpressContext, C>,
 	config: IConfig,
 	authChecker: AuthChecker<C>,
-	...resolvers: Function[]
+	...resolvers: NonEmptyArray<Function>
 ) => {
 	const schema = await buildSchema({
 		resolvers,

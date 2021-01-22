@@ -7,6 +7,9 @@ import { Scopes, ContextRequest } from "../../types/context"
 import { makeAllScopes } from "./setup-test-env"
 import { testData } from "../../database/seed"
 import { Share } from "../../models/ShareModel"
+import status from 'statuses'
+
+
 
 interface IExecuteGraphQLQueryArgs {
 	graphQLServer: ApolloServer
@@ -43,7 +46,7 @@ export const executeGraphQLQuery = async ({
 		.post("/graphql")
 		.set("Accept", "application/json")
 		.send({ query })
-		.expect((res) => (res.status !== finalExpectedHTTPCode ? console.log(res.body) : 0))
+		.expect((res) => (res.status !== finalExpectedHTTPCode ? console.error(res.body) : 0))
 		.expect(finalExpectedHTTPCode)
 		.expect("Content-Type", /json/)
 

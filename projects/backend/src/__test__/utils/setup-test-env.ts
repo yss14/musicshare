@@ -26,6 +26,7 @@ import { ShareMemberResolver } from "../../resolvers/ShareMemberResolver"
 import { GenreResolver } from "../../resolvers/GenreResolver"
 import { SongTypeResolver } from "../../resolvers/SongTypesResolver"
 import { CaptchaResolver } from "../../resolvers/CaptchaResolver"
+import { PlaylistsongResolver } from "../../resolvers/PlaylistSongResolver"
 
 export type CustomResolver = [Function, unknown]
 
@@ -57,6 +58,7 @@ export const setupTestEnv = async ({ seed, database, customResolvers, configTran
 
 	const shareResolver = new ShareResolver(services)
 	const songResolver = new SongResolver(services)
+	const playlistsongResolver = new PlaylistsongResolver()
 	const userResolver = new ViewerResolver(services, config)
 	const shareMemberResolver = new ShareMemberResolver(services)
 	const playlistResolver = new PlaylistResolver(services)
@@ -67,6 +69,7 @@ export const setupTestEnv = async ({ seed, database, customResolvers, configTran
 
 	Container.of(testID).set(ShareResolver, shareResolver)
 	Container.of(testID).set(SongResolver, songResolver)
+	Container.set(PlaylistsongResolver, playlistsongResolver)
 	Container.of(testID).set(ViewerResolver, userResolver)
 	Container.of(testID).set(PlaylistResolver, playlistResolver)
 	Container.of(testID).set(FileUploadResolver, fileUploadResolver)
@@ -94,6 +97,14 @@ export const setupTestEnv = async ({ seed, database, customResolvers, configTran
 		ViewerResolver,
 		ShareResolver,
 		SongResolver,
+		PlaylistsongResolver,
+		PlaylistResolver,
+		FileUploadResolver,
+		ShareMemberResolver,
+		GenreResolver,
+		SongTypeResolver,
+		CaptchaResolver,
+		...resolvers.map((customResolver) => customResolver[0]),
 	)
 
 	const allScopes = makeAllScopes()

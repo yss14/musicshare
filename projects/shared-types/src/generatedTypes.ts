@@ -16,12 +16,6 @@
 export type Maybe<T> = T | null
 import sgtsQL, { DocumentNode } from "graphql-tag"
 
-export interface Query {
-	viewer: Maybe<Viewer>
-	share: Share
-	captcha: Captcha
-}
-
 /** Object representing the viewer */
 export interface Viewer {
 	id: string
@@ -84,6 +78,7 @@ export interface ShareSong {
 	shareID: string
 }
 
+export type FileSource = FileUpload
 /** This represents file meta data for an uploaded song */
 export interface FileUpload {
 	container: string
@@ -91,6 +86,7 @@ export interface FileUpload {
 	fileExtension: string
 	originalFilename: string
 	hash: string
+	fileSize: number
 	accessUrl: string
 }
 
@@ -146,6 +142,11 @@ export interface ShareMember {
 	status: UserStatus
 }
 
+/** Specifies whether a user already accepted an invitation or is still pending */
+export enum UserStatus {
+	Pending = "Pending",
+	Accepted = "Accepted",
+}
 /** This represents an artist */
 export interface Artist {
 	name: string
@@ -167,49 +168,17 @@ export interface SongType {
 	alternativeNames: string[]
 }
 
+/** Specifies Which properties are to be searched */
+export enum SongSearchMatcher {
+	Title = "Title",
+	Artists = "Artists",
+	Tags = "Tags",
+	Genres = "Genres",
+	Labels = "Labels",
+}
 export interface Captcha {
 	id: string
 	image: string
-}
-
-export interface Mutation {
-	login: AuthTokenBundle
-	changePassword: boolean
-	/** Returns new restore token*/
-	restorePassword: string
-	/** Issue a new authToken after the old one was invalidated*/
-	issueAuthToken: string
-	register: RegistrationSuccess
-	createShare: Share
-	renameShare: Share
-	deleteShare: boolean
-	/** Returns an invitation link or null if user already existed and has been added to the share*/
-	inviteToShare: Maybe<string>
-	acceptInvitation: RegistrationSuccess
-	revokeInvitation: boolean
-	leaveShare: boolean
-	updateSong: Maybe<ShareSong>
-	/** Removes a song from a library. If the song is referenced by entities from other shares, the song is copied to a linked library an referenced from there.*/
-	removeSongFromLibrary: boolean
-	incrementSongPlayCount: SongPlay
-	submitSongFromRemoteFile: ShareSong
-	createPlaylist: Maybe<Playlist>
-	/** Deletes an existing playlists. Does not check if playlist exists.*/
-	deletePlaylist: boolean
-	/** Renames an existing playlists. Does not check if playlist exists.*/
-	renamePlaylist: boolean
-	addSongsToPlaylist: PlaylistSong[]
-	removeSongsFromPlaylist: PlaylistSong[]
-	updateOrderOfPlaylist: PlaylistSong[]
-	generateUploadableUrl: string
-	/** Updates permissions of a user and returns the updated permission list*/
-	updateShareMemberPermissions: ShareMember
-	addGenre: Maybe<Genre>
-	updateGenre: Maybe<Genre>
-	removeGenre: boolean
-	addSongType: Maybe<SongType>
-	updateSongType: Maybe<SongType>
-	removeSongType: boolean
 }
 
 /** This represents an auth token bundle received during the login process */
@@ -268,16 +237,11 @@ export interface SongUpdateInput {
 	featurings?: string[]
 	type?: string
 	genres?: string[]
-	labels?: string[]
+	labels?: string
 	tags?: string[]
 }
 
 export interface RemoveSongFromLibraryInput {
-	shareID: string
-	songID: string
-}
-
-export interface IncrementSongPlayCountInput {
 	shareID: string
 	songID: string
 }
@@ -288,62 +252,17 @@ export interface SongPlay {
 	dateAdded: string
 }
 
+export interface IncrementSongPlayCountInput {
+	shareID: string
+	songID: string
+}
+
 export interface SubmitSongFromRemoteFileInput {
 	filename: string
 	remoteFileUrl: string
 	playlistIDs: string[]
 }
 
-/** This represents the base of song and its properties */
-export interface BaseSong {
-	id: string
-	title: string
-	suffix: Maybe<string>
-	year: Maybe<number>
-	bpm: Maybe<number>
-	dateLastEdit: string
-	releaseDate: Maybe<string>
-	isRip: boolean
-	artists: string[]
-	remixer: string[]
-	featurings: string[]
-	type: Maybe<string>
-	genres: string[]
-	labels: string[]
-	sources: FileSource[]
-	duration: number
-	tags: string[]
-	dateAdded: string
-	libraryID: string
-	playCount: number
-	numberOfSources: number
-}
-
-export interface PageInfo {
-	hasNextPage: boolean
-	hasPreviousPage: boolean
-	startCursor: string
-	endCursor: string
-}
-
-export interface UserIDInput {
-	userID: string
-}
-
-export type FileSource = FileUpload
-/** Specifies whether a user already accepted an invitation or is still pending */
-export enum UserStatus {
-	Pending = "Pending",
-	Accepted = "Accepted",
-}
-/** Specifies Which properties are to be searched */
-export enum SongSearchMatcher {
-	Title = "Title",
-	Artists = "Artists",
-	Tags = "Tags",
-	Genres = "Genres",
-	Labels = "Labels",
-}
 export interface viewerArgs {}
 
 export interface shareArgs {
@@ -466,6 +385,7 @@ export interface updateOrderOfPlaylistArgs {
 }
 
 export interface generateUploadableUrlArgs {
+	fileSize: number
 	fileExtension: string
 }
 
@@ -495,6 +415,7 @@ export interface addSongTypeArgs {
 	group: string
 	name: string
 	alternativeNames?: string[]
+	/** @default false*/
 	hasArtists?: boolean
 }
 
@@ -502,6 +423,7 @@ export interface updateSongTypeArgs {
 	group: string
 	name: string
 	alternativeNames?: string[]
+	/** @default false*/
 	hasArtists?: boolean
 	songTypeID: string
 }

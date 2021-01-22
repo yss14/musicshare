@@ -23,6 +23,7 @@ import { ShareMemberResolver } from "./resolvers/ShareMemberResolver"
 import { GenreResolver } from "./resolvers/GenreResolver"
 import { SongTypeResolver } from "./resolvers/SongTypesResolver"
 import { CaptchaResolver } from "./resolvers/CaptchaResolver"
+import { PlaylistsongResolver } from "./resolvers/PlaylistSongResolver"
 
 require("source-map-support").install()
 
@@ -43,6 +44,7 @@ loadEnvsFromDotenvFile(nodeEnv)
 
 	const shareResolver = new ShareResolver(services)
 	const songResolver = new SongResolver(services)
+	const playlistsongResolver = new PlaylistsongResolver()
 	const userResolver = new ViewerResolver(services, config)
 	const shareMemberResolver = new ShareMemberResolver(services)
 	const playlistResolver = new PlaylistResolver(services)
@@ -53,6 +55,7 @@ loadEnvsFromDotenvFile(nodeEnv)
 
 	Container.set(ShareResolver, shareResolver)
 	Container.set(SongResolver, songResolver)
+	Container.set(PlaylistsongResolver, playlistsongResolver)
 	Container.set(ViewerResolver, userResolver)
 	Container.set(PlaylistResolver, playlistResolver)
 	Container.set(FileUploadResolver, fileUploadResolver)
@@ -86,6 +89,13 @@ loadEnvsFromDotenvFile(nodeEnv)
 		ViewerResolver,
 		ShareResolver,
 		SongResolver,
+		PlaylistsongResolver,
+		PlaylistResolver,
+		FileUploadResolver,
+		ShareMemberResolver,
+		GenreResolver,
+		SongTypeResolver,
+		CaptchaResolver,
 	)
 
 	const server = HTTPServer({
