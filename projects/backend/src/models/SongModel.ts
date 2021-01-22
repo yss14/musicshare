@@ -1,11 +1,11 @@
-import { FileSource, FileUpload } from "./FileSourceModels"
+import { FileSourceType, FileSource, FileUpload } from "./FileSourceModels"
 import { ObjectType, Field, Int } from "type-graphql"
 import { plainToClass } from "class-transformer"
 import { ISongDBResult } from "../database/tables"
 import moment from "moment"
 import { filterNull } from "../utils/array/filter-null"
 
-const mapFileSourceModel = (entry: FileSource): FileSource | null => {
+const mapFileSourceModel = (entry: FileSourceType): FileSourceType | null => {
 	if (entry.fileExtension && entry.blob && entry.container) {
 		return plainToClass(FileUpload, {
 			container: entry.container,
@@ -75,7 +75,7 @@ export class BaseSong {
 	public readonly labels!: string[]
 
 	@Field(() => [FileSource])
-	public readonly sources!: FileSource[]
+	public readonly sources!: FileSourceType[]
 
 	@Field()
 	public readonly duration!: number

@@ -1,4 +1,4 @@
-import { S3, AWSError } from "aws-sdk"
+import { S3 } from "aws-sdk"
 import { AWSS3FileService } from "../file-service/AWSS3FileService"
 import { configFromEnv } from "../types/config"
 import { v4 as uuid } from "uuid"

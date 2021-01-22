@@ -7,9 +7,6 @@ import { Scopes, ContextRequest } from "../../types/context"
 import { makeAllScopes } from "./setup-test-env"
 import { testData } from "../../database/seed"
 import { Share } from "../../models/ShareModel"
-import status from 'statuses'
-
-
 
 interface IExecuteGraphQLQueryArgs {
 	graphQLServer: ApolloServer

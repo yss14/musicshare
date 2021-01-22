@@ -35,12 +35,14 @@ export const TransformedGraphQLQuery = <TData, TVar = {}>(query: DocumentNode) =
 	varType: ({} as unknown) as TVar,
 })
 
+// eslint-disable-next-line
 export type IGraphQLQueryOpts<T> = T extends ITypedGraphQLOperation<infer TData, infer TDataTransformed, infer TVar>
 	? IUseQueryOptions<TDataTransformed, TVar>
 	: never
 
 export const TransformedGraphQLMutation = TransformedGraphQLQuery
 
+// eslint-disable-next-line
 export type IGraphQLMutationOpts<T> = T extends ITypedGraphQLOperation<infer TData, infer TDataTransformed, infer TVar>
 	? IUseMutationOptions<TDataTransformed, TVar>
 	: never
