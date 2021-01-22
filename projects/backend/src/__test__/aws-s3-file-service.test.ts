@@ -50,7 +50,7 @@ describe("instance creation", () => {
 		}
 		const fileService = new AWSS3FileService(new S3(config), container)
 
-		await expect(fileService.createContainerIfNotExists()).rejects.toThrowError(AWSError)
+		await expect(fileService.createContainerIfNotExists()).rejects.toThrowError(Error)
 	})
 })
 
