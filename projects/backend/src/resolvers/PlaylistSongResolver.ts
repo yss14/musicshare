@@ -1,7 +1,5 @@
 import { Resolver, ResolverInterface } from "type-graphql"
-import { PlaylistSong } from "../models/PlaylistSongModel";
+import { PlaylistSong } from "../models/PlaylistSongModel"
 
 @Resolver(() => PlaylistSong)
-export class PlaylistsongResolver implements ResolverInterface<PlaylistSong> {
-
-}
+export class PlaylistsongResolver implements ResolverInterface<PlaylistSong> {}
