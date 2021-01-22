@@ -36,7 +36,7 @@
 		}
 	},
 	"dependencies": {
-		"@ant-design/icons": "^4.1.0",
+		"@ant-design/icons": "^4.4.0",
 		"@azure/storage-blob": "^10.5.0",
 		"@types/graphql": "^14.2.0",
 		"@types/use-set-timeout": "^1.0.0",
@@ -117,7 +117,7 @@
 		"@addbots/eslint-config": "^2.0.1",
 		"@addbots/prettier-config": "^1.0.0",
 		"@types/argon2": "^0.15.0",
-		"@types/aws-lambda": "^8.10.51",
+		"@types/aws-lambda": "^8.10.71",
 		"@types/better-queue": "^3.8.0",
 		"@types/body-parser": "^1.17.0",
 		"@types/cors": "^2.8.9",
