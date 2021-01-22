@@ -107,8 +107,8 @@ export const PlayerProvider: React.FC = ({ children }) => {
 
 	const destroy = useCallback(() => {
 		try {
-			primaryDeck.parentElement?.removeChild(primaryDeck)
-			bufferingDeck.parentElement?.removeChild(bufferingDeck)
+			primaryDeck.parentElement && primaryDeck.parentElement.removeChild(primaryDeck)
+			bufferingDeck.parentElement && bufferingDeck.parentElement.removeChild(bufferingDeck)
 		} catch (err) {
 			console.error(err)
 		}
@@ -343,8 +343,10 @@ export const PlayerProvider: React.FC = ({ children }) => {
 		[getMediaUrls, currentSong, updatePlayerState, primaryDeck],
 	)
 
-	const {callback: onPlayerTimeUpdateDebounced} = useDebouncedCallback(onPlayerTimeUpdate, 500, { maxWait: 900 })
-	const {callback: onPlayerDurationChangeDebounced} = useDebouncedCallback(onPlayerDurationChange, 500, { maxWait: 900 })
+	const { callback: onPlayerTimeUpdateDebounced } = useDebouncedCallback(onPlayerTimeUpdate, 500, { maxWait: 900 })
+	const { callback: onPlayerDurationChangeDebounced } = useDebouncedCallback(onPlayerDurationChange, 500, {
+		maxWait: 900,
+	})
 
 	useEffect(() => {
 		bufferingDeck.volume = 0

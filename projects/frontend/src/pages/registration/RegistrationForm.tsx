@@ -50,7 +50,7 @@ export const RegistrationForm = () => {
 	const [register, { error, data, isLoading }] = useRegister({
 		onSuccess: () => {
 			message.success(`Registration was successful`)
-			formikHelpers.current?.resetForm()
+			formikHelpers.current && formikHelpers.current.resetForm()
 		},
 	})
 	const onSubmit = useCallback(

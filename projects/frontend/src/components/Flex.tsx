@@ -1,6 +1,15 @@
 import React from "react"
 import styled from "styled-components"
 
+interface IFlexChildProps {
+	grow?: number
+	shrink?: number
+	order?: number
+	alignSelf?: "auto" | "flex-start" | "flex-end" | "center" | "baseline" | "stretch"
+	basis?: number | "auto"
+	style?: React.CSSProperties
+}
+
 const FlexParent = styled.div`
 	display: flex;
 	flex-direction: ${(props: IFlexParentProps) => (props.direction ? props.direction : "row")};
@@ -23,15 +32,6 @@ interface IFlexParentProps {
 	alignContent?: "flex-start" | "flex-end" | "center" | "space-around" | "space-between" | "strech"
 	direction?: "row" | "row-reverse" | "column" | "column-reverse"
 	wrap?: "nowrap" | "wrap" | "wrap-reverse"
-	style?: React.CSSProperties
-}
-
-interface IFlexChildProps {
-	grow?: number
-	shrink?: number
-	order?: number
-	alignSelf?: "auto" | "flex-start" | "flex-end" | "center" | "baseline" | "stretch"
-	basis?: number | "auto"
 	style?: React.CSSProperties
 }
 
