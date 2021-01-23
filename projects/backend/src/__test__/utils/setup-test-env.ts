@@ -27,6 +27,8 @@ import { GenreResolver } from "../../resolvers/GenreResolver"
 import { SongTypeResolver } from "../../resolvers/SongTypesResolver"
 import { CaptchaResolver } from "../../resolvers/CaptchaResolver"
 import { PlaylistsongResolver } from "../../resolvers/PlaylistSongResolver"
+import { BaseSongResolver } from "../../resolvers/BaseSongResolver"
+import { BaseSong } from "../../models/SongModel"
 
 export type CustomResolver = [Function, unknown]
 
@@ -57,6 +59,7 @@ export const setupTestEnv = async ({ seed, database, customResolvers, configTran
 	await services.songFileService.createContainerIfNotExists()
 
 	const shareResolver = new ShareResolver(services)
+	const baseSongResolver = new BaseSongResolver()
 	const songResolver = new SongResolver(services)
 	const playlistsongResolver = new PlaylistsongResolver()
 	const userResolver = new ViewerResolver(services, config)
@@ -68,6 +71,7 @@ export const setupTestEnv = async ({ seed, database, customResolvers, configTran
 	const captchaResolver = new CaptchaResolver(services)
 
 	Container.of(testID).set(ShareResolver, shareResolver)
+	Container.of(testID).set(BaseSongResolver, baseSongResolver)
 	Container.of(testID).set(SongResolver, songResolver)
 	Container.set(PlaylistsongResolver, playlistsongResolver)
 	Container.of(testID).set(ViewerResolver, userResolver)
@@ -94,6 +98,7 @@ export const setupTestEnv = async ({ seed, database, customResolvers, configTran
 		makeGraphQLContextProvider(services),
 		config,
 		authChecker,
+		[BaseSong],
 		ViewerResolver,
 		ShareResolver,
 		SongResolver,
@@ -104,6 +109,7 @@ export const setupTestEnv = async ({ seed, database, customResolvers, configTran
 		GenreResolver,
 		SongTypeResolver,
 		CaptchaResolver,
+		BaseSongResolver,
 		...resolvers.map((customResolver) => customResolver[0]),
 	)
 

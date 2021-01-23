@@ -24,6 +24,8 @@ import { GenreResolver } from "./resolvers/GenreResolver"
 import { SongTypeResolver } from "./resolvers/SongTypesResolver"
 import { CaptchaResolver } from "./resolvers/CaptchaResolver"
 import { PlaylistsongResolver } from "./resolvers/PlaylistSongResolver"
+import { BaseSongResolver } from "./resolvers/BaseSongResolver"
+import { BaseSong } from "./models/SongModel"
 
 require("source-map-support").install()
 
@@ -43,6 +45,7 @@ loadEnvsFromDotenvFile(nodeEnv)
 	const services = initServices(config, database)
 
 	const shareResolver = new ShareResolver(services)
+	const baseSongResolver = new BaseSongResolver()
 	const songResolver = new SongResolver(services)
 	const playlistsongResolver = new PlaylistsongResolver()
 	const userResolver = new ViewerResolver(services, config)
@@ -54,6 +57,7 @@ loadEnvsFromDotenvFile(nodeEnv)
 	const captchaResolver = new CaptchaResolver(services)
 
 	Container.set(ShareResolver, shareResolver)
+	Container.set(BaseSongResolver, baseSongResolver)
 	Container.set(SongResolver, songResolver)
 	Container.set(PlaylistsongResolver, playlistsongResolver)
 	Container.set(ViewerResolver, userResolver)
@@ -86,6 +90,7 @@ loadEnvsFromDotenvFile(nodeEnv)
 		makeGraphQLContextProvider(services),
 		config,
 		graphQLAuthChecker,
+		[BaseSong],
 		ViewerResolver,
 		ShareResolver,
 		SongResolver,
@@ -96,6 +101,7 @@ loadEnvsFromDotenvFile(nodeEnv)
 		GenreResolver,
 		SongTypeResolver,
 		CaptchaResolver,
+		BaseSongResolver,
 	)
 
 	const server = HTTPServer({

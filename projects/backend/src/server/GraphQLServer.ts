@@ -10,6 +10,7 @@ export const makeGraphQLServer = async <C = unknown>(
 	contextProvider: ContextFunction<ExpressContext, C>,
 	config: IConfig,
 	authChecker: AuthChecker<C>,
+	orphanedTypes: Function[] | undefined,
 	...resolvers: NonEmptyArray<Function>
 ) => {
 	const schema = await buildSchema({
@@ -17,6 +18,7 @@ export const makeGraphQLServer = async <C = unknown>(
 		container,
 		authChecker,
 		globalMiddlewares: [SQLErrorInterceptor],
+		orphanedTypes,
 	})
 
 	const graphQLServer = new ApolloServer({

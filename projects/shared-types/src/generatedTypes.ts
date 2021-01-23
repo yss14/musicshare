@@ -1,6 +1,4 @@
 /* eslint-disable */
-/* tslint-disable */
-// @ts-nocheck
 // *******************************************************
 // *******************************************************
 //
@@ -14,7 +12,43 @@
 // 💙
 
 export type Maybe<T> = T | null
-import sgtsQL, { DocumentNode } from "graphql-tag"
+
+/** This represents the base of song and its properties */
+export interface BaseSong {
+	id: string
+	title: string
+	suffix: Maybe<string>
+	year: Maybe<number>
+	bpm: Maybe<number>
+	dateLastEdit: string
+	releaseDate: Maybe<string>
+	isRip: boolean
+	artists: string[]
+	remixer: string[]
+	featurings: string[]
+	type: Maybe<string>
+	genres: string[]
+	labels: string[]
+	sources: FileSource[]
+	duration: number
+	tags: string[]
+	dateAdded: string
+	libraryID: string
+	playCount: number
+	numberOfSources: number
+}
+
+export type FileSource = FileUpload
+/** This represents file meta data for an uploaded song */
+export interface FileUpload {
+	container: string
+	blob: string
+	fileExtension: string
+	originalFilename: string
+	hash: string
+	fileSize: number
+	accessUrl: string
+}
 
 /** Object representing the viewer */
 export interface Viewer {
@@ -76,18 +110,6 @@ export interface ShareSong {
 	playCount: number
 	numberOfSources: number
 	shareID: string
-}
-
-export type FileSource = FileUpload
-/** This represents file meta data for an uploaded song */
-export interface FileUpload {
-	container: string
-	blob: string
-	fileExtension: string
-	originalFilename: string
-	hash: string
-	fileSize: number
-	accessUrl: string
 }
 
 export interface TimestampedResult {
@@ -237,7 +259,7 @@ export interface SongUpdateInput {
 	featurings?: string[]
 	type?: string
 	genres?: string[]
-	labels?: string
+	labels?: string[]
 	tags?: string[]
 }
 
