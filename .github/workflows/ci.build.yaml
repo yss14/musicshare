@@ -87,48 +87,48 @@ jobs:
                     exit 1
                   fi
 
-    # build_frontend:
-    #     name: Build Frontend
-    #     runs-on: ubuntu-latest
+    build_frontend:
+        name: Build Frontend
+        runs-on: ubuntu-latest
 
-    #     env:
-    #         SKIP_PREFLIGHT_CHECK: true
-    #         IS_CI: true
+        env:
+            SKIP_PREFLIGHT_CHECK: true
+            IS_CI: true
 
-    #     steps:
-    #         - uses: fkirc/skip-duplicate-actions@master
-    #           with:
-    #               github_token: ${{ github.token }}
-    #         - uses: AutoModality/action-clean@v1
-    #         - uses: actions/checkout@v2
-    #         - name: Use Node.js 15
-    #           uses: actions/setup-node@v1
-    #           with:
-    #               node-version: 15
-    #         - name: Run Build
-    #           run: |
-    #               set -x
-    #               set -e
+        steps:
+            - uses: fkirc/skip-duplicate-actions@master
+              with:
+                  github_token: ${{ github.token }}
+            - uses: AutoModality/action-clean@v1
+            - uses: actions/checkout@v2
+            - name: Use Node.js 15
+              uses: actions/setup-node@v1
+              with:
+                  node-version: 15
+            - name: Run Build
+              run: |
+                  set -x
+                  set -e
 
-    #               launch_as() {
-    #                 local cmd_name=$1
-    #                 shift
-    #                 (time $@ || echo $cmd_name >> fail.txt) 2>&1 > $cmd_name.txt
-    #               }
+                  launch_as() {
+                    local cmd_name=$1
+                    shift
+                    (time $@ || echo $cmd_name >> fail.txt) 2>&1 > $cmd_name.txt
+                  }
 
-    #               npm ci
-    #               npm run bootstrap
-    #               npm run build:shared-types
-    #               npm run build:graphql-client
+                  npm ci
+                  npm run bootstrap
+                  npm run build:shared-types
+                  npm run build:graphql-client
 
-    #               launch_as build_frontend npm run build:frontend &
-    #               launch_as verify_frontend npm run verify:frontend &
+                  launch_as build_frontend npm run build:frontend &
+                  launch_as verify_frontend npm run verify:frontend &
 
-    #               wait
-    #               cat build_frontend.txt
-    #               cat verify_frontend.txt
+                  wait
+                  cat build_frontend.txt
+                  cat verify_frontend.txt
 
-    #               if [ -f fail.txt ]; then
-    #                 cat fail.txt
-    #                 exit 1
-    #               fi
+                  if [ -f fail.txt ]; then
+                    cat fail.txt
+                    exit 1
+                  fi
