@@ -43,7 +43,7 @@ export const executeGraphQLQuery = async ({
 		.post("/graphql")
 		.set("Accept", "application/json")
 		.send({ query })
-		.expect((res) => (res.status !== finalExpectedHTTPCode ? console.log(res.body) : 0))
+		.expect((res) => (res.status !== finalExpectedHTTPCode ? console.error(res.body) : 0))
 		.expect(finalExpectedHTTPCode)
 		.expect("Content-Type", /json/)
 

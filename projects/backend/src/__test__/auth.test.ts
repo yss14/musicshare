@@ -91,6 +91,7 @@ const setupGraphQLTestEnv = async () => {
 		makeGraphQLContextProvider({} as any),
 		configFromEnv(),
 		graphQLAuthChecker,
+		[],
 		TestResolver,
 	)
 	graphQLServer.applyMiddleware({ app: expressApp })

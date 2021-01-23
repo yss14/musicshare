@@ -92,7 +92,7 @@ const CalcMissingSongUploadHashes = ({
 	}
 
 	const stop = async () => {
-		await new Promise((resolve) => {
+		await new Promise<void>((resolve) => {
 			jobQueue.destroy(resolve)
 		})
 	}

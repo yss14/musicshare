@@ -1,6 +1,6 @@
 import { ShareSong } from "../models/SongModel"
 import { Resolver, FieldResolver, Root, ResolverInterface, Mutation, Arg, Authorized, Ctx } from "type-graphql"
-import { FileSource } from "../models/FileSourceModels"
+import { FileSource, FileSourceType } from "../models/FileSourceModels"
 import { SongUpdateInput } from "../inputs/SongInput"
 import { SongAuth } from "../auth/middleware/song-auth"
 import { IServices } from "../services/services"
@@ -23,7 +23,7 @@ export class SongResolver implements ResolverInterface<ShareSong> {
 
 	@Authorized()
 	@FieldResolver(() => [FileSource])
-	public sources(@Root() song: ShareSong): FileSource[] {
+	public sources(@Root() song: ShareSong): FileSourceType[] {
 		return song.sources
 	}
 
