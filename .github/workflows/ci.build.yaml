@@ -34,8 +34,8 @@ jobs:
             NODE_ENV: test
             JWT_SECRET: github_actions
             IS_CI: true
-            POSTGRES_HOST: localhost
-            POSTGRES_PORT: ${{postgres.getMappedPort(5432)}}
+            POSTGRES_HOST: postgres
+            POSTGRES_PORT: 5432
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
             S3_HOST: "http://127.0.0.1:9000"
