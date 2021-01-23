@@ -117,6 +117,7 @@ jobs:
                   npm ci
                   npm run bootstrap
                   npm run build:shared-types
+                  npm run build:graphql-client
 
                   launch_as build_frontend npm run build:frontend &
                   launch_as verify_frontend npm run verify:frontend &
