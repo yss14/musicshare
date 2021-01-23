@@ -1,0 +1,130 @@
+name: CI Build
+
+on:
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
+
+jobs:
+    build_backend:
+        name: Build Backend
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:9
+                env:
+                    POSTGRES_PASSWORD: postgres
+                options: >-
+                    --health-cmd pg_isready
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+            minio:
+                image: bitnami/minio:latest
+                ports:
+                    - 9000:9000
+                env:
+                    MINIO_ACCESS_KEY: musicshare
+                    MINIO_SECRET_KEY: musicshare
+
+        env:
+            NODE_ENV: test
+            JWT_SECRET: github_actions
+            IS_CI: true
+            POSTGRES_HOST: localhost
+            POSTGRES_PORT: 5432
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            S3_HOST: "http://127.0.0.1:9000"
+            S3_ACCESS_KEY: musicshare
+            S3_SECRET_KEY: musicshare
+            AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+            CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+        steps:
+            - uses: fkirc/skip-duplicate-actions@master
+              with:
+                  github_token: ${{ github.token }}
+            - uses: AutoModality/action-clean@v1
+            - uses: actions/checkout@v2
+            - name: Use Node.js 15
+              uses: actions/setup-node@v1
+              with:
+                  node-version: 15
+            - name: Run Build
+              run: |
+                  set -x
+                  set -e
+
+                  launch_as() {
+                    local cmd_name=$1
+                    shift
+                    (time $@ || echo $cmd_name >> fail.txt) 2>&1 > $cmd_name.txt
+                  }
+
+                  npm ci
+                  npm run bootstrap
+                  npm run build:shared-types
+
+                  launch_as lint npm run lint &
+                  launch_as build_backend npm run build:backend &
+                  launch_as verify_backend npm run verify:backend &
+                  launch_as test_backend npm run test:ci &
+
+                  wait
+                  cat lint.txt
+                  cat build_backend.txt
+                  cat verify_backend.txt
+                  cat test_backend.txt
+
+                  if [ -f fail.txt ]; then
+                    cat fail.txt
+                    exit 1
+                  fi
+
+    build_frontend:
+        name: Build Frontend
+        runs-on: ubuntu-latest
+
+        env:
+            SKIP_PREFLIGHT_CHECK: true
+            IS_CI: true
+
+        steps:
+            - uses: fkirc/skip-duplicate-actions@master
+              with:
+                  github_token: ${{ github.token }}
+            - uses: AutoModality/action-clean@v1
+            - uses: actions/checkout@v2
+            - name: Use Node.js 15
+              uses: actions/setup-node@v1
+              with:
+                  node-version: 15
+            - name: Run Build
+              run: |
+                  set -x
+                  set -e
+
+                  launch_as() {
+                    local cmd_name=$1
+                    shift
+                    (time $@ || echo $cmd_name >> fail.txt) 2>&1 > $cmd_name.txt
+                  }
+
+                  npm ci
+                  npm run bootstrap
+                  npm run build:shared-types
+
+                  launch_as build_frontend npm run build:frontend &
+                  launch_as verify_frontend npm run verify:frontend &
+
+                  wait
+                  cat build_frontend.txt
+                  cat verify_frontend.txt
+
+                  if [ -f fail.txt ]; then
+                    cat fail.txt
+                    exit 1
+                  fi
