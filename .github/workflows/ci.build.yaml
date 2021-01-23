@@ -17,6 +17,8 @@ jobs:
                 env:
                     POSTGRES_PASSWORD: postgres
                     POSTGRES_USER: postgres
+                ports:
+                    - 5432:5432
                 options: >-
                     --health-cmd pg_isready
                     --health-interval 10s
@@ -34,7 +36,7 @@ jobs:
             NODE_ENV: test
             JWT_SECRET: github_actions
             IS_CI: true
-            POSTGRES_HOST: postgres
+            POSTGRES_HOST: localhost
             POSTGRES_PORT: 5432
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
