@@ -4,7 +4,7 @@ import { UseQueryOptions, useQuery, UseMutationOptions, useMutation, QueryClient
 import { DocumentNode } from "graphql"
 import { Updater } from "react-query/types/core/utils"
 import { GraphQLClientError } from "./GraphQLClientError"
-import { queryClient } from "queryClient"
+import { queryClient } from "./queryClient"
 
 export const GraphQLClientContext = React.createContext<IGraphQLBaseClient | null>(null)
 
