@@ -12,13 +12,13 @@ interface IPlaylistSongContextMenuProps {
 export const PlaylistContextMenu = React.forwardRef<HTMLDivElement, IPlaylistSongContextMenuProps>(
 	({ playlist }, ref) => {
 		const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null)
-		const [deletePlaylist] = useDeletePlaylist({
+		const { mutateAsync: deletePlaylist } = useDeletePlaylist({
 			onSuccess: () => {
 				message.success(`Playlist successfully deleted`)
 			},
 			onError: console.error,
 		})
-		const [renamePlaylist] = useRenamePlaylist({
+		const { mutateAsync: renamePlaylist } = useRenamePlaylist({
 			onSuccess: () => {
 				message.success(`Playlist successfully renamed`)
 			},

@@ -3,7 +3,7 @@ import {
 	TransformedGraphQLMutation,
 	useGraphQLMutation,
 	IGraphQLMutationOpts,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { GET_SHARE_PLAYLISTS } from "../queries/useSharePlaylists"
 import { GET_MERGED_PLAYLISTS } from "../queries/useMergedPlaylists"
@@ -27,16 +27,16 @@ export const RENAME_PLAYLIST_MUTATION = TransformedGraphQLMutation<IRenamePlayli
 export const useRenamePlaylist = (opts?: IGraphQLMutationOpts<typeof RENAME_PLAYLIST_MUTATION>) => {
 	const mutation = useGraphQLMutation(RENAME_PLAYLIST_MUTATION, {
 		...opts,
-		onSuccess: (data, variables) => {
-			typedQueryCache.invalidateTypedQuery({
+		onSuccess: (data, variables, context) => {
+			typedQueryClient.invalidateTypedQuery({
 				query: GET_SHARE_PLAYLISTS,
 				variables: { shareID: variables.shareID },
 			})
-			typedQueryCache.invalidateTypedQuery({
+			typedQueryClient.invalidateTypedQuery({
 				query: GET_MERGED_PLAYLISTS,
 			})
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

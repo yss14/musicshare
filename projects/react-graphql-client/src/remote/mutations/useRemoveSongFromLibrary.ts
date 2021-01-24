@@ -3,7 +3,7 @@ import {
 	TransformedGraphQLMutation,
 	IGraphQLMutationOpts,
 	useGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { GET_SHARE_SONGS } from "../queries/useShareSongs"
 
@@ -30,8 +30,8 @@ export const REMOVE_SONG_FROM_LIBRARY = TransformedGraphQLMutation<
 export const useRemoveSongFromLibrary = (opts?: IGraphQLMutationOpts<typeof REMOVE_SONG_FROM_LIBRARY>) => {
 	const mutation = useGraphQLMutation(REMOVE_SONG_FROM_LIBRARY, {
 		...opts,
-		onSuccess: (data, variables) => {
-			typedQueryCache.setTypedQueryData(
+		onSuccess: (data, variables, context) => {
+			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SHARE_SONGS,
 					variables: { shareID: variables.input.shareID },
@@ -39,7 +39,7 @@ export const useRemoveSongFromLibrary = (opts?: IGraphQLMutationOpts<typeof REMO
 				(currentData) => currentData?.filter((song) => song.id !== variables.input.songID) || [],
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

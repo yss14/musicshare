@@ -18,7 +18,7 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	const { playlistID } = useParams<ISharePlaylistRoute>()
 	const { isLoading, data: playlist, error, refetch } = usePlaylistSongs(shareID, playlistID)
 	const [songs, setSongs] = useState<PlaylistSong[]>(playlist?.songs || [])
-	const [updateOrder] = useUpdatePlaylistSongOrder()
+	const { mutate: updateOrder } = useUpdatePlaylistSongOrder()
 
 	const { callback: refetchPlaylist } = useDebouncedCallback(refetch, 1000)
 

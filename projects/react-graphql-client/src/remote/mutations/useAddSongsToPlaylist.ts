@@ -4,7 +4,7 @@ import {
 	TransformedGraphQLMutation,
 	IGraphQLMutationOpts,
 	useGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { GET_PLAYLIST_WITH_SONGS } from "../queries/usePlaylistSongs"
 
@@ -32,8 +32,8 @@ export const ADD_SONGS_TO_PLAYLIST = TransformedGraphQLMutation<
 export const useAddSongsToPlaylist = (opts?: IGraphQLMutationOpts<typeof ADD_SONGS_TO_PLAYLIST>) => {
 	const mutation = useGraphQLMutation(ADD_SONGS_TO_PLAYLIST, {
 		...opts,
-		onSuccess: (data, variables) => {
-			typedQueryCache.setTypedQueryData(
+		onSuccess: (data, variables, context) => {
+			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_PLAYLIST_WITH_SONGS,
 					variables: { shareID: variables.shareID, playlistID: variables.playlistID },
@@ -41,7 +41,7 @@ export const useAddSongsToPlaylist = (opts?: IGraphQLMutationOpts<typeof ADD_SON
 				(currentData) => ({ ...currentData!, songs: data }),
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

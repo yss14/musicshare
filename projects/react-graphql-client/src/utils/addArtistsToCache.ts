@@ -1,9 +1,9 @@
 import { Artist } from "@musicshare/shared-types"
-import { typedQueryCache } from "../react-query-graphql"
+import { typedQueryClient } from "../react-query-graphql"
 import { GET_ARTISTS } from "../remote/queries/useArtists"
 
 export const addArtistsToCache = (artists: Artist[]) => {
-	typedQueryCache.setTypedQueryData(
+	typedQueryClient.setTypedQueryData(
 		{
 			query: GET_ARTISTS,
 		},

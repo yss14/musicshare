@@ -86,7 +86,7 @@ interface IDuplicateUploadProps {
 }
 
 const DuplicateUpload: React.FC<IDuplicateUploadProps> = ({ item, duplicateSongs, duplicateActions }) => {
-	const [addSongsToPlaylist] = useAddSongsToPlaylist()
+	const { mutateAsync: addSongsToPlaylist } = useAddSongsToPlaylist()
 
 	const onClickAddToPlaylist = useCallback(
 		async (song: ShareSong) => {

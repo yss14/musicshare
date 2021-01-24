@@ -102,8 +102,8 @@ export const PlayerProvider: React.FC = ({ children }) => {
 	const { queue, currentSong } = usePlayerState()
 
 	const updatePlayerState = useUpdatePlayerState()
-	const [getMediaUrls] = useSongMediaUrl()
-	const [incrementSongPlayCount] = useIncrementSongPlayCount()
+	const { mutateAsync: getMediaUrls } = useSongMediaUrl()
+	const { mutateAsync: incrementSongPlayCount } = useIncrementSongPlayCount()
 
 	const destroy = useCallback(() => {
 		try {

@@ -62,7 +62,7 @@ const LoggedInRoutes = () => {
 	const updateLibraryID = useUpdateLibraryID()
 	const libraryID = useLibraryID()
 	const history = useHistory()
-	const { latestData: auth, isLoading: isLoadingAuth } = useAuth()
+	const { data: auth, isLoading: isLoadingAuth } = useAuth()
 
 	useEffect(() => {
 		if (auth && !auth.isLoggedIn) {

@@ -3,7 +3,7 @@ import {
 	TransformedGraphQLMutation,
 	IGraphQLMutationOpts,
 	useGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { GET_GENRES } from "../queries/useGenres"
 import { Genre, genreKeys } from "@musicshare/shared-types"
@@ -28,15 +28,15 @@ export const ADD_GENRE = TransformedGraphQLMutation<IAddGenreData, IAddGenreVari
 export const useAddGenre = (opts?: IGraphQLMutationOpts<typeof ADD_GENRE>) => {
 	const mutation = useGraphQLMutation(ADD_GENRE, {
 		...opts,
-		onSuccess: (data, variables) => {
-			typedQueryCache.setTypedQueryData(
+		onSuccess: (data, variables, context) => {
+			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_GENRES,
 				},
 				(currentData) => [...(currentData || []), data],
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

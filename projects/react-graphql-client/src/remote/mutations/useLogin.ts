@@ -24,14 +24,14 @@ export const LOGIN = TransformedGraphQLMutation<ILoginData, ILoginVariables>(gql
 `)((data) => data.login)
 
 export const useLogin = (opts?: IGraphQLMutationOpts<typeof LOGIN>) => {
-	const [updateAuth] = useUpdateAuth()
+	const { mutateAsync: updateAuth } = useUpdateAuth()
 
 	const mutation = useGraphQLMutation(LOGIN, {
 		...opts,
-		onSuccess: async (data, variables) => {
+		onSuccess: async (data, variables, context) => {
 			await updateAuth(data)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

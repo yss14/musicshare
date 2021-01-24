@@ -1,8 +1,8 @@
-import { useMutation, MutationConfig } from "react-query"
+import { useMutation, UseMutationOptions } from "react-query"
 import { useUpdateAuth } from "./useUpdateAuth"
 
-export const useLogout = (opts?: MutationConfig<void, unknown, void>) => {
-	const [updateAuth] = useUpdateAuth()
+export const useLogout = (opts?: UseMutationOptions<void, unknown, void>) => {
+	const { mutateAsync: updateAuth } = useUpdateAuth()
 
 	const mutation = useMutation(() => {
 		return updateAuth({

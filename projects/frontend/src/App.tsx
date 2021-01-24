@@ -8,10 +8,10 @@ import { ConfigContext } from "./context/configContext"
 import { Routing } from "./components/routing/Routing"
 import { IPrimaryTheme } from "./types/Theme"
 import { history } from "./components/routing/history"
-import { ReactQueryConfigProvider, ReactQueryConfig } from "react-query"
+import { QueryClientProvider } from "react-query"
 import { ReactQueryDevtools } from "react-query-devtools"
 import { GraphQLClientProvider } from "./GraphqlClientProvider"
-import { GraphQLClient, GraphQLClientContext } from "@musicshare/react-graphql-client"
+import { GraphQLClient, GraphQLClientContext, queryClient } from "@musicshare/react-graphql-client"
 
 const config = makeConfigFromEnv()
 
@@ -40,15 +40,8 @@ const theme: IPrimaryTheme = {
 	darkgrey: "#474350",
 }
 
-const queryConfig: ReactQueryConfig = {
-	queries: {
-		refetchOnWindowFocus: false,
-		retry: 1,
-	},
-}
-
 export const App = () => (
-	<ReactQueryConfigProvider config={queryConfig}>
+	<QueryClientProvider client={queryClient}>
 		<ConfigContext.Provider value={config}>
 			<GraphQLClientContext.Provider value={GraphQLClient({ baseURL: config.services.musicshare.backendURL })}>
 				<GraphQLClientProvider>
@@ -64,5 +57,5 @@ export const App = () => (
 				</GraphQLClientProvider>
 			</GraphQLClientContext.Provider>
 		</ConfigContext.Provider>
-	</ReactQueryConfigProvider>
+	</QueryClientProvider>
 )

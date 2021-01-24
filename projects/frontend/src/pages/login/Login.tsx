@@ -35,7 +35,7 @@ interface ILoginRouteParams {
 
 export const Login = () => {
 	const { email } = useParams<ILoginRouteParams>()
-	const { latestData: auth } = useAuth()
+	const { data: auth } = useAuth()
 	const history = useHistory()
 
 	useEffect(() => {
