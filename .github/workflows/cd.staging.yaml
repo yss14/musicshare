@@ -1,0 +1,55 @@
+name: CD Staging Release
+
+on:
+    workflow_run:
+        workflows: ["CI Build"]
+        branches: [master, chore/github_actions_releases]
+        types:
+            - completed
+    workflow_dispatch:
+        inputs:
+            reason:
+                description: Reason
+                required: false
+
+jobs:
+    release_backend:
+        name: Release Backend
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: AutoModality/action-clean@v1
+            - uses: actions/checkout@v2
+            - name: Declare Git Commit Variable
+              id: vars
+              shell: bash
+              run: |
+                  echo "::set-output name=commit_hash::$GITHUB_SHA"
+            - name: Login to Docker Hub
+              uses: docker/login-action@v1
+              with:
+                  registry: registry.hub.docker.com
+                  username: musicshare
+                  password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+            - name: Login to GitHub Packages
+              uses: docker/login-action@v1
+              with:
+                  registry: docker.pkg.github.com
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+            - name: Build and Push Docker Images
+              run: |
+                  set -e
+                  set -x
+
+                  GIT_COMMIT_HASH=$(git rev-parse --short HEAD)
+
+                  echo $GIT_COMMIT_HASH
+
+                  docker build -f ./projects/backend/Dockerfile --rm -t docker.pkg.github.com/yss14/musicshare/backend:staging -t musicshare/backend:staging -t docker.pkg.github.com/yss14/musicshare/backend:$GIT_COMMIT_HASH -t musicshare/backend:$GIT_COMMIT_HASH .
+
+                  docker push docker.pkg.github.com/yss14/musicshare/backend:staging
+                  docker push musicshare/backend:staging
+
+                  docker push docker.pkg.github.com/yss14/musicshare/backend:$GIT_COMMIT_HASH
+                  docker push musicshare/backend:$GIT_COMMIT_HASH
