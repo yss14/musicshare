@@ -30,7 +30,7 @@ export const REMOVE_SONG_FROM_LIBRARY = TransformedGraphQLMutation<
 export const useRemoveSongFromLibrary = (opts?: IGraphQLMutationOpts<typeof REMOVE_SONG_FROM_LIBRARY>) => {
 	const mutation = useGraphQLMutation(REMOVE_SONG_FROM_LIBRARY, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SHARE_SONGS,
@@ -39,7 +39,7 @@ export const useRemoveSongFromLibrary = (opts?: IGraphQLMutationOpts<typeof REMO
 				(currentData) => currentData?.filter((song) => song.id !== variables.input.songID) || [],
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

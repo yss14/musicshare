@@ -24,12 +24,12 @@ export const REMOVE_GENRE = TransformedGraphQLMutation<IRemoveGenreData, IRemove
 export const useRemoveGenre = (opts?: IGraphQLMutationOpts<typeof REMOVE_GENRE>) => {
 	const mutation = useGraphQLMutation(REMOVE_GENRE, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.invalidateTypedQuery({
 				query: GET_GENRES,
 			})
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

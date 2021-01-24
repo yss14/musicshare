@@ -27,13 +27,13 @@ export const INVITE_TO_SHARE = TransformedGraphQLMutation<IInviteToShareData, II
 export const useInviteToShare = (opts?: IGraphQLMutationOpts<typeof INVITE_TO_SHARE>) => {
 	const hook = useGraphQLMutation(INVITE_TO_SHARE, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.invalidateTypedQuery({
 				query: GET_SHARE_USERS,
 				variables: { shareID: variables.input.shareID },
 			})
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

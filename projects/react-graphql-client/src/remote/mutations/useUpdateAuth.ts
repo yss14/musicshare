@@ -37,12 +37,12 @@ export const useUpdateAuth = (opts?: IGraphQLMutationOpts<typeof UPDATE_AUTH>) =
 				}
 			}
 		},
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.invalidateTypedQuery({
 				query: GET_AUTH,
 			})
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

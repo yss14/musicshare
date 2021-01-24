@@ -29,7 +29,7 @@ export const CREATE_PLAYLIST = TransformedGraphQLMutation<ICreatePlaylistData, I
 export const useCreatePlaylist = (opts?: IGraphQLMutationOpts<typeof CREATE_PLAYLIST>) => {
 	const mutation = useGraphQLMutation(CREATE_PLAYLIST, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SHARE_PLAYLISTS,
@@ -44,7 +44,7 @@ export const useCreatePlaylist = (opts?: IGraphQLMutationOpts<typeof CREATE_PLAY
 				(currentData) => [...(currentData || []), data],
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

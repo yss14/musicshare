@@ -24,12 +24,12 @@ export const REMOVE_SONG_TYPE = TransformedGraphQLMutation<IRemoveSongTypeData, 
 export const useRemoveSongType = (opts?: IGraphQLMutationOpts<typeof REMOVE_SONG_TYPE>) => {
 	const mutation = useGraphQLMutation(REMOVE_SONG_TYPE, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.invalidateTypedQuery({
 				query: GET_SONGTYPES,
 			})
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

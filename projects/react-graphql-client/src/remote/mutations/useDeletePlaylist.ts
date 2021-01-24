@@ -26,7 +26,7 @@ export const DELETE_PLAYLIST = TransformedGraphQLMutation<IDeletePlaylistData, I
 export const useDeletePlaylist = (opts?: IGraphQLMutationOpts<typeof DELETE_PLAYLIST>) => {
 	const mutation = useGraphQLMutation(DELETE_PLAYLIST, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SHARE_PLAYLISTS,
@@ -41,7 +41,7 @@ export const useDeletePlaylist = (opts?: IGraphQLMutationOpts<typeof DELETE_PLAY
 				(currentData) => currentData?.filter((playlist) => playlist.id !== variables.playlistID) || [],
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

@@ -28,7 +28,7 @@ export const ADD_GENRE = TransformedGraphQLMutation<IAddGenreData, IAddGenreVari
 export const useAddGenre = (opts?: IGraphQLMutationOpts<typeof ADD_GENRE>) => {
 	const mutation = useGraphQLMutation(ADD_GENRE, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_GENRES,
@@ -36,7 +36,7 @@ export const useAddGenre = (opts?: IGraphQLMutationOpts<typeof ADD_GENRE>) => {
 				(currentData) => [...(currentData || []), data],
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

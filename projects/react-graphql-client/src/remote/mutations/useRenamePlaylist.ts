@@ -27,7 +27,7 @@ export const RENAME_PLAYLIST_MUTATION = TransformedGraphQLMutation<IRenamePlayli
 export const useRenamePlaylist = (opts?: IGraphQLMutationOpts<typeof RENAME_PLAYLIST_MUTATION>) => {
 	const mutation = useGraphQLMutation(RENAME_PLAYLIST_MUTATION, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.invalidateTypedQuery({
 				query: GET_SHARE_PLAYLISTS,
 				variables: { shareID: variables.shareID },
@@ -36,7 +36,7 @@ export const useRenamePlaylist = (opts?: IGraphQLMutationOpts<typeof RENAME_PLAY
 				query: GET_MERGED_PLAYLISTS,
 			})
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

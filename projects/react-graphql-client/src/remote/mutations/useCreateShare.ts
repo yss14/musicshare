@@ -27,7 +27,7 @@ export const CREATE_SHARE = TransformedGraphQLMutation<ICreateShareData, ICreate
 export const useCreateShare = (opts?: IGraphQLMutationOpts<typeof CREATE_SHARE>) => {
 	const mutation = useGraphQLMutation(CREATE_SHARE, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SHARES,
@@ -35,7 +35,7 @@ export const useCreateShare = (opts?: IGraphQLMutationOpts<typeof CREATE_SHARE>)
 				(currentData) => [...(currentData || []), data],
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

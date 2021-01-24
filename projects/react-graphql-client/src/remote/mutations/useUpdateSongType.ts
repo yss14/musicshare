@@ -31,7 +31,7 @@ export const UPDATE_SONG_TYPE = TransformedGraphQLMutation<IUpdateSongTypeData, 
 export const useUpdateSongType = (opts?: IGraphQLMutationOpts<typeof UPDATE_SONG_TYPE>) => {
 	const mutation = useGraphQLMutation(UPDATE_SONG_TYPE, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SONGTYPES,
@@ -39,7 +39,7 @@ export const useUpdateSongType = (opts?: IGraphQLMutationOpts<typeof UPDATE_SONG
 				(currentData) => (currentData || []).map((songType) => (songType.id === data.id ? data : songType)),
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

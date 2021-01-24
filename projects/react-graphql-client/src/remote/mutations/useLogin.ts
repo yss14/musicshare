@@ -28,10 +28,10 @@ export const useLogin = (opts?: IGraphQLMutationOpts<typeof LOGIN>) => {
 
 	const mutation = useGraphQLMutation(LOGIN, {
 		...opts,
-		onSuccess: async (data, variables) => {
+		onSuccess: async (data, variables, context) => {
 			await updateAuth(data)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

@@ -34,12 +34,12 @@ export const useUpdateShareMemberPermissions = (
 ) => {
 	const mutation = useGraphQLMutation(UPDATE_SHARE_MEMBER_PERMISSIONS, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.invalidateTypedQuery({
 				query: GET_SHARE_USERS,
 				variables: { shareID: variables.shareID },
 			})
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

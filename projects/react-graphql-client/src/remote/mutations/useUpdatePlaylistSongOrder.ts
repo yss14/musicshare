@@ -32,7 +32,7 @@ export const UPDATE_PLAYLIST_SONG_ORDER = TransformedGraphQLMutation<
 export const useUpdatePlaylistSongOrder = (opts?: IGraphQLMutationOpts<typeof UPDATE_PLAYLIST_SONG_ORDER>) => {
 	const mutation = useGraphQLMutation(UPDATE_PLAYLIST_SONG_ORDER, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_PLAYLIST_WITH_SONGS,
@@ -44,7 +44,7 @@ export const useUpdatePlaylistSongOrder = (opts?: IGraphQLMutationOpts<typeof UP
 				}),
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

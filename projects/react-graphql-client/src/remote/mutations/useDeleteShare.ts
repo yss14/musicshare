@@ -24,7 +24,7 @@ export const DELETE_SHARE = TransformedGraphQLMutation<IDeleteShareData, IDelete
 export const useDeleteShare = (opts?: IGraphQLMutationOpts<typeof DELETE_SHARE>) => {
 	const mutation = useGraphQLMutation(DELETE_SHARE, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SHARES,
@@ -32,7 +32,7 @@ export const useDeleteShare = (opts?: IGraphQLMutationOpts<typeof DELETE_SHARE>)
 				(currentData) => currentData?.filter((share) => share.id !== variables.shareID) || [],
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

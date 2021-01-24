@@ -27,13 +27,13 @@ export const REVOKE_INVITATION = TransformedGraphQLMutation<IRevokeInvitationDat
 export const useRevokeInvitation = (opts?: IGraphQLMutationOpts<typeof REVOKE_INVITATION>) => {
 	const mutation = useGraphQLMutation(REVOKE_INVITATION, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.invalidateTypedQuery({
 				query: GET_SHARE_USERS,
 				variables: { shareID: variables.input.shareID },
 			})
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

@@ -26,7 +26,7 @@ export const LEAVE_SHARE = TransformedGraphQLMutation<ILeaveShareData, ILeaveSha
 export const useLeaveShare = (opts?: IGraphQLMutationOpts<typeof LEAVE_SHARE>) => {
 	const mutation = useGraphQLMutation(LEAVE_SHARE, {
 		...opts,
-		onSuccess: (data, variables) => {
+		onSuccess: (data, variables, context) => {
 			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SHARES,
@@ -34,7 +34,7 @@ export const useLeaveShare = (opts?: IGraphQLMutationOpts<typeof LEAVE_SHARE>) =
 				(currentData) => currentData?.filter((share) => share.id !== variables.input.shareID) || [],
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 
