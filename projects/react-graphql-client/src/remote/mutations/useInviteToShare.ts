@@ -3,7 +3,7 @@ import {
 	TransformedGraphQLMutation,
 	IGraphQLMutationOpts,
 	useGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { GET_SHARE_USERS } from "../queries/useShareUsers"
 
@@ -28,7 +28,7 @@ export const useInviteToShare = (opts?: IGraphQLMutationOpts<typeof INVITE_TO_SH
 	const hook = useGraphQLMutation(INVITE_TO_SHARE, {
 		...opts,
 		onSuccess: (data, variables) => {
-			typedQueryCache.invalidateTypedQuery({
+			typedQueryClient.invalidateTypedQuery({
 				query: GET_SHARE_USERS,
 				variables: { shareID: variables.input.shareID },
 			})

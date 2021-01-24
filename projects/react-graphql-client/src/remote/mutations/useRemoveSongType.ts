@@ -3,7 +3,7 @@ import {
 	TransformedGraphQLMutation,
 	IGraphQLMutationOpts,
 	useGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { GET_SONGTYPES } from "../queries/useSongTypes"
 
@@ -25,7 +25,7 @@ export const useRemoveSongType = (opts?: IGraphQLMutationOpts<typeof REMOVE_SONG
 	const mutation = useGraphQLMutation(REMOVE_SONG_TYPE, {
 		...opts,
 		onSuccess: (data, variables) => {
-			typedQueryCache.invalidateTypedQuery({
+			typedQueryClient.invalidateTypedQuery({
 				query: GET_SONGTYPES,
 			})
 

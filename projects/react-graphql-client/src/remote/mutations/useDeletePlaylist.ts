@@ -3,7 +3,7 @@ import {
 	TransformedGraphQLMutation,
 	IGraphQLMutationOpts,
 	useGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { GET_SHARE_PLAYLISTS } from "../queries/useSharePlaylists"
 import { GET_MERGED_PLAYLISTS } from "../queries/useMergedPlaylists"
@@ -27,14 +27,14 @@ export const useDeletePlaylist = (opts?: IGraphQLMutationOpts<typeof DELETE_PLAY
 	const mutation = useGraphQLMutation(DELETE_PLAYLIST, {
 		...opts,
 		onSuccess: (data, variables) => {
-			typedQueryCache.setTypedQueryData(
+			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SHARE_PLAYLISTS,
 					variables: { shareID: variables.shareID },
 				},
 				(currentData) => currentData?.filter((playlist) => playlist.id !== variables.playlistID) || [],
 			)
-			typedQueryCache.setTypedQueryData(
+			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_MERGED_PLAYLISTS,
 				},

@@ -3,7 +3,7 @@ import { playlistKeys, Playlist } from "@musicshare/shared-types"
 import {
 	TransformedGraphQLMutation,
 	useGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 	IGraphQLMutationOpts,
 } from "../../react-query-graphql"
 import { GET_SHARE_PLAYLISTS } from "../queries/useSharePlaylists"
@@ -30,14 +30,14 @@ export const useCreatePlaylist = (opts?: IGraphQLMutationOpts<typeof CREATE_PLAY
 	const mutation = useGraphQLMutation(CREATE_PLAYLIST, {
 		...opts,
 		onSuccess: (data, variables) => {
-			typedQueryCache.setTypedQueryData(
+			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SHARE_PLAYLISTS,
 					variables: { shareID: variables.shareID },
 				},
 				(currentData) => [...(currentData || []), data],
 			)
-			typedQueryCache.setTypedQueryData(
+			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_MERGED_PLAYLISTS,
 				},

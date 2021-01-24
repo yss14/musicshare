@@ -4,7 +4,7 @@ import {
 	TransformedGraphQLMutation,
 	IGraphQLMutationOpts,
 	useGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { GET_SHARE_USERS } from "../queries/useShareUsers"
 
@@ -35,7 +35,7 @@ export const useUpdateShareMemberPermissions = (
 	const mutation = useGraphQLMutation(UPDATE_SHARE_MEMBER_PERMISSIONS, {
 		...opts,
 		onSuccess: (data, variables) => {
-			typedQueryCache.invalidateTypedQuery({
+			typedQueryClient.invalidateTypedQuery({
 				query: GET_SHARE_USERS,
 				variables: { shareID: variables.shareID },
 			})

@@ -2,7 +2,7 @@ import {
 	IGraphQLMutationOpts,
 	useGraphQLMutation,
 	TransformedGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import gql from "graphql-tag"
 import { GET_AUTH } from "../queries/useAuth"
@@ -38,7 +38,7 @@ export const useUpdateAuth = (opts?: IGraphQLMutationOpts<typeof UPDATE_AUTH>) =
 			}
 		},
 		onSuccess: (data, variables) => {
-			typedQueryCache.invalidateTypedQuery({
+			typedQueryClient.invalidateTypedQuery({
 				query: GET_AUTH,
 			})
 

@@ -3,7 +3,7 @@ import {
 	TransformedGraphQLMutation,
 	IGraphQLMutationOpts,
 	useGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { SongType, songTypeKeys } from "@musicshare/shared-types"
 import { GET_SONGTYPES } from "../queries/useSongTypes"
@@ -31,7 +31,7 @@ export const useAddSongType = (opts?: IGraphQLMutationOpts<typeof ADD_SONG_TYPE>
 	const mutation = useGraphQLMutation(ADD_SONG_TYPE, {
 		...opts,
 		onSuccess: (data, variables) => {
-			typedQueryCache.setTypedQueryData(
+			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SONGTYPES,
 				},

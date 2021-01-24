@@ -4,7 +4,7 @@ import {
 	TransformedGraphQLMutation,
 	IGraphQLMutationOpts,
 	useGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { GET_SHARES } from "../queries/useShares"
 
@@ -28,7 +28,7 @@ export const useCreateShare = (opts?: IGraphQLMutationOpts<typeof CREATE_SHARE>)
 	const mutation = useGraphQLMutation(CREATE_SHARE, {
 		...opts,
 		onSuccess: (data, variables) => {
-			typedQueryCache.setTypedQueryData(
+			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SHARES,
 				},

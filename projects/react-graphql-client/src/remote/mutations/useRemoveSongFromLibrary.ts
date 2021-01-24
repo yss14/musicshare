@@ -3,7 +3,7 @@ import {
 	TransformedGraphQLMutation,
 	IGraphQLMutationOpts,
 	useGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { GET_SHARE_SONGS } from "../queries/useShareSongs"
 
@@ -31,7 +31,7 @@ export const useRemoveSongFromLibrary = (opts?: IGraphQLMutationOpts<typeof REMO
 	const mutation = useGraphQLMutation(REMOVE_SONG_FROM_LIBRARY, {
 		...opts,
 		onSuccess: (data, variables) => {
-			typedQueryCache.setTypedQueryData(
+			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SHARE_SONGS,
 					variables: { shareID: variables.input.shareID },

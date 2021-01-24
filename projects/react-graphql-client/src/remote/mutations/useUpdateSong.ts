@@ -4,7 +4,7 @@ import {
 	TransformedGraphQLMutation,
 	useGraphQLMutation,
 	IGraphQLMutationOpts,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { GET_DIRTY_SHARE_SONGS } from "../queries/useDirtyShareSongs"
 import { GET_DIRTY_MERGED_VIEW_SONGS } from "../queries/useDirtyMergedViewSongs"
@@ -49,15 +49,15 @@ export const useUpdateSong = (playlistID?: string, opts?: IGraphQLMutationOpts<t
 	const mutation = useGraphQLMutation(UPDATE_SONG, {
 		...opts,
 		onSuccess: (updatedSong, variables) => {
-			typedQueryCache.invalidateTypedQuery({
+			typedQueryClient.invalidateTypedQuery({
 				query: GET_DIRTY_SHARE_SONGS,
 			})
-			typedQueryCache.invalidateTypedQuery({
+			typedQueryClient.invalidateTypedQuery({
 				query: GET_DIRTY_MERGED_VIEW_SONGS,
 			})
 
 			if (playlistID) {
-				typedQueryCache.invalidateTypedQuery({
+				typedQueryClient.invalidateTypedQuery({
 					query: GET_PLAYLIST_WITH_SONGS,
 					variables: { shareID: updatedSong.shareID, playlistID },
 				})
