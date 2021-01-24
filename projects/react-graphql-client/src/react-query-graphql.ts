@@ -1,6 +1,6 @@
 import React, { useContext } from "react"
 import { IGraphQLBaseClient } from "GraphQLClient"
-import { QueryOptions, useQuery, MutationOptions, useMutation, QueryClient } from "react-query"
+import { UseQueryOptions, useQuery, UseMutationOptions, useMutation, QueryClient } from "react-query"
 import { DocumentNode } from "graphql"
 import { Updater } from "react-query/types/core/utils"
 import { GraphQLClientError } from "./GraphQLClientError"
@@ -61,7 +61,7 @@ export interface IQueryResolverArgs<TVar> extends IBaseResolverArgs<TVar> {
 	query: DocumentNode
 }
 
-export interface IUseQueryOptions<TData, TVar = {}> extends QueryOptions<TData>, GraphQLVariables<TVar> {
+export interface IUseQueryOptions<TData, TVar = {}> extends UseQueryOptions<TData>, GraphQLVariables<TVar> {
 	operatioName?: string
 	resolver?: (args: IQueryResolverArgs<TVar>) => TData | Promise<TData>
 }
@@ -99,7 +99,7 @@ export interface IMutationResolverArgs<TVar> extends IBaseResolverArgs<TVar> {
 }
 
 export interface IUseMutationOptions<TData, TVar>
-	extends MutationOptions<TData, GraphQLClientError<TData>, TVar>,
+	extends UseMutationOptions<TData, GraphQLClientError<TData>, TVar>,
 		GraphQLVariables<TVar> {
 	resolver?: (args: IMutationResolverArgs<TVar>) => TData | Promise<TData>
 }
