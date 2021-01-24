@@ -47,7 +47,7 @@ export const RegistrationForm = () => {
 	const formikHelpers = useRef<FormikHelpers<IFormValues>>()
 	const { data: captcha, isLoading: isLoadingCaptcha, refetch: resetCaptcha } = useCaptcha()
 	const captchaID = captcha?.id
-	const [register, { error, data, isLoading }] = useRegister({
+	const { mutateAsync: register, error, data, isLoading } = useRegister({
 		onSuccess: () => {
 			message.success(`Registration was successful`)
 			formikHelpers.current && formikHelpers.current.resetForm()

@@ -53,7 +53,7 @@ export const SongSearch: React.FC<ISongSearchProps> = ({ onClickSong, onSearchFi
 	})
 	const [query, setQuery] = useState("")
 	const [debouncedQuery] = useDebounce(query, 150)
-	const { resolvedData: songs, isFetching } = useSongSearch({
+	const { data: songs, isFetching } = useSongSearch({
 		query: debouncedQuery,
 		matcher: searchOptions.matcher,
 	})
@@ -115,7 +115,7 @@ interface ISongSearchItemProps {
 }
 
 const SongSearchItem: React.FC<ISongSearchItemProps> = ({ song, onClick, onDrag }) => {
-	const [addSongsToPlaylist] = useAddSongsToPlaylist()
+	const { mutateAsync: addSongsToPlaylist } = useAddSongsToPlaylist()
 	const [, drag, dragPreview] = useDrag<ISongDNDItem, void, any>({
 		item: { type: DragNDropItem.Song, song, idx: -1 },
 		begin: () => (onDrag ? onDrag(true) : undefined),

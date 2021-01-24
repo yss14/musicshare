@@ -10,7 +10,7 @@ import { FormElements } from "../../common/FormElements"
 export const SongTypeSettings = () => {
 	const [editSongType, setEditSongType] = useState<SongType | null>(null)
 	const { data: songTypes, isLoading: isLoadingSongType } = useSongTypes()
-	const [removeSongType, { isLoading: isLoadingRemoveSongType }] = useRemoveSongType({
+	const { mutateAsync: removeSongType, isLoading: isLoadingRemoveSongType } = useRemoveSongType({
 		onSuccess: () => {
 			message.success(`SongType successfully deleted`)
 		},
@@ -91,7 +91,7 @@ const validate = (values: SongTypePayload) => {
 }
 
 const SongTypeTableFooter = () => {
-	const [addSongType, { isLoading: isLoadingAddSongType }] = useAddSongType({
+	const { mutateAsync: addSongType, isLoading: isLoadingAddSongType } = useAddSongType({
 		onSuccess: (data) => {
 			message.success(`Song Type "${data.name}" successfully added`)
 		},
@@ -138,7 +138,7 @@ interface IEditGenreModalProps {
 }
 
 const EditSongTypeModal = ({ songType: { id: songTypeID, ...songTypePayload }, onClose }: IEditGenreModalProps) => {
-	const [updateSongType, { isLoading }] = useUpdateSongType()
+	const { mutateAsync: updateSongType, isLoading } = useUpdateSongType()
 
 	const onSubmit = useCallback(
 		async (values: SongTypePayload, formikHelpers: FormikHelpers<SongTypePayload>) => {

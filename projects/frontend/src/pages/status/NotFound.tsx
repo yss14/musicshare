@@ -13,7 +13,7 @@ const NotFoundContainer = styled.div`
 `
 
 export const NotFound = () => {
-	const { latestData: auth, isLoading } = useAuth()
+	const { data: auth, isLoading } = useAuth()
 
 	if (isLoading) return <LoadingSpinner />
 

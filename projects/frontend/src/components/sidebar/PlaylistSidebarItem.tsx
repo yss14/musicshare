@@ -50,7 +50,7 @@ export const PlaylistSidebarItem: React.FC<IPlaylistSidebarItemProps> = ({
 	onMouseEnter,
 	isMergedView,
 }) => {
-	const [addSongsToPlaylist] = useAddSongsToPlaylist()
+	const { mutateAsync: addSongsToPlaylist } = useAddSongsToPlaylist()
 	const playlistShareName = useShareName(playlist.shareID)
 
 	const [{ canDrop, isOver }, drop] = useDrop<ISongDNDItem, void, IMonitorProps>({
