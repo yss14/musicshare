@@ -48,7 +48,7 @@ export const UPDATE_SONG = TransformedGraphQLMutation<IUpdateSongData, IUpdateSo
 export const useUpdateSong = (playlistID?: string, opts?: IGraphQLMutationOpts<typeof UPDATE_SONG>) => {
 	const mutation = useGraphQLMutation(UPDATE_SONG, {
 		...opts,
-		onSuccess: (updatedSong, variables) => {
+		onSuccess: (updatedSong, variables, context) => {
 			typedQueryClient.invalidateTypedQuery({
 				query: GET_DIRTY_SHARE_SONGS,
 			})
@@ -69,7 +69,7 @@ export const useUpdateSong = (playlistID?: string, opts?: IGraphQLMutationOpts<t
 				})),
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(updatedSong, variables)
+			if (opts?.onSuccess) opts.onSuccess(updatedSong, variables, context)
 		},
 	})
 
