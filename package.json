@@ -107,7 +107,7 @@
 		"url-regex": "^5.0.0",
 		"use-debounce": "^5.2.0",
 		"use-deep-compare-effect": "^1.6.1",
-		"use-local-storage-state": "^7.0.0",
+		"use-local-storage-state": "^8.0.1",
 		"use-react-router": "^1.0.6",
 		"use-set-timeout": "^1.0.4",
 		"uuid": "^8.3.2",
