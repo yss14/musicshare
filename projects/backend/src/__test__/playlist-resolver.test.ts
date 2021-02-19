@@ -17,6 +17,7 @@ import { clearTables } from "../database/database"
 import { ShareSong } from "../models/SongModel"
 import { v4 as uuid } from "uuid"
 import { PlaylistSong } from "../models/PlaylistSongModel"
+import { Permissions } from "@musicshare/shared-types"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
@@ -395,6 +396,28 @@ describe("add songs to playlist", () => {
 		expect(body).toMatchObject(
 			makeGraphQLResponse(null, [{ message: `User has no permission to add those song ids to a playlist` }]),
 		)
+	})
+
+	test("song of own library should succeed if no other shares exist", async () => {
+		const { graphQLServer, playlistService, shareService, userService, songService } = await setupTest({
+			seed: false,
+		})
+		const song = testData.songs.song1_library_user1
+		const user = await userService.create("Test", "test@test.com")
+		const share = await shareService.create(user.id, "Test", true)
+		const playlist = await playlistService.create(share.id, "Test")
+		const songID = await songService.create(share.id, song)
+
+		const query = makeMutation(makeAddSongsQuery(share.id, playlist.id, [songID]))
+
+		const { body } = await executeGraphQLQuery({
+			graphQLServer,
+			query,
+			scopes: [{ shareID: share.id, permissions: Permissions.ALL }],
+			userID: user.id,
+		})
+
+		expect(body.data.addSongsToPlaylist).toBeArrayOfSize(1)
 	})
 })
 
