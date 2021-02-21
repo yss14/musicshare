@@ -157,7 +157,7 @@
 		"concurrently": "^6.0.0",
 		"cross-env": "^7.0.3",
 		"eslint": "^7.18.0",
-		"eslint-config-prettier": "^7.2.0",
+		"eslint-config-prettier": "^8.0.0",
 		"eslint-plugin-react": "^7.22.0",
 		"eslint-plugin-react-hooks": "^4.0.0",
 		"find-free-port": "^2.0.0",
