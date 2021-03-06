@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react"
+import { useCallback, useRef } from "react"
 import validator from "validator"
 import { Formik, FormikHelpers } from "formik"
 import { LockOutlined, UserOutlined, MailOutlined, SolutionOutlined } from "@ant-design/icons"

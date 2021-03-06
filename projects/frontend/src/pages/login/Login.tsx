@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import { useEffect } from "react"
 import { LoginForm } from "./LoginForm"
 import { useParams, useHistory } from "react-router-dom"
 import { Container, Title } from "../CustomerActionForm"

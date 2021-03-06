@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import { PlusOutlined, ShareAltOutlined, ProfileOutlined } from "@ant-design/icons"
 import { Menu } from "antd"
 import styled from "styled-components"

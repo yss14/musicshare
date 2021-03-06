@@ -1,4 +1,3 @@
-import React from "react"
 import { Divider, Alert } from "antd"
 import { GenreSettings } from "./GenreSettings"
 import { SongTypeSettings } from "./SongTypeSettings"
