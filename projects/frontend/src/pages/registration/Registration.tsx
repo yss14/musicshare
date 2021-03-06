@@ -1,4 +1,3 @@
-import React from "react"
 import { Container, Title } from "../CustomerActionForm"
 import { RegistrationForm } from "./RegistrationForm"
 

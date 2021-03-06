@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect } from "react"
+import { Suspense, lazy, useEffect } from "react"
 import { Route, useHistory, Switch, useRouteMatch } from "react-router-dom"
 import { Login } from "../../pages/login/Login"
 import { MainLayout } from "../MainLayout"

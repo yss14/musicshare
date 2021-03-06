@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react"
+import { useState, useCallback } from "react"
 import { Genre } from "@musicshare/shared-types"
 import { Table, Button, Form, message, Modal } from "antd"
 import { useGenres, useRemoveGenre, useAddGenre, useUpdateGenre } from "@musicshare/react-graphql-client"
