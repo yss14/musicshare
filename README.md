@@ -28,8 +28,10 @@ Try out [our demo](https://demo.musicshare.rocks)!
 
 <br/>
 
+<p float="left">
 <img src="https://musicshare-public.s3.eu-central-1.amazonaws.com/personal_library.png" width="350">
 <img src="https://musicshare-public.s3.eu-central-1.amazonaws.com/song_editor.png" width="350">
+</p>
 
 <br/>
 <br/>
