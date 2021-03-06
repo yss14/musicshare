@@ -1,67 +1,73 @@
 <img src="https://musicsharev2.blob.core.windows.net/musicsharestatic/musicshare_logo_gray.png" width="400">
 
-Simple yet powerful self-hosted open-source music library.
+Self-hosted open-source music sharing platform from music lovers for music lovers
 
 [![Build Status](https://travis-ci.com/yss14/musicshare.svg?branch=master)](https://travis-ci.com/yss14/musicshare)
+[![Gitter](https://badges.gitter.im/musicsharerocks/community.svg)](https://gitter.im/musicsharerocks/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Slack Status](https://img.shields.io/badge/chat-on%20slack-blue)](https://join.slack.com/t/musicshare-workspace/shared_invite/zt-nnt5jhio-_vOV8oiL8Gz1Myw5PgJ~Sg)
 [![codecov](https://codecov.io/gh/yss14/musicshare/branch/master/graph/badge.svg)](https://codecov.io/gh/yss14/musicshare)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=yss14/musicshare)](https://dependabot.com)
 
+[Setup Guide](https://github.com/yss14/musicshare/wiki/Setup-Guide) | [Contributing](https://github.com/yss14/musicshare/wiki/Contributing) | [Issue Tracker](https://github.com/yss14/musicshare/issues) | [Chat](https://gitter.im/musicsharerocks/community?utm_source=share-link&utm_medium=link&utm_campaign=share-link) | [Roadmap](https://github.com/yss14/musicshare/wiki/Roadmap)
+
+<br/>
+
+**`v1.0` release will happen within March 2021!**
+
+<br/>
+
+## Features
+
+MusicShare is a community-driven open-project enabling people to listen and share music with friends and family.
+
+Upload music to your your self-hosted personal library and share it with friends and family.
+
+<br/>
+
+Try out [our demo](https://demo.musicshare.rocks)!
+
+<br/>
+
+<img src="https://musicshare-public.s3.eu-central-1.amazonaws.com/personal_library.png" width="500">
+<img src="https://musicshare-public.s3.eu-central-1.amazonaws.com/song_editor.png" width="500">
+
+<br/>
+<br/>
+
+**Current Features**
+
+-   Personal library
+-   Unlimited shares with friends and family
+-   Rich song meta data management
+-   Simple music player
+-   Simple file upload
+-   Upload duplicate detection
+-   Granular share permissions
+-   Modern and clear web ui
+-   Simple and open GraphQL API
+
+**Upcoming Features**
+
+-   Crossplatform (Android and iOS) app with a modern and clear ui
+-   Song cover arts
+-   _Native feel_ song list including keyboard shortcuts
+-   File support for `m4a` and `aac`
+-   Smart playlists sourced from custom filters
+-   Albums and EPs support
+
 ## Motivation
 
-iTunes used to be a really great and simple yet powerful music library, but suffered user experience, platform support, and mobility during the recent years.
+iTunes used to be a great and simple yet powerful music library, but suffered user experience, platform support, and mobility during the recent years.
 
-Streaming services became the way listening to music nowadays, but you are not the owner of the music.
+Streaming services became the way listening to music nowadays with great multi platform support and modern user interfaces, but with the caveat of not being the owner of the music.
 
 MusicShare is there to combine both ideas - providing a simple yet powerful service to manage and share your own self-hosted music library.
-
-## Current Development Status
-
-We are working hard to release the first version of MusicShare. See the [roadmap](https://github.com/yss14/musicshare/wiki/Roadmap) and [project status](https://github.com/yss14/musicshare/projects).
-
-## Local Setup
-
-### Run The Project
-
-**Windows:** Be sure to have `node-gyp` and the latest Node.JS version installed. For `node-gyp`, see instructions [here](https://github.com/nodejs/node-gyp#installation).
-
-1. Clone this repo
-2. Run `npm install` or `yarn install` to install and bootstrap dependencies
-3. Create local configurations for `frontend` and `backend` by copying the sample `.env` files (`cp projects/backend/config/development_sample.env projects/backend/development.env && cp projects/frontend/config/sample.env projects/frontend/.env`)
-4. Create and start MusicShares dependencies PostgreSQL database with docker (`docker-compose up`)
-
-    a) **If your system already runs a PostgreSQL database:**
-
-    In this case, you only need to spin up the Minio (S3 compatible file storage) service. Just run `docker-compose up -d minio`.
-
-    b) **If your system does no already run a PostgreSQL database:**
-
-    Run `docker-compose up -d` to spin up a PostgreSQL database and the Minio (S3 compatible file storage) service.
-
-5. Open two terminal tabs and start backend and frontend via `npm run start:backend` and `npm run start:frontend`, respectively.
-6. Once both parts are up and running, you can log in via the default user `test@musicshare.rocks` with the super-safe password `test1234`.
-
-If you want to run parts of the project seperatly, have a look at the provided scripts of the root [package.json](package.json).
-
-#### Troubleshooting
-
--   `SQLError: error: database "<user>" does not exist SQL: SELECT FROM pg_database WHERE datname = 'musicshare' Values:`
-    -   connect to the PostgreSQL database first via a thrid party client or `psql` and create a database named `<user>`
-    -   for more information on this problem you can also visit [this StackOverflow thread](https://stackoverflow.com/questions/17633422/psql-fatal-database-user-does-not-exist)
-
-### Testing
-
-To execute the test cases, you need to create a separate `test.env` for the `backend`
-project (`cp projects/backend/config/development_sample.env projects/backend/test.env`),
-and adjust the database connection variables accordingly.
-
-**Important notes**
-
--   Be sure to always run tsc in watch mode (e.g. via `dev:backend` npm script) when writing test cases since `ts-jest` is configured to skip type checking
--   When calling `executeGraphQLQuery` function in integration tests, the default _logged-in_ user is `testData.users.user1`
 
 ## Contributing
 
 We are always happy welcoming new people contributing to this project. [Here's](https://github.com/yss14/musicshare/wiki/Contributing) a little guide to get started!
+
+We are also open for questions and answers on our official [gitter](https://gitter.im/musicsharerocks/community?utm_source=share-link&utm_medium=link&utm_campaign=share-link) or [slack](https://join.slack.com/t/musicshare-workspace/shared_invite/zt-nnt5jhio-_vOV8oiL8Gz1Myw5PgJ~Sg).
 
 ## Contributors
 
