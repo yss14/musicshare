@@ -8,7 +8,7 @@ Self-hosted open-source music sharing platform from music lovers for music lover
 [![codecov](https://codecov.io/gh/yss14/musicshare/branch/master/graph/badge.svg)](https://codecov.io/gh/yss14/musicshare)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=yss14/musicshare)](https://dependabot.com)
 
-[Setup Guide](https://github.com/yss14/musicshare/wiki/Setup-Guide) | [Contributing](https://github.com/yss14/musicshare/wiki/Contributing) | [Issue Tracker](https://github.com/yss14/musicshare/issues) | [Chat](https://gitter.im/musicsharerocks/community?utm_source=share-link&utm_medium=link&utm_campaign=share-link) | [Roadmap](https://github.com/yss14/musicshare/wiki/Roadmap)
+[Installation Guide](https://github.com/yss14/musicshare/wiki/Installation-Guide) | [Contributing](https://github.com/yss14/musicshare/wiki/Contributing) | [Issue Tracker](https://github.com/yss14/musicshare/issues) | [Chat](https://gitter.im/musicsharerocks/community?utm_source=share-link&utm_medium=link&utm_campaign=share-link) | [Roadmap](https://github.com/yss14/musicshare/wiki/Roadmap)
 
 <br/>
 
@@ -41,6 +41,7 @@ Try out [our demo](https://demo.musicshare.rocks)!
 -   Personal library
 -   Unlimited shares with friends and family
 -   Rich song meta data management
+-   Personal and shared playlists
 -   Simple music player
 -   Simple file upload
 -   Upload duplicate detection
