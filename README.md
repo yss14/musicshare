@@ -12,7 +12,7 @@ Self-hosted open-source music sharing platform from music lovers for music lover
 
 <br/>
 
-**`v1.0` release will happen within March 2021!**
+**`v1.0` release will happen in March 2021!**
 
 <br/>
 
@@ -28,8 +28,8 @@ Try out [our demo](https://demo.musicshare.rocks)!
 
 <br/>
 
-<img src="https://musicshare-public.s3.eu-central-1.amazonaws.com/personal_library.png" width="500">
-<img src="https://musicshare-public.s3.eu-central-1.amazonaws.com/song_editor.png" width="500">
+<img src="https://musicshare-public.s3.eu-central-1.amazonaws.com/personal_library.png" width="350">
+<img src="https://musicshare-public.s3.eu-central-1.amazonaws.com/song_editor.png" width="350">
 
 <br/>
 <br/>
@@ -44,7 +44,6 @@ Try out [our demo](https://demo.musicshare.rocks)!
 -   Upload duplicate detection
 -   Granular share permissions
 -   Modern and clear web ui
--   Simple and open GraphQL API
 
 **Upcoming Features**
 
