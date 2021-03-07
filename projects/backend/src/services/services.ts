@@ -104,7 +104,11 @@ export const initFileStore = (config: IConfig): IFileService => {
 	const defaultContainerName = "musicshare"
 
 	if (provider === "azureblob") {
-		return new AzureFileService(config.fileStorage.azureStorage?.container || defaultContainerName)
+		return new AzureFileService(
+			config.fileStorage.azureStorage?.container || defaultContainerName,
+			undefined,
+			config.fileStorage.browserHost,
+		)
 	} else if (provider === "awss3") {
 		if (!s3) {
 			throw new Error(`AWS S3 is specified as file storage provider, but no credentials are provided`)
@@ -120,6 +124,7 @@ export const initFileStore = (config: IConfig): IFileService => {
 				region: s3.region,
 			}),
 			s3.bucket || defaultContainerName,
+			config.fileStorage.browserHost,
 		)
 	} else {
 		throw new Error(`Unknown file storage provider ${provider}`)

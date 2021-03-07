@@ -12,7 +12,11 @@ const CORS_RULES: S3.CORSRules = [
 ]
 
 export class AWSS3FileService implements IFileService {
-	constructor(private readonly s3Client: S3, private readonly bucket: string) {}
+	constructor(
+		private readonly s3Client: S3,
+		private readonly bucket: string,
+		private readonly browserHost?: string,
+	) {}
 
 	public async createContainerIfNotExists() {
 		await new Promise<void>((resolve, reject) => {
@@ -83,7 +87,12 @@ export class AWSS3FileService implements IFileService {
 					// istanbul ignore if
 					if (err) return reject(err)
 
-					resolve(url)
+					if (this.browserHost) {
+						const host = new URL(url).host
+						resolve(url.replace(new RegExp(host), this.browserHost))
+					} else {
+						resolve(url)
+					}
 				},
 			)
 		})
