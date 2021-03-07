@@ -174,23 +174,6 @@ describe("get url to file", () => {
 
 		expect(urlToFileIsReachable).toBeFalsy()
 	})
-
-	test("get url with browser host specified", async () => {
-		const browserHost = "http://localhost:1337"
-		const fileService = new AzureFileService(container, undefined, browserHost)
-		await fileService.createContainerIfNotExists()
-		const filenameRemote = "SomeFile.mp3"
-
-		await fileService.uploadFile({
-			filenameRemote: filenameRemote,
-			contentType: "audio/mp3",
-			source: fs.createReadStream(mp3FilePath),
-		})
-
-		const urlToFile = await fileService.getLinkToFile({ filenameRemote })
-
-		expect(urlToFile).toMatch(new RegExp(browserHost))
-	})
 })
 
 describe("get file as buffer", () => {

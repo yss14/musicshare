@@ -26,11 +26,9 @@ export interface UploadFileArgsAzure extends UploadFileArgs {
 export class AzureFileService implements IFileService {
 	private readonly blobStorage: azBlob.BlobService
 	public readonly container: string
-	private readonly browserHost?: string
 
 	constructor(container: string, blobStorage?: azBlob.BlobService, browserHost?: string) {
 		this.container = container
-		this.browserHost = browserHost
 
 		if (blobStorage) {
 			this.blobStorage = blobStorage
@@ -107,12 +105,7 @@ export class AzureFileService implements IFileService {
 
 		const url = this.blobStorage.getUrl(this.container, args.filenameRemote, sharedAccessSignature)
 
-		if (this.browserHost) {
-			const host = new URL(url).host
-			return Promise.resolve(url.replace(new RegExp(host), this.browserHost))
-		} else {
-			return Promise.resolve(url)
-		}
+		return Promise.resolve(url)
 	}
 
 	public getFileAsBuffer(filenameRemote: string): Promise<Buffer> {
