@@ -27,7 +27,7 @@ export class AzureFileService implements IFileService {
 	private readonly blobStorage: azBlob.BlobService
 	public readonly container: string
 
-	constructor(container: string, blobStorage?: azBlob.BlobService, browserHost?: string) {
+	constructor(container: string, blobStorage?: azBlob.BlobService) {
 		this.container = container
 
 		if (blobStorage) {
