@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.8"
 services:
     postgres:
         image: postgres:12
@@ -24,13 +24,20 @@ services:
         environment:
             - MINIO_ACCESS_KEY=musicshare
             - MINIO_SECRET_KEY=musicshare
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+            interval: 5s
+            timeout: 10s
+            retries: 3
 
     backend:
-        image: docker.pkg.github.com/yss14/musicshare/backend:d92d4b0
+        image: docker.pkg.github.com/yss14/musicshare/backend:11493a2
         restart: unless-stopped
         depends_on:
-            - postgres
-            - minio
+            postgres:
+                condition: service_healthy
+            minio:
+                condition: service_healthy
         environment:
             NODE_ENV: production
             JWT_SECRET: somesecret
@@ -53,7 +60,7 @@ services:
             - 4000:4000
 
     frontend:
-        image: docker.pkg.github.com/yss14/musicshare/frontend:d92d4b0
+        image: docker.pkg.github.com/yss14/musicshare/frontend:11493a2
         restart: unless-stopped
         depends_on:
             - backend
