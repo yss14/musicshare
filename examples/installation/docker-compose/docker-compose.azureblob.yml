@@ -30,7 +30,7 @@ services:
             POSTGRES_PASSWORD: postgres
             POSTRGRES_DATABASE: musicshare
             FILE_STORAGE_PROVIDER: azureblob
-            AZURE_STORAGE_CONNECTION_STRING: "<yourconnectionstring>"
+            AZURE_STORAGE_CONNECTION_STRING: "<your_connectionstring>"
             FRONTEND_BASEURL: http://localhost:3000
             REST_PORT: 4000
             SETUP_USERNAME: musicshare
