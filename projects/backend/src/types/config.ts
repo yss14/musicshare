@@ -52,7 +52,6 @@ export interface IConfig {
 			container?: string
 		}
 		accessTokenExpiry: number
-		browserHost?: string
 	}
 	frontend: {
 		baseUrl: string
@@ -131,7 +130,6 @@ export const configFromEnv = (): IConfig => {
 				container: process.env[CustomEnv.AZURE_STORAGE_CONTAINER],
 			},
 			accessTokenExpiry: getInteger(process.env[CustomEnv.FILE_STORAGE_ACCESS_TOKEN_EXPIRY]) || 30,
-			browserHost: process.env[CustomEnv.FILE_STORAGE_BROWSER_HOST],
 		},
 		frontend: {
 			baseUrl: process.env[CustomEnv.FRONTEND_BASEURL] || "http://localhost:3000",

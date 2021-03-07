@@ -26,4 +26,16 @@ describe("file service utils", () => {
 
 		expect(() => extractBlobNameFromUrl(url)).toThrowError(InvalidBlobUrlError)
 	})
+
+	test("url with valid hostname succeeds", () => {
+		const url = "http://localhost:9000/musicshare/test.mp3"
+
+		expect(extractBlobNameFromUrl(url)).toBe("test.mp3")
+	})
+
+	test("url with custom hostname succeeds", () => {
+		const url = "http://minio:9000/musicshare/test.mp3"
+
+		expect(extractBlobNameFromUrl(url)).toBe("test.mp3")
+	})
 })
