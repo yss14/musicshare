@@ -39,7 +39,6 @@ jobs:
         env:
             NODE_ENV: test
             JWT_SECRET: github_actions
-            IS_CI: true
             POSTGRES_HOST: localhost
             POSTGRES_PORT: 5432
             POSTGRES_USER: postgres
@@ -97,7 +96,6 @@ jobs:
 
         env:
             SKIP_PREFLIGHT_CHECK: true
-            IS_CI: true
 
         steps:
             - uses: fkirc/skip-duplicate-actions@master

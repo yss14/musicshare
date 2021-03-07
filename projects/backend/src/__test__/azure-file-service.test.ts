@@ -1,4 +1,3 @@
-import { ChildProcess, spawn } from "child_process"
 import * as path from "path"
 import { AzureFileService } from "../file-service/AzureFileService"
 import * as fs from "fs"
@@ -9,33 +8,7 @@ import * as azBlob from "azure-storage"
 
 const fsPromises = fs.promises
 
-const startAzurite = () => {
-	return new Promise<ChildProcess>((resolve, reject) => {
-		const childProcess = spawn("azurite-blob", ["-l", "azurite_test"])
-
-		childProcess.stderr!.on("data", (data) => reject(data))
-
-		resolve(childProcess)
-	})
-}
-
 const TIMEOUT = 20000
-
-let azuriteProcess: ChildProcess | null = null
-
-beforeAll(async () => {
-	if (!process.env.IS_CI) {
-		azuriteProcess = await startAzurite()
-	}
-})
-
-afterAll(async () => {
-	if (azuriteProcess) {
-		azuriteProcess.kill()
-
-		await new Promise<void>((resolve) => setTimeout(() => resolve(), 1000))
-	}
-})
 
 describe("instance creation", () => {
 	test("single instance", async () => {
