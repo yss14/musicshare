@@ -31,11 +31,14 @@ jobs:
                 env:
                     MINIO_ACCESS_KEY: musicshare
                     MINIO_SECRET_KEY: musicshare
+            azurite:
+                image: mcr.microsoft.com/azure-storage/azurite
+                ports:
+                    - 10000:10000
 
         env:
             NODE_ENV: test
             JWT_SECRET: github_actions
-            IS_CI: true
             POSTGRES_HOST: localhost
             POSTGRES_PORT: 5432
             POSTGRES_USER: postgres
@@ -43,7 +46,7 @@ jobs:
             S3_HOST: "http://127.0.0.1:9000"
             S3_ACCESS_KEY: musicshare
             S3_SECRET_KEY: musicshare
-            AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+            AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
             CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
         steps:
@@ -93,7 +96,6 @@ jobs:
 
         env:
             SKIP_PREFLIGHT_CHECK: true
-            IS_CI: true
 
         steps:
             - uses: fkirc/skip-duplicate-actions@master
