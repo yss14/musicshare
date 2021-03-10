@@ -31,13 +31,13 @@ interface IShareSettingsGeneralProps {
 
 export const ShareSettingsGeneral = ({ share, isLibrary, isOwner }: IShareSettingsGeneralProps) => {
 	const canChangeName = isLibrary || isOwner
-	const canInvite = !isLibrary && isOwner
+	const canEdit = !isLibrary && isOwner
+	console.log(share)
 
 	return (
 		<Form>
 			{canChangeName && <ChangeSongName share={share} />}
-			{canInvite && <ShareUsers shareID={share.id} />}
-			{!isOwner && <div>{"You've missing the required permission to edit share settings"}</div>}
+			<ShareUsers shareID={share.id} canEdit={canEdit} />
 		</Form>
 	)
 }
@@ -70,7 +70,7 @@ const ChangeSongName: React.FC<{ share: Share }> = ({ share: { name, id } }) => 
 	)
 }
 
-const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
+const ShareUsers: React.FC<{ shareID: string; canEdit: boolean }> = ({ shareID, canEdit }) => {
 	const { data: users, isLoading, error } = useShareUsers(shareID)
 	const [email, setEMail] = useState("")
 	const [invitationLink, setInvitationLink] = useState<string | null>(null)
@@ -145,34 +145,38 @@ const ShareUsers: React.FC<{ shareID: string }> = ({ shareID }) => {
 					<Column title="Name" dataIndex="name" key="name" />
 					<Column title="E-Mail" dataIndex="email" key="email" />
 					<Column title="Status" dataIndex="status" key="status" width={100} />
-					<Column
-						title="Actions"
-						key="actions"
-						width={120}
-						render={(_, user: ShareMember) => (
-							<>
-								{user.status === UserStatus.Pending && (
-									<Button type="link" onClick={() => onRevokeInvitationClick(user.id)}>
-										Revoke
-									</Button>
-								)}
-							</>
-						)}
-					/>
-					<Column
-						title="Permissions"
-						key="permissions"
-						render={(_, user: ShareMember) => {
-							return (
-								<EditableTagGroup
-									values={user.permissions}
-									placeholder="Permissions"
-									datasource={Permissions.ALL}
-									onValuesChange={(permissions) => onPermissionsValueChange(user, permissions)}
-								/>
-							)
-						}}
-					/>
+					{canEdit && (
+						<Column
+							title="Actions"
+							key="actions"
+							width={120}
+							render={(_, user: ShareMember) => (
+								<>
+									{user.status === UserStatus.Pending && (
+										<Button type="link" onClick={() => onRevokeInvitationClick(user.id)}>
+											Revoke
+										</Button>
+									)}
+								</>
+							)}
+						/>
+					)}
+					{canEdit && (
+						<Column
+							title="Permissions"
+							key="permissions"
+							render={(_, user: ShareMember) => {
+								return (
+									<EditableTagGroup
+										values={user.permissions}
+										placeholder="Permissions"
+										datasource={Permissions.ALL}
+										onValuesChange={(permissions) => onPermissionsValueChange(user, permissions)}
+									/>
+								)
+							}}
+						/>
+					)}
 				</Table>
 			</FormItemVertical>
 			{invitationLink && (
