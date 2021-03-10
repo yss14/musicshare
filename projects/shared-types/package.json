@@ -1,6 +1,6 @@
 {
 	"name": "@musicshare/shared-types",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "Types and artefacts which are shared between backend and frontend",
 	"main": "build/index",
 	"private": false,
@@ -11,7 +11,5 @@
 		"tsc:version": "tsc -v && pwd"
 	},
 	"author": "Yannick Stachelscheid",
-	"license": "UNLICENSED",
-	"devDependencies": {},
-	"dependencies": {}
+	"license": "UNLICENSED"
 }
