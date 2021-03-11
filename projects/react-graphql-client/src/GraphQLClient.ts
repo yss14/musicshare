@@ -30,7 +30,6 @@ export const GraphQLClient = (opts?: AxiosRequestConfig) => {
 		})
 
 		const operationName = getQueryKey(query)
-		console.log(operationName)
 
 		try {
 			const response = await client.post<IGraphQLResponse<TData>>(`${url}?operation=${operationName}`, body)

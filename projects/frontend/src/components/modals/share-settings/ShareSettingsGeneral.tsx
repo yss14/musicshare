@@ -32,7 +32,6 @@ interface IShareSettingsGeneralProps {
 export const ShareSettingsGeneral = ({ share, isLibrary, isOwner }: IShareSettingsGeneralProps) => {
 	const canChangeName = isLibrary || isOwner
 	const canEdit = !isLibrary && isOwner
-	console.log(share)
 
 	return (
 		<Form>
