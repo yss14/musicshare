@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react"
+import { useMemo, useCallback } from "react"
 import { Formik } from "formik"
 import { Input, Row, Col, DatePicker, Switch, Modal, Select, Form } from "antd"
 import { EditableTagGroup } from "../../form/EditableTagGroup"
@@ -52,7 +52,7 @@ export const SongForm = ({
 		[songTypes],
 	)
 
-	const [updateSongMutation, { isLoading }] = useUpdateSong(playlistID, {
+	const { mutateAsync: updateSongMutation, isLoading } = useUpdateSong(playlistID, {
 		onSuccess: () => {
 			closeForm()
 		},

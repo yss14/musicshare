@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react"
+import { useCallback, useState } from "react"
 import { ISharePlaylistRoute } from "../../interfaces"
 import { useParams } from "react-router-dom"
 import { MainSongsView } from "./MainSongsView"
@@ -18,9 +18,9 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 	const { playlistID } = useParams<ISharePlaylistRoute>()
 	const { isLoading, data: playlist, error, refetch } = usePlaylistSongs(shareID, playlistID)
 	const [songs, setSongs] = useState<PlaylistSong[]>(playlist?.songs || [])
-	const [updateOrder] = useUpdatePlaylistSongOrder()
+	const { mutate: updateOrder } = useUpdatePlaylistSongOrder()
 
-	const [refetchPlaylist] = useDebouncedCallback(refetch, 1000)
+	const refetchPlaylist = useDebouncedCallback(refetch, 1000)
 
 	const onPlaylistSongUploaded = useCallback(
 		(item: ISongUploadItem) => {
@@ -58,11 +58,14 @@ export const PlaylistSongs = ({ shareID }: IPlaylistSongsProps) => {
 		[setSongs, songs, playlist, updateOrder, shareID],
 	)
 
-	useDeepCompareEffect(() => {
-		if (playlist?.songs) {
-			setSongs(playlist.songs)
-		}
-	}, [playlist?.songs])
+	useDeepCompareEffect(
+		useCallback(() => {
+			if (playlist?.songs) {
+				setSongs(playlist.songs)
+			}
+		}, [playlist?.songs]),
+		[playlist?.songs],
+	)
 
 	if (isLoading) return <LoadingSpinner />
 	if (error) return <div>{String(error)}</div>

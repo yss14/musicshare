@@ -4,7 +4,7 @@ import {
 	TransformedGraphQLMutation,
 	IGraphQLMutationOpts,
 	useGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { GET_SHARES } from "../queries/useShares"
 
@@ -28,15 +28,15 @@ export const RENAME_SHARE = TransformedGraphQLMutation<IRenameShareData, IRename
 export const useRenameShare = (opts?: IGraphQLMutationOpts<typeof RENAME_SHARE>) => {
 	const mutation = useGraphQLMutation(RENAME_SHARE, {
 		...opts,
-		onSuccess: (data, variables) => {
-			typedQueryCache.setTypedQueryData(
+		onSuccess: (data, variables, context) => {
+			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SHARES,
 				},
 				(currentData) => currentData?.map((share) => (share.id === data.id ? data : share)) || [],
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

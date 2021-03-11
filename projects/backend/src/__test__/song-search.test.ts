@@ -154,6 +154,6 @@ describe("resolver", () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query, expectedHTTPCode: 400 })
 
-		expect(body).toMatchObject(argumentValidationError(`Expected type SongSearchMatcher, found BPM.`))
+		expect(body).toMatchObject(argumentValidationError(`Value "BPM" does not exist in "SongSearchMatcher" enum.`))
 	})
 })

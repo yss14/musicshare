@@ -1,6 +1,6 @@
 import { ITimedstampedResults, ShareSong, shareSongKeys } from "@musicshare/shared-types"
 import gql from "graphql-tag"
-import { TransformedGraphQLQuery, useGraphQLQuery, typedQueryCache } from "../../react-query-graphql"
+import { TransformedGraphQLQuery, useGraphQLQuery, typedQueryClient } from "../../react-query-graphql"
 import { useRef } from "react"
 import { updateShareSongs } from "./useDirtyShareSongs"
 import { GET_MERGED_SONGS } from "./useMergedSongs"
@@ -63,7 +63,7 @@ export const useDirtyMergedViewSongs = () => {
 				console.error(err)
 			}
 
-			const currentMergedSongs = typedQueryCache.getTypedQueryData({
+			const currentMergedSongs = typedQueryClient.getTypedQueryData({
 				query: GET_MERGED_SONGS,
 				variables: {},
 			})
@@ -76,7 +76,7 @@ export const useDirtyMergedViewSongs = () => {
 
 			const { dirtySongIDs, newSongs } = getSongsDiff(currentMergedSongs, dirtySongs)
 
-			typedQueryCache.setTypedQueryData(
+			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_MERGED_SONGS,
 					variables: {},

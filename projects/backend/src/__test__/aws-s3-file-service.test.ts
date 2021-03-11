@@ -1,4 +1,4 @@
-import { S3, AWSError } from "aws-sdk"
+import { S3 } from "aws-sdk"
 import { AWSS3FileService } from "../file-service/AWSS3FileService"
 import { configFromEnv } from "../types/config"
 import { v4 as uuid } from "uuid"
@@ -50,7 +50,7 @@ describe("instance creation", () => {
 		}
 		const fileService = new AWSS3FileService(new S3(config), container)
 
-		await expect(fileService.createContainerIfNotExists()).rejects.toThrowError(AWSError)
+		await expect(fileService.createContainerIfNotExists()).rejects.toThrowError(Error)
 	})
 })
 

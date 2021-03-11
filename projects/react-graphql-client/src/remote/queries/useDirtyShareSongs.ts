@@ -1,7 +1,7 @@
 import { ITimedstampedResults, ShareSong, shareSongKeys } from "@musicshare/shared-types"
 import gql from "graphql-tag"
 import { useRef } from "react"
-import { useGraphQLQuery, TransformedGraphQLQuery, typedQueryCache } from "../../react-query-graphql"
+import { useGraphQLQuery, TransformedGraphQLQuery, typedQueryClient } from "../../react-query-graphql"
 import { GET_SHARE_SONGS } from "./useShareSongs"
 import { getSongsDiff } from "../../utils/getSongsDiff"
 
@@ -52,7 +52,7 @@ export const useDirtyShareSongs = (shareID: string) => {
 }
 
 export const updateShareSongs = (shareID: string, dirtySongs: ShareSong[]) => {
-	const currentShareSongs = typedQueryCache.getTypedQueryData({
+	const currentShareSongs = typedQueryClient.getTypedQueryData({
 		query: GET_SHARE_SONGS,
 		variables: { shareID },
 	})
@@ -61,7 +61,7 @@ export const updateShareSongs = (shareID: string, dirtySongs: ShareSong[]) => {
 
 	const { dirtySongIDs, newSongs } = getSongsDiff(currentShareSongs, dirtySongs)
 
-	typedQueryCache.setTypedQueryData(
+	typedQueryClient.setTypedQueryData(
 		{
 			query: GET_SHARE_SONGS,
 			variables: { shareID },

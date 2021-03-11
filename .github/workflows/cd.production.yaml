@@ -1,0 +1,70 @@
+name: CD Production Release
+
+on:
+    release:
+        types: [created]
+    push:
+        tags:
+            - v*
+
+jobs:
+    release_backend:
+        name: Release Backend
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: AutoModality/action-clean@v1
+            - uses: actions/checkout@v2
+            - name: Login to Docker Hub
+              uses: docker/login-action@v1
+              with:
+                  registry: docker.io
+                  username: musicshare
+                  password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+            - name: Login to GitHub Packages
+              uses: docker/login-action@v1
+              with:
+                  registry: docker.pkg.github.com
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+            - name: Build Docker Images
+              run: |
+                  GIT_COMMIT_HASH=$(git rev-parse --short HEAD)
+
+                  docker build -f ./projects/backend/Dockerfile --rm -t docker.pkg.github.com/yss14/musicshare/backend:${GITHUB_REF##*/} -t musicshare/backend:${GITHUB_REF##*/} .
+
+                  docker push musicshare/backend:${GITHUB_REF##*/}
+                  docker push docker.pkg.github.com/yss14/musicshare/backend:${GITHUB_REF##*/}
+
+    release_frontend:
+        name: Release Frontend
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: AutoModality/action-clean@v1
+            - uses: actions/checkout@v2
+            - name: Login to Docker Hub
+              uses: docker/login-action@v1
+              with:
+                  registry: docker.io
+                  username: musicshare
+                  password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+            - name: Login to GitHub Packages
+              uses: docker/login-action@v1
+              with:
+                  registry: docker.pkg.github.com
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+            - name: Build and Push Docker Images
+              run: |
+                  set -e
+                  set -x
+
+                  GIT_COMMIT_HASH=$(git rev-parse --short HEAD)
+
+                  echo $GIT_COMMIT_HASH
+
+                  docker build -f ./projects/frontend/Dockerfile --rm -t docker.pkg.github.com/yss14/musicshare/frontend:${GITHUB_REF##*/} -t musicshare/frontend:${GITHUB_REF##*/} .
+
+                  docker push docker.pkg.github.com/yss14/musicshare/frontend:${GITHUB_REF##*/}
+                  docker push musicshare/frontend:${GITHUB_REF##*/}

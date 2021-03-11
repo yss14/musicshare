@@ -1,9 +1,10 @@
-import React, { useContext, useMemo } from "react"
+import React, { useContext } from "react"
 import { IGraphQLBaseClient } from "GraphQLClient"
-import { QueryConfig, usePaginatedQuery, MutationConfig, useMutation, QueryCache, queryCache } from "react-query"
+import { UseQueryOptions, useQuery, UseMutationOptions, useMutation, QueryClient } from "react-query"
 import { DocumentNode } from "graphql"
 import { Updater } from "react-query/types/core/utils"
 import { GraphQLClientError } from "./GraphQLClientError"
+import { queryClient } from "./queryClient"
 
 export const GraphQLClientContext = React.createContext<IGraphQLBaseClient | null>(null)
 
@@ -35,12 +36,14 @@ export const TransformedGraphQLQuery = <TData, TVar = {}>(query: DocumentNode) =
 	varType: ({} as unknown) as TVar,
 })
 
+// eslint-disable-next-line
 export type IGraphQLQueryOpts<T> = T extends ITypedGraphQLOperation<infer TData, infer TDataTransformed, infer TVar>
 	? IUseQueryOptions<TDataTransformed, TVar>
 	: never
 
 export const TransformedGraphQLMutation = TransformedGraphQLQuery
 
+// eslint-disable-next-line
 export type IGraphQLMutationOpts<T> = T extends ITypedGraphQLOperation<infer TData, infer TDataTransformed, infer TVar>
 	? IUseMutationOptions<TDataTransformed, TVar>
 	: never
@@ -58,7 +61,7 @@ export interface IQueryResolverArgs<TVar> extends IBaseResolverArgs<TVar> {
 	query: DocumentNode
 }
 
-export interface IUseQueryOptions<TData, TVar = {}> extends QueryConfig<TData>, GraphQLVariables<TVar> {
+export interface IUseQueryOptions<TData, TVar = {}> extends UseQueryOptions<TData>, GraphQLVariables<TVar> {
 	operatioName?: string
 	resolver?: (args: IQueryResolverArgs<TVar>) => TData | Promise<TData>
 }
@@ -74,11 +77,11 @@ export const useGraphQLQuery = <TData, TDataTransformed, TVar extends {} = {}>(
 ) => {
 	const graphQLClient = useGraphQLClient()
 
-	const cachingKey = [operatioName, variables] as const
+	const cachingKey = [operatioName, variables]
 
-	const queryObject = usePaginatedQuery<TDataTransformed, unknown, typeof cachingKey>(
+	const queryObject = useQuery<TDataTransformed, unknown, TDataTransformed>(
 		cachingKey,
-		async (_, variables) => {
+		async () => {
 			if (resolver) {
 				return resolver({ query, client: graphQLClient, variables })
 			} else {
@@ -88,13 +91,7 @@ export const useGraphQLQuery = <TData, TDataTransformed, TVar extends {} = {}>(
 		opts,
 	)
 
-	return useMemo(
-		() => ({
-			...queryObject,
-			data: queryObject.resolvedData,
-		}),
-		[queryObject],
-	)
+	return queryObject
 }
 
 export interface IMutationResolverArgs<TVar> extends IBaseResolverArgs<TVar> {
@@ -102,7 +99,7 @@ export interface IMutationResolverArgs<TVar> extends IBaseResolverArgs<TVar> {
 }
 
 export interface IUseMutationOptions<TData, TVar>
-	extends MutationConfig<TData, GraphQLClientError<TData>, TVar>,
+	extends UseMutationOptions<TData, GraphQLClientError<TData>, TVar>,
 		GraphQLVariables<TVar> {
 	resolver?: (args: IMutationResolverArgs<TVar>) => TData | Promise<TData>
 }
@@ -147,7 +144,7 @@ export interface InvalidateQueriesOptions extends QueryPredicateOptions {
 	throwOnError?: boolean
 }
 
-export interface ITypedQueryCache extends QueryCache {
+export interface ITypedQueryClient extends QueryClient {
 	getTypedQueryData: <TData, TDataTransformed, TVar>(
 		query: IQueryCacheQuery<TData, TDataTransformed, TVar>,
 	) => TDataTransformed | undefined
@@ -165,41 +162,44 @@ export interface ITypedQueryCache extends QueryCache {
 	) => Promise<void>
 }
 
-;(queryCache as ITypedQueryCache).getTypedQueryData = function <TData, TDataTransformed, TVar>({
+export const typedQueryClient = queryClient as ITypedQueryClient
+
+typedQueryClient.getTypedQueryData = function <TData, TDataTransformed, TVar>({
 	query: { query },
 	variables = {} as TVar,
 }: IQueryCacheQuery<TData, TDataTransformed, TVar>): TDataTransformed | undefined {
 	const queryKey = [getQueryKey(query), variables || {}]
 
-	return queryCache.getQueryData(queryKey)
+	return queryClient.getQueryData<TDataTransformed>(queryKey)
 }
-;(queryCache as ITypedQueryCache).setTypedQueryData = function <TData, TDataTransformed, TVar>(
+
+typedQueryClient.setTypedQueryData = function <TData, TDataTransformed, TVar>(
 	{ query: { query }, variables }: IQueryCacheQuery<TData, TDataTransformed, TVar>,
 	update: TDataTransformed | Updater<TDataTransformed | undefined, TDataTransformed>,
 ) {
 	const queryKey = [getQueryKey(query), variables || {}]
 
 	if (typeof update === "function") {
-		queryCache.setQueryData<TDataTransformed>(queryKey, update)
+		queryClient.setQueryData<TDataTransformed>(queryKey, update)
 	} else {
-		queryCache.setQueryData<TDataTransformed>(queryKey, () => update)
+		queryClient.setQueryData<TDataTransformed>(queryKey, () => update)
 	}
 }
-;(queryCache as ITypedQueryCache).removeTypedQuery = async function <TData, TDataTransformed, TVar>(
+
+typedQueryClient.removeTypedQuery = async function <TData, TDataTransformed, TVar>(
 	{ query: { query }, variables = {} as TVar }: IQueryCacheQuery<TData, TDataTransformed, TVar>,
 	options?: QueryPredicateOptions,
 ) {
 	const queryKey = [getQueryKey(query), variables || {}]
 
-	queryCache.removeQueries(queryKey, options)
+	queryClient.removeQueries(queryKey, options)
 }
-;(queryCache as ITypedQueryCache).invalidateTypedQuery = async function <TData, TDataTransformed, TVar>(
+
+typedQueryClient.invalidateTypedQuery = async function <TData, TDataTransformed, TVar>(
 	{ query: { query }, variables = {} as TVar }: IQueryCacheQuery<TData, TDataTransformed, TVar>,
 	options?: InvalidateQueriesOptions,
 ) {
 	const queryKey = [getQueryKey(query), variables || {}]
 
-	await queryCache.invalidateQueries(queryKey, options)
+	await queryClient.invalidateQueries(queryKey, options)
 }
-
-export const typedQueryCache = queryCache as ITypedQueryCache

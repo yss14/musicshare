@@ -100,6 +100,17 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 					AND l.date_removed IS NULL
 					AND s.is_library = false
 					AND (${songIDs.map((id, idx) => `ss.song_id_ref = $${idx + 2}`).join(" OR ")})
+
+				UNION ALL
+
+				SELECT ss.*
+				FROM shares s
+				INNER JOIN user_shares us ON us.share_id_ref = s.share_id
+				INNER JOIN share_songs ss ON ss.share_id_ref = s.share_id
+				WHERE s.is_library = true 
+					AND us.user_id_ref = $1
+					AND s.date_removed IS NULL
+					AND (${songIDs.map((id, idx) => `ss.song_id_ref = $${idx + 2}`).join(" OR ")})
 			`,
 				[userID, ...songIDs],
 			),

@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import { PlusOutlined, ShareAltOutlined, ProfileOutlined } from "@ant-design/icons"
 import { Menu } from "antd"
 import styled from "styled-components"
@@ -40,7 +40,7 @@ export const HeaderNavMenu = () => {
 	const [showChangePassword, setShowChangePassword] = useState(false)
 	const [sharesSubmenuHovered, setSharesSubmenuHovered] = useState(false)
 
-	const [logout] = useLogout()
+	const { mutateAsync: logout } = useLogout()
 
 	if (isLoading) {
 		return null

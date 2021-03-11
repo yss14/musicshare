@@ -60,12 +60,12 @@ export const makePlaylistAuthMiddleware = ({
 	}
 }
 
-type PlaylistAuth = {
+type IPlaylistAuth = {
 	(args?: IPlaylistAuthArgs): MethodAndPropDecorator
 	(permissions?: Permissions.Playlist[]): MethodAndPropDecorator
 }
 
-export const PlaylistAuth: PlaylistAuth = (args?: IPlaylistAuthArgs | Permissions.Playlist[]) => {
+export const PlaylistAuth: IPlaylistAuth = (args?: IPlaylistAuthArgs | Permissions.Playlist[]) => {
 	if (args instanceof Array) {
 		return UseMiddleware(makePlaylistAuthMiddleware({ permissions: args }))
 	}

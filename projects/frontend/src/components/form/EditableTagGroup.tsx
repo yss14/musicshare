@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useMemo, useState, useRef } from "react"
+import { ChangeEvent, useMemo, useState, useRef } from "react"
 import { PlusOutlined } from "@ant-design/icons"
 import { Tag, Input, Tooltip, AutoComplete } from "antd"
 import { SelectValue } from "antd/lib/select"

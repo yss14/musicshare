@@ -14,5 +14,6 @@ const useDeepCompareMemoize = (value?: React.DependencyList) => {
 }
 
 export const useDeepCompareEffect: typeof useEffect = (callback, dependencies) => {
-	useEffect(callback, useDeepCompareMemoize(dependencies))
+	// eslint-disable-next-line
+	useEffect(callback, useDeepCompareMemoize([dependencies, callback]))
 }

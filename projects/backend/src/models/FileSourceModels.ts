@@ -31,15 +31,15 @@ export const isFileUpload = (obj: any): obj is FileUpload =>
 
 export const FileSource = createUnionType({
 	name: "FileSource",
-	types: [FileUpload],
+	types: () => [FileUpload],
 })
 
-export type FileSource = typeof FileSource
+export type FileSourceType = typeof FileSource
 
 export interface IFileSourceJSONType {
-	data: FileSource[] // need to wrap this into a property because of postgres json type problems with arrays
+	data: FileSourceType[] // need to wrap this into a property because of postgres json type problems with arrays
 }
 
-export const makeFileSourceJSONType = (sources: FileSource | FileSource[]): IFileSourceJSONType => ({
+export const makeFileSourceJSONType = (sources: FileSourceType | FileSourceType[]): IFileSourceJSONType => ({
 	data: Array.isArray(sources) ? sources : [sources],
 })

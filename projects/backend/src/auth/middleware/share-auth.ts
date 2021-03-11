@@ -56,13 +56,13 @@ export const makeShareAuthMiddleware = ({
 	}
 }
 
-type ShareAuth = {
+type IShareAuth = {
 	(args?: IShareAuthArgs): MethodAndPropDecorator
 	(permissions?: Permissions.Share[]): MethodAndPropDecorator
 }
 
 // istanbul ignore next
-export const ShareAuth: ShareAuth = (args?: IShareAuthArgs | Permissions.Share[]) => {
+export const ShareAuth: IShareAuth = (args?: IShareAuthArgs | Permissions.Share[]) => {
 	if (args instanceof Array) {
 		return UseMiddleware(makeShareAuthMiddleware({ permissions: args }))
 	}

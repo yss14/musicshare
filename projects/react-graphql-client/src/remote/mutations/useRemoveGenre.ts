@@ -3,7 +3,7 @@ import {
 	TransformedGraphQLMutation,
 	IGraphQLMutationOpts,
 	useGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { GET_GENRES } from "../queries/useGenres"
 
@@ -24,12 +24,12 @@ export const REMOVE_GENRE = TransformedGraphQLMutation<IRemoveGenreData, IRemove
 export const useRemoveGenre = (opts?: IGraphQLMutationOpts<typeof REMOVE_GENRE>) => {
 	const mutation = useGraphQLMutation(REMOVE_GENRE, {
 		...opts,
-		onSuccess: (data, variables) => {
-			typedQueryCache.invalidateTypedQuery({
+		onSuccess: (data, variables, context) => {
+			typedQueryClient.invalidateTypedQuery({
 				query: GET_GENRES,
 			})
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

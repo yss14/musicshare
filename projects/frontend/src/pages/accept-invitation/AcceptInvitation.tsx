@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import { useMemo } from "react"
 import { IInvitationPayload } from "@musicshare/shared-types"
 import { AcceptInvitationForm } from "./AcceptInvitationForm"
 import { Container, Title } from "../CustomerActionForm"

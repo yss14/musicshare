@@ -2,14 +2,23 @@ import { IFileService, UploadFileArgs, GetLinkToFileArgs } from "./FileService"
 import { S3 } from "aws-sdk"
 import moment from "moment"
 
+const CORS_RULES: S3.CORSRules = [
+	{
+		AllowedHeaders: ["*"],
+		AllowedMethods: ["POST", "GET", "PUT", "DELETE", "HEAD"],
+		AllowedOrigins: ["*"],
+		ExposeHeaders: [],
+	},
+]
+
 export class AWSS3FileService implements IFileService {
 	constructor(private readonly s3Client: S3, private readonly bucket: string) {}
 
-	public createContainerIfNotExists() {
-		return new Promise<void>((resolve, reject) => {
+	public async createContainerIfNotExists() {
+		await new Promise<void>((resolve, reject) => {
 			this.s3Client.headBucket({ Bucket: this.bucket }, (err) => {
 				if (err && err.code === "NotFound") {
-					this.s3Client.createBucket({ Bucket: this.bucket }, (err) => {
+					this.s3Client.createBucket({ Bucket: this.bucket, ACL: "private" }, (err) => {
 						if (err) return reject(err)
 
 						return resolve()
@@ -20,6 +29,23 @@ export class AWSS3FileService implements IFileService {
 					resolve()
 				}
 			})
+		})
+
+		await new Promise<void>((resolve, reject) => {
+			this.s3Client.putBucketCors(
+				{ Bucket: this.bucket, CORSConfiguration: { CORSRules: CORS_RULES } },
+				(err) => {
+					if (err) {
+						if (err.code === "NotImplemented") {
+							return resolve()
+						} else {
+							return reject(err)
+						}
+					}
+
+					resolve()
+				},
+			)
 		})
 	}
 

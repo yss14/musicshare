@@ -74,7 +74,8 @@ jspm_packages/
 build/
 
 # azurite
-azurite*/
+.azurite/*
+!.azurite/.gitkeep
 
 # mac file system files
 *.DS_Store

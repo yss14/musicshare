@@ -1,4 +1,5 @@
 module.exports = {
+	extends: "@addbots/eslint-config",
 	parser: "@typescript-eslint/parser",
 	parserOptions: {
 		ecmaVersion: 6,
@@ -11,5 +12,7 @@ module.exports = {
 	rules: {
 		"react-hooks/rules-of-hooks": "error",
 		"react-hooks/exhaustive-deps": "warn",
+		"react/jsx-uses-react": "off",
+		"react/react-in-jsx-scope": "off",
 	},
 }

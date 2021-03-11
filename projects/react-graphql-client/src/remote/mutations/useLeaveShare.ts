@@ -3,7 +3,7 @@ import {
 	TransformedGraphQLMutation,
 	IGraphQLMutationOpts,
 	useGraphQLMutation,
-	typedQueryCache,
+	typedQueryClient,
 } from "../../react-query-graphql"
 import { GET_SHARES } from "../queries/useShares"
 
@@ -26,15 +26,15 @@ export const LEAVE_SHARE = TransformedGraphQLMutation<ILeaveShareData, ILeaveSha
 export const useLeaveShare = (opts?: IGraphQLMutationOpts<typeof LEAVE_SHARE>) => {
 	const mutation = useGraphQLMutation(LEAVE_SHARE, {
 		...opts,
-		onSuccess: (data, variables) => {
-			typedQueryCache.setTypedQueryData(
+		onSuccess: (data, variables, context) => {
+			typedQueryClient.setTypedQueryData(
 				{
 					query: GET_SHARES,
 				},
 				(currentData) => currentData?.filter((share) => share.id !== variables.input.shareID) || [],
 			)
 
-			if (opts?.onSuccess) opts.onSuccess(data, variables)
+			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
 	})
 

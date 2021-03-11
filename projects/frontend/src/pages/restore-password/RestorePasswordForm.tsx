@@ -38,7 +38,7 @@ const validateForm = ({ email, restoreToken, newPassword }: IFormValues) => {
 
 export const RestorePasswordForm: React.FC = () => {
 	const [email, setEMail] = useState("")
-	const [restorePassword, { error, data }] = useRestorePassword({
+	const { mutate: restorePassword, error, data } = useRestorePassword({
 		onSuccess: () => {
 			resetForm()
 			message.success(`Password has been restored successfully`)

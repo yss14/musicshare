@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react"
 
 export const useDeferedFlag = (delay: number) => {
-	const timeoutRef = useRef<number | null>(null)
+	const timeoutRef = useRef<NodeJS.Timer | null>(null)
 	const [value, setValue] = useState(false)
 
 	const toggle = useCallback(() => {

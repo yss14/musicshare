@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect } from "react"
+import { Suspense, lazy, useEffect } from "react"
 import { Route, useHistory, Switch, useRouteMatch } from "react-router-dom"
 import { Login } from "../../pages/login/Login"
 import { MainLayout } from "../MainLayout"
@@ -62,7 +62,7 @@ const LoggedInRoutes = () => {
 	const updateLibraryID = useUpdateLibraryID()
 	const libraryID = useLibraryID()
 	const history = useHistory()
-	const { latestData: auth, isLoading: isLoadingAuth } = useAuth()
+	const { data: auth, isLoading: isLoadingAuth } = useAuth()
 
 	useEffect(() => {
 		if (auth && !auth.isLoggedIn) {

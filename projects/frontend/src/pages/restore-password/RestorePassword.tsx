@@ -1,4 +1,3 @@
-import React from "react"
 import { Container, Title } from "../CustomerActionForm"
 import { RestorePasswordForm } from "./RestorePasswordForm"
 

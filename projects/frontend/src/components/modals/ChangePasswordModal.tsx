@@ -39,7 +39,7 @@ interface IChangePasswordModalProps {
 }
 
 export const ChangePasswordModal: React.FC<IChangePasswordModalProps> = ({ onClose }) => {
-	const [changePassword, { error }] = useChangePassword({
+	const { mutateAsync: changePassword, error } = useChangePassword({
 		onError: console.error,
 		onSuccess: () => {
 			message.success("Password has been changed")
@@ -48,9 +48,9 @@ export const ChangePasswordModal: React.FC<IChangePasswordModalProps> = ({ onClo
 	})
 	const onSubmit = useCallback(
 		(input: IFormValues) => {
-			delete input.newPasswordRepitition
+			const { oldPassword, newPassword } = input
 
-			changePassword({ input })
+			changePassword({ input: { oldPassword, newPassword } })
 		},
 		[changePassword],
 	)

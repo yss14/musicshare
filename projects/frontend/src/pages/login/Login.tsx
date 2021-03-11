@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import { useEffect } from "react"
 import { LoginForm } from "./LoginForm"
 import { useParams, useHistory } from "react-router-dom"
 import { Container, Title } from "../CustomerActionForm"
@@ -35,7 +35,7 @@ interface ILoginRouteParams {
 
 export const Login = () => {
 	const { email } = useParams<ILoginRouteParams>()
-	const { latestData: auth } = useAuth()
+	const { data: auth } = useAuth()
 	const history = useHistory()
 
 	useEffect(() => {

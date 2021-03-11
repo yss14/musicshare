@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react"
+import { useCallback, useRef } from "react"
 import validator from "validator"
 import { Formik, FormikHelpers } from "formik"
 import { LockOutlined, UserOutlined, MailOutlined, SolutionOutlined } from "@ant-design/icons"
@@ -47,10 +47,10 @@ export const RegistrationForm = () => {
 	const formikHelpers = useRef<FormikHelpers<IFormValues>>()
 	const { data: captcha, isLoading: isLoadingCaptcha, refetch: resetCaptcha } = useCaptcha()
 	const captchaID = captcha?.id
-	const [register, { error, data, isLoading }] = useRegister({
+	const { mutateAsync: register, error, data, isLoading } = useRegister({
 		onSuccess: () => {
 			message.success(`Registration was successful`)
-			formikHelpers.current?.resetForm()
+			formikHelpers.current && formikHelpers.current.resetForm()
 		},
 	})
 	const onSubmit = useCallback(

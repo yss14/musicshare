@@ -49,7 +49,7 @@ const SharePlaylistsSidebar = () => {
 	} = useRouteMatch<IShareRoute>()!
 	const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null)
 	const { isLoading, error, data } = useSharePlaylists(shareID)
-	const [createPlaylist] = useCreatePlaylist({
+	const { mutateAsync: createPlaylist } = useCreatePlaylist({
 		onSuccess: (createdPlaylist) => {
 			message.success(`Playlist ${createdPlaylist.name} successfully created`)
 		},
@@ -118,7 +118,7 @@ const MergedPlaylistsSidebar = () => {
 	const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null)
 	const [newPlaylistShareID, setNewPlaylistShareID] = useState<string | null>(null)
 
-	const [createPlaylist] = useCreatePlaylist({
+	const { mutateAsync: createPlaylist } = useCreatePlaylist({
 		onSuccess: (createdPlaylist) => {
 			message.success(`Playlist ${createdPlaylist.name} successfully created`)
 		},

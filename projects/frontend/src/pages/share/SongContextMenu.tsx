@@ -29,16 +29,16 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 	const [showPickPlaylistModal, setShowPickPlaylistModal] = useState(false)
 	const { changeSong } = usePlayerActions()
 	const { enqueueSong, enqueueSongNext } = usePlayerQueue()
-	const [addSongsToPlaylist] = useAddSongsToPlaylist()
+	const { mutate: addSongsToPlaylist } = useAddSongsToPlaylist()
 	const mutatingSong = useRef<typeof song>(null)
 
-	const [removeSongFromLibrary] = useRemoveSongFromLibrary({
+	const { mutate: removeSongFromLibrary } = useRemoveSongFromLibrary({
 		onSuccess: () => {
 			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from library`)
 		},
 	})
 
-	const [removeSongsFromPlaylist] = useRemoveSongsFromPlaylist({
+	const { mutate: removeSongsFromPlaylist } = useRemoveSongsFromPlaylist({
 		onSuccess: () => {
 			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from playlist`)
 		},

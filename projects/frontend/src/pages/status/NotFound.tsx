@@ -1,4 +1,3 @@
-import React from "react"
 import styled from "styled-components"
 import { Link } from "react-router-dom"
 import { useAuth } from "@musicshare/react-graphql-client"
@@ -13,7 +12,7 @@ const NotFoundContainer = styled.div`
 `
 
 export const NotFound = () => {
-	const { latestData: auth, isLoading } = useAuth()
+	const { data: auth, isLoading } = useAuth()
 
 	if (isLoading) return <LoadingSpinner />
 
