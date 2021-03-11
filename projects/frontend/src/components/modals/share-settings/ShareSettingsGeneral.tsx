@@ -144,7 +144,7 @@ const ShareUsers: React.FC<{ shareID: string; canEdit: boolean }> = ({ shareID, 
 				>
 					<Column title="Name" dataIndex="name" key="name" />
 					<Column title="E-Mail" dataIndex="email" key="email" />
-					<Column title="Status" dataIndex="status" key="status" width={100} />
+					{canEdit && <Column title="Status" dataIndex="status" key="status" width={100} />}
 					{canEdit && (
 						<Column
 							title="Actions"

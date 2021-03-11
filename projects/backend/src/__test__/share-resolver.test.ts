@@ -12,7 +12,7 @@ import { IDatabaseClient } from "postgres-schema-builder"
 import { clearTables } from "../database/database"
 import { ShareSong } from "../models/SongModel"
 import { ShareNotFoundError } from "../services/ShareService"
-import { sortBy } from "lodash"
+import { sortBy, times } from "lodash"
 import { isFileUpload } from "../models/FileSourceModels"
 import { UserNotFoundError } from "../services/UserService"
 import { Scopes } from "../types/context"
@@ -418,7 +418,22 @@ describe("get share users", () => {
 			scopes,
 		})
 
-		expect(body).toMatchObject(insufficientPermissionsError())
+		expect(body).toMatchObject({
+			data: {
+				share: {
+					members: expect.arrayContaining([
+						expect.objectContaining({ id: expect.toBeString(), status: null, permissions: null }),
+						expect.objectContaining({ id: expect.toBeString(), status: null, permissions: null }),
+					]),
+				},
+			},
+			errors: expect.arrayContaining([
+				expect.objectContaining({ message: "User has insufficient permissions to perform this action!" }),
+				expect.objectContaining({ message: "User has insufficient permissions to perform this action!" }),
+				expect.objectContaining({ message: "User has insufficient permissions to perform this action!" }),
+				expect.objectContaining({ message: "User has insufficient permissions to perform this action!" }),
+			]),
+		})
 	})
 })
 

@@ -45,11 +45,11 @@ export class ShareMember extends IUser {
 	public readonly shareID!: string
 
 	@PermissionAuth([Permissions.SHARE_OWNER])
-	@Field(() => [String])
+	@Field(() => [String], { nullable: true })
 	public readonly permissions!: string[]
 
 	@PermissionAuth([Permissions.SHARE_OWNER])
-	@Field(() => UserStatus)
+	@Field(() => UserStatus, { nullable: true })
 	public readonly status!: UserStatus
 
 	public static fromDBResult(
