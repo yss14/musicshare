@@ -5,6 +5,7 @@ import { DocumentNode } from "graphql"
 import { Updater } from "react-query/types/core/utils"
 import { GraphQLClientError } from "./GraphQLClientError"
 import { queryClient } from "./queryClient"
+import { getQueryKey } from "./utils/getQueryKey"
 
 export const GraphQLClientContext = React.createContext<IGraphQLBaseClient | null>(null)
 
@@ -16,10 +17,6 @@ export const useGraphQLClient = () => {
 	}
 
 	return client
-}
-
-export const getQueryKey = (query: DocumentNode): string => {
-	return (query.definitions[0] as any).name.value
 }
 
 export interface ITypedGraphQLOperation<TData, TDataTransformed, TVar> {
