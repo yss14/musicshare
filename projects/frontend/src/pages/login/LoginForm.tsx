@@ -101,7 +101,7 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 			</StyledFormItem>
 			<Form.Item>
 				{config.settings.publicRegistration === true && (
-					<Link to="/registration" style={{ color: "#e74c3c", marginRight: 16 }}>
+					<Link to="/registration" style={{ color: "white", marginRight: 16 }}>
 						Sign Up
 					</Link>
 				)}
