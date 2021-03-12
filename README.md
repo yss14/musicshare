@@ -8,7 +8,7 @@ Self-hosted open-source music sharing platform from music lovers for music lover
 [![codecov](https://codecov.io/gh/yss14/musicshare/branch/master/graph/badge.svg)](https://codecov.io/gh/yss14/musicshare)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=yss14/musicshare)](https://dependabot.com)
 
-[Installation Guide](./docs/Installation-Guide) | [Contributing](./docs/Contributing) | [Issue Tracker](https://github.com/yss14/musicshare/issues) | [Discuss](https://github.com/yss14/musicshare/discussions) | [Roadmap](./docs/Roadmap)
+[Installation Guide](./docs/Installation-Guide.md) | [Contributing](./docs/Contributing.md) | [Issue Tracker](https://github.com/yss14/musicshare/issues) | [Discuss](https://github.com/yss14/musicshare/discussions) | [Roadmap](./docs/Roadmap.md)
 
 <br/>
 

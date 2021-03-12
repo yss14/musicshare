@@ -30,7 +30,7 @@ If you want to go the "full" self-hosted way, [minio](https://min.io/) provides 
 
 In this section we show up multiple ways to self-host your own MusicShare instance.
 
-In general, most of the configuration for the different services of MusicShare happens via environment variables. A full list and documentation of all available environment variables for both the `WebApp` and `Backend Service` can be found [here](./Contributing#backend-development).
+In general, most of the configuration for the different services of MusicShare happens via environment variables. A full list and documentation of all available environment variables for both the `WebApp` and `Backend Service` can be found [here](./Contributing.md#backend-development).
 
 ## Custom System Setup
 
