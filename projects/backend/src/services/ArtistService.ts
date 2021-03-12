@@ -1,49 +1,55 @@
 import { Artist } from "../models/ArtistModel"
-import { ISongService } from "./SongService"
-import { ShareSong } from "../models/SongModel"
-import { flatten } from "lodash"
-import { IShareService } from "./ShareService"
+import { IDatabaseClient, SQL } from "postgres-schema-builder"
+import { ArtistDBResult } from "../database/tables"
+import { ServiceFactory } from "./services"
 
-export interface IArtistService {
-	getArtistsForShare(shareID: string): Promise<Artist[]>
-	getArtistsForShares(shareIDs: string[]): Promise<Artist[]>
-	getAggregatedArtistsForUser(userID: string): Promise<Artist[]>
-}
+const selectArtistsOfSharesQuery = (database: IDatabaseClient, shareIDs: string[]) =>
+	database.query(
+		SQL.raw<ArtistDBResult>(
+			`
+				SELECT DISTINCT unnest(s.artists || s.remixer || s.featurings) as name
+				FROM songs s
+				INNER JOIN share_songs ss ON ss.song_id_ref = s.song_id
+				INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
+				INNER JOIN shares l ON l.share_id = sls.share_id_ref
+				WHERE ss.share_id_ref = ANY($1)
+					AND s.date_removed IS NULL
+					AND ss.date_removed IS NULL
+				ORDER BY name;
+	`,
+			[shareIDs],
+		),
+	)
 
-export class ArtistService implements IArtistService {
-	constructor(private readonly songService: ISongService, private readonly shareService: IShareService) {}
+export type IArtistService = ReturnType<typeof ArtistService>
 
-	public async getArtistsForShare(shareID: string) {
-		const shareSongs = await this.songService.getByShare(shareID)
+export const ArtistService = (database: IDatabaseClient, services: ServiceFactory) => {
+	const getArtistsForShare = async (shareID: string) => {
+		const artistsResults = await selectArtistsOfSharesQuery(database, [shareID])
 
-		return this.fromSongArray(shareSongs)
+		return artistsResults.map((result) => Artist.fromString(result.name))
 	}
 
-	public async getArtistsForShares(shareIDs: string[]) {
-		const shareSongs = await Promise.all(shareIDs.map((shareID) => this.songService.getByShare(shareID)))
+	const getArtistsForShares = async (shareIDs: string[]) => {
+		const artistsResults = await selectArtistsOfSharesQuery(database, shareIDs)
 
-		return this.fromSongArray(flatten(shareSongs))
+		return artistsResults.map((result) => Artist.fromString(result.name))
 	}
 
-	public async getAggregatedArtistsForUser(userID: string): Promise<Artist[]> {
-		const linkedLibraries = await this.shareService.getLinkedLibrariesOfUser(userID)
+	const getAggregatedArtistsForUser = async (userID: string): Promise<Artist[]> => {
+		const linkedLibraries = await services().shareService.getLinkedLibrariesOfUser(userID)
 
-		const aggregatedSongs = flatten(
-			await Promise.all(linkedLibraries.map((linkedLibrary) => this.songService.getByShare(linkedLibrary.id))),
+		const artistsResults = await selectArtistsOfSharesQuery(
+			database,
+			linkedLibraries.map((library) => library.id),
 		)
 
-		return this.fromSongArray(aggregatedSongs)
+		return artistsResults.map((result) => Artist.fromString(result.name))
 	}
 
-	private fromSongArray(songs: ShareSong[]): Artist[] {
-		const uniqueArtists = songs.reduce((artistsSet: Set<string>, song) => {
-			song.artists.forEach((artist) => artistsSet.add(artist))
-			song.remixer.forEach((remixer) => artistsSet.add(remixer))
-			song.featurings.forEach((featuring) => artistsSet.add(featuring))
-
-			return artistsSet
-		}, new Set<string>())
-
-		return Array.from(uniqueArtists).map(Artist.fromString)
+	return {
+		getArtistsForShare,
+		getArtistsForShares,
+		getAggregatedArtistsForUser,
 	}
 }
