@@ -1,4 +1,5 @@
 import styled from "styled-components"
+import { CommonCSS } from "../../utils/CommonCSS"
 
 interface ISidebarItemProps {
 	selected?: boolean
@@ -25,11 +26,7 @@ export const SidebarItem = styled.div<ISidebarItemProps>`
 		font-size: 15px;
 		width: 100%;
 		font-weight: 200;
-		user-select: none;
-		-moz-user-select: none;
-		-khtml-user-select: none;
-		-webkit-user-select: none;
-		-o-user-select: none;
+		${CommonCSS.noSelect}
 	}
 
 	& a {
