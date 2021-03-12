@@ -1,6 +1,6 @@
 import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env"
 import { testData } from "../database/seed"
-import { executeGraphQLQuery, makeGraphQLResponse, insufficientPermissionsError } from "./utils/graphql"
+import { executeGraphQLQuery, makeGraphQLResponse } from "./utils/graphql"
 import { Share } from "../models/ShareModel"
 import { includesSong, compareSongs } from "./utils/compare-songs"
 import { v4 as uuid } from "uuid"
@@ -418,7 +418,22 @@ describe("get share users", () => {
 			scopes,
 		})
 
-		expect(body).toMatchObject(insufficientPermissionsError())
+		expect(body).toMatchObject({
+			data: {
+				share: {
+					members: expect.arrayContaining([
+						expect.objectContaining({ id: expect.toBeString(), status: null, permissions: null }),
+						expect.objectContaining({ id: expect.toBeString(), status: null, permissions: null }),
+					]),
+				},
+			},
+			errors: expect.arrayContaining([
+				expect.objectContaining({ message: "User has insufficient permissions to perform this action!" }),
+				expect.objectContaining({ message: "User has insufficient permissions to perform this action!" }),
+				expect.objectContaining({ message: "User has insufficient permissions to perform this action!" }),
+				expect.objectContaining({ message: "User has insufficient permissions to perform this action!" }),
+			]),
+		})
 	})
 })
 
