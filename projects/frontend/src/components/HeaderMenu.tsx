@@ -40,7 +40,7 @@ export const HeaderNavMenu = () => {
 	const [showChangePassword, setShowChangePassword] = useState(false)
 	const [sharesSubmenuHovered, setSharesSubmenuHovered] = useState(false)
 
-	const { mutateAsync: logout } = useLogout()
+	const { mutate: logout } = useLogout()
 
 	if (isLoading) {
 		return null

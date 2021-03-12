@@ -58,7 +58,9 @@ export interface IQueryResolverArgs<TVar> extends IBaseResolverArgs<TVar> {
 	query: DocumentNode
 }
 
-export interface IUseQueryOptions<TData, TVar = {}> extends UseQueryOptions<TData>, GraphQLVariables<TVar> {
+export interface IUseQueryOptions<TData, TVar = {}>
+	extends UseQueryOptions<TData, GraphQLClientError<TData>>,
+		GraphQLVariables<TVar> {
 	operatioName?: string
 	resolver?: (args: IQueryResolverArgs<TVar>) => TData | Promise<TData>
 }
@@ -76,7 +78,7 @@ export const useGraphQLQuery = <TData, TDataTransformed, TVar extends {} = {}>(
 
 	const cachingKey = [operatioName, variables]
 
-	const queryObject = useQuery<TDataTransformed, unknown, TDataTransformed>(
+	const queryObject = useQuery<TDataTransformed, GraphQLClientError<TDataTransformed>, TDataTransformed>(
 		cachingKey,
 		async () => {
 			if (resolver) {

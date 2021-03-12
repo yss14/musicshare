@@ -45,7 +45,7 @@ const ChangeSongName: React.FC<{ share: Share }> = ({ share: { name, id } }) => 
 	const [shareName, setShareName] = useState(name)
 	const [inputBlured, setInputBlured] = useState(false)
 	const [debouncedShareName] = useDebounce(shareName, 1000)
-	const { mutateAsync: renameShare } = useRenameShare()
+	const { mutate: renameShare } = useRenameShare()
 
 	useEffect(() => {
 		if (inputBlured) {
@@ -74,7 +74,7 @@ const ShareUsers: React.FC<{ shareID: string; canEdit: boolean }> = ({ shareID, 
 	const [email, setEMail] = useState("")
 	const [invitationLink, setInvitationLink] = useState<string | null>(null)
 	const [inviteError, setInviteError] = useState<string | null>(null)
-	const { mutateAsync: inviteToShare } = useInviteToShare({
+	const { mutate: inviteToShare } = useInviteToShare({
 		onSuccess: (invitationLink) => {
 			if (invitationLink !== null) {
 				setInvitationLink(invitationLink)
@@ -86,14 +86,14 @@ const ShareUsers: React.FC<{ shareID: string; canEdit: boolean }> = ({ shareID, 
 		},
 		onError: (err) => setInviteError(err.message),
 	})
-	const { mutateAsync: revokeInvitation } = useRevokeInvitation({
+	const { mutate: revokeInvitation } = useRevokeInvitation({
 		onSuccess: () => {
 			setInvitationLink(null)
 
 			message.success(`User invitation successfully revoked`)
 		},
 	})
-	const { mutateAsync: updatePermissions } = useUpdateShareMemberPermissions()
+	const { mutate: updatePermissions } = useUpdateShareMemberPermissions()
 
 	const onInviteClick = useCallback(() => {
 		inviteToShare({

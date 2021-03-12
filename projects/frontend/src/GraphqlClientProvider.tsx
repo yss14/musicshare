@@ -13,9 +13,9 @@ import { message } from "antd"
 
 export const GraphQLClientProvider: React.FC = ({ children }) => {
 	const config = useConfig()
-	const { mutateAsync: logout } = useLogout()
+	const { mutate: logout } = useLogout()
 	const { mutateAsync: issueAuthToken } = useIssueAuthToken()
-	const { mutateAsync: updateAuth } = useUpdateAuth()
+	const { mutate: updateAuth } = useUpdateAuth()
 
 	const refreshAuthTokenPromise = useRef<Promise<string> | null>(null)
 
@@ -81,7 +81,7 @@ export const GraphQLClientProvider: React.FC = ({ children }) => {
 				return response
 			},
 			(error: AxiosError) => {
-				if (!error.response && error.request) {
+				if (!error.response && error.request && error.message === "Network Error") {
 					message.warning("We detected some network issues. You may want check your internet connection.", 10)
 				}
 

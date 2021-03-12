@@ -115,7 +115,7 @@ interface ISongSearchItemProps {
 }
 
 const SongSearchItem: React.FC<ISongSearchItemProps> = ({ song, onClick, onDrag }) => {
-	const { mutateAsync: addSongsToPlaylist } = useAddSongsToPlaylist()
+	const { mutate: addSongsToPlaylist } = useAddSongsToPlaylist()
 	const [, drag, dragPreview] = useDrag<ISongDNDItem, void, any>({
 		type: DragNDropItem.Song,
 		item: () => {

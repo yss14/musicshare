@@ -2,6 +2,7 @@ import styled from "styled-components"
 import imgSelectedUp from "../../images/th_selected_up.png"
 import imgSelectedDown from "../../images/th_selected_down.png"
 import { SortOrder } from "antd/lib/table/interface"
+import { CommonCSS } from "../../utils/CommonCSS"
 
 export const Table = styled.div`
 	width: 100%;
@@ -15,6 +16,7 @@ export const Header = styled.div`
 	background-color: #fafafa;
 	display: flex;
 	flex-direction: row;
+	${CommonCSS.noSelect};
 `
 
 export const Col = styled.div`
@@ -23,6 +25,7 @@ export const Col = styled.div`
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
+	${CommonCSS.noSelect};
 `
 
 interface IHeaderColProps {
@@ -49,6 +52,7 @@ export const Row = styled.div`
 	width: 100%;
 	display: flex;
 	flex-direction: row;
+	${CommonCSS.noSelect};
 
 	&:hover {
 		background-color: #e6f6ff;

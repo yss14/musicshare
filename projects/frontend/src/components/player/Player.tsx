@@ -14,11 +14,13 @@ import { SongQueue } from "./SongQueue"
 import { usePlayerState } from "./player-state"
 import { usePageVisibility } from "react-page-visibility"
 import { useUpdatedValueIf } from "../../hooks/use-updated-value-if"
+import { CommonCSS } from "../../utils/CommonCSS"
 
 const FlexWithStyles = styled(Flex)`
 	background: #3a3a3a;
 	padding: 8px 4px;
 	height: 100%;
+	${CommonCSS.noSelect};
 `
 
 const ControlContainer = styled.div`
