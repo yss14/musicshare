@@ -193,6 +193,11 @@ const MergedPlaylistsSidebar = () => {
 	)
 }
 
+const PlaylistError = styled.div`
+	color: white;
+	text-align: center;
+`
+
 interface IPlaylistTargeted extends Playlist {
 	targetUrl: string
 }
@@ -228,7 +233,7 @@ const PlaylistSidebarContent: React.FC<IPlaylistSidebarContent> = ({
 	}
 
 	if (error) {
-		return <div>{error}</div>
+		return <PlaylistError>{error}</PlaylistError>
 	}
 
 	return (
