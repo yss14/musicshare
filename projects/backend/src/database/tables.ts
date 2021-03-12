@@ -54,3 +54,9 @@ const share_member_query = TableSchema({
 })
 
 export type ShareMemberDBResult = typeof share_member_query
+
+const artists_query = TableSchema({
+	name: { type: ColumnType.Varchar, nullable: false },
+})
+
+export type ArtistDBResult = typeof artists_query
