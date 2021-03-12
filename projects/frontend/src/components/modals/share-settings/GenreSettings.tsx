@@ -10,7 +10,7 @@ import { FormElements } from "../../common/FormElements"
 export const GenreSettings = () => {
 	const [editGenre, setEditGenre] = useState<Genre | null>(null)
 	const { data: genres, isLoading } = useGenres()
-	const { mutateAsync: removeGenre, isLoading: isLoadingRemoveGenre } = useRemoveGenre({
+	const { mutate: removeGenre, isLoading: isLoadingRemoveGenre } = useRemoveGenre({
 		onSuccess: () => {
 			message.success(`Genre successfully deleted`)
 		},
@@ -81,8 +81,12 @@ const GenreTableFooter = () => {
 
 	const onSubmit = useCallback(
 		async (values: GenrePayload, formikHelpers: FormikHelpers<GenrePayload>) => {
-			await addGenre(values)
-			formikHelpers.resetForm()
+			try {
+				await addGenre(values)
+				formikHelpers.resetForm()
+			} catch (err) {
+				console.error(err)
+			}
 		},
 		[addGenre],
 	)
@@ -117,9 +121,13 @@ const EditGenreModal = ({ genre: { id: genreID, ...genrePayload }, onClose }: IE
 
 	const onSubmit = useCallback(
 		async (values: GenrePayload, formikHelpers: FormikHelpers<GenrePayload>) => {
-			await updateGenre({ genreID, ...values })
-			formikHelpers.resetForm()
-			onClose()
+			try {
+				await updateGenre({ genreID, ...values })
+				formikHelpers.resetForm()
+				onClose()
+			} catch (err) {
+				console.error(err)
+			}
 		},
 		[updateGenre, genreID, onClose],
 	)

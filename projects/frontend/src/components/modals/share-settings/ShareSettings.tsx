@@ -20,14 +20,14 @@ interface IShareSettingsProps {
 export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose }) => {
 	const [tab, setTab] = useState<ShareSettingsTab>("general")
 	const history = useHistory()
-	const { mutateAsync: deleteShare } = useDeleteShare({
+	const { mutate: deleteShare } = useDeleteShare({
 		onSuccess: () => {
 			message.success("Share successfully deleted")
 			history.push("/")
 			onClose()
 		},
 	})
-	const { mutateAsync: leaveShare } = useLeaveShare({
+	const { mutate: leaveShare } = useLeaveShare({
 		onSuccess: () => {
 			message.success("Share successfully left")
 			history.push("/")

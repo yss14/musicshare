@@ -42,7 +42,7 @@ interface IAcceptInvitationFormProps {
 }
 
 export const AcceptInvitationForm: React.FC<IAcceptInvitationFormProps> = ({ invitationPayload, invitationToken }) => {
-	const { mutateAsync: acceptInvitation, error, data } = useAcceptInvitation({
+	const { mutate: acceptInvitation, error, data } = useAcceptInvitation({
 		onError: (err) => {
 			console.error(err)
 			message.error(err.message)

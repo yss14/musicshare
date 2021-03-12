@@ -52,7 +52,7 @@ interface ILoginFormProps {
 export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 	const history = useHistory()
 	const config = useConfig()
-	const { mutateAsync: login, error } = useLogin({
+	const { mutate: login, error } = useLogin({
 		onSuccess: () => history.push("/"),
 		onError: console.error,
 	})

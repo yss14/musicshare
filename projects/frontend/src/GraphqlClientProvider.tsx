@@ -13,9 +13,9 @@ import { message } from "antd"
 
 export const GraphQLClientProvider: React.FC = ({ children }) => {
 	const config = useConfig()
-	const { mutateAsync: logout } = useLogout()
+	const { mutate: logout } = useLogout()
 	const { mutateAsync: issueAuthToken } = useIssueAuthToken()
-	const { mutateAsync: updateAuth } = useUpdateAuth()
+	const { mutate: updateAuth } = useUpdateAuth()
 
 	const refreshAuthTokenPromise = useRef<Promise<string> | null>(null)
 
