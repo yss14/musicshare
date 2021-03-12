@@ -3,7 +3,7 @@
 Self-hosted open-source music sharing platform from music lovers for music lovers
 
 [![Build Status](https://travis-ci.com/yss14/musicshare.svg?branch=master)](https://travis-ci.com/yss14/musicshare)
-[![Gitter](https://badges.gitter.im/musicsharerocks/community.svg)](https://gitter.im/musicsharerocks/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![GitHub Discussions](https://img.shields.io/badge/chat-on%20github%20discussions-blue)](https://github.com/yss14/musicshare/discussions)
 [![Slack Status](https://img.shields.io/badge/chat-on%20slack-blue)](https://join.slack.com/t/musicshare-workspace/shared_invite/zt-nnt5jhio-_vOV8oiL8Gz1Myw5PgJ~Sg)
 [![codecov](https://codecov.io/gh/yss14/musicshare/branch/master/graph/badge.svg)](https://codecov.io/gh/yss14/musicshare)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=yss14/musicshare)](https://dependabot.com)
