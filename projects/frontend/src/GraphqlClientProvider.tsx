@@ -81,7 +81,7 @@ export const GraphQLClientProvider: React.FC = ({ children }) => {
 				return response
 			},
 			(error: AxiosError) => {
-				if (!error.response && error.request) {
+				if (!error.response && error.request && error.message === "Network Error") {
 					message.warning("We detected some network issues. You may want check your internet connection.", 10)
 				}
 
