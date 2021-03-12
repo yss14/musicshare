@@ -20,7 +20,8 @@ const StyledSubmitButton = styled(Button)`
 `
 
 const StyledFormItem = styled(Form.Item)`
-	& .ant-form-explain {
+	& .ant-form-item-explain,
+	& .ant-form-item-explain * {
 		color: white;
 	}
 `
@@ -71,7 +72,10 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 	return (
 		<Form onFinish={() => handleSubmit()} style={{ width: 250 }}>
 			{error && <Alert message={error.message.replace("GraphQL error: ", "")} type="error" />}
-			<StyledFormItem validateStatus={touched.email && errors.email ? "error" : "success"} help={errors.email}>
+			<StyledFormItem
+				validateStatus={touched.email && errors.email ? "error" : "success"}
+				help={touched.email && errors.email && errors.email}
+			>
 				<Input
 					prefix={<UserOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
 					placeholder="E-Mail"
@@ -83,7 +87,7 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 			</StyledFormItem>
 			<StyledFormItem
 				validateStatus={touched.password && errors.password ? "error" : "success"}
-				help={errors.password}
+				help={touched.password && errors.password && errors.password}
 			>
 				<Input
 					prefix={<LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
@@ -101,7 +105,7 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ email }) => {
 						Sign Up
 					</Link>
 				)}
-				<Link to="/password/restore" style={{ color: "#e74c3c" }}>
+				<Link to="/password/restore" style={{ color: "white" }}>
 					Forgot password
 				</Link>
 			</Form.Item>
