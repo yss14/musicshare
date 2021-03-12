@@ -68,7 +68,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	const authService = new AuthenticationService(config.jwt.secret)
 	const passwordLoginService = PasswordLoginService({ authService, database, userService })
 	const permissionService = PermissionService({ database })
-	const tagService = TagService({ songService, shareService })
+	const tagService = TagService({ database, shareService })
 	const seedService = SeedService(database, serviceFactory)
 	const captchaService = CaptchaService({ database })
 

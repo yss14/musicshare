@@ -60,3 +60,9 @@ const artists_query = TableSchema({
 })
 
 export type ArtistDBResult = typeof artists_query
+
+const tags_query = TableSchema({
+	name: { type: ColumnType.Varchar, nullable: false },
+})
+
+export type TagDBResult = typeof tags_query
