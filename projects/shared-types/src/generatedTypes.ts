@@ -160,8 +160,8 @@ export interface ShareMember {
 	email: string
 	dateJoined: string
 	shareID: string
-	permissions: string[]
-	status: UserStatus
+	permissions: Maybe<string[]>
+	status: Maybe<UserStatus>
 }
 
 /** Specifies whether a user already accepted an invitation or is still pending */

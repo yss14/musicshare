@@ -167,7 +167,7 @@ const ShareUsers: React.FC<{ shareID: string; canEdit: boolean }> = ({ shareID, 
 							render={(_, user: ShareMember) => {
 								return (
 									<EditableTagGroup
-										values={user.permissions}
+										values={user.permissions || []}
 										placeholder="Permissions"
 										datasource={Permissions.ALL}
 										onValuesChange={(permissions) => onPermissionsValueChange(user, permissions)}
