@@ -6,7 +6,6 @@ import { BaseSong } from "@musicshare/shared-types"
 import { Nullable } from "../types/Nullable"
 import { id3Samples, IID3SampleTest } from "./assets/id3-samples"
 import { defaultGenres, defaultSongTypes } from "../database/fixtures"
-import { testData } from "../database/seed"
 
 jest.mock("id3-parser")
 

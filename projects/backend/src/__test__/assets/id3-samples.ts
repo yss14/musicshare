@@ -436,4 +436,33 @@ export const id3Samples: IID3SampleTest[] = [
 			type: "Extended Mix",
 		},
 	},
+	{
+		originalFilename: "Above & Beyond pres. Tranquility Base - Oceanic (Jerome Isma-Ae Remix).mp3",
+		sample: {
+			version: {
+				v1: { major: 1, minor: 1 },
+				v2: false,
+			},
+			title: "Oceanic (Jerome Isma-Ae Remix)",
+			artist: "Above & Beyond pres. Tranquility Base",
+			album: "Anjunabeats Volume 15",
+			year: "2020",
+			comments: "",
+			track: "15",
+			genre: "Dance",
+			band: "Above & Beyond",
+			"set-part": "1",
+			isrc: "GBEWA1907594",
+		},
+		knownArtists: ["Above & Beyond"],
+		expectedOutput: {
+			...defaultExpectedOutput,
+			title: "Oceanic",
+			artists: ["Above & Beyond"],
+			remixer: ["Jerome Isma-Ae"],
+			type: "Remix",
+			year: 2020,
+			genres: ["Dance"],
+		},
+	},
 ]
