@@ -179,8 +179,8 @@ describe("with known artists", () => {
 		const baseString = "Gabriel & Dresden x Ane Brun x Above & Beyond"
 
 		expect(artistExtractor.extract(baseString, "artists")).toEqual([
-			{ name: "Above & Beyond", type: "artists" },
 			{ name: "Gabriel & Dresden", type: "artists" },
+			{ name: "Above & Beyond", type: "artists" },
 			{ name: "Ane Brun", type: "artists" },
 		])
 	})

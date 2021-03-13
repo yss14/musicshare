@@ -1,6 +1,6 @@
 import { ISongMetaDataSource, ExtractedSongMetaData } from "../utils/song-meta/song-meta-formats/ISongMetaDataSource"
 import { SongMetaDataService } from "../utils/song-meta/SongMetaDataService"
-import { defaultSongTypes } from "../database/fixtures"
+import { defaultGenres, defaultSongTypes } from "../database/fixtures"
 
 test("merge two meta data source", async () => {
 	const firstSource: ISongMetaDataSource = {
@@ -21,7 +21,12 @@ test("merge two meta data source", async () => {
 
 	const songMetaDataService = new SongMetaDataService([firstSource, secondSource])
 
-	const extractedMetaData = await songMetaDataService.analyse(null as any, Buffer.from(""), defaultSongTypes)
+	const extractedMetaData = await songMetaDataService.analyse(
+		null as any,
+		Buffer.from(""),
+		defaultSongTypes,
+		defaultGenres,
+	)
 
 	expect(extractedMetaData).toEqual({
 		title: "Some other title",

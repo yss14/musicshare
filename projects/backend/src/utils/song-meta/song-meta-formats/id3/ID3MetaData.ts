@@ -1,6 +1,5 @@
 import * as ID3Parser from "id3-parser"
 import urlRegex from "url-regex"
-import { defaultGenres } from "../../../../database/fixtures"
 import { tryParseInt } from "../../../try-parse/try-parse-int"
 import { ISongMetaDataSource, ExtractedSongMetaData } from "../ISongMetaDataSource"
 import { IFile } from "../../../../models/interfaces/IFile"
@@ -8,6 +7,8 @@ import { ArtistExtractor, IArtist, ArtistType } from "./ArtistExtractor"
 import { IID3Tag } from "id3-parser/lib/interface"
 import moment from "moment"
 import { ISongTypeWithoutID } from "../../../../models/interfaces/SongType"
+import { IGenreWithoutID } from "../../../../models/interfaces/Genre"
+
 const similarity = require("similarity")
 
 export class ID3MetaData implements ISongMetaDataSource {
@@ -21,6 +22,7 @@ export class ID3MetaData implements ISongMetaDataSource {
 		file: IFile,
 		audioBuffer: Buffer,
 		songTypes: ISongTypeWithoutID[],
+		genres: IGenreWithoutID[],
 	): Promise<ExtractedSongMetaData> {
 		const id3Tags = await ID3Parser.parse(audioBuffer)
 
@@ -83,10 +85,44 @@ export class ID3MetaData implements ISongMetaDataSource {
 			}
 
 			title = title.replace(/\(\d+\)/g, "")
+			title = title.replace(/\.mp3/, "")
 
-			//Try to find song type with corresponding artists in title
-			if (title.indexOf("-") > -1) {
-				let split = title.split("-")
+			// detect title of shape Gave U My Love (Mike Saint-Jules Extended Mix)
+			const songTypeRegex = `(${songTypes
+				.map((type) => [type.name, ...(type.alternativeNames || [])])
+				.flat()
+				.map((type) => type.replace(/\s/, `\\s`))
+				.join("|")})`
+
+			let regex = new RegExp(`^[^(\\(|\\))]+\\s\\([^(\\(|\\))]+\\s${songTypeRegex}\\)$`)
+
+			if (title.match(regex)) {
+				const parts = title.split("(")
+				title = parts[0].trim()
+				const secondPart = parts[1].trim().slice(0, -1)
+				const songtype = this.findBestSongtypeMatch(secondPart, songTypes)
+				if (songtype) {
+					const [type, matchedTypeString] = songtype
+					let remixer = secondPart.replace(matchedTypeString, "").trim()
+
+					extractedMetaData.remixer = this.artistExtractor
+						.extract(remixer, "remixer")
+						.map((artist) => artist.name)
+					extractedMetaData.type = type.name
+
+					extractedMetaData.remixer.forEach((artist) => {
+						remixer = remixer.replace(artist, "")
+					})
+					remixer = remixer.trim()
+					if (remixer.match(/[a-zA-Z]/)) {
+						extractedMetaData.suffix = remixer
+					}
+				}
+			}
+
+			//Try to find song type with corresponding artists in title, e.g. Artist - Track Name
+			if (title.indexOf(" - ") > -1) {
+				let split = title.split(" - ")
 
 				const artists: IArtist[] = this.artistExtractor.extract(split[0], "artists")
 				artists.forEach(addArtist)
@@ -176,11 +212,16 @@ export class ID3MetaData implements ISongMetaDataSource {
 				}
 
 				//Genre
-				const genreNames = defaultGenres.map((defaultGenre) => defaultGenre.name)
+				const genreNames = genres.map((genre) => genre.name)
 
 				if (id3Tags.genre !== undefined) {
+					const parts = id3Tags.genre.split(/\//)
 					if (genreNames.indexOf(id3Tags.genre) > -1) {
 						extractedMetaData.genres!.push(id3Tags.genre)
+					} else if (parts.some((part) => genreNames.includes(part))) {
+						const matchingParts = parts.filter((part) => genreNames.includes(part))
+
+						extractedMetaData.genres!.push(...matchingParts)
 					} else {
 						//Similarity test
 						let bestScore = 0
