@@ -25,13 +25,13 @@ export class ArtistExtractor {
 		" x ",
 		"/",
 	])
-	private readonly knownArtists: Set<string>
+	private readonly knownArtists: string[]
 
 	constructor(knownArtists: string[] | Set<string> = []) {
 		if (knownArtists instanceof Set) {
-			this.knownArtists = knownArtists
+			this.knownArtists = Array.from(knownArtists).sort((lhs, rhs) => rhs.length - lhs.length)
 		} else {
-			this.knownArtists = new Set(knownArtists)
+			this.knownArtists = knownArtists.sort((lhs, rhs) => rhs.length - lhs.length)
 		}
 	}
 
