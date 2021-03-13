@@ -248,7 +248,7 @@ describe("filename is main source", () => {
 })
 
 describe("id3 meta data from real files", () => {
-	id3Samples.forEach((testData, idx) => {
+	id3Samples.forEach((testData) => {
 		test(`test ${testData.expectedOutput.title} - ${testData.expectedOutput.artists?.join(",")}`, async () => {
 			;(ID3Parser.parse as any).mockResolvedValue(testData.sample)
 
