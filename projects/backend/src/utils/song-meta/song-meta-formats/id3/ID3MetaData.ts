@@ -85,6 +85,7 @@ export class ID3MetaData implements ISongMetaDataSource {
 			}
 
 			title = title.replace(/\(\d+\)/g, "")
+			title = title.replace(/\.mp3/, "")
 
 			// detect title of shape Gave U My Love (Mike Saint-Jules Extended Mix)
 			const songTypeRegex = `(${songTypes

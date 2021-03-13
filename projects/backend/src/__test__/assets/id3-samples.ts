@@ -390,4 +390,27 @@ export const id3Samples: IID3SampleTest[] = [
 			bpm: null,
 		},
 	},
+	{
+		originalFilename: "Marsh - Black Mountain (Original Mix).mp3",
+		sample: {
+			version: {
+				v1: { major: 1, minor: 1 },
+				v2: false,
+			},
+			title: "",
+			artist: "",
+			album: "",
+			year: "",
+			comments: "",
+			track: 0,
+			genre: "",
+			length: "417000",
+		},
+		expectedOutput: {
+			...defaultExpectedOutput,
+			title: "Black Mountain",
+			artists: ["Marsh"],
+			type: "Original Mix",
+		},
+	},
 ]
