@@ -413,4 +413,27 @@ export const id3Samples: IID3SampleTest[] = [
 			type: "Original Mix",
 		},
 	},
+	{
+		originalFilename: "D-Block & S-te-Fan - By Myself (Extended Mix) [clutter].mp3",
+		sample: {
+			version: {
+				v1: { major: 1, minor: 1 },
+				v2: false,
+			},
+			title: "",
+			artist: "",
+			album: "",
+			year: "",
+			comments: "",
+			track: 0,
+			genre: "",
+			length: "417000",
+		},
+		expectedOutput: {
+			...defaultExpectedOutput,
+			title: "By Myself",
+			artists: ["D-Block", "S-te-Fan"],
+			type: "Extended Mix",
+		},
+	},
 ]

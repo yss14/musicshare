@@ -121,8 +121,8 @@ export class ID3MetaData implements ISongMetaDataSource {
 			}
 
 			//Try to find song type with corresponding artists in title, e.g. Artist - Track Name
-			if (title.indexOf("-") > -1) {
-				let split = title.split("-")
+			if (title.indexOf(" - ") > -1) {
+				let split = title.split(" - ")
 
 				const artists: IArtist[] = this.artistExtractor.extract(split[0], "artists")
 				artists.forEach(addArtist)

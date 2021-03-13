@@ -277,32 +277,26 @@ test.skip(`test`, async () => {
 		type: "Original Mix",
 	}
 	const testData: IID3SampleTest = {
-		originalFilename: "Above & Beyond - Bittersweet & Blue (Above & Beyond Extended Club Mix)",
+		originalFilename: "D-Block & S-te-Fan - By Myself (Extended Mix) [clutter].mp3",
 		sample: {
 			version: {
 				v1: { major: 1, minor: 1 },
 				v2: false,
 			},
-			title: "Bittersweet & Blue (Above & Beyond Extended Club Mix)",
-			artist: "Above & Beyond; Richard Bedford",
-			album: "Bittersweet & Blue",
-			year: "2020",
+			title: "",
+			artist: "",
+			album: "",
+			year: "",
 			comments: "",
-			track: "2",
-			genre: "Dance; Trance",
-			band: "Above & Beyond",
-			"set-part": "1",
-			isrc: "GBEWA1905411",
-			publisher: "Anjunabeats",
+			track: 0,
+			genre: "",
+			length: "417000",
 		},
 		expectedOutput: {
 			...defaultExpectedOutput,
-			title: "Bittersweet & Blue",
-			artists: ["Above", "Beyond", "Richard Bedford"],
-			remixer: ["Above", "Beyond"],
-			type: "Club Mix",
-			labels: ["Anjunabeats"],
-			year: 2020,
+			title: "By Myself",
+			artists: ["D-Block", "S-te-Fan"],
+			type: "Extended Mix",
 		},
 	}
 
