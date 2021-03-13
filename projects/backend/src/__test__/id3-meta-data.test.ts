@@ -4,8 +4,9 @@ import { ArtistExtractor } from "../utils/song-meta/song-meta-formats/id3/Artist
 import { IFile } from "../models/interfaces/IFile"
 import { BaseSong } from "@musicshare/shared-types"
 import { Nullable } from "../types/Nullable"
-import { id3Samples } from "./assets/id3-samples"
+import { id3Samples, IID3SampleTest } from "./assets/id3-samples"
 import { defaultSongTypes } from "../database/fixtures"
+import { testData } from "../database/seed"
 
 jest.mock("id3-parser")
 
@@ -199,7 +200,7 @@ describe("filename is main source", () => {
 
 describe("id3 meta data from real files", () => {
 	id3Samples.forEach((testData, idx) => {
-		test(`test ${idx + 1}`, async () => {
+		test(`test ${testData.expectedOutput.title} - ${testData.expectedOutput.artists?.join(",")}`, async () => {
 			;(ID3Parser.parse as any).mockResolvedValue(testData.sample)
 
 			const id3MetaData = new ID3MetaData(new ArtistExtractor(testData.knownArtists || []))
@@ -213,4 +214,51 @@ describe("id3 meta data from real files", () => {
 			expect(result).toEqual(testData.expectedOutput)
 		})
 	})
+})
+
+test.skip(`test`, async () => {
+	const defaultExpectedOutput = {
+		artists: [],
+		remixer: [],
+		featurings: [],
+		genres: [],
+		type: "Original Mix",
+	}
+	const testData: IID3SampleTest = {
+		originalFilename: "Above & Beyond - Bittersweet & Blue (Above & Beyond Extended Club Mix)",
+		sample: {
+			version: {
+				v1: { major: 1, minor: 1 },
+				v2: false,
+			},
+			title: "Bittersweet & Blue (Above & Beyond Extended Club Mix)",
+			artist: "Above & Beyond; Richard Bedford",
+			album: "Bittersweet & Blue",
+			year: "2020",
+			comments: "",
+			track: "2",
+			genre: "Dance; Trance",
+			band: "Above & Beyond",
+			"set-part": "1",
+			isrc: "GBEWA1905411",
+			publisher: "Anjunabeats",
+		},
+		expectedOutput: {
+			...defaultExpectedOutput,
+			title: "Bittersweet & Blue",
+			artists: ["Above", "Beyond", "Richard Bedford"],
+			remixer: ["Above", "Beyond"],
+			type: "Club Mix",
+			labels: ["Anjunabeats"],
+			year: 2020,
+		},
+	}
+
+	;(ID3Parser.parse as any).mockResolvedValue(testData.sample)
+
+	const id3MetaData = new ID3MetaData(new ArtistExtractor(testData.knownArtists || []))
+
+	const result = await id3MetaData.analyse(makeTestFile(testData.originalFilename), Buffer.from(""), defaultSongTypes)
+
+	expect(result).toEqual(testData.expectedOutput)
 })

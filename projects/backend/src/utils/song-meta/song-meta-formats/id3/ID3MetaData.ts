@@ -84,7 +84,40 @@ export class ID3MetaData implements ISongMetaDataSource {
 
 			title = title.replace(/\(\d+\)/g, "")
 
-			//Try to find song type with corresponding artists in title
+			// detect title of shape Gave U My Love (Mike Saint-Jules Extended Mix)
+			const songTypeRegex = `(${songTypes
+				.map((type) => [type.name, ...(type.alternativeNames || [])])
+				.flat()
+				.map((type) => type.replace(/\s/, `\\s`))
+				.join("|")})`
+
+			let regex = new RegExp(`^[^(\\(|\\))]+\\s\\([^(\\(|\\))]+\\s${songTypeRegex}\\)$`)
+
+			if (title.match(regex)) {
+				const parts = title.split("(")
+				title = parts[0].trim()
+				const secondPart = parts[1].trim().slice(0, -1)
+				const songtype = this.findBestSongtypeMatch(secondPart, songTypes)
+				if (songtype) {
+					const [type, matchedTypeString] = songtype
+					let remixer = secondPart.replace(matchedTypeString, "").trim()
+
+					extractedMetaData.remixer = this.artistExtractor
+						.extract(remixer, "remixer")
+						.map((artist) => artist.name)
+					extractedMetaData.type = type.name
+
+					extractedMetaData.remixer.forEach((artist) => {
+						remixer = remixer.replace(artist, "")
+					})
+					remixer = remixer.trim()
+					if (remixer.match(/[a-zA-Z]/)) {
+						extractedMetaData.suffix = remixer
+					}
+				}
+			}
+
+			//Try to find song type with corresponding artists in title, e.g. Artist - Track Name
 			if (title.indexOf("-") > -1) {
 				let split = title.split("-")
 
@@ -179,8 +212,13 @@ export class ID3MetaData implements ISongMetaDataSource {
 				const genreNames = defaultGenres.map((defaultGenre) => defaultGenre.name)
 
 				if (id3Tags.genre !== undefined) {
+					const parts = id3Tags.genre.split(/\//)
 					if (genreNames.indexOf(id3Tags.genre) > -1) {
 						extractedMetaData.genres!.push(id3Tags.genre)
+					} else if (parts.some((part) => genreNames.includes(part))) {
+						const matchingParts = parts.filter((part) => genreNames.includes(part))
+
+						extractedMetaData.genres!.push(...matchingParts)
 					} else {
 						//Similarity test
 						let bestScore = 0

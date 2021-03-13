@@ -23,6 +23,7 @@ export class ArtistExtractor {
 		" and ",
 		" And ",
 		" x ",
+		"/",
 	])
 	private readonly knownArtists: Set<string>
 
