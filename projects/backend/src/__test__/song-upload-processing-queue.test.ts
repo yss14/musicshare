@@ -8,6 +8,7 @@ import { PlaylistServiceMock } from "./mocks/PlaylistServiceMock"
 import { makeMockDatabase } from "postgres-schema-builder"
 import { ShareServiceMock } from "./mocks/ShareServiceMock"
 import { ShareQuota } from "../models/ShareQuotaModel"
+import { GenreServiceMock } from "./mocks/GenreServiceMock"
 
 const setupTestEnv = () => {
 	const songService = new SongServiceMock()
@@ -18,6 +19,7 @@ const setupTestEnv = () => {
 	const songMetaDataService: ISongMetaDataService = { analyse: async () => ({}) }
 	const playlistService = PlaylistServiceMock()
 	const songTypeService = SongTypeServiceMock()
+	const genreService = GenreServiceMock()
 	const shareService = new ShareServiceMock([])
 	const database = makeMockDatabase()
 
@@ -28,6 +30,7 @@ const setupTestEnv = () => {
 				songFileService,
 				songMetaDataService,
 				songTypeService,
+				genreService,
 				playlistService,
 				shareService,
 			} as any),

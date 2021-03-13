@@ -82,9 +82,10 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 			}
 
 			const songTypes = await services.songTypeService.getSongTypesForShare(uploadMeta.shareID)
+			const genres = await services.genreService.getGenresForShare(uploadMeta.shareID)
 
 			console.info(`[SongUploadPrcoessingQueue] start analyzing id3 tags of ${uploadMeta.file.originalFilename}`)
-			const songMeta = await services.songMetaDataService.analyse(uploadMeta.file, audioBuffer, songTypes)
+			const songMeta = await services.songMetaDataService.analyse(uploadMeta.file, audioBuffer, songTypes, genres)
 			console.info(`[SongUploadPrcoessingQueue] done analyzing id3 tags of ${uploadMeta.file.originalFilename}`)
 
 			console.info(`[SongUploadPrcoessingQueue] calculating hash of ${uploadMeta.file.originalFilename}`)

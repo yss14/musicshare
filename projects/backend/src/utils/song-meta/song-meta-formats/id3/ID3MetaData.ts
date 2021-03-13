@@ -1,6 +1,5 @@
 import * as ID3Parser from "id3-parser"
 import urlRegex from "url-regex"
-import { defaultGenres } from "../../../../database/fixtures"
 import { tryParseInt } from "../../../try-parse/try-parse-int"
 import { ISongMetaDataSource, ExtractedSongMetaData } from "../ISongMetaDataSource"
 import { IFile } from "../../../../models/interfaces/IFile"
@@ -8,6 +7,8 @@ import { ArtistExtractor, IArtist, ArtistType } from "./ArtistExtractor"
 import { IID3Tag } from "id3-parser/lib/interface"
 import moment from "moment"
 import { ISongTypeWithoutID } from "../../../../models/interfaces/SongType"
+import { IGenreWithoutID } from "../../../../models/interfaces/Genre"
+
 const similarity = require("similarity")
 
 export class ID3MetaData implements ISongMetaDataSource {
@@ -21,6 +22,7 @@ export class ID3MetaData implements ISongMetaDataSource {
 		file: IFile,
 		audioBuffer: Buffer,
 		songTypes: ISongTypeWithoutID[],
+		genres: IGenreWithoutID[],
 	): Promise<ExtractedSongMetaData> {
 		const id3Tags = await ID3Parser.parse(audioBuffer)
 
@@ -209,7 +211,7 @@ export class ID3MetaData implements ISongMetaDataSource {
 				}
 
 				//Genre
-				const genreNames = defaultGenres.map((defaultGenre) => defaultGenre.name)
+				const genreNames = genres.map((genre) => genre.name)
 
 				if (id3Tags.genre !== undefined) {
 					const parts = id3Tags.genre.split(/\//)
