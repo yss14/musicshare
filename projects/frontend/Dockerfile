@@ -7,9 +7,9 @@ RUN apk add --no-cache bash
 RUN rm -r /usr/share/nginx/html/*
 RUN rm -rf /etc/nginx/conf.d
 
-COPY ./projects/frontend/build/  /usr/share/nginx/html/
-COPY ./projects/frontend/env.sh /usr/share/nginx/html/
-COPY ./projects/frontend/config/nginx /etc/nginx/conf.d
+COPY projects/frontend/build/  /usr/share/nginx/html/
+COPY projects/frontend/env.sh /usr/share/nginx/html/
+COPY projects/frontend/config/nginx /etc/nginx/conf.d
 
 # Default port exposure
 EXPOSE 80

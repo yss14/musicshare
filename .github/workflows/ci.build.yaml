@@ -180,9 +180,7 @@ jobs:
               run: |
                   GIT_COMMIT_HASH=$(git rev-parse --short HEAD)
 
-                  tar -xf musicshare_backend.tar -C .
-
-                  docker build -f ./projects/backend/Dockerfile --rm -t docker.pkg.github.com/yss14/musicshare/backend:staging -t musicshare/backend:staging -t docker.pkg.github.com/yss14/musicshare/backend:$GIT_COMMIT_HASH -t musicshare/backend:$GIT_COMMIT_HASH .
+                  docker build -f ./projects/backend/Dockerfile --rm -t docker.pkg.github.com/yss14/musicshare/backend:staging -t musicshare/backend:staging -t docker.pkg.github.com/yss14/musicshare/backend:$GIT_COMMIT_HASH -t musicshare/backend:$GIT_COMMIT_HASH - < musicshare_backend.tar
 
                   docker push musicshare/backend:staging
                   docker push musicshare/backend:$GIT_COMMIT_HASH
@@ -228,9 +226,7 @@ jobs:
 
                   echo $GIT_COMMIT_HASH
 
-                  tar -xf musicshare_frontend.tar -C .
-
-                  docker build -f ./projects/frontend/Dockerfile --rm -t docker.pkg.github.com/yss14/musicshare/frontend:staging -t musicshare/frontend:staging -t docker.pkg.github.com/yss14/musicshare/frontend:$GIT_COMMIT_HASH -t musicshare/frontend:$GIT_COMMIT_HASH .
+                  docker build -f ./projects/frontend/Dockerfile --rm -t docker.pkg.github.com/yss14/musicshare/frontend:staging -t musicshare/frontend:staging -t docker.pkg.github.com/yss14/musicshare/frontend:$GIT_COMMIT_HASH -t musicshare/frontend:$GIT_COMMIT_HASH - < musicshare_frontend.tar
 
                   docker push docker.pkg.github.com/yss14/musicshare/frontend:staging
                   docker push musicshare/frontend:staging
