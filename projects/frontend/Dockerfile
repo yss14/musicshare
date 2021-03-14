@@ -7,16 +7,9 @@ RUN apk add --no-cache bash
 RUN rm -r /usr/share/nginx/html/*
 RUN rm -rf /etc/nginx/conf.d
 
-# Static build
-RUN mkdir app
-COPY ./projects/frontend /app
-
-WORKDIR /app
-
-RUN cp -r build/* /usr/share/nginx/html/
-RUN cp env.sh /usr/share/nginx/html/
-#RUN cp config/prod.dummy.env /usr/share/nginx/html/.env
-RUN cp -r config/nginx /etc/nginx/conf.d
+COPY ./projects/frontend/build/  /usr/share/nginx/html/
+COPY ./projects/frontend/env.sh /usr/share/nginx/html/
+COPY ./projects/frontend/config/nginx /etc/nginx/conf.d
 
 # Default port exposure
 EXPOSE 80
