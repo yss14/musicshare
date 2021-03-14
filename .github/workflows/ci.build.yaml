@@ -2,7 +2,7 @@ name: CI Build
 
 on:
     push:
-        branches: [master, chore/reduce_docker_image_size]
+        branches: [master]
     pull_request:
         branches: [master]
 
@@ -74,16 +74,16 @@ jobs:
                   npm run bootstrap
                   npm run build:shared-types
 
-                  #launch_as lint npm run lint &
+                  launch_as lint npm run lint &
                   launch_as build_backend npm run build:backend &
-                  #launch_as verify_backend npm run verify:backend &
-                  #launch_as test_backend npm run test:ci &
+                  launch_as verify_backend npm run verify:backend &
+                  launch_as test_backend npm run test:ci &
 
                   wait
-                  #cat lint.txt
+                  cat lint.txt
                   cat build_backend.txt
-                  #cat verify_backend.txt
-                  #cat test_backend.txt
+                  cat verify_backend.txt
+                  cat test_backend.txt
 
                   if [ -f fail.txt ]; then
                     cat fail.txt
@@ -130,11 +130,11 @@ jobs:
                   npm run build:graphql-client
 
                   launch_as build_frontend npm run build:frontend &
-                  #launch_as verify_frontend npm run verify:frontend &
+                  launch_as verify_frontend npm run verify:frontend &
 
                   wait
                   cat build_frontend.txt
-                  #cat verify_frontend.txt
+                  cat verify_frontend.txt
 
                   if [ -f fail.txt ]; then
                     cat fail.txt
@@ -146,90 +146,3 @@ jobs:
               with:
                   name: musicshare_frontend
                   path: musicshare_frontend.tar
-
-    release_backend:
-        name: Release Backend
-        runs-on: ubuntu-latest
-        needs: build_backend
-
-        steps:
-            - uses: AutoModality/action-clean@v1
-            - uses: actions/checkout@v2
-            - name: Declare Git Commit Variable
-              id: vars
-              shell: bash
-              run: |
-                  echo "::set-output name=commit_hash::$GITHUB_SHA"
-            - name: Download Artifact
-              uses: actions/download-artifact@v2
-              with:
-                  name: musicshare_backend
-            - name: Login to Docker Hub
-              uses: docker/login-action@v1
-              with:
-                  registry: docker.io
-                  username: musicshare
-                  password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-            - name: Login to GitHub Packages
-              uses: docker/login-action@v1
-              with:
-                  registry: docker.pkg.github.com
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GITHUB_TOKEN }}
-            - name: Build Docker Images
-              run: |
-                  GIT_COMMIT_HASH=$(git rev-parse --short HEAD)
-
-                  docker build -f ./projects/backend/Dockerfile --rm -t docker.pkg.github.com/yss14/musicshare/backend:staging -t musicshare/backend:staging -t docker.pkg.github.com/yss14/musicshare/backend:$GIT_COMMIT_HASH -t musicshare/backend:$GIT_COMMIT_HASH - < musicshare_backend.tar
-
-                  docker push musicshare/backend:staging
-                  docker push musicshare/backend:$GIT_COMMIT_HASH
-
-                  docker push docker.pkg.github.com/yss14/musicshare/backend:staging
-                  docker push docker.pkg.github.com/yss14/musicshare/backend:$GIT_COMMIT_HASH
-
-    release_frontend:
-        name: Release Frontend
-        runs-on: ubuntu-latest
-        needs: build_frontend
-
-        steps:
-            - uses: AutoModality/action-clean@v1
-            - uses: actions/checkout@v2
-            - name: Declare Git Commit Variable
-              id: vars
-              shell: bash
-              run: |
-                  echo "::set-output name=commit_hash::$GITHUB_SHA"
-            - name: Download Artifact
-              uses: actions/download-artifact@v2
-              with:
-                  name: musicshare_frontend
-            - name: Login to Docker Hub
-              uses: docker/login-action@v1
-              with:
-                  registry: docker.io
-                  username: musicshare
-                  password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-            - name: Login to GitHub Packages
-              uses: docker/login-action@v1
-              with:
-                  registry: docker.pkg.github.com
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GITHUB_TOKEN }}
-            - name: Build and Push Docker Images
-              run: |
-                  set -e
-                  set -x
-
-                  GIT_COMMIT_HASH=$(git rev-parse --short HEAD)
-
-                  echo $GIT_COMMIT_HASH
-
-                  docker build -f ./projects/frontend/Dockerfile --rm -t docker.pkg.github.com/yss14/musicshare/frontend:staging -t musicshare/frontend:staging -t docker.pkg.github.com/yss14/musicshare/frontend:$GIT_COMMIT_HASH -t musicshare/frontend:$GIT_COMMIT_HASH - < musicshare_frontend.tar
-
-                  docker push docker.pkg.github.com/yss14/musicshare/frontend:staging
-                  docker push musicshare/frontend:staging
-
-                  docker push docker.pkg.github.com/yss14/musicshare/frontend:$GIT_COMMIT_HASH
-                  docker push musicshare/frontend:$GIT_COMMIT_HASH
