@@ -8,7 +8,7 @@ Self-hosted open-source music sharing platform from music lovers for music lover
 [![codecov](https://codecov.io/gh/yss14/musicshare/branch/master/graph/badge.svg)](https://codecov.io/gh/yss14/musicshare)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=yss14/musicshare)](https://dependabot.com)
 
-[Installation Guide](./docs/Installation-Guide.md) | [Contributing](./docs/Contributing.md) | [Issue Tracker](https://github.com/yss14/musicshare/issues) | [Discuss](https://github.com/yss14/musicshare/discussions) | [Roadmap](./docs/Roadmap.md)
+[Installation Guide](./docs/Installation-Guide.md) | [First Steps](./docs/Installation-Guide.md#first-steps) | [Contributing](./docs/Contributing.md) | [Issue Tracker](https://github.com/yss14/musicshare/issues) | [Discuss](https://github.com/yss14/musicshare/discussions) | [Roadmap](./docs/Roadmap.md)
 
 <br/>
 
@@ -75,7 +75,7 @@ Especially, the lack of a granular song meta data management prevented us in the
 Furthermore, in our opinion the subsonic ecosystem has a lack of good iOS and Android Apps which gives you the feeling of a Spotify or Apple Music app.
 (And yes, we know that MusicShare can't provide any iOS or Android yet, but it is at the top of our todo list and enjoys the highest priority in the upcoming months!)
 
-Nevertheless, we want to emphasize that we really appreciate the existance of an open-source standard like subsonic, enabling a diverse varity of music hosting projects and clients for the music loving self-hosting community. That's why we also decided to open source MusicShare with all it's part!
+Nevertheless, we want to emphasize that we really appreciate the existence of an open-source standard like subsonic, enabling a diverse variety of music hosting projects and clients for the music loving self-hosting community. That's why we also decided to open source MusicShare with all it's part!
 
 ## Contributing
 
