@@ -6,7 +6,6 @@ export enum DragNDropItem {
 }
 
 export interface ISongDNDItem {
-	type: DragNDropItem.Song | DragNDropItem.SongQueueItem
 	song: ShareSong
 	idx: number
 }

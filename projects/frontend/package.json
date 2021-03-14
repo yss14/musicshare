@@ -1,6 +1,6 @@
 {
 	"name": "@musicshare/frontend",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"private": true,
 	"scripts": {
 		"start": "cross-env CI=true react-app-rewired start",
@@ -21,8 +21,7 @@
 		"not op_mini all"
 	],
 	"dependencies": {
-		"@musicshare/shared-types": "*",
-		"@musicshare/react-graphql-client": "*"
-	},
-	"devDependencies": {}
+		"@musicshare/react-graphql-client": "^1.1.0",
+		"@musicshare/shared-types": "^1.1.0"
+	}
 }

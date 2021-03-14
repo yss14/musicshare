@@ -39,6 +39,7 @@ export const defaultGenres: IGenreWithoutID[] = [
 	"Drum & Bass",
 	"Dubstep",
 	"Electro House",
+	"Electro",
 	"Electronica",
 	"Future Bass",
 	"Future House",

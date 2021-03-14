@@ -39,7 +39,7 @@ interface IChangePasswordModalProps {
 }
 
 export const ChangePasswordModal: React.FC<IChangePasswordModalProps> = ({ onClose }) => {
-	const { mutateAsync: changePassword, error } = useChangePassword({
+	const { mutate: changePassword, error } = useChangePassword({
 		onError: console.error,
 		onSuccess: () => {
 			message.success("Password has been changed")

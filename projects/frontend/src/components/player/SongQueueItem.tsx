@@ -80,7 +80,8 @@ export const SongQueueItem: React.FC<ISongQueueItemProps> = ({ song, index, move
 	})
 
 	const [{ isDragging }, drag] = useDrag({
-		item: { type: DragNDropItem.SongQueueItem, song, idx: index },
+		type: DragNDropItem.SongQueueItem,
+		item: { song, idx: index },
 		collect: (monitor) => ({
 			isDragging: monitor.isDragging(),
 		}),

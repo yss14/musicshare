@@ -1,7 +1,12 @@
 import { ITimedstampedResults, ShareSong, shareSongKeys } from "@musicshare/shared-types"
 import gql from "graphql-tag"
 import { useRef } from "react"
-import { useGraphQLQuery, TransformedGraphQLQuery, typedQueryClient } from "../../react-query-graphql"
+import {
+	useGraphQLQuery,
+	TransformedGraphQLQuery,
+	typedQueryClient,
+	IGraphQLQueryOpts,
+} from "../../react-query-graphql"
 import { GET_SHARE_SONGS } from "./useShareSongs"
 import { getSongsDiff } from "../../utils/getSongsDiff"
 
@@ -32,7 +37,7 @@ export const GET_DIRTY_SHARE_SONGS = TransformedGraphQLQuery<IGetDirtyShareSongs
   	}
 `)((data) => data.share.songsDirty)
 
-export const useDirtyShareSongs = (shareID: string) => {
+export const useDirtyShareSongs = (shareID: string, opts?: IGraphQLQueryOpts<typeof GET_DIRTY_SHARE_SONGS>) => {
 	const lastUpdateTimestamp = useRef<Date>(new Date())
 
 	const query = useGraphQLQuery(GET_DIRTY_SHARE_SONGS, {
@@ -46,6 +51,7 @@ export const useDirtyShareSongs = (shareID: string) => {
 
 			updateShareSongs(shareID, data.nodes)
 		},
+		...opts,
 	})
 
 	return query

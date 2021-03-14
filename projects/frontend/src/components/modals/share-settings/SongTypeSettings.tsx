@@ -10,7 +10,7 @@ import { FormElements } from "../../common/FormElements"
 export const SongTypeSettings = () => {
 	const [editSongType, setEditSongType] = useState<SongType | null>(null)
 	const { data: songTypes, isLoading: isLoadingSongType } = useSongTypes()
-	const { mutateAsync: removeSongType, isLoading: isLoadingRemoveSongType } = useRemoveSongType({
+	const { mutate: removeSongType, isLoading: isLoadingRemoveSongType } = useRemoveSongType({
 		onSuccess: () => {
 			message.success(`SongType successfully deleted`)
 		},
@@ -99,8 +99,12 @@ const SongTypeTableFooter = () => {
 
 	const onSubmit = useCallback(
 		async (values: SongTypePayload, formikHelpers: FormikHelpers<SongTypePayload>) => {
-			await addSongType(values)
-			formikHelpers.resetForm()
+			try {
+				await addSongType(values)
+				formikHelpers.resetForm()
+			} catch (err) {
+				console.error(err)
+			}
 		},
 		[addSongType],
 	)
@@ -142,9 +146,13 @@ const EditSongTypeModal = ({ songType: { id: songTypeID, ...songTypePayload }, o
 
 	const onSubmit = useCallback(
 		async (values: SongTypePayload, formikHelpers: FormikHelpers<SongTypePayload>) => {
-			await updateSongType({ songTypeID, ...values })
-			formikHelpers.resetForm()
-			onClose()
+			try {
+				await updateSongType({ songTypeID, ...values })
+				formikHelpers.resetForm()
+				onClose()
+			} catch (err) {
+				console.error(err)
+			}
 		},
 		[updateSongType, songTypeID, onClose],
 	)

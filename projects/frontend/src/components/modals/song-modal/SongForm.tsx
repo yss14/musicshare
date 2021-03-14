@@ -52,7 +52,7 @@ export const SongForm = ({
 		[songTypes],
 	)
 
-	const { mutateAsync: updateSongMutation, isLoading } = useUpdateSong(playlistID, {
+	const { mutate: updateSongMutation, isLoading } = useUpdateSong(playlistID, {
 		onSuccess: () => {
 			closeForm()
 		},

@@ -60,7 +60,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	const userService = new UserService(database, config)
 	const songTypeService = SongTypeService(database, shareService)
 	const genreService = GenreService(database, shareService)
-	const artistService = new ArtistService(songService, shareService)
+	const artistService = ArtistService(database, serviceFactory)
 	const artistExtractor = new ArtistExtractor()
 	const songMetaDataService = new SongMetaDataService([new ID3MetaData(artistExtractor), new MP3SongDuration()])
 	const playlistService = PlaylistService({ database, songService })
@@ -68,7 +68,7 @@ export const initServices = (config: IConfig, database: IDatabaseClient): IServi
 	const authService = new AuthenticationService(config.jwt.secret)
 	const passwordLoginService = PasswordLoginService({ authService, database, userService })
 	const permissionService = PermissionService({ database })
-	const tagService = TagService({ songService, shareService })
+	const tagService = TagService({ database, shareService })
 	const seedService = SeedService(database, serviceFactory)
 	const captchaService = CaptchaService({ database })
 

@@ -1,34 +1,55 @@
-import { ISongService } from "./SongService"
 import { IShareService } from "./ShareService"
-import { flatten, uniq } from "lodash"
+import { IDatabaseClient, SQL } from "postgres-schema-builder"
+import { TagDBResult } from "../database/tables"
 
-export interface ITagService {
-	getTagsForShare(shareID: string): Promise<string[]>
-	getAggregatedTagsForUser(userID: string): Promise<string[]>
-}
+const selectTagsOfSharesQuery = (database: IDatabaseClient, shareIDs: string[]) =>
+	database.query(
+		SQL.raw<TagDBResult>(
+			`
+				SELECT DISTINCT unnest(s.tags) as name
+				FROM songs s
+				INNER JOIN share_songs ss ON ss.song_id_ref = s.song_id
+				INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
+				INNER JOIN shares l ON l.share_id = sls.share_id_ref
+				WHERE ss.share_id_ref = ANY($1)
+					AND s.date_removed IS NULL
+					AND ss.date_removed IS NULL
+				ORDER BY name;
+	`,
+			[shareIDs],
+		),
+	)
+
+export type ITagService = ReturnType<typeof TagService>
 
 interface ITagServiceArgs {
-	songService: ISongService
+	database: IDatabaseClient
 	shareService: IShareService
 }
 
-export const TagService = ({ songService, shareService }: ITagServiceArgs): ITagService => {
+export const TagService = ({ database, shareService }: ITagServiceArgs) => {
 	const getTagsForShare = async (shareID: string): Promise<string[]> => {
-		const shareSongs = await songService.getByShare(shareID)
+		const tagsResults = await selectTagsOfSharesQuery(database, [shareID])
 
-		return uniq(flatten(shareSongs.map((song) => song.tags)))
+		return tagsResults.map((result) => result.name)
 	}
 
 	const getTagsForShares = async (shareIDs: string[]): Promise<string[]> => {
-		return flatten(await Promise.all(shareIDs.map(getTagsForShare)))
+		const tagsResults = await selectTagsOfSharesQuery(database, shareIDs)
+
+		return tagsResults.map((result) => result.name)
 	}
 
 	const getAggregatedTagsForUser = async (userID: string): Promise<string[]> => {
 		const linkedLibraries = await shareService.getLinkedLibrariesOfUser(userID)
-		const aggregatedTags = await getTagsForShares(linkedLibraries.map((linkedLibrary) => linkedLibrary.id))
 
-		return aggregatedTags
+		const tagsResults = await selectTagsOfSharesQuery(
+			database,
+			linkedLibraries.map((library) => library.id),
+		)
+
+		return tagsResults.map((result) => result.name)
 	}
 
-	return { getTagsForShare, getAggregatedTagsForUser }
+	return { getTagsForShare, getTagsForShares, getAggregatedTagsForUser }
 }

@@ -115,10 +115,13 @@ interface ISongSearchItemProps {
 }
 
 const SongSearchItem: React.FC<ISongSearchItemProps> = ({ song, onClick, onDrag }) => {
-	const { mutateAsync: addSongsToPlaylist } = useAddSongsToPlaylist()
+	const { mutate: addSongsToPlaylist } = useAddSongsToPlaylist()
 	const [, drag, dragPreview] = useDrag<ISongDNDItem, void, any>({
-		item: { type: DragNDropItem.Song, song, idx: -1 },
-		begin: () => (onDrag ? onDrag(true) : undefined),
+		type: DragNDropItem.Song,
+		item: () => {
+			onDrag && onDrag(true)
+			return { song, idx: -1 }
+		},
 		end: (item: { song: ShareSong } | undefined, monitor: DragSourceMonitor) => {
 			if (onDrag) onDrag(false)
 

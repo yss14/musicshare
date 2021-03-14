@@ -25,13 +25,13 @@ test("is applicable", () => {
 })
 
 test("valid file buffer", async () => {
-	const songMeta = await mp3FileDuration.analyse(validFile, mp3FileBuffer, [])
+	const songMeta = await mp3FileDuration.analyse(validFile, mp3FileBuffer, [], [])
 
 	expect(songMeta.duration).toBeGreaterThan(0)
 })
 
 test("invalid file buffer", async () => {
-	const songMeta = await mp3FileDuration.analyse(validFile, Buffer.from(""), [])
+	const songMeta = await mp3FileDuration.analyse(validFile, Buffer.from(""), [], [])
 
 	expect(songMeta).toEqual({})
 })

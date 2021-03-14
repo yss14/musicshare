@@ -7,7 +7,8 @@ if (process.argv.length !== 3) {
 	process.exit(1)
 }
 
-const audioBuffer = fs.readFileSync(process.argv[1])
+console.log(process.argv[1])
+const audioBuffer = fs.readFileSync(process.argv[2])
 const id3Tags = ID3Parser.parse(audioBuffer)
 
 console.log(id3Tags)

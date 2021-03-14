@@ -61,7 +61,8 @@ export const SongTable: React.FC<ISongDataTableProps> = React.memo(
 		const calculatedColumnWidths = useCalculatedColumnWidths(columns)
 
 		const [, drag, dragPreview] = useDrag<ISongDNDItem, void, {}>({
-			item: { type: DragNDropItem.Song, song: hoveredSong!, idx: hoveredIdx },
+			type: DragNDropItem.Song,
+			item: { song: hoveredSong!, idx: hoveredIdx },
 		})
 
 		const hookedRowEvents = useMemo(

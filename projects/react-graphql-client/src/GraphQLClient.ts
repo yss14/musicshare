@@ -1,6 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosError } from "axios"
 import { DocumentNode } from "graphql"
 import { print } from "graphql/language/printer"
+import { getQueryKey } from "./utils/getQueryKey"
 import { GraphQLClientError, IGraphQLResponse } from "./GraphQLClientError"
 
 const isAxiosResponse = <T>(obj: any): obj is AxiosError<T> =>
@@ -28,8 +29,10 @@ export const GraphQLClient = (opts?: AxiosRequestConfig) => {
 			variables: variables ? variables : undefined,
 		})
 
+		const operationName = getQueryKey(query)
+
 		try {
-			const response = await client.post<IGraphQLResponse<TData>>(url, body)
+			const response = await client.post<IGraphQLResponse<TData>>(`${url}?operation=${operationName}`, body)
 
 			if (response.status >= 200 && response.status <= 204 && response.data.data) {
 				return response.data.data

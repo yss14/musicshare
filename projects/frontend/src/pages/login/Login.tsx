@@ -13,7 +13,7 @@ const BackgroundPane = styled.div`
 `
 
 const BackgroundImage = styled.div`
-	background-image: url(https://musicsharev2.blob.core.windows.net/musicsharestatic/mountain.jpg);
+	background-image: url("https://musicsharev2.blob.core.windows.net/musicsharestatic/mountain.jpg");
 	background-repeat: no-repeat;
 	background-size: cover;
 	width: 100%;

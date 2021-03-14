@@ -5,6 +5,7 @@ import { DocumentNode } from "graphql"
 import { Updater } from "react-query/types/core/utils"
 import { GraphQLClientError } from "./GraphQLClientError"
 import { queryClient } from "./queryClient"
+import { getQueryKey } from "./utils/getQueryKey"
 
 export const GraphQLClientContext = React.createContext<IGraphQLBaseClient | null>(null)
 
@@ -16,10 +17,6 @@ export const useGraphQLClient = () => {
 	}
 
 	return client
-}
-
-export const getQueryKey = (query: DocumentNode): string => {
-	return (query.definitions[0] as any).name.value
 }
 
 export interface ITypedGraphQLOperation<TData, TDataTransformed, TVar> {
@@ -61,7 +58,9 @@ export interface IQueryResolverArgs<TVar> extends IBaseResolverArgs<TVar> {
 	query: DocumentNode
 }
 
-export interface IUseQueryOptions<TData, TVar = {}> extends UseQueryOptions<TData>, GraphQLVariables<TVar> {
+export interface IUseQueryOptions<TData, TVar = {}>
+	extends UseQueryOptions<TData, GraphQLClientError<TData>>,
+		GraphQLVariables<TVar> {
 	operatioName?: string
 	resolver?: (args: IQueryResolverArgs<TVar>) => TData | Promise<TData>
 }
@@ -79,7 +78,7 @@ export const useGraphQLQuery = <TData, TDataTransformed, TVar extends {} = {}>(
 
 	const cachingKey = [operatioName, variables]
 
-	const queryObject = useQuery<TDataTransformed, unknown, TDataTransformed>(
+	const queryObject = useQuery<TDataTransformed, GraphQLClientError<TDataTransformed>, TDataTransformed>(
 		cachingKey,
 		async () => {
 			if (resolver) {
