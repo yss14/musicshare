@@ -6,9 +6,8 @@ WORKDIR /usr/src/app
 
 COPY ./ /usr/src/app/
 
-RUN	npm ci --no-audit --production --ignore-scripts
 RUN npm i -g lerna
-RUN npm run bootstrap
+RUN	npm ci --no-audit --production
 
 ENV NODE_ENV production
 EXPOSE 4000
