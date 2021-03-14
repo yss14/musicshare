@@ -21,8 +21,8 @@ export interface IUpdateSongTypeVariables {
 }
 
 export const UPDATE_SONG_TYPE = TransformedGraphQLMutation<IUpdateSongTypeData, IUpdateSongTypeVariables>(gql`
-	mutation updateSongType($songTypeID: String! $genreID: String! $name: String! $group: String! $alternativeNames: [String!]! $hasArtists: Boolean!) {
-		updateSongType(songTypeID: $songTypeID genreID: $genreID name: $name group: $group alternativeNames: $alternativeNames hasArtists: $hasArtists){
+	mutation updateSongType($songTypeID: String! $name: String! $group: String! $alternativeNames: [String!]! $hasArtists: Boolean!) {
+		updateSongType(songTypeID: $songTypeID name: $name group: $group alternativeNames: $alternativeNames hasArtists: $hasArtists){
 			${songTypeKeys}
 		}
 	}
