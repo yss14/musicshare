@@ -1,22 +1,3 @@
-# => Build container
-FROM node:alpine as builder
-WORKDIR /app
-
-COPY . .
-
-RUN apk add --no-cache make gcc g++ python && \
-	npm install --silent && \
-	apk del make gcc g++ python
-
-ENV SKIP_PREFLIGHT_CHECK true
-
-RUN npx lerna bootstrap --scope @musicshare/frontend --include-filtered-dependencies
-RUN npx lerna run build --scope @musicshare/frontend --include-filtered-dependencies
-
-RUN rm -r -f node_modules
-RUN rm -r -f projects/frontend/node_modules
-
-# => Run container
 FROM nginx:1.15.2-alpine
 
 # Add bash
@@ -28,13 +9,13 @@ RUN rm -rf /etc/nginx/conf.d
 
 # Static build
 RUN mkdir app
-COPY --from=builder /app/projects/frontend /app
+COPY ./projects/frontend /app
 
 WORKDIR /app
 
 RUN cp -r build/* /usr/share/nginx/html/
 RUN cp env.sh /usr/share/nginx/html/
-RUN cp config/prod.dummy.env /usr/share/nginx/html/.env
+#RUN cp config/prod.dummy.env /usr/share/nginx/html/.env
 RUN cp -r config/nginx /etc/nginx/conf.d
 
 # Default port exposure

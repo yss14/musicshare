@@ -2,7 +2,7 @@ name: CI Build
 
 on:
     push:
-        branches: [master]
+        branches: [master, chore/reduce_docker_image_size]
     pull_request:
         branches: [master]
 
@@ -70,25 +70,31 @@ jobs:
                     (time $@ || echo $cmd_name >> fail.txt) 2>&1 > $cmd_name.txt
                   }
 
-                  npm ci
+                  npm ci --no-audit
                   npm run bootstrap
                   npm run build:shared-types
 
-                  launch_as lint npm run lint &
+                  #launch_as lint npm run lint &
                   launch_as build_backend npm run build:backend &
-                  launch_as verify_backend npm run verify:backend &
-                  launch_as test_backend npm run test:ci &
+                  #launch_as verify_backend npm run verify:backend &
+                  #launch_as test_backend npm run test:ci &
 
                   wait
-                  cat lint.txt
+                  #cat lint.txt
                   cat build_backend.txt
-                  cat verify_backend.txt
-                  cat test_backend.txt
+                  #cat verify_backend.txt
+                  #cat test_backend.txt
 
                   if [ -f fail.txt ]; then
                     cat fail.txt
                     exit 1
                   fi
+
+                  tar -cf musicshare_backend.tar -C . projects/backend/build projects/backend/Dockerfile projects/react-graphql-client projects/shared-types
+            - uses: actions/upload-artifact@v2
+              with:
+                  name: musicshare_backend
+                  path: musicshare_backend.tar
 
     build_frontend:
         name: Build Frontend
@@ -124,13 +130,19 @@ jobs:
                   npm run build:graphql-client
 
                   launch_as build_frontend npm run build:frontend &
-                  launch_as verify_frontend npm run verify:frontend &
+                  #launch_as verify_frontend npm run verify:frontend &
 
                   wait
                   cat build_frontend.txt
-                  cat verify_frontend.txt
+                  #cat verify_frontend.txt
 
                   if [ -f fail.txt ]; then
                     cat fail.txt
                     exit 1
                   fi
+
+                  tar -cf musicshare_frontend.tar -C . projects/frontend/build projects/backend/Dockerfile projects/backend/env.sh projects/backend/config
+            - uses: actions/upload-artifact@v2
+              with:
+                  name: musicshare_frontend
+                  path: musicshare_frontend.tar
