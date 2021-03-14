@@ -90,7 +90,7 @@ jobs:
                     exit 1
                   fi
 
-                  tar -cf musicshare_backend.tar -C . projects/backend/build projects/backend/Dockerfile projects/react-graphql-client projects/shared-types
+                  tar -cf musicshare_backend.tar -C . projects/backend/build projects/backend/Dockerfile projects/react-graphql-client projects/shared-types package.json package-lock.json
             - uses: actions/upload-artifact@v2
               with:
                   name: musicshare_backend
