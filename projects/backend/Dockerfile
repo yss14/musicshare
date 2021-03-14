@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 COPY ./ /usr/src/app/
 
 RUN	npm ci --no-audit --production --ignore-scripts
-RUN npm i lerna --no-save
+RUN npm i -g lerna
 RUN npm run bootstrap
 
 ENV NODE_ENV production
