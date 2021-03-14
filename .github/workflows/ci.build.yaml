@@ -161,7 +161,7 @@ jobs:
               run: |
                   echo "::set-output name=commit_hash::$GITHUB_SHA"
             - name: Download Artifact
-              uses: actions/checkout@v2
+              uses: actions/download-artifact@v2
               with:
                   name: musicshare_backend
             - name: Login to Docker Hub
@@ -204,7 +204,7 @@ jobs:
               run: |
                   echo "::set-output name=commit_hash::$GITHUB_SHA"
             - name: Download Artifact
-              uses: actions/checkout@v2
+              uses: actions/download-artifact@v2
               with:
                   name: musicshare_frontend
             - name: Login to Docker Hub
