@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 
 COPY ./ /usr/src/app/
 
-RUN	npm install --silent --no-audit --production
+RUN	npm ci --no-audit --production --ignore-scripts
 
 #RUN npx lerna bootstrap --scope @musicshare/backend --include-dependencies
 #RUN npx lerna run build --scope @musicshare/backend --include-dependencies
