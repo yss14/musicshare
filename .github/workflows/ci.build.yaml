@@ -141,7 +141,7 @@ jobs:
                     exit 1
                   fi
 
-                  tar -cf musicshare_frontend.tar -C . projects/frontend/build projects/backend/Dockerfile projects/backend/env.sh projects/backend/config
+                  tar -cf musicshare_frontend.tar -C . projects/frontend/build projects/frontend/Dockerfile projects/frontend/env.sh projects/frontend/config
             - uses: actions/upload-artifact@v2
               with:
                   name: musicshare_frontend
