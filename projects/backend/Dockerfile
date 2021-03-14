@@ -6,10 +6,8 @@ WORKDIR /usr/src/app
 
 COPY ./ /usr/src/app/
 
-RUN	npm install --silent
-
-RUN npx lerna bootstrap --scope @musicshare/backend --include-dependencies
-RUN npx lerna run build --scope @musicshare/backend --include-dependencies
+RUN npm i -g lerna
+RUN	npm ci --no-audit --production
 
 ENV NODE_ENV production
 EXPOSE 4000

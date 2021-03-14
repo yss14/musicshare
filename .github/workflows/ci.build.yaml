@@ -9,7 +9,7 @@ on:
 jobs:
     build_backend:
         name: Build Backend
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-18.04
 
         services:
             postgres:
@@ -70,7 +70,7 @@ jobs:
                     (time $@ || echo $cmd_name >> fail.txt) 2>&1 > $cmd_name.txt
                   }
 
-                  npm ci
+                  npm ci --no-audit
                   npm run bootstrap
                   npm run build:shared-types
 
@@ -90,9 +90,15 @@ jobs:
                     exit 1
                   fi
 
+                  tar -cf musicshare_backend.tar -C . projects/backend/build projects/backend/Dockerfile projects/backend/package.json projects/react-graphql-client projects/shared-types package.json package-lock.json lerna.json
+            - uses: actions/upload-artifact@v2
+              with:
+                  name: musicshare_backend
+                  path: musicshare_backend.tar
+
     build_frontend:
         name: Build Frontend
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-18.04
 
         env:
             SKIP_PREFLIGHT_CHECK: true
@@ -134,3 +140,9 @@ jobs:
                     cat fail.txt
                     exit 1
                   fi
+
+                  tar -cf musicshare_frontend.tar -C . projects/frontend/build projects/frontend/Dockerfile projects/frontend/env.sh projects/frontend/config
+            - uses: actions/upload-artifact@v2
+              with:
+                  name: musicshare_frontend
+                  path: musicshare_frontend.tar
