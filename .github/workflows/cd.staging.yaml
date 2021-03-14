@@ -16,7 +16,6 @@ jobs:
     release_backend:
         name: Release Backend
         runs-on: ubuntu-latest
-        needs: build_backend
 
         steps:
             - uses: AutoModality/action-clean@v1
@@ -59,7 +58,6 @@ jobs:
     release_frontend:
         name: Release Frontend
         runs-on: ubuntu-latest
-        needs: build_frontend
 
         steps:
             - uses: AutoModality/action-clean@v1
