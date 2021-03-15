@@ -16,11 +16,16 @@ export const PlaylistContextMenu = React.forwardRef<HTMLDivElement, IPlaylistSon
 			onSuccess: () => {
 				message.success(`Playlist successfully deleted`)
 			},
-			onError: console.error,
+			onError: (err) => {
+				message.error(err.message)
+			},
 		})
 		const { mutate: renamePlaylist } = useRenamePlaylist({
 			onSuccess: () => {
 				message.success(`Playlist successfully renamed`)
+			},
+			onError: (err) => {
+				message.error(err.message)
 			},
 		})
 

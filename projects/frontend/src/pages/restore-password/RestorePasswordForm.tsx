@@ -43,6 +43,9 @@ export const RestorePasswordForm: React.FC = () => {
 			resetForm()
 			message.success(`Password has been restored successfully`)
 		},
+		onError: (err) => {
+			message.error(err.message)
+		},
 	})
 	const onSubmit = useCallback(
 		(values: IFormValues) => {

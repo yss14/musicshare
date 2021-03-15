@@ -26,12 +26,18 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 			history.push("/")
 			onClose()
 		},
+		onError: (err) => {
+			message.error(err.message)
+		},
 	})
 	const { mutate: leaveShare } = useLeaveShare({
 		onSuccess: () => {
 			message.success("Share successfully left")
 			history.push("/")
 			onClose()
+		},
+		onError: (err) => {
+			message.error(err.message)
 		},
 	})
 	const userLibraryID = useLibraryID()

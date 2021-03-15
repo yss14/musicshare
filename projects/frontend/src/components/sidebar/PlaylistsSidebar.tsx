@@ -53,6 +53,9 @@ const SharePlaylistsSidebar = () => {
 		onSuccess: (createdPlaylist) => {
 			message.success(`Playlist ${createdPlaylist.name} successfully created`)
 		},
+		onError: (err) => {
+			message.error(err.message)
+		},
 	})
 
 	const handleCreatePlaylist = useCallback(() => {
@@ -121,6 +124,9 @@ const MergedPlaylistsSidebar = () => {
 	const { mutate: createPlaylist } = useCreatePlaylist({
 		onSuccess: (createdPlaylist) => {
 			message.success(`Playlist ${createdPlaylist.name} successfully created`)
+		},
+		onError: (err) => {
+			message.error(err.message)
 		},
 	})
 

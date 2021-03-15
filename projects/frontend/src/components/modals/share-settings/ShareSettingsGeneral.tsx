@@ -45,7 +45,11 @@ const ChangeSongName: React.FC<{ share: Share }> = ({ share: { name, id } }) => 
 	const [shareName, setShareName] = useState(name)
 	const [inputBlured, setInputBlured] = useState(false)
 	const [debouncedShareName] = useDebounce(shareName, 1000)
-	const { mutate: renameShare } = useRenameShare()
+	const { mutate: renameShare } = useRenameShare({
+		onError: (err) => {
+			message.error(err.message)
+		},
+	})
 
 	useEffect(() => {
 		if (inputBlured) {
@@ -92,8 +96,15 @@ const ShareUsers: React.FC<{ shareID: string; canEdit: boolean }> = ({ shareID, 
 
 			message.success(`User invitation successfully revoked`)
 		},
+		onError: (err) => {
+			message.error(err.message)
+		},
 	})
-	const { mutate: updatePermissions } = useUpdateShareMemberPermissions()
+	const { mutate: updatePermissions } = useUpdateShareMemberPermissions({
+		onError: (err) => {
+			message.error(err.message)
+		},
+	})
 
 	const onInviteClick = useCallback(() => {
 		inviteToShare({
