@@ -9,6 +9,7 @@ import { ShareSettings } from "./modals/share-settings/ShareSettings"
 import { ChangePasswordModal } from "./modals/ChangePasswordModal"
 import { useViewer, useShares, useLogout } from "@musicshare/react-graphql-client"
 import { Share } from "@musicshare/shared-types"
+import { useConfig } from "../hooks/use-config"
 
 const { SubMenu, ItemGroup, Item } = Menu
 
@@ -33,6 +34,9 @@ const CurrentShareItem = styled(Item)`
 export const HeaderNavMenu = () => {
 	const { shareID } = useParams<IShareRoute>()
 	const match = useRouteMatch()
+	const {
+		settings: { isDemo },
+	} = useConfig()
 	const { data: shares, isLoading, error } = useShares()
 	const { data: viewer } = useViewer()
 	const [showCreateShare, setShowCreateShare] = useState(false)
@@ -140,20 +144,24 @@ export const HeaderNavMenu = () => {
 						))}
 					</ItemGroup>
 					<ItemGroup key="shares:create" title="Create share">
-						<Menu.Item key="shares:create:button" onClick={() => setShowCreateShare(true)}>
-							<PlusOutlined />
-							Create share
-						</Menu.Item>
+						{!isDemo && (
+							<Menu.Item key="shares:create:button" onClick={() => setShowCreateShare(true)}>
+								<PlusOutlined />
+								Create share
+							</Menu.Item>
+						)}
 					</ItemGroup>
 				</SubMenu>
 				<SubMenu key="user" title={viewer?.name || "..."} style={{ float: "right" }}>
-					<Item
-						key="user:change_password"
-						title="Change Password"
-						onClick={() => setShowChangePassword(true)}
-					>
-						Change Password
-					</Item>
+					{!isDemo && (
+						<Item
+							key="user:change_password"
+							title="Change Password"
+							onClick={() => setShowChangePassword(true)}
+						>
+							Change Password
+						</Item>
+					)}
 					<Item key="user:logout" title="Logout" onClick={() => logout()}>
 						Logout
 					</Item>

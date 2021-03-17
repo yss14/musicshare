@@ -7,6 +7,7 @@ import { useHistory } from "react-router-dom"
 import { useLibraryID } from "../../../hooks/data/useLibraryID"
 import { ShareSettingsGeneral } from "./ShareSettingsGeneral"
 import { ShareSettingsMetaData } from "./ShareSettingsMetaData"
+import { useConfig } from "../../../hooks/use-config"
 
 const { TabPane } = Tabs
 
@@ -20,6 +21,9 @@ interface IShareSettingsProps {
 export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose }) => {
 	const [tab, setTab] = useState<ShareSettingsTab>("general")
 	const history = useHistory()
+	const {
+		settings: { isDemo },
+	} = useConfig()
 	const { mutate: deleteShare } = useDeleteShare({
 		onSuccess: () => {
 			message.success("Share successfully deleted")
@@ -62,7 +66,7 @@ export const ShareSettings: React.FC<IShareSettingsProps> = ({ share, onClose })
 			icon={<QuestionCircleOutlined style={{ color: "red" }} />}
 			onConfirm={onLeaveDeleteClick}
 		>
-			<Button danger>{isOwner ? "Delete Share" : "Leave Share"}</Button>
+			{isOwner || (!isDemo && <Button danger>{isOwner ? "Delete Share" : "Leave Share"}</Button>)}
 		</Popconfirm>
 	)
 
