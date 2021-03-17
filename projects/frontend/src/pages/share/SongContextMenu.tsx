@@ -36,11 +36,17 @@ export const SongContextMenu = React.forwardRef<HTMLDivElement, ISongContextMenu
 		onSuccess: () => {
 			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from library`)
 		},
+		onError: (err) => {
+			message.error(err.message)
+		},
 	})
 
 	const { mutate: removeSongsFromPlaylist } = useRemoveSongsFromPlaylist({
 		onSuccess: () => {
 			message.success(`Song ${buildSongName(mutatingSong.current!)} successfully removed from playlist`)
+		},
+		onError: (err) => {
+			message.error(err.message)
 		},
 	})
 

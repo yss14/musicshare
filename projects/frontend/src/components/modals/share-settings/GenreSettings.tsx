@@ -14,6 +14,9 @@ export const GenreSettings = () => {
 		onSuccess: () => {
 			message.success(`Genre successfully deleted`)
 		},
+		onError: (err) => {
+			message.error(err.message)
+		},
 	})
 
 	return (
@@ -77,6 +80,9 @@ const GenreTableFooter = () => {
 		onSuccess: (data) => {
 			message.success(`Genre "${data.name}" successfully added`)
 		},
+		onError: (err) => {
+			message.error(err.message)
+		},
 	})
 
 	const onSubmit = useCallback(
@@ -117,7 +123,11 @@ interface IEditGenreModalProps {
 }
 
 const EditGenreModal = ({ genre: { id: genreID, ...genrePayload }, onClose }: IEditGenreModalProps) => {
-	const { mutateAsync: updateGenre, isLoading } = useUpdateGenre()
+	const { mutateAsync: updateGenre, isLoading } = useUpdateGenre({
+		onError: (err) => {
+			message.error(err.message)
+		},
+	})
 
 	const onSubmit = useCallback(
 		async (values: GenrePayload, formikHelpers: FormikHelpers<GenrePayload>) => {

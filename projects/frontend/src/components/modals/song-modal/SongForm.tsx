@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from "react"
 import { Formik } from "formik"
-import { Input, Row, Col, DatePicker, Switch, Modal, Select, Form } from "antd"
+import { Input, Row, Col, DatePicker, Switch, Modal, Select, Form, message } from "antd"
 import { EditableTagGroup } from "../../form/EditableTagGroup"
 import moment from "moment"
 import { buildSongName } from "../../../utils/songname-builder"
@@ -55,6 +55,9 @@ export const SongForm = ({
 	const { mutate: updateSongMutation, isLoading } = useUpdateSong(playlistID, {
 		onSuccess: () => {
 			closeForm()
+		},
+		onError: (err) => {
+			message.error(err.message)
 		},
 	})
 

@@ -34,7 +34,7 @@ export const GraphQLClient = (opts?: AxiosRequestConfig) => {
 		try {
 			const response = await client.post<IGraphQLResponse<TData>>(`${url}?operation=${operationName}`, body)
 
-			if (response.status >= 200 && response.status <= 204 && response.data.data) {
+			if (response.status >= 200 && response.status <= 204 && response.data.data && !response.data.errors) {
 				return response.data.data
 			} else {
 				throw new GraphQLClientError({ ...response.data }, { query: printedQuery, variables })

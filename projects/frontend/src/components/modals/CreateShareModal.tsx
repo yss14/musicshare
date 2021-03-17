@@ -22,6 +22,9 @@ export const CreateShareModal: React.FC<ICreateShareModalProps> = ({ onSubmit, o
 	)
 	const { mutate: createShare } = useCreateShare({
 		onSuccess: (data) => onShareCreated(data),
+		onError: (err) => {
+			message.error(err.message)
+		},
 	})
 	const [name, setName] = useState("")
 

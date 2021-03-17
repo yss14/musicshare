@@ -41,11 +41,15 @@ export const ShareSettingsGeneral = ({ share, isLibrary, isOwner }: IShareSettin
 	)
 }
 
-const ChangeSongName: React.FC<{ share: Share }> = ({ share: { name, id } }) => {
+const ChangeSongName: React.FC<{ share: Share }> = ({ share: { name, id, userPermissions } }) => {
 	const [shareName, setShareName] = useState(name)
 	const [inputBlured, setInputBlured] = useState(false)
 	const [debouncedShareName] = useDebounce(shareName, 1000)
-	const { mutate: renameShare } = useRenameShare()
+	const { mutate: renameShare } = useRenameShare({
+		onError: (err) => {
+			message.error(err.message)
+		},
+	})
 
 	useEffect(() => {
 		if (inputBlured) {
@@ -64,6 +68,7 @@ const ChangeSongName: React.FC<{ share: Share }> = ({ share: { name, id } }) => 
 				onChange={(e) => setShareName(e.target.value)}
 				placeholder="Share name"
 				onBlur={() => setInputBlured(true)}
+				disabled={!userPermissions.includes(Permissions.SHARE_OWNER)}
 			/>
 		</FormItemVertical>
 	)
@@ -92,8 +97,15 @@ const ShareUsers: React.FC<{ shareID: string; canEdit: boolean }> = ({ shareID, 
 
 			message.success(`User invitation successfully revoked`)
 		},
+		onError: (err) => {
+			message.error(err.message)
+		},
 	})
-	const { mutate: updatePermissions } = useUpdateShareMemberPermissions()
+	const { mutate: updatePermissions } = useUpdateShareMemberPermissions({
+		onError: (err) => {
+			message.error(err.message)
+		},
+	})
 
 	const onInviteClick = useCallback(() => {
 		inviteToShare({
@@ -129,7 +141,7 @@ const ShareUsers: React.FC<{ shareID: string; canEdit: boolean }> = ({ shareID, 
 		[updatePermissions],
 	)
 
-	if (error) return <div>Error</div>
+	if (error) return <div>{error.message}</div>
 
 	return (
 		<>
@@ -199,18 +211,20 @@ const ShareUsers: React.FC<{ shareID: string; canEdit: boolean }> = ({ shareID, 
 					onClose={() => setInviteError(null)}
 				/>
 			)}
-			<FormItemVertical label="E-Mail">
-				<Input
-					value={email}
-					type="email"
-					onChange={(e) => setEMail(e.target.value)}
-					placeholder="example@domain.com"
-					width={300}
-				/>
-				<Button type="dashed" onClick={onInviteClick}>
-					Invite
-				</Button>
-			</FormItemVertical>
+			{canEdit && (
+				<FormItemVertical label="E-Mail">
+					<Input
+						value={email}
+						type="email"
+						onChange={(e) => setEMail(e.target.value)}
+						placeholder="example@domain.com"
+						width={300}
+					/>
+					<Button type="dashed" onClick={onInviteClick}>
+						Invite
+					</Button>
+				</FormItemVertical>
+			)}
 		</>
 	)
 }

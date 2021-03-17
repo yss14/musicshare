@@ -14,6 +14,9 @@ export const SongTypeSettings = () => {
 		onSuccess: () => {
 			message.success(`SongType successfully deleted`)
 		},
+		onError: (err) => {
+			message.error(err.message)
+		},
 	})
 
 	return (
@@ -95,6 +98,9 @@ const SongTypeTableFooter = () => {
 		onSuccess: (data) => {
 			message.success(`Song Type "${data.name}" successfully added`)
 		},
+		onError: (err) => {
+			message.error(err.message)
+		},
 	})
 
 	const onSubmit = useCallback(
@@ -142,7 +148,11 @@ interface IEditGenreModalProps {
 }
 
 const EditSongTypeModal = ({ songType: { id: songTypeID, ...songTypePayload }, onClose }: IEditGenreModalProps) => {
-	const { mutateAsync: updateSongType, isLoading } = useUpdateSongType()
+	const { mutateAsync: updateSongType, isLoading } = useUpdateSongType({
+		onError: (err) => {
+			message.error(err.message)
+		},
+	})
 
 	const onSubmit = useCallback(
 		async (values: SongTypePayload, formikHelpers: FormikHelpers<SongTypePayload>) => {
