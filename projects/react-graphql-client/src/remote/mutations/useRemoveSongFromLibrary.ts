@@ -5,6 +5,8 @@ import {
 	useGraphQLMutation,
 	typedQueryClient,
 } from "../../react-query-graphql"
+import { GET_MERGED_SONGS } from "../queries/useMergedSongs"
+import { GET_SHARES } from "../queries/useShares"
 import { GET_SHARE_SONGS } from "../queries/useShareSongs"
 
 export interface IRemoveSongFromLibraryData {
@@ -38,6 +40,27 @@ export const useRemoveSongFromLibrary = (opts?: IGraphQLMutationOpts<typeof REMO
 				},
 				(currentData) => currentData?.filter((song) => song.id !== variables.input.songID) || [],
 			)
+			typedQueryClient.setTypedQueryData(
+				{
+					query: GET_MERGED_SONGS,
+				},
+				(currentData) => currentData?.filter((song) => song.id !== variables.input.songID) || [],
+			)
+
+			const userShares =
+				typedQueryClient.getTypedQueryData({
+					query: GET_SHARES,
+				}) || []
+
+			for (const userShare of userShares) {
+				typedQueryClient.setTypedQueryData(
+					{
+						query: GET_SHARE_SONGS,
+						variables: { shareID: userShare.id },
+					},
+					(currentData) => currentData?.filter((song) => song.id !== variables.input.songID) || [],
+				)
+			}
 
 			if (opts?.onSuccess) opts.onSuccess(data, variables, context)
 		},
