@@ -6,6 +6,7 @@ export interface IConfig {
 	}
 	settings: {
 		publicRegistration: boolean
+		isDemo: boolean
 	}
 }
 
@@ -38,6 +39,7 @@ export const makeConfigFromEnv = (): IConfig => {
 		},
 		settings: {
 			publicRegistration: getEnvValue("REACT_APP_PUBLIC_REGISTRATION") === "true",
+			isDemo: getEnvValue("REACT_APP_IS_DEMO") === "true",
 		},
 	}
 }
