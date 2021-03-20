@@ -9,7 +9,7 @@ Self-hosted open-source music sharing platform from music lovers for music lover
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=yss14/musicshare)](https://dependabot.com)
 [![good first issues open](https://img.shields.io/github/issues/yss14/musicshare/good%20first%20issue?color=blue)](https://github.com/yss14/musicshare/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
-[Installation Guide](./docs/Installation-Guide.md) | [First Steps](./docs/Installation-Guide.md#first-steps) | [Contributing](./docs/Contributing.md) | [Issue Tracker](https://github.com/yss14/musicshare/issues) | [Discuss](https://github.com/yss14/musicshare/discussions) | [Roadmap](./docs/Roadmap.md)
+[Docs](./docs/Docs.md) | [Installation Guide](./docs/Installation-Guide.md) | [First Steps](./docs/Installation-Guide.md#first-steps) | [Contributing](./docs/Contributing.md) | [Issue Tracker](https://github.com/yss14/musicshare/issues) | [Discuss](https://github.com/yss14/musicshare/discussions) | [Roadmap](./docs/Roadmap.md)
 
 <br/>
 

@@ -89,7 +89,7 @@ Managing certain access rights of share members works via a small permission man
 -   `playlist:create` is allowed to create share playlists
 -   `playlist:modify` is allowed to rename a playlist
 -   `playlist:mutate_songs` is allowed to reorder playlists songs
--   `song:upload` **deprecated**
--   `song:modify` **deprecated**
+-   `song:upload` **internal**, only used by demo instance
+-   `song:modify` **internal**, only used by demo instance
 
 <img src="https://musicshare-public.s3.eu-central-1.amazonaws.com/share_seetings.png" width="400">
