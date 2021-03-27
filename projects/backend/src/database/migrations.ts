@@ -1,8 +1,9 @@
 import { IMigration, Migration, SQL, ColumnType, SchemaDiff, IQuery, Table } from "postgres-schema-builder"
 import { defaultShareQuota } from "./fixtures"
-import { DatabaseV2 } from "./versions/SchemaV2"
-import { DatabaseV3 } from "./versions/SchemaV3"
-import { DatabaseV4 } from "./versions/SchemaV4"
+import { DatabaseV2 } from "./tables/SchemaV2"
+import { DatabaseV3 } from "./tables/SchemaV3"
+import { DatabaseV4 } from "./tables/SchemaV4"
+import { DatabaseV5 } from "./tables/SchemaV5"
 
 /*
 	Docs on how migrations work can be found here:
@@ -94,6 +95,31 @@ export const Migrations = () => {
 					),
 				),
 			)
+
+			return updates
+		}),
+	)
+
+	migrations.set(
+		5,
+		Migration(async () => {
+			const updates: IQuery<{}>[] = []
+			const diffs = SchemaDiff(DatabaseV4, DatabaseV5)
+
+			const copySongShareIDsQuery = `
+				UPDATE songs SET library_id_ref = library_songs.share_id_ref
+				FROM (
+					SELECT l.share_id as share_id_ref, ss.song_id_ref as song_id_ref
+					FROM share_songs ss
+					INNER JOIN shares l ON l.share_id = ss.share_id_ref
+					WHERE l.is_library = True
+				) as library_songs
+				WHERE library_songs.song_id_ref = songs.song_id;
+			`
+
+			updates.push(SQL.raw(diffs.addRequiredColumn("songs", "library_id_ref", [copySongShareIDsQuery])))
+
+			updates.push(SQL.raw(diffs.dropTable("share_songs")))
 
 			return updates
 		}),

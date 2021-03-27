@@ -82,6 +82,7 @@ export const songZeroOliverSmith: ISongDBResult = {
 	tags: ["Anjuna", "Progressive"],
 	date_added: moment().subtract(3, "hours").toDate(),
 	date_removed: null,
+	library_id_ref: libraryUser1ShareID,
 }
 
 export const songPerthDusky: ISongDBResult = {
@@ -109,6 +110,7 @@ export const songPerthDusky: ISongDBResult = {
 	tags: ["Anjuna", "Deep", "Funky"],
 	date_added: moment().subtract(2, "hours").toDate(),
 	date_removed: null,
+	library_id_ref: libraryUser1ShareID,
 }
 
 export const songContactAlastor: ISongDBResult = {
@@ -136,6 +138,7 @@ export const songContactAlastor: ISongDBResult = {
 	tags: ["Dark", "Party Chill"],
 	date_added: moment().subtract(1, "hour").toDate(),
 	date_removed: null,
+	library_id_ref: libraryUser1ShareID,
 }
 
 export const songIsItLove: ISongDBResult = {
@@ -163,6 +166,7 @@ export const songIsItLove: ISongDBResult = {
 	tags: [],
 	date_added: moment().subtract(48, "hour").toDate(),
 	date_removed: null,
+	library_id_ref: libraryUser2ShareID,
 }
 
 export const songThunder: ISongDBResult = {
@@ -190,6 +194,7 @@ export const songThunder: ISongDBResult = {
 	tags: ["Good Mood"],
 	date_added: moment().subtract(14, "hour").toDate(),
 	date_removed: null,
+	library_id_ref: libraryUser3ShareID,
 }
 
 export const testData: ITestDataSchema = {
@@ -321,7 +326,7 @@ export const testData: ITestDataSchema = {
 	},
 }
 
-export const createTestSongs = (amount: number) => {
+export const createTestSongs = (libraryID: string, amount: number) => {
 	const prefilledArray = createPrefilledArray(amount, {})
 	const songInserts = prefilledArray.map(
 		(): Required<ISongDBResult> => ({
@@ -349,6 +354,7 @@ export const createTestSongs = (amount: number) => {
 			tags: [],
 			date_added: new Date(),
 			date_removed: null,
+			library_id_ref: libraryID,
 		}),
 	)
 
@@ -416,8 +422,8 @@ export const seedDatabase = async ({ database, services }: IMakeDatabaseSeedArgs
 		}
 	}
 
-	if (__DEV__) {
-		const songInserts = createTestSongs(100)
+	if (false && __DEV__) {
+		const songInserts = createTestSongs(libraryUser1ShareID, 100)
 
 		for (const songInsert of songInserts) {
 			await songService.create(libraryUser1ShareID, songInsert)

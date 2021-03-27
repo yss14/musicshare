@@ -4,13 +4,7 @@ import { makeGraphQLServer } from "../../server/GraphQLServer"
 import { ShareResolver } from "../../resolvers/ShareResolver"
 import { SongResolver } from "../../resolvers/SongResolver"
 import { ViewerResolver } from "../../resolvers/ViewerResolver"
-import {
-	makeTestDatabase,
-	IDatabaseClient,
-	DatabaseSchema,
-	composeCreateTableStatements,
-	SQL,
-} from "postgres-schema-builder"
+import { makeTestDatabase, IDatabaseClient } from "postgres-schema-builder"
 import { seedDatabase, testData } from "../../database/seed"
 import { v4 as uuid } from "uuid"
 import { PlaylistResolver } from "../../resolvers/PlaylistResolver"
@@ -20,8 +14,6 @@ import { isMockedDatabase } from "../mocks/mock-database"
 import { configFromEnv, IConfig } from "../../types/config"
 import { initServices } from "../../services/services"
 import { FileUploadResolver } from "../../resolvers/FileUploadResolver"
-import { Migrations } from "../../database/migrations"
-import { Tables } from "../../database/tables"
 import { ShareMemberResolver } from "../../resolvers/ShareMemberResolver"
 import { GenreResolver } from "../../resolvers/GenreResolver"
 import { SongTypeResolver } from "../../resolvers/SongTypesResolver"
@@ -29,6 +21,7 @@ import { CaptchaResolver } from "../../resolvers/CaptchaResolver"
 import { PlaylistsongResolver } from "../../resolvers/PlaylistSongResolver"
 import { BaseSongResolver } from "../../resolvers/BaseSongResolver"
 import { BaseSong } from "../../models/SongModel"
+import { initDatabaseSchema } from "../../database/init-database-schema"
 
 export type CustomResolver = [Function, unknown]
 
@@ -124,22 +117,6 @@ export const setupTestEnv = async ({ seed, database, customResolvers, configTran
 	}
 }
 
-export const initDatabaseSchema = async (database: IDatabaseClient) => {
-	await database.query(SQL.raw(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`))
-
-	const migrations = Migrations()
-
-	const schema = DatabaseSchema({
-		client: database,
-		name: "MusicShare",
-		createStatements: composeCreateTableStatements(Tables),
-		migrations,
-	})
-
-	await schema.init()
-	await schema.migrateLatest()
-}
-
 export const setupTestSuite = () => {
 	let database: IDatabaseClient | null = null
 	let databaseCleanUp: () => Promise<void> = () => Promise.resolve()
@@ -150,6 +127,7 @@ export const setupTestSuite = () => {
 
 			database = testDatabaseEnv.database
 			databaseCleanUp = testDatabaseEnv.cleanupHook
+			console.log(testDatabaseEnv.testDatabaseName)
 
 			await initDatabaseSchema(database)
 		}

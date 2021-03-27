@@ -1,9 +1,10 @@
 import { makeTestDatabase, IDatabaseClient } from "postgres-schema-builder"
 import { clearDatabase, clearTables } from "../database/database"
-import { setupTestEnv, setupTestSuite, SetupTestEnvArgs, initDatabaseSchema } from "./utils/setup-test-env"
+import { setupTestEnv, setupTestSuite, SetupTestEnvArgs } from "./utils/setup-test-env"
 import { configFromEnv, IConfig } from "../types/config"
 import { insertProductionSetupSeed } from "../database/seed"
 import { Share } from "../models/ShareModel"
+import { initDatabaseSchema } from "../database/init-database-schema"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient

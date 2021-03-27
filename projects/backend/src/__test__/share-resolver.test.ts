@@ -839,6 +839,7 @@ describe("leave share", () => {
 		await playlistService.addSongs(libraryID, libraryPlaylistID, [foreignSongID])
 		await playlistService.addSongs(shareID, sharePlaylistID, [librarySongID])
 		await playlistService.addSongs(foreignLibraryID, foreignPlaylistID, [librarySongID])
+		await playlistService.addSongs(foreignLibraryID, foreignPlaylistID, [librarySongID]) // duplicate
 
 		const query = makeLeaveShareMutation(shareID)
 
@@ -851,19 +852,111 @@ describe("leave share", () => {
 
 		// check if songs are transfered and removed correctly
 
-		/* check if referenced songs from other user libraties have been deleted from library playlists
-		and do not occur in users library songs */
-		const librarySongs = await songService.getByShare(libraryID)
-		const copiedSongs = librarySongs.filter((song) => song.title === testData.songs.song4_library_user2.title)
-		expect(copiedSongs).toEqual([])
-
-		const playlistSongs = (await playlistService.getSongs(libraryPlaylistID)).filter(
+		/* check if referenced songs from other user libraties have been copied to leaving library */
+		const leavingLibrarySongs = await songService.getByShare(libraryID)
+		const leavingLibraryCopiedSongs = leavingLibrarySongs.filter(
 			(song) => song.title === testData.songs.song4_library_user2.title,
 		)
-		expect(playlistSongs).toEqual([])
+		expect(leavingLibraryCopiedSongs).toEqual([
+			{
+				...ShareSong.fromDBResult({
+					...testData.songs.song4_library_user2,
+					library_id_ref: libraryID,
+					share_id_ref: libraryID,
+					sources: { data: [] },
+				}),
+				id: expect.not.stringContaining(testData.songs.song4_library_user2.song_id),
+			},
+		])
+
+		const leavingLibraryPlaylistSongs = (await playlistService.getSongs(libraryPlaylistID)).filter(
+			(song) => song.title === testData.songs.song4_library_user2.title,
+		)
+		expect(leavingLibraryPlaylistSongs).toEqual([
+			{
+				...ShareSong.fromDBResult({
+					...testData.songs.song4_library_user2,
+					library_id_ref: libraryID,
+					share_id_ref: libraryID,
+					sources: { data: [] },
+				}),
+				position: 4,
+				id: expect.not.stringContaining(testData.songs.song4_library_user2.song_id),
+				dateAdded: expect.toBeString(),
+				playlistSongID: expect.toBeString(),
+			},
+		])
+
+		/* check if referenced songs from leaving library have been copied to other libraries */
+		let foreignLibrarySongs = await songService.getByShare(foreignLibraryID)
+		const foreignLibraryCopiedSongs = foreignLibrarySongs.filter((song) =>
+			[testData.songs.song1_library_user1.title, testData.songs.song2_library_user1.title].includes(song.title),
+		)
+		expect(foreignLibraryCopiedSongs).toEqual([
+			{
+				...ShareSong.fromDBResult({
+					...testData.songs.song2_library_user1,
+					library_id_ref: foreignLibraryID,
+					share_id_ref: foreignLibraryID,
+					sources: { data: [] },
+				}),
+				id: expect.not.stringContaining(testData.songs.song2_library_user1.song_id),
+			},
+			{
+				...ShareSong.fromDBResult({
+					...testData.songs.song1_library_user1,
+					library_id_ref: foreignLibraryID,
+					share_id_ref: foreignLibraryID,
+					sources: { data: [] },
+				}),
+				id: expect.not.stringContaining(testData.songs.song1_library_user1.song_id),
+			},
+		])
+
+		const foreignLibraryPlaylistSongs = (await playlistService.getSongs(foreignPlaylistID)).filter((song) =>
+			[testData.songs.song1_library_user1.title, testData.songs.song2_library_user1.title].includes(song.title),
+		)
+		expect(foreignLibraryPlaylistSongs).toEqual([
+			{
+				...ShareSong.fromDBResult({
+					...testData.songs.song2_library_user1,
+					library_id_ref: foreignLibraryID,
+					share_id_ref: foreignLibraryID,
+					sources: { data: [] },
+				}),
+				position: 1,
+				id: expect.not.stringContaining(testData.songs.song2_library_user1.song_id),
+				dateAdded: expect.toBeString(),
+				playlistSongID: expect.toBeString(),
+			},
+			{
+				...ShareSong.fromDBResult({
+					...testData.songs.song1_library_user1,
+					library_id_ref: foreignLibraryID,
+					share_id_ref: foreignLibraryID,
+					sources: { data: [] },
+				}),
+				position: 2,
+				id: expect.not.stringContaining(testData.songs.song1_library_user1.song_id),
+				dateAdded: expect.toBeString(),
+				playlistSongID: expect.toBeString(),
+			},
+			{
+				...ShareSong.fromDBResult({
+					...testData.songs.song1_library_user1,
+					library_id_ref: foreignLibraryID,
+					share_id_ref: foreignLibraryID,
+					sources: { data: [] },
+				}),
+				position: 3,
+				id: expect.not.stringContaining(testData.songs.song1_library_user1.song_id),
+				dateAdded: expect.toBeString(),
+				playlistSongID: expect.toBeString(),
+			},
+		])
 
 		// check if songs from this library, which are referenced in other users libraries, are copied correctly to those foreign libraries
-		const foreignLibrarySongs = (await songService.getByShare(testData.shares.library_user2.share_id)).filter(
+		foreignLibrarySongs = (await songService.getByShare(testData.shares.library_user2.share_id)).filter(
 			(song) => song.title === testData.songs.song1_library_user1.title,
 		)
 		expect(foreignLibrarySongs).toBeArrayOfSize(1)

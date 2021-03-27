@@ -130,7 +130,7 @@ export class ViewerResolver {
 	@Authorized()
 	@FieldResolver(() => [Artist])
 	public async artists(@Root() user: Viewer): Promise<Artist[]> {
-		return this.services.artistService.getAggregatedArtistsForUser(user.id)
+		return this.services.artistService.getAllAccessibleArtistsOfUser(user.id)
 	}
 
 	@Authorized()

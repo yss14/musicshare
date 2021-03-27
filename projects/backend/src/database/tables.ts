@@ -1,7 +1,7 @@
 import { TableRecord, Table, TableSchema, ColumnType, PArray } from "postgres-schema-builder"
-import { DatabaseV4 } from "./versions/SchemaV4"
+import { DatabaseLatest } from "./tables/SchemaLatest"
 
-export const Tables = DatabaseV4
+export const Tables = DatabaseLatest
 
 export interface IUserDBResult extends TableRecord<typeof Tables.users> {}
 export interface IShareDBResult extends TableRecord<typeof Tables.shares> {}
@@ -13,7 +13,6 @@ export interface IUserLoginCredentialDBResult extends TableRecord<typeof Tables.
 export interface IShareTokenDBResult extends TableRecord<typeof Tables.share_tokens> {}
 export interface IFileUploadLogDBResult extends TableRecord<typeof Tables.file_upload_logs> {}
 export interface ISongPlayDBResult extends TableRecord<typeof Tables.song_plays> {}
-export interface IShareSongDBResult extends TableRecord<typeof Tables.share_songs> {}
 export interface IPlaylistSongDBResult extends TableRecord<typeof Tables.playlist_songs> {}
 export interface IUserShareDBResult extends TableRecord<typeof Tables.user_shares> {}
 export interface ICaptchaDBResult extends TableRecord<typeof Tables.captchas> {}
@@ -31,7 +30,6 @@ export const UserLoginCredentialsTable = Table(Tables, "user_login_credentials")
 export const ShareTokensTable = Table(Tables, "share_tokens")
 export const FileUploadLogsTable = Table(Tables, "file_upload_logs")
 export const SongPlaysTable = Table(Tables, "song_plays")
-export const ShareSongsTable = Table(Tables, "share_songs")
 export const CaptchaTable = Table(Tables, "captchas")
 
 // common helper types for custom sql queries
@@ -45,6 +43,7 @@ const share_id_query = TableSchema({
 	share_id: { type: ColumnType.UUID, nullable: false },
 })
 
+// TODO check if still necesaary after refactoring
 export type SongDBResultWithLibraryAndShare = SongDBResultWithLibrary & typeof share_id_query
 
 const share_member_query = TableSchema({

@@ -118,6 +118,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 				tags: [],
 				date_added: new Date(),
 				date_removed: null,
+				library_id_ref: uploadMeta.shareID,
 			})
 
 			await services.shareService.adjustQuotaUsed(uploadMeta.shareID, fileSize)

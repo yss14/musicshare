@@ -1,24 +1,18 @@
 import { ShareSong } from "../models/SongModel"
-import { IDatabaseClient, SQL, IDatabaseBaseClient, IQuery } from "postgres-schema-builder"
+import { IDatabaseClient, SQL } from "postgres-schema-builder"
 import { SongUpdateInput } from "../inputs/SongInput"
 import snakeCaseObjKeys from "snakecase-keys"
 import moment from "moment"
-import {
-	ISongDBResult,
-	Tables,
-	SongsTable,
-	SongPlaysTable,
-	ShareSongsTable,
-	SongDBResultWithLibraryAndShare,
-} from "../database/tables"
+import { ISongDBResult, Tables, SongsTable, SongPlaysTable } from "../database/tables"
 import { v4 as uuid } from "uuid"
 import { ForbiddenError, ValidationError } from "apollo-server-core"
-import { flatten, take, uniqBy } from "lodash"
+import { flatten, take } from "lodash"
 import { SongSearchMatcher } from "../inputs/SongSearchInput"
 import { ServiceFactory } from "./services"
 import { isFileUpload } from "../models/FileSourceModels"
 import stringSimilarity from "string-similarity"
 import { buildSongName } from "@musicshare/shared-types"
+import { Views } from "../database/views"
 
 export class SongNotFoundError extends ForbiddenError {
 	constructor(shareID: string, songID: string) {
@@ -40,18 +34,13 @@ export type ISongService = ReturnType<typeof SongService>
 export const SongService = (database: IDatabaseClient, services: ServiceFactory) => {
 	const getByID = async (shareID: string, songID: string): Promise<ShareSong> => {
 		const dbResults = await database.query(
-			SQL.raw<SongDBResultWithLibraryAndShare>(
+			// TODO playcount
+			SQL.raw<typeof Views.share_songs_view>(
 				`
-				SELECT s.*, l.share_id as library_id, ss.play_count, ss.share_id_ref as share_id
-				FROM ${SongsTable.name} s
-				INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
-				INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
-				INNER JOIN shares l ON l.share_id = sls.share_id_ref
+				SELECT s.*, 0 as play_count
+				FROM share_songs_view s
 				WHERE s.song_id = $1 
-					AND l.is_library = true 
-					AND ss.share_id_ref = $2 
-					AND s.date_removed IS NULL 
-					AND ss.date_removed IS NULL;
+					AND s.share_id_ref = $2;
 			`,
 				[songID, shareID],
 			),
@@ -66,17 +55,11 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 
 	const getByShare = async (shareID: string): Promise<ShareSong[]> => {
 		const dbResults = await database.query(
-			SQL.raw<SongDBResultWithLibraryAndShare>(
+			SQL.raw<typeof Views.share_songs_view>(
 				`
-					SELECT s.*, l.share_id as library_id, ss.play_count, ss.share_id_ref as share_id
-					FROM ${SongsTable.name} s
-					INNER JOIN ${ShareSongsTable.name} ss ON ss.song_id_ref = s.song_id
-					INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
-					INNER JOIN shares l ON l.share_id = sls.share_id_ref
-					WHERE ss.share_id_ref = $1 
-						AND l.is_library = true 
-						AND s.date_removed IS NULL 
-						AND ss.date_removed IS NULL;
+					SELECT s.*, 0 as play_count
+					FROM share_songs_view s
+					WHERE s.share_id_ref = $1;
 			`,
 				[shareID],
 			),
@@ -87,58 +70,40 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 
 	const hasReadAccessToSongs = async (userID: string, songIDs: string[]): Promise<boolean> => {
 		const dbResults = await database.query(
-			SQL.raw<typeof Tables.share_songs>(
+			SQL.raw<typeof Views.user_songs_view>(
 				`
-				SELECT ss.*
-				FROM shares s
-				INNER JOIN user_shares us1 ON us1.share_id_ref = s.share_id
-				INNER JOIN user_shares us2 ON us1.user_id_ref = us2.user_id_ref
-				INNER JOIN shares l ON l.share_id = us2.share_id_ref
-				INNER JOIN share_songs ss ON ss.share_id_ref = s.share_id
-				WHERE us2.user_id_ref = $1
-					AND s.date_removed IS NULL
-					AND l.date_removed IS NULL
-					AND s.is_library = false
-					AND (${songIDs.map((id, idx) => `ss.song_id_ref = $${idx + 2}`).join(" OR ")})
-
-				UNION ALL
-
-				SELECT ss.*
-				FROM shares s
-				INNER JOIN user_shares us ON us.share_id_ref = s.share_id
-				INNER JOIN share_songs ss ON ss.share_id_ref = s.share_id
-				WHERE s.is_library = true 
-					AND us.user_id_ref = $1
-					AND s.date_removed IS NULL
-					AND (${songIDs.map((id, idx) => `ss.song_id_ref = $${idx + 2}`).join(" OR ")})
+				SELECT *
+				FROM user_songs_view
+				WHERE user_id_ref = $1
+					AND song_id = ANY($2);
 			`,
-				[userID, ...songIDs],
+				[userID, songIDs],
 			),
 		)
 
-		const accessibleSongIDs = new Set(dbResults.map((result) => result.song_id_ref))
+		const accessibleSongIDs = new Set(dbResults.map((result) => result.song_id))
 
 		return songIDs.every((songID) => accessibleSongIDs.has(songID))
 	}
 
 	const hasWriteAccessToSongs = async (userID: string, songIDs: string[]): Promise<boolean> => {
 		const dbResults = await database.query(
-			SQL.raw<typeof Tables.share_songs>(
+			SQL.raw<typeof Views.share_songs_view>(
 				`
 				SELECT ss.*
 				FROM shares l
 				INNER JOIN user_shares us ON us.share_id_ref = l.share_id
-				INNER JOIN share_songs ss ON ss.share_id_ref = l.share_id
+				INNER JOIN share_songs_view ss ON ss.share_id_ref = l.share_id
 				WHERE us.user_id_ref = $1
 					AND l.date_removed IS NULL
 					AND l.is_library = true
-					AND (${songIDs.map((id, idx) => `ss.song_id_ref = $${idx + 2}`).join(" OR ")})
+					AND ss.song_id = ANY($2)
 			`,
-				[userID, ...songIDs],
+				[userID, songIDs],
 			),
 		)
 
-		const accessibleSongIDs = new Set(dbResults.map((result) => result.song_id_ref))
+		const accessibleSongIDs = new Set(dbResults.map((result) => result.song_id))
 
 		return songIDs.every((songID) => accessibleSongIDs.has(songID))
 	}
@@ -149,66 +114,29 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		return songs.filter((song) => moment(song.dateLastEdit).valueOf() > lastTimestamp) // TODO do via SQL query
 	}
 
+	// TODO libraryID still required?
 	const create = async (libraryID: string, song: ISongDBResult): Promise<string> => {
 		// istanbul ignore next
 		let songID = song.song_id || uuid()
 		const sources = { data: song.sources.data || [] }
 
-		const insertSongTableQuery = SongsTable.insertFromObj({ ...song, sources: sources })
-		const insertShareSongsTableQuery = ShareSongsTable.insertFromObj({
-			share_id_ref: libraryID,
-			song_id_ref: songID,
-		})
+		const insertSongTableQuery = SongsTable.insertFromObj({ ...song, sources: sources, library_id_ref: libraryID })
 
-		await database.transaction(async (transaction) => {
-			await transaction.query(insertSongTableQuery)
-			await transaction.query(insertShareSongsTableQuery)
-
-			await propagateNewSong(libraryID, songID, transaction)
-		})
+		await database.query(insertSongTableQuery)
 
 		return songID
 	}
 
-	const propagateNewSong = async (libraryID: string, songID: string, transaction: IDatabaseBaseClient) => {
-		const { shareService } = services()
-
-		const linkedLibraryShares = await shareService.getLinkedShares(libraryID)
-
-		await Promise.all(
-			linkedLibraryShares.map((share) =>
-				transaction.query(
-					ShareSongsTable.insertFromObj({
-						share_id_ref: share.id,
-						song_id_ref: songID,
-					}),
-				),
-			),
-		)
-	}
-
-	const addLibrarySongsToShare = async (shareID: string, libraryID: string) => {
-		const shareSongsInsertQuery = SQL.raw(
-			`
-			INSERT INTO ${ShareSongsTable.name} (share_id_ref, song_id_ref)
-			SELECT $1, song_id_ref FROM ${ShareSongsTable.name} WHERE share_id_ref = $2;
-		`,
-			[shareID, libraryID],
-		)
-
-		await database.query(shareSongsInsertQuery)
-	}
-
-	const update = async (shareID: string, songID: string, song: SongUpdateInput): Promise<void> => {
+	const update = async (songID: string, song: SongUpdateInput): Promise<void> => {
 		const baseSong: Partial<ISongDBResult> = {
 			...snakeCaseObjKeys(song as any),
 			date_last_edit: new Date(),
 		}
 
-		await updateShareSong(shareID, songID, baseSong)
+		await updateShareSong(songID, baseSong)
 	}
 
-	const updateShareSong = async (shareID: string, songID: string, baseSong: Partial<ISongDBResult>) => {
+	const updateShareSong = async (songID: string, baseSong: Partial<ISongDBResult>) => {
 		await database.query(
 			SongsTable.update(Object.keys(baseSong) as any, ["song_id"])(Object.values(baseSong), [songID]),
 		)
@@ -220,7 +148,6 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		matchers: SongSearchMatcher[],
 		limit: number = 20,
 	): Promise<ShareSong[]> => {
-		const { shareService } = services()
 		const tokenizedQuery = tokenizeQuery(query)
 
 		if (tokenizedQuery.length === 0) {
@@ -262,23 +189,17 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 			.join("\n")
 		const where = columnNames.map(mapColumnToTokenizedQuery).join(" OR ")
 
-		const userShares = await shareService.getSharesOfUser(userID)
-
+		// TODO playcount
 		const sql = `
-			SELECT DISTINCT ON (s.song_id) s.*, l.share_id as library_id, ss.play_count, ss.share_id_ref as share_id
-			FROM songs s
-			INNER JOIN share_songs ss ON s.song_id = ss.song_id_ref
-			INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
-			INNER JOIN shares l ON l.share_id = sls.share_id_ref
+			SELECT DISTINCT ON (s.song_id) s.*, 0 as play_count
+			FROM user_songs_view s
 			${unnestStatements}
-			WHERE ss.share_id_ref = ANY($1)
-				AND l.is_library = true
-				AND s.date_removed IS NULL
+			WHERE s.user_id_ref = $1
 				AND (${where});
 		`
 
 		const dbResults = await database.query(
-			SQL.raw<SongDBResultWithLibraryAndShare>(sql, [userShares.map((share) => share.id)]),
+			SQL.raw<typeof Views.user_songs_view>(sql, [userID]),
 		)
 
 		const sum = (acc: number, value: number) => acc + value
@@ -306,7 +227,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 
 		return take(
 			dbResults
-				.map((result) => ShareSong.fromDBResult(result as any))
+				.map((result) => ShareSong.fromDBResult(result))
 				.sort((lhs, rhs) => containmentScores[rhs.id] - containmentScores[lhs.id]),
 			limit, // cannot use limit in sql query because scoring happens in code
 		)
@@ -393,31 +314,19 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 			user_id_ref: userID,
 			share_id_ref: shareID,
 		})
-		const updateAccumulatedPlayCountQuery: IQuery<{}> = {
-			sql: `UPDATE share_songs SET play_count = play_count + 1 WHERE song_id_ref = $1 AND share_id_ref = $2;`,
-			values: [songID, shareID],
-		}
 
 		await database.query(insertPlayQuery)
-		await database.query(updateAccumulatedPlayCountQuery)
 	}
 
 	const findSongFileDuplicates = async (userID: string, hash: string): Promise<ShareSong[]> => {
-		const { shareService } = services()
-
-		const userShares = await shareService.getSharesOfUser(userID)
-
 		const sql = `
-			SELECT DISTINCT ON (s.song_id) s.*, ss.share_id_ref as share_id, sls.share_id_ref as library_id
-			FROM songs s
-			INNER JOIN share_songs ss ON ss.song_id_ref = s.song_id
-			INNER JOIN share_songs sls ON sls.song_id_ref = ss.song_id_ref
+			SELECT DISTINCT ON (s.song_id) s.*
+			FROM user_songs_view s
 			LEFT JOIN LATERAL json_array_elements(s.sources -> 'data') as song_source ON true
-			WHERE song_source ->> 'hash' = $2
-				AND s.date_removed IS NULL 
-				AND ss.share_id_ref = ANY($1);
+			WHERE s.user_id_ref = $1
+				AND song_source ->> 'hash' = $2;
 		`
-		const query = SQL.raw<SongDBResultWithLibraryAndShare>(sql, [userShares.map((share) => share.id), hash])
+		const query = SQL.raw<typeof Views.user_songs_view>(sql, [userID, hash])
 
 		const dbResults = await database.query(query)
 
@@ -430,13 +339,17 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		artist: string,
 		threshold: number,
 	): Promise<ShareSong[]> => {
-		const { shareService } = services()
-
-		const userShares = await shareService.getSharesOfUser(userID)
-		const allSongs = uniqBy(
-			(await Promise.all(userShares.map((share) => getByShare(share.id)))).flat(),
-			(song) => song.id,
+		const allSongsDBResult = await database.query(
+			SQL.raw<typeof Views.user_songs_view>(
+				`
+			SELECT DISTINCT ON (s.song_id) s.*
+			FROM user_songs_view s
+			WHERE s.user_id_ref = $1;
+		`,
+				[userID],
+			),
 		)
+		const allSongs = allSongsDBResult.map((result) => ShareSong.fromDBResult(result))
 
 		const nearDuplicates = allSongs.filter((song) => {
 			const similarity = stringSimilarity.compareTwoStrings(
@@ -461,7 +374,6 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		searchSongs,
 		removeSongFromLibrary,
 		increasePlayCount,
-		addLibrarySongsToShare,
 		findSongFileDuplicates,
 		findNearDuplicateSongs,
 	}

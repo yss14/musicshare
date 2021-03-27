@@ -1,16 +1,8 @@
 import { IConfig } from "../types/config"
-import {
-	IDatabaseClient,
-	DatabaseClient,
-	Query,
-	SQL,
-	DatabaseSchema,
-	composeCreateTableStatements,
-	sortTableDependencies,
-} from "postgres-schema-builder"
+import { IDatabaseClient, DatabaseClient, Query, SQL, sortTableDependencies } from "postgres-schema-builder"
 import { Pool } from "pg"
 import { Tables } from "./tables"
-import { Migrations } from "./migrations"
+import { initDatabaseSchema } from "./init-database-schema"
 
 /* istanbul ignore file */
 
@@ -69,19 +61,7 @@ export const connectAndSetupDatabase = async (config: IConfig) => {
 		await clearDatabase(database, config.database.user)
 	}
 
-	await database.query(SQL.raw(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`))
-
-	const migrations = Migrations()
-
-	const schema = DatabaseSchema({
-		client: database,
-		name: "MusicShare",
-		createStatements: composeCreateTableStatements(Tables),
-		migrations,
-	})
-
-	await schema.init()
-	await schema.migrateLatest()
+	const schema = await initDatabaseSchema(database)
 
 	return { database, schema }
 }

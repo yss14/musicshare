@@ -1,7 +1,7 @@
 import { Permission, Permissions } from "@musicshare/shared-types"
 import { Share } from "../models/ShareModel"
 import { IDatabaseClient, SQL } from "postgres-schema-builder"
-import { Tables, SharesTable, UserSharesTable, SongsTable, ShareSongsTable } from "../database/tables"
+import { Tables, SharesTable, UserSharesTable, SongsTable } from "../database/tables"
 import { v4 as uuid } from "uuid"
 import { ForbiddenError } from "apollo-server-core"
 import { ServiceFactory } from "./services"
@@ -61,6 +61,7 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 		return Share.fromDBResult(dbResults[0])
 	}
 
+	// TODO check if still necessary after refactoring
 	const getLinkedLibrariesOfUser = async (userID: string): Promise<Share[]> => {
 		const dbResults = await database.query(
 			SQL.raw<typeof Tables.shares>(
@@ -148,7 +149,6 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 			}),
 		)
 		await addUserToShare(id, ownerUserID, Permissions.ALL)
-		await syncLibraryWithNewlyCreatedShare(ownerUserID, id)
 
 		return Share.fromDBResult({
 			share_id: id,
@@ -177,49 +177,46 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 		)
 	}
 
-	const syncLibraryWithNewlyCreatedShare = async (userID: string, shareID: string) => {
-		const { songService } = services()
-
-		const library = (await getSharesOfUser(userID)).find((share) => share.isLibrary)
-
-		if (!library) {
-			console.warn(`Library not found. Cannot sync library of user ${userID} with newly created share ${shareID}`)
-
-			return
-		}
-
-		await songService.addLibrarySongsToShare(shareID, library.id)
-	}
-
 	const removeUser = async (shareID: string, userID: string): Promise<void> => {
 		const { songService } = services()
 		// 1. find all songs of users lib which are referenced in library playlists linked to this share
 		// 2. group by library, group by song
 		// copy each song and update playlist reference
 		// remove all references from share playlists
-		// remove song reference from share_songs
 		// remove all references from other libraries
 
-		const userLibrary = (await getSharesOfUser(userID)).find((share) => share.isLibrary === true)!
-		const linkedLibraries = (await getLinkedLibrariesOfShare(shareID)).filter(
-			(share) => share.id !== userLibrary.id,
-		)
+		const leavingUserLibrary = (await getSharesOfUser(userID)).find((share) => share.isLibrary === true)!
+		const linkedLibraries = await getLinkedLibrariesOfShare(shareID)
+		const linkedLibrariesIDs = linkedLibraries.map((library) => library.id)
 
 		const affectedPlaylistSongs = await database.query(
 			SQL.raw<typeof Tables.playlist_songs & typeof Tables.share_playlists>(
 				`
-				SELECT ps.*, sp.share_id_ref
+				SELECT DISTINCT ON (sp.share_id_ref, s.song_id) ps.*, sp.share_id_ref
 				FROM playlist_songs ps
-				-- join all playlists of linked share libraries
+				INNER JOIN playlists p ON ps.playlist_id_ref = p.playlist_id
+				INNER JOIN user_songs_view as s ON s.song_id = ps.song_id_ref
 				INNER JOIN share_playlists sp ON sp.playlist_id_ref = ps.playlist_id_ref
-				-- join all songs beloging to users library which will be removed from share
-				INNER JOIN share_songs ls ON ls.song_id_ref = ps.song_id_ref
-				INNER JOIN songs s ON s.song_id = ls.song_id_ref
+				INNER JOIN user_shares us ON us.share_id_ref = sp.share_id_ref
 				WHERE sp.share_id_ref = ANY($1)
-					AND ls.share_id_ref = $2
-					AND s.date_removed IS NULL
+					AND s.library_id_ref = $2
+					AND s.user_id_ref = us.user_id_ref
+					AND p.date_removed IS NULL
+
+				UNION
+
+				SELECT DISTINCT ON (sp.share_id_ref, s.song_id) ps.*, sp.share_id_ref
+				FROM playlist_songs ps
+				INNER JOIN playlists p ON ps.playlist_id_ref = p.playlist_id
+				INNER JOIN user_songs_view as s ON s.song_id = ps.song_id_ref
+				INNER JOIN share_playlists sp ON sp.playlist_id_ref = ps.playlist_id_ref
+				INNER JOIN user_shares us ON us.share_id_ref = sp.share_id_ref
+				WHERE sp.share_id_ref = $2
+					AND s.library_id_ref != $2
+					AND s.user_id_ref = us.user_id_ref
+					AND p.date_removed IS NULL
 			`,
-				[linkedLibraries.map((lib) => lib.id), userLibrary.id],
+				[linkedLibrariesIDs.filter((id) => id !== leavingUserLibrary.id), leavingUserLibrary.id],
 			),
 		)
 
@@ -257,8 +254,8 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 			}
 		}
 
-		// remove songs from left share playlists which belong to the leaving users library
-		const librarySongs = await songService.getByShare(userLibrary.id)
+		// remove songs from remaining share playlists which belong to the leaving users library
+		const librarySongs = await songService.getByShare(leavingUserLibrary.id)
 		const librarySongIDs = Array.from(new Set(librarySongs.map((song) => song.id)))
 
 		await database.query(
@@ -272,29 +269,22 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 			),
 		)
 
-		// remove leaving users library songs from share-song relation
-		await database.batch(
-			librarySongIDs.map((librarySongID) =>
-				ShareSongsTable.delete(["share_id_ref", "song_id_ref"])([shareID, librarySongID]),
-			),
-		)
-
 		// remove leaving user from share
 		await database.query(UserSharesTable.delete(["share_id_ref", "user_id_ref"])([shareID, userID]))
 
 		// remove all songs in users playlists referenced from other libraries
 		const sql = `
 			WITH song_of_my_library as (
-				SELECT s.song_id FROM songs s
-				INNER JOIN share_songs ss ON ss.song_id_ref = s.song_id
-				WHERE ss.share_id_ref = $1 AND s.date_removed IS NULL
+				SELECT s.song_id 
+				FROM songs s
+				WHERE s.library_id_ref = $1 AND s.date_removed IS NULL
 			)
 
 			DELETE FROM playlist_songs ps
 			USING share_playlists sp
 			WHERE ps.playlist_id_ref = sp.playlist_id_ref AND sp.share_id_ref = $1 AND ps.song_id_ref NOT IN (SELECT * FROM song_of_my_library);
 		`
-		await database.query(SQL.raw(sql, [userLibrary.id]))
+		await database.query(SQL.raw(sql, [leavingUserLibrary.id]))
 	}
 
 	const rename = async (shareID: string, name: string): Promise<void> => {
@@ -315,9 +305,9 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 		return ShareQuota.fromDBResult(dbResults[0])
 	}
 
-	const adjustQuotaUsed = async (shareID: string, amount: number) => {
+	const adjustQuotaUsed = async (libraryID: string, amount: number) => {
 		await database.query(
-			SQL.raw(`UPDATE shares SET quota_used = quota_used + $1 WHERE share_id = $2;`, [amount, shareID]),
+			SQL.raw(`UPDATE shares SET quota_used = quota_used + $1 WHERE share_id = $2;`, [amount, libraryID]),
 		)
 	}
 

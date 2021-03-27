@@ -13,6 +13,7 @@ import {
 import { v4 as uuid } from "uuid"
 import { ForbiddenError } from "apollo-server-core"
 import { PlaylistSong } from "../models/PlaylistSongModel"
+import { IUserSongsViewDBResult, Views } from "../database/views"
 
 export type OrderUpdate = [string, number] | readonly [string, number]
 
@@ -114,15 +115,15 @@ export const PlaylistService = ({ database }: IPlaylistServiceArgs) => {
 	}
 
 	const getSongs = async (playlistID: string): Promise<PlaylistSong[]> => {
-		const songQuery = SQL.raw<SongDBResultWithLibraryAndShare & typeof Tables.playlist_songs>(
+		// TODO playcount
+		const songQuery = SQL.raw<typeof Views.user_songs_view & typeof Tables.playlist_songs>(
 			`
-			SELECT s.*, l.share_id as library_id, ps.*, sls.play_count, sp.share_id_ref as share_id
-			FROM ${SongsTable.name} s
-			INNER JOIN ${PlaylistSongsTable.name} ps ON ps.song_id_ref = s.song_id
-			INNER JOIN share_songs sls ON sls.song_id_ref = s.song_id
-			INNER JOIN shares l ON l.share_id = sls.share_id_ref
+			SELECT DISTINCT ON (ps.position, s.song_id) s.*, ps.*, 0 as play_count
+			FROM user_songs_view s
+			INNER JOIN playlist_songs ps ON ps.song_id_ref = s.song_id
 			INNER JOIN share_playlists sp ON sp.playlist_id_ref = ps.playlist_id_ref
-			WHERE ps.playlist_id_ref = $1 AND l.is_library = true
+			INNER JOIN user_shares us ON us.share_id_ref = sp.share_id_ref
+			WHERE ps.playlist_id_ref = $1 AND s.user_id_ref = us.user_id_ref
 			ORDER BY ps.position ASC;
 		`,
 			[playlistID],

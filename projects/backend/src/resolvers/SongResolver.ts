@@ -39,7 +39,7 @@ export class SongResolver implements ResolverInterface<ShareSong> {
 
 		if (song.isValid()) {
 			try {
-				await songService.update(shareID, songID, song)
+				await songService.update(songID, song)
 
 				return songService.getByID(shareID, songID)
 			} catch (err) /* istanbul ignore next */ {
