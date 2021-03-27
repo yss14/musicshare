@@ -12,7 +12,7 @@ import { ServiceFactory } from "./services"
 import { isFileUpload } from "../models/FileSourceModels"
 import stringSimilarity from "string-similarity"
 import { buildSongName } from "@musicshare/shared-types"
-import { Views } from "../database/views"
+import { ViewDefinitions } from "../database/views"
 
 export class SongNotFoundError extends ForbiddenError {
 	constructor(shareID: string, songID: string) {
@@ -34,7 +34,7 @@ export type ISongService = ReturnType<typeof SongService>
 export const SongService = (database: IDatabaseClient, services: ServiceFactory) => {
 	const getByID = async (shareID: string, songID: string): Promise<ShareSong> => {
 		const dbResults = await database.query(
-			SQL.raw<typeof Views.share_songs_view>(
+			SQL.raw<typeof ViewDefinitions.share_songs_view>(
 				`
 				SELECT s.*, COALESCE(ssp.plays, 0) as play_count
 				FROM share_songs_view s
@@ -55,7 +55,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 
 	const getByShare = async (shareID: string): Promise<ShareSong[]> => {
 		const dbResults = await database.query(
-			SQL.raw<typeof Views.share_songs_view>(
+			SQL.raw<typeof ViewDefinitions.share_songs_view>(
 				`
 					SELECT s.*, COALESCE(ssp.plays, 0) as play_count
 					FROM share_songs_view s
@@ -71,7 +71,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 
 	const hasReadAccessToSongs = async (userID: string, songIDs: string[]): Promise<boolean> => {
 		const dbResults = await database.query(
-			SQL.raw<typeof Views.user_songs_view>(
+			SQL.raw<typeof ViewDefinitions.user_songs_view>(
 				`
 				SELECT *
 				FROM user_songs_view
@@ -89,7 +89,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 
 	const hasWriteAccessToSongs = async (userID: string, songIDs: string[]): Promise<boolean> => {
 		const dbResults = await database.query(
-			SQL.raw<typeof Views.share_songs_view>(
+			SQL.raw<typeof ViewDefinitions.share_songs_view>(
 				`
 				SELECT ss.*
 				FROM shares l
@@ -199,7 +199,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		`
 
 		const dbResults = await database.query(
-			SQL.raw<typeof Views.user_songs_view>(sql, [userID]),
+			SQL.raw<typeof ViewDefinitions.user_songs_view>(sql, [userID]),
 		)
 
 		const sum = (acc: number, value: number) => acc + value
@@ -327,7 +327,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 			WHERE s.user_id_ref = $1
 				AND song_source ->> 'hash' = $2;
 		`
-		const query = SQL.raw<typeof Views.user_songs_view>(sql, [userID, hash])
+		const query = SQL.raw<typeof ViewDefinitions.user_songs_view>(sql, [userID, hash])
 
 		const dbResults = await database.query(query)
 
@@ -341,7 +341,7 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		threshold: number,
 	): Promise<ShareSong[]> => {
 		const allSongsDBResult = await database.query(
-			SQL.raw<typeof Views.user_songs_view>(
+			SQL.raw<typeof ViewDefinitions.user_songs_view>(
 				`
 			SELECT DISTINCT ON (s.song_id) s.*
 			FROM user_songs_view s

@@ -1,9 +1,18 @@
-import { IMigration, Migration, SQL, ColumnType, SchemaDiff, IQuery, Table } from "postgres-schema-builder"
+import {
+	IMigration,
+	Migration,
+	SQL,
+	ColumnType,
+	SchemaDiff,
+	IQuery,
+	Table,
+	sortViewDependencies,
+} from "postgres-schema-builder"
 import { defaultShareQuota } from "./fixtures"
 import { DatabaseV2 } from "./tables/SchemaV2"
 import { DatabaseV3 } from "./tables/SchemaV3"
 import { DatabaseV4 } from "./tables/SchemaV4"
-import { DatabaseV5 } from "./tables/SchemaV5"
+import { DatabaseV5, ViewsV5 } from "./tables/SchemaV5"
 
 /*
 	Docs on how migrations work can be found here:
@@ -122,7 +131,7 @@ export const Migrations = () => {
 			updates.push(SQL.raw(diffs.dropTable("share_songs")))
 
 			return updates
-		}),
+		}, sortViewDependencies([ViewsV5.ShareSongsView, ViewsV5.UserSongsView, ViewsV5.ShareSongPlaysView])),
 	)
 
 	return migrations

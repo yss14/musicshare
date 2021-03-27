@@ -5,7 +5,7 @@ import { IPlaylistDBResult, PlaylistsTable, SharePlaylistsTable, PlaylistSongsTa
 import { v4 as uuid } from "uuid"
 import { ForbiddenError } from "apollo-server-core"
 import { PlaylistSong } from "../models/PlaylistSongModel"
-import { Views } from "../database/views"
+import { ViewDefinitions } from "../database/views"
 
 export type OrderUpdate = [string, number] | readonly [string, number]
 
@@ -108,7 +108,7 @@ export const PlaylistService = ({ database }: IPlaylistServiceArgs) => {
 
 	const getSongs = async (playlistID: string): Promise<PlaylistSong[]> => {
 		// TODO playcount
-		const songQuery = SQL.raw<typeof Views.user_songs_view & typeof Tables.playlist_songs>(
+		const songQuery = SQL.raw<typeof ViewDefinitions.user_songs_view & typeof Tables.playlist_songs>(
 			`
 			SELECT DISTINCT ON (ps.position, s.song_id) s.*, ps.*, COALESCE(ssp.plays, 0) as play_count
 			FROM user_songs_view s

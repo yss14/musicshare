@@ -7,25 +7,20 @@ import {
 } from "postgres-schema-builder"
 import { Migrations } from "./migrations"
 import { Tables } from "./tables"
-import { ShareSongPlaysView, ShareSongsView, UserSongsView } from "./views"
+import { Views } from "./views"
 
 export const initDatabaseSchema = async (database: IDatabaseClient) => {
 	await database.query(SQL.raw(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`))
 
 	const migrations = Migrations()
 
-	const viewDependencies = sortViewDependencies([ShareSongsView, UserSongsView, ShareSongPlaysView])
-	const createViewsCommands = viewDependencies.map((view) => view.create())
-	const dropViewsCommands = viewDependencies.reverse().map((view) => view.drop())
+	const views = sortViewDependencies([Views.ShareSongsView, Views.UserSongsView, Views.ShareSongPlaysView])
 
 	const schema = DatabaseSchema({
 		client: database,
 		name: "MusicShare",
 		createStatements: composeCreateTableStatements(Tables),
-		viewCommands: {
-			create: createViewsCommands,
-			drop: dropViewsCommands,
-		},
+		views,
 		migrations,
 	})
 
