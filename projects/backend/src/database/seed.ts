@@ -403,11 +403,11 @@ export const seedDatabase = async ({ database, services }: IMakeDatabaseSeedArgs
 
 		for (const [key, song] of Object.entries(testData.songs)) {
 			if (key.indexOf("user1") > -1) {
-				await songService.create(libraryUser1ShareID, song)
+				await songService.create(song)
 			} else if (key.indexOf("user2") > -1) {
-				await songService.create(libraryUser2ShareID, song)
+				await songService.create(song)
 			} else if (key.indexOf("user3") > -1) {
-				await songService.create(libraryUser3ShareID, song)
+				await songService.create(song)
 			}
 		}
 
@@ -426,7 +426,7 @@ export const seedDatabase = async ({ database, services }: IMakeDatabaseSeedArgs
 		const songInserts = createTestSongs(libraryUser1ShareID, 100)
 
 		for (const songInsert of songInserts) {
-			await songService.create(libraryUser1ShareID, songInsert)
+			await songService.create(songInsert)
 		}
 
 		await Promise.all(

@@ -93,7 +93,7 @@ export class SongUploadProcessingQueue implements ISongUploadProcessingQueue {
 			console.info(`[SongUploadPrcoessingQueue] hash of ${uploadMeta.file.originalFilename} is ${hash}`)
 
 			console.info(`[SongUploadPrcoessingQueue] saving song to database ${uploadMeta.file.originalFilename}`)
-			const songID = await services.songService.create(uploadMeta.shareID, {
+			const songID = await services.songService.create({
 				song_id: uuid(),
 				title: songMeta.title || uploadMeta.file.originalFilename,
 				suffix: songMeta.suffix || null,

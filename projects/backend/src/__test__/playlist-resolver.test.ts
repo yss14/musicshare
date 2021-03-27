@@ -406,7 +406,7 @@ describe("add songs to playlist", () => {
 		const user = await userService.create("Test", "test@test.com")
 		const share = await shareService.create(user.id, "Test", true)
 		const playlist = await playlistService.create(share.id, "Test")
-		const songID = await songService.create(share.id, song)
+		const songID = await songService.create({ ...song, library_id_ref: share.id })
 
 		const query = makeMutation(makeAddSongsQuery(share.id, playlist.id, [songID]))
 

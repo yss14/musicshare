@@ -232,9 +232,10 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 				const songResult = (await database.query(SongsTable.select("*", ["song_id"])([songID])))[0]
 
 				const newSongID = uuid()
-				await songService.create(libraryID, {
+				await songService.create({
 					...songResult,
 					song_id: newSongID,
+					library_id_ref: libraryID,
 					sources: {
 						data: songResult.sources.data.filter((source) => !isFileUpload(source)),
 					},

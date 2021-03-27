@@ -114,13 +114,12 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		return songs.filter((song) => moment(song.dateLastEdit).valueOf() > lastTimestamp) // TODO do via SQL query
 	}
 
-	// TODO libraryID still required?
-	const create = async (libraryID: string, song: ISongDBResult): Promise<string> => {
+	const create = async (song: ISongDBResult): Promise<string> => {
 		// istanbul ignore next
 		let songID = song.song_id || uuid()
 		const sources = { data: song.sources.data || [] }
 
-		const insertSongTableQuery = SongsTable.insertFromObj({ ...song, sources: sources, library_id_ref: libraryID })
+		const insertSongTableQuery = SongsTable.insertFromObj({ ...song, sources: sources })
 
 		await database.query(insertSongTableQuery)
 
@@ -264,9 +263,10 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 
 		for (const affectedLibraryID of affectedLibraryIDs) {
 			const newSongID = uuid()
-			await create(affectedLibraryID, {
+			await create({
 				...songResult,
 				song_id: newSongID,
+				library_id_ref: affectedLibraryID,
 				sources: {
 					data: songResult.sources.data.filter((source) => !isFileUpload(source)),
 				},
