@@ -61,7 +61,6 @@ export const ShareService = (database: IDatabaseClient, services: ServiceFactory
 		return Share.fromDBResult(dbResults[0])
 	}
 
-	// TODO check if still necessary after refactoring
 	const getLinkedLibrariesOfUser = async (userID: string): Promise<Share[]> => {
 		const dbResults = await database.query(
 			SQL.raw<typeof Tables.shares>(

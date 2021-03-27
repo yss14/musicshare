@@ -1,19 +1,11 @@
 import { IDatabaseClient, SQL } from "postgres-schema-builder"
 import { Playlist } from "../models/PlaylistModel"
 import { ISongService } from "./SongService"
-import {
-	IPlaylistDBResult,
-	PlaylistsTable,
-	SharePlaylistsTable,
-	PlaylistSongsTable,
-	SongsTable,
-	Tables,
-	SongDBResultWithLibraryAndShare,
-} from "../database/tables"
+import { IPlaylistDBResult, PlaylistsTable, SharePlaylistsTable, PlaylistSongsTable, Tables } from "../database/tables"
 import { v4 as uuid } from "uuid"
 import { ForbiddenError } from "apollo-server-core"
 import { PlaylistSong } from "../models/PlaylistSongModel"
-import { IUserSongsViewDBResult, Views } from "../database/views"
+import { Views } from "../database/views"
 
 export type OrderUpdate = [string, number] | readonly [string, number]
 
