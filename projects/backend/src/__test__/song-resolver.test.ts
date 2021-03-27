@@ -12,7 +12,7 @@ import { v4 as uuid } from "uuid"
 import * as path from "path"
 import * as fs from "fs"
 import { Permissions, shareSongKeys } from "@musicshare/shared-types"
-import { SongPlaysTable } from "../database/tables"
+import { ISongPlayDBResult, SongPlaysTable } from "../database/tables"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
@@ -333,10 +333,12 @@ describe("increase play count", () => {
 	const shareID = testData.shares.library_user1.share_id
 
 	test("existing song id succeeds", async () => {
-		const { graphQLServer, database } = await setupTest({})
+		const { graphQLServer, songService, database } = await setupTest({})
 
 		const songID = testData.songs.song1_library_user1.song_id
 		const query = makeIncreaseSongPlayCountMutation(shareID, songID)
+
+		const songPlaysResultBefore = await database.query(SongPlaysTable.selectAll("*"))
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
@@ -346,10 +348,16 @@ describe("increase play count", () => {
 			dateAdded: expect.toBeString(),
 		})
 
-		/*const rawResults = await database.query(
-			SongPlaysTable.select("*", ["song_id_ref", "share_id_ref"])([songID, shareID]),
-		)
-		expect(rawResults[0].play_count).toBe(1)*/
+		const songPlaysResultAfter = await database.query(SongPlaysTable.selectAll("*"))
+		expect(songPlaysResultAfter.length).toBe(songPlaysResultBefore.length + 1)
+		const newEntry = songPlaysResultAfter[songPlaysResultAfter.length - 1]
+		expect(newEntry.share_id_ref).toBe(shareID)
+		expect(newEntry.song_id_ref).toBe(songID)
+		expect(newEntry.user_id_ref).toBe(testData.users.user1.user_id)
+
+		const shareSong = (await songService.getByShare(shareID)).find((song) => song.id === songID)
+		expect(shareSong).toBeDefined()
+		expect(shareSong?.playCount).toBe(1)
 	})
 
 	test("not existing song id fails", async () => {

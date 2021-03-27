@@ -34,11 +34,11 @@ export type ISongService = ReturnType<typeof SongService>
 export const SongService = (database: IDatabaseClient, services: ServiceFactory) => {
 	const getByID = async (shareID: string, songID: string): Promise<ShareSong> => {
 		const dbResults = await database.query(
-			// TODO playcount
 			SQL.raw<typeof Views.share_songs_view>(
 				`
-				SELECT s.*, 0 as play_count
+				SELECT s.*, COALESCE(ssp.plays, 0) as play_count
 				FROM share_songs_view s
+				LEFT JOIN share_song_plays_view ssp ON ssp.song_id_ref = s.song_id AND ssp.share_id_ref = s.share_id_ref
 				WHERE s.song_id = $1 
 					AND s.share_id_ref = $2;
 			`,
@@ -57,8 +57,9 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 		const dbResults = await database.query(
 			SQL.raw<typeof Views.share_songs_view>(
 				`
-					SELECT s.*, 0 as play_count
+					SELECT s.*, COALESCE(ssp.plays, 0) as play_count
 					FROM share_songs_view s
+					LEFT JOIN share_song_plays_view ssp ON ssp.song_id_ref = s.song_id AND ssp.share_id_ref = s.share_id_ref
 					WHERE s.share_id_ref = $1;
 			`,
 				[shareID],
@@ -188,10 +189,10 @@ export const SongService = (database: IDatabaseClient, services: ServiceFactory)
 			.join("\n")
 		const where = columnNames.map(mapColumnToTokenizedQuery).join(" OR ")
 
-		// TODO playcount
 		const sql = `
-			SELECT DISTINCT ON (s.song_id) s.*, 0 as play_count
+			SELECT DISTINCT ON (s.song_id) s.*, COALESCE(ssp.plays, 0) as play_count
 			FROM user_songs_view s
+			LEFT JOIN share_song_plays_view ssp ON ssp.song_id_ref = s.song_id AND ssp.share_id_ref = s.share_id_ref
 			${unnestStatements}
 			WHERE s.user_id_ref = $1
 				AND (${where});

@@ -25,10 +25,34 @@ export namespace Views {
 			],
 		},
 	})
+
+	export const share_song_plays_view = TableSchema({
+		share_id_ref: {
+			type: ColumnType.UUID,
+			primaryKey: true,
+			nullable: false,
+			foreignKeys: [
+				{ targetTable: "shares", targetColumn: "share_id", onDelete: ForeignKeyUpdateDeleteRule.Cascade },
+			],
+		},
+		song_id_ref: {
+			type: ColumnType.UUID,
+			primaryKey: true,
+			nullable: false,
+			foreignKeys: [
+				{ targetTable: "songs", targetColumn: "song_id", onDelete: ForeignKeyUpdateDeleteRule.Cascade },
+			],
+		},
+		plays: {
+			type: ColumnType.Integer,
+			nullable: false,
+		},
+	})
 }
 
 export type IShareSongsViewDBResult = TableRecord<typeof Views.share_songs_view>
 export type IUserSongsViewDBResult = TableRecord<typeof Views.user_songs_view>
+export type IShareSongPlaysViewDBResult = TableRecord<typeof Views.share_song_plays_view>
 
 export const ShareSongsView = View({
 	views: Views,
@@ -66,12 +90,23 @@ export const ShareSongsView = View({
 export const UserSongsView = View({
 	views: Views,
 	view: "user_songs_view",
-	dependencies: ["songs", "shares", "user_shares", "share_songs_view"],
+	dependencies: ["user_shares", "share_songs_view"],
 	query: `
 		SELECT 
 			share_songs_view.*,
 			user_shares.user_id_ref as user_id_ref
 		FROM user_shares
 		INNER JOIN share_songs_view ON user_shares.share_id_ref = share_songs_view.share_id_ref
+	`,
+})
+
+export const ShareSongPlaysView = View({
+	views: Views,
+	view: "share_song_plays_view",
+	dependencies: [],
+	query: `
+		SELECT share_id_ref, song_id_ref, COUNT(*)::integer as plays
+		FROM song_plays
+		GROUP BY share_id_ref, song_id_ref
 	`,
 })

@@ -110,11 +110,12 @@ export const PlaylistService = ({ database }: IPlaylistServiceArgs) => {
 		// TODO playcount
 		const songQuery = SQL.raw<typeof Views.user_songs_view & typeof Tables.playlist_songs>(
 			`
-			SELECT DISTINCT ON (ps.position, s.song_id) s.*, ps.*, 0 as play_count
+			SELECT DISTINCT ON (ps.position, s.song_id) s.*, ps.*, COALESCE(ssp.plays, 0) as play_count
 			FROM user_songs_view s
 			INNER JOIN playlist_songs ps ON ps.song_id_ref = s.song_id
 			INNER JOIN share_playlists sp ON sp.playlist_id_ref = ps.playlist_id_ref
 			INNER JOIN user_shares us ON us.share_id_ref = sp.share_id_ref
+			LEFT JOIN share_song_plays_view ssp ON ssp.share_id_ref = sp.share_id_ref AND ssp.song_id_ref = s.song_id
 			WHERE ps.playlist_id_ref = $1 AND s.user_id_ref = us.user_id_ref
 			ORDER BY ps.position ASC;
 		`,
