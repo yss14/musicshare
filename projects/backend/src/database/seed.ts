@@ -422,7 +422,7 @@ export const seedDatabase = async ({ database, services }: IMakeDatabaseSeedArgs
 		}
 	}
 
-	if (false && __DEV__) {
+	if (__DEV__) {
 		const songInserts = createTestSongs(libraryUser1ShareID, 100)
 
 		for (const songInsert of songInserts) {

@@ -12,7 +12,7 @@ import { v4 as uuid } from "uuid"
 import * as path from "path"
 import * as fs from "fs"
 import { Permissions, shareSongKeys } from "@musicshare/shared-types"
-import { ISongPlayDBResult, SongPlaysTable } from "../database/tables"
+import { SongPlaysTable } from "../database/tables"
 
 const { cleanUp, getDatabase } = setupTestSuite()
 let database: IDatabaseClient
