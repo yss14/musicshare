@@ -509,11 +509,10 @@ describe("find near song duplicates", () => {
 		const { graphQLServer } = await setupTest({})
 		const song = testData.songs.song1_library_user1
 		const title = buildSongName(
-			ShareSong.fromDBResult(
-				song,
-				testData.shares.library_user1.share_id,
-				testData.shares.library_user1.share_id,
-			) as any,
+			ShareSong.fromDBResult({
+				...song,
+				share_id_ref: testData.shares.library_user1.share_id,
+			}) as any,
 		)
 		const artist = song.artists!.join(", ")
 

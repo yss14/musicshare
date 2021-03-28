@@ -265,7 +265,7 @@ describe("auth selectors", () => {
 		const shareID = testData.shares.library_user1.share_id
 
 		test("root", () => {
-			const req = { args: {}, root: ShareSong.fromDBResult(song, shareID, shareID) }
+			const req = { args: {}, root: ShareSong.fromDBResult({ ...song, share_id_ref: shareID }) }
 			const songID = getSongIDFromRequest(req)
 
 			expect(songID).toBe(song.song_id.toString())

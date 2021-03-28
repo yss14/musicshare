@@ -40,7 +40,7 @@ describe("service", () => {
 		const { songService } = await setupTest({})
 
 		const songs = await songService.searchSongs(userID, "cOntaCt", allMatchers)
-		const expectedSong = ShareSong.fromDBResult(songContactAlastor, shareID, shareID)
+		const expectedSong = ShareSong.fromDBResult({ ...songContactAlastor, share_id_ref: shareID })
 
 		expect(songs).toBeArrayOfSize(1)
 		compareSongs(expectedSong, songs[0])
@@ -51,8 +51,8 @@ describe("service", () => {
 
 		const songs = await songService.searchSongs(userID, "Deep Perth", allMatchers)
 		const expectedSongs = [
-			ShareSong.fromDBResult(songPerthDusky, shareID, shareID),
-			ShareSong.fromDBResult(songContactAlastor, shareID, shareID),
+			ShareSong.fromDBResult({ ...songPerthDusky, share_id_ref: shareID }),
+			ShareSong.fromDBResult({ ...songContactAlastor, share_id_ref: shareID }),
 		]
 
 		expect(songs).toBeArrayOfSize(expectedSongs.length)
@@ -64,14 +64,10 @@ describe("service", () => {
 
 		const songs = await songService.searchSongs(userID, "Zero Oliver Smith Anjuna", allMatchers)
 		const expectedSongs = [
-			ShareSong.fromDBResult(songZeroOliverSmith, shareID, shareID),
-			ShareSong.fromDBResult(songPerthDusky, shareID, shareID),
-			ShareSong.fromDBResult(songContactAlastor, shareID, shareID),
-			ShareSong.fromDBResult(
-				songIsItLove,
-				testData.shares.library_user2.share_id,
-				testData.shares.library_user2.share_id,
-			),
+			ShareSong.fromDBResult({ ...songZeroOliverSmith, share_id_ref: shareID }),
+			ShareSong.fromDBResult({ ...songPerthDusky, share_id_ref: shareID }),
+			ShareSong.fromDBResult({ ...songContactAlastor, share_id_ref: shareID }),
+			ShareSong.fromDBResult({ ...songIsItLove, share_id_ref: testData.shares.library_user2.share_id }),
 		]
 
 		expect(songs).toBeArrayOfSize(expectedSongs.length)
@@ -83,8 +79,8 @@ describe("service", () => {
 
 		const songs = await songService.searchSongs(userID, "Zero Oliver Smith Anjuna", allMatchers, 2)
 		const expectedSongs = [
-			ShareSong.fromDBResult(songZeroOliverSmith, shareID, shareID),
-			ShareSong.fromDBResult(songPerthDusky, shareID, shareID),
+			ShareSong.fromDBResult({ ...songZeroOliverSmith, share_id_ref: shareID }),
+			ShareSong.fromDBResult({ ...songPerthDusky, share_id_ref: shareID }),
 		]
 
 		expect(songs).toBeArrayOfSize(expectedSongs.length)
@@ -95,7 +91,7 @@ describe("service", () => {
 		const { songService } = await setupTest({})
 
 		const songs = await songService.searchSongs(userID, "Dusky", [SongSearchMatcher.Artists])
-		const expectedSong = ShareSong.fromDBResult(songPerthDusky, shareID, shareID)
+		const expectedSong = ShareSong.fromDBResult({ ...songPerthDusky, share_id_ref: shareID })
 
 		expect(songs).toBeArrayOfSize(1)
 		compareSongs(expectedSong, songs[0])
@@ -130,11 +126,10 @@ describe("resolver", () => {
 		expect(body.data).not.toBeNull()
 		expect(body.data.viewer.searchSongs.length).toBeGreaterThanOrEqual(1)
 		compareSongs(
-			ShareSong.fromDBResult(
-				songIsItLove,
-				testData.shares.library_user2.share_id,
-				testData.shares.library_user2.share_id,
-			),
+			ShareSong.fromDBResult({
+				...songIsItLove,
+				share_id_ref: testData.shares.library_user2.share_id,
+			}),
 			body.data.viewer.searchSongs[0],
 		)
 	})

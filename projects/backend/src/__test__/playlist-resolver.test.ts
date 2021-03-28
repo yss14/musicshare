@@ -226,15 +226,12 @@ describe("add songs to playlist", () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		const expectedSongs = songs.map((song) =>
-			ShareSong.fromDBResult(
-				{
-					...song,
-					date_added: new Date(),
-					date_removed: null,
-				},
-				shareID,
-				shareID,
-			),
+			ShareSong.fromDBResult({
+				...song,
+				share_id_ref: shareID,
+				date_added: new Date(),
+				date_removed: null,
+			}),
 		)
 
 		expect(expectedSongs).toBeArrayOfSize(songs.length)
@@ -272,15 +269,12 @@ describe("add songs to playlist", () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		const expectedSongs = songs.map((song) =>
-			ShareSong.fromDBResult(
-				{
-					...song,
-					date_added: new Date(),
-					date_removed: null,
-				},
-				shareID,
-				shareID,
-			),
+			ShareSong.fromDBResult({
+				...song,
+				share_id_ref: shareID,
+				date_added: new Date(),
+				date_removed: null,
+			}),
 		)
 
 		expect(body.data.addSongsToPlaylist).toBeArrayOfSize(songs.length * 2)
@@ -313,15 +307,12 @@ describe("add songs to playlist", () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		const expectedSongs = songs.map((song, idx) =>
-			ShareSong.fromDBResult(
-				{
-					...song,
-					date_added: new Date(),
-					date_removed: null,
-				},
-				idx === 0 ? shareID : testData.shares.library_user2.share_id,
-				idx === 0 ? shareID : testData.shares.library_user2.share_id,
-			),
+			ShareSong.fromDBResult({
+				...song,
+				share_id_ref: idx === 0 ? shareID : testData.shares.library_user2.share_id,
+				date_added: new Date(),
+				date_removed: null,
+			}),
 		)
 
 		expect(expectedSongs).toBeArrayOfSize(songs.length)
@@ -344,15 +335,13 @@ describe("add songs to playlist", () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		const expectedSongs = songs.map((song, idx) =>
-			ShareSong.fromDBResult(
-				{
-					...song,
-					date_added: new Date(),
-					date_removed: null,
-				},
-				idx === 0 ? testData.shares.library_user1.share_id : testData.shares.library_user2.share_id,
-				idx === 0 ? testData.shares.library_user1.share_id : testData.shares.library_user2.share_id,
-			),
+			ShareSong.fromDBResult({
+				...song,
+				share_id_ref:
+					idx === 0 ? testData.shares.library_user1.share_id : testData.shares.library_user2.share_id,
+				date_added: new Date(),
+				date_removed: null,
+			}),
 		)
 
 		expect(expectedSongs).toBeArrayOfSize(songs.length)

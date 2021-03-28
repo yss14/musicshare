@@ -146,7 +146,7 @@ describe("get share songs", () => {
 			testData.songs.song1_library_user1,
 			testData.songs.song2_library_user1,
 			testData.songs.song3_library_user1,
-		].map((result) => ShareSong.fromDBResult(result, shareID, shareID))
+		].map((result) => ShareSong.fromDBResult({ ...result, share_id_ref: shareID }))
 
 		expectedSongs.forEach((expectedSong) => includesSong(body.data.share.songs, expectedSong))
 	})
@@ -160,7 +160,7 @@ describe("get share songs", () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		const expectedSongs = [testData.songs.song1_library_user1, testData.songs.song2_library_user1].map((result) =>
-			ShareSong.fromDBResult(result, shareID, shareID),
+			ShareSong.fromDBResult({ ...result, share_id_ref: shareID }),
 		)
 
 		expectedSongs.forEach((expectedSong) => includesSong(body.data.share.songs, expectedSong))
@@ -176,7 +176,7 @@ describe("get share songs", () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
 		const expectedSongs = [testData.songs.song2_library_user1, testData.songs.song3_library_user1].map((result) =>
-			ShareSong.fromDBResult(result, shareID, shareID),
+			ShareSong.fromDBResult({ ...result, share_id_ref: shareID }),
 		)
 
 		const receivedSongs = body.data.share.songsDirty.nodes
@@ -202,7 +202,7 @@ describe("get share songs", () => {
 			testData.songs.song2_library_user1,
 			testData.songs.song3_library_user1,
 			testData.songs.song4_library_user2,
-		].map((result, idx) => ShareSong.fromDBResult(result, expectedShareIDs[idx], expectedShareIDs[idx]))
+		].map((result, idx) => ShareSong.fromDBResult({ ...result, share_id_ref: expectedShareIDs[idx] }))
 
 		expectedSongs.forEach((expectedSong) => includesSong(body.data.share.songs, expectedSong))
 	})
@@ -218,7 +218,7 @@ describe("get share song", () => {
 
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 
-		compareSongs(ShareSong.fromDBResult(song, share.share_id, share.share_id), body.data.share.song)
+		compareSongs(ShareSong.fromDBResult({ ...song, share_id_ref: share.share_id }), body.data.share.song)
 	})
 
 	test("get library song by id not existing", async () => {
@@ -262,11 +262,7 @@ describe("get share song", () => {
 		expect(body.data.share.song).not.toBeNull()
 		compareSongs(
 			body.data.share.song,
-			ShareSong.fromDBResult(
-				song,
-				testData.shares.library_user2.share_id,
-				testData.shares.library_user2.share_id,
-			),
+			ShareSong.fromDBResult({ ...song, share_id_ref: testData.shares.library_user2.share_id }),
 		)
 	})
 
@@ -345,15 +341,12 @@ describe("get share playlists", () => {
 		const { body } = await executeGraphQLQuery({ graphQLServer, query })
 		const receivedSongs = body.data.share.playlist.songs
 		const expectedSongs = testData.playlists.playlist1_library_user1.songs.map((song) =>
-			ShareSong.fromDBResult(
-				{
-					...song,
-					date_added: new Date(),
-					date_removed: null,
-				},
-				shareID,
-				shareID,
-			),
+			ShareSong.fromDBResult({
+				...song,
+				share_id_ref: shareID,
+				date_added: new Date(),
+				date_removed: null,
+			}),
 		)
 
 		expect(receivedSongs).toBeArrayOfSize(testData.playlists.playlist1_library_user1.songs.length)
@@ -824,7 +817,7 @@ describe("leave share", () => {
 		}
 	`
 
-	test("user is member succeeds", async () => {
+	test.only("user is member succeeds", async () => {
 		const { graphQLServer, userService, playlistService, songService } = await setupTest({})
 		const libraryID = testData.shares.library_user1.share_id
 		const foreignLibraryID = testData.shares.library_user2.share_id

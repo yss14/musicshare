@@ -1,7 +1,6 @@
 import { FileSourceType, FileSource, FileUpload } from "./FileSourceModels"
 import { ObjectType, Field, Int } from "type-graphql"
 import { plainToClass } from "class-transformer"
-import { ISongDBResult } from "../database/tables"
 import moment from "moment"
 import { filterNull } from "../utils/array/filter-null"
 import { IShareSongsViewDBResult } from "../database/views"
@@ -18,15 +17,6 @@ const mapFileSourceModel = (entry: FileSourceType): FileSourceType | null => {
 
 	return null
 }
-
-export type ISongDBResultWithLibrary = ISongDBResult & { library_id: string }
-export type ISongDBResultWithShare = ISongDBResultWithLibrary & { share_id: string }
-
-const isSongDBResultWithLibrary = (obj: ISongDBResult): obj is IShareSongsViewDBResult =>
-	typeof obj === "object" && typeof (obj as IShareSongsViewDBResult).library_id_ref === "string"
-
-const isSongDBResultWithShare = (obj: ISongDBResult): obj is IShareSongsViewDBResult =>
-	typeof obj === "object" && typeof (obj as IShareSongsViewDBResult).share_id_ref === "string"
 
 export const isSongDBResultWithPlayCount = <T>(obj: T): obj is T & { play_count: number } =>
 	typeof obj === "object" && typeof (obj as any).play_count === "number"
@@ -96,9 +86,7 @@ export class BaseSong {
 	@Field(() => Int)
 	public readonly numberOfSources!: number
 
-	public static fromDBResult(row: IShareSongsViewDBResult): BaseSong
-	public static fromDBResult(row: ISongDBResult, libraryID: string): BaseSong
-	public static fromDBResult(row: ISongDBResult, libraryID?: string): BaseSong {
+	public static fromDBResult(row: IShareSongsViewDBResult): BaseSong {
 		return plainToClass(BaseSong, <BaseSong>{
 			id: row.song_id,
 			title: row.title,
@@ -118,7 +106,7 @@ export class BaseSong {
 			duration: row.duration,
 			tags: row.tags || [],
 			dateAdded: row.date_added.toISOString(),
-			libraryID: isSongDBResultWithLibrary(row) ? row.library_id_ref : libraryID,
+			libraryID: row.library_id_ref,
 			playCount: isSongDBResultWithPlayCount(row) ? row.play_count : 0,
 			numberOfSources: row.sources.data.length,
 		})
@@ -130,16 +118,12 @@ export class ShareSong extends BaseSong {
 	@Field(() => String)
 	public readonly shareID!: string
 
-	public static fromDBResult(row: IShareSongsViewDBResult): ShareSong
-	public static fromDBResult(row: ISongDBResult, libraryID: string, shareID: string): ShareSong
-	public static fromDBResult(row: ISongDBResult, libraryID?: string, shareID?: string): ShareSong {
-		const baseSong = isSongDBResultWithShare(row)
-			? BaseSong.fromDBResult(row)
-			: BaseSong.fromDBResult(row, libraryID!)
+	public static fromDBResult(row: IShareSongsViewDBResult): ShareSong {
+		const baseSong = BaseSong.fromDBResult(row)
 
 		return plainToClass(ShareSong, <ShareSong>{
 			...baseSong,
-			shareID: isSongDBResultWithShare(row) ? row.share_id_ref : shareID,
+			shareID: row.share_id_ref,
 		})
 	}
 }

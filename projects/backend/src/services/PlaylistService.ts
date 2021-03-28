@@ -107,7 +107,6 @@ export const PlaylistService = ({ database }: IPlaylistServiceArgs) => {
 	}
 
 	const getSongs = async (playlistID: string): Promise<PlaylistSong[]> => {
-		// TODO playcount
 		const songQuery = SQL.raw<typeof ViewDefinitions.user_songs_view & typeof Tables.playlist_songs>(
 			`
 			SELECT DISTINCT ON (ps.position, s.song_id) s.*, ps.*, COALESCE(ssp.plays, 0) as play_count
