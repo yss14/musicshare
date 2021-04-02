@@ -906,6 +906,7 @@ describe("leave share", () => {
 			},
 		])
 
+		console.log(foreignPlaylistID)
 		const foreignLibraryPlaylistSongs = (await playlistService.getSongs(foreignPlaylistID)).filter((song) =>
 			[testData.songs.song1_library_user1.title, testData.songs.song2_library_user1.title].includes(song.title),
 		)

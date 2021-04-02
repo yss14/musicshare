@@ -6,6 +6,7 @@ import { v4 as uuid } from "uuid"
 import { ForbiddenError } from "apollo-server-core"
 import { PlaylistSong } from "../models/PlaylistSongModel"
 import { ViewDefinitions } from "../database/views"
+import { uniqBy } from "lodash"
 
 export type OrderUpdate = [string, number] | readonly [string, number]
 
@@ -109,21 +110,29 @@ export const PlaylistService = ({ database }: IPlaylistServiceArgs) => {
 	const getSongs = async (playlistID: string): Promise<PlaylistSong[]> => {
 		const songQuery = SQL.raw<typeof ViewDefinitions.user_songs_view & typeof Tables.playlist_songs>(
 			`
-			SELECT DISTINCT ON (ps.position, s.song_id) s.*, ps.*, COALESCE(ssp.plays, 0) as play_count
-			FROM user_songs_view s
-			INNER JOIN playlist_songs ps ON ps.song_id_ref = s.song_id
-			INNER JOIN share_playlists sp ON sp.playlist_id_ref = ps.playlist_id_ref
-			INNER JOIN user_shares us ON us.share_id_ref = sp.share_id_ref
-			LEFT JOIN share_song_plays_view ssp ON ssp.share_id_ref = sp.share_id_ref AND ssp.song_id_ref = s.song_id
-			WHERE ps.playlist_id_ref = $1 AND s.user_id_ref = us.user_id_ref
-			ORDER BY ps.position ASC;
+			WITH playlist_songs_with_duplicates AS (
+				SELECT s.*, ps.*, COALESCE(ssp.plays, 0) as play_count
+				FROM user_songs_view s
+				INNER JOIN playlist_songs ps ON ps.song_id_ref = s.song_id
+				INNER JOIN share_playlists sp ON sp.playlist_id_ref = ps.playlist_id_ref
+				INNER JOIN user_shares us ON us.share_id_ref = sp.share_id_ref
+				LEFT JOIN share_song_plays_view ssp ON ssp.share_id_ref = sp.share_id_ref AND ssp.song_id_ref = s.song_id
+				WHERE ps.playlist_id_ref = $1 AND s.user_id_ref = us.user_id_ref
+				ORDER BY ps.position ASC, s.song_id, (sp.share_id_ref = s.library_id_ref)::int ASC
+			)
+
+			SELECT /*DISTINCT ON (position, song_id)*/ * FROM playlist_songs_with_duplicates;
 		`,
 			[playlistID],
 		)
 
-		const songs = await database.query(songQuery)
+		const songs = uniqBy(await database.query(songQuery), (row) => [row.song_id, row.position].join(" "))
 
-		return songs.filter((song) => song.date_removed === null).map((result) => PlaylistSong.fromDBResult(result))
+		if (playlistID === "7d25fbd2-aaac-4730-b5a3-2e77e4166607") {
+			//console.log(songs)
+		}
+
+		return songs.map((result) => PlaylistSong.fromDBResult(result))
 	}
 
 	const updateOrder = async (shareID: string, playlistID: string, orderUpdates: OrderUpdate[]) => {
