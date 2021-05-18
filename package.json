@@ -133,7 +133,7 @@
 		"@types/mime-types": "^2.1.0",
 		"@types/morgan": "^1.7.35",
 		"@types/node": "^15.0.1",
-		"@types/pg": "^7.14.9",
+		"@types/pg": "^8.6.0",
 		"@types/pretty-bytes": "^5.2.0",
 		"@types/react": "^17.0.0",
 		"@types/react-custom-scrollbars": "^4.0.6",
