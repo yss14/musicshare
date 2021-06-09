@@ -126,7 +126,7 @@
 		"@types/dotenv": "^8.2.0",
 		"@types/express": "^4.17.11",
 		"@types/faker": "^5.1.5",
-		"@types/graphql-relay": "^0.6.0",
+		"@types/graphql-relay": "^0.7.0",
 		"@types/jest": "^26.0.0",
 		"@types/jsonwebtoken": "^8.3.9",
 		"@types/lodash": "^4.14.168",
