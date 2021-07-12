@@ -45,7 +45,7 @@
 		"antd": "^4.10.3",
 		"apollo-server": "^2.19.2",
 		"apollo-server-core": "^2.19.2",
-		"apollo-server-express": "^2.19.2",
+		"apollo-server-express": "^3.0.0",
 		"argon2": "^0.27.0",
 		"aws-sdk": "^2.830.0",
 		"axios": "^0.21.1",
